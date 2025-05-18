@@ -13,8 +13,10 @@ import BookDetails from "./pages/BookDetails";
 import Profile from "./pages/Profile";
 import CreateListing from "./pages/CreateListing";
 import Checkout from "./pages/Checkout";
+import Admin from "./pages/Admin";
 import { AuthProvider } from "./contexts/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
+import AdminProtectedRoute from "./components/AdminProtectedRoute";
 
 const queryClient = new QueryClient();
 
@@ -45,6 +47,11 @@ const App = () => (
               <ProtectedRoute>
                 <Checkout />
               </ProtectedRoute>
+            } />
+            <Route path="/admin" element={
+              <AdminProtectedRoute>
+                <Admin />
+              </AdminProtectedRoute>
             } />
             <Route path="*" element={<NotFound />} />
           </Routes>

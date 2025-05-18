@@ -1,7 +1,23 @@
+
 import { Book, BookFormData } from '../types/book';
 
 // Start with an empty books array instead of mock data
 let books: Book[] = [];
+
+// Track sold books and commissions
+interface Transaction {
+  id: string;
+  bookId: string;
+  bookTitle: string;
+  sellerId: string;
+  sellerName: string;
+  buyerId: string;
+  price: number;
+  commission: number;
+  date: string;
+}
+
+let transactions: Transaction[] = [];
 
 // Get all books with optional filtering
 export const getBooks = async (filters?: {
@@ -125,9 +141,61 @@ export const purchaseBook = async (
     sold: true
   };
   
+  // Record the transaction
+  const transaction: Transaction = {
+    id: Date.now().toString(),
+    bookId,
+    bookTitle: books[bookIndex].title,
+    sellerId: books[bookIndex].seller.id,
+    sellerName: books[bookIndex].seller.name,
+    buyerId,
+    price: originalPrice,
+    commission,
+    date: new Date().toISOString()
+  };
+  
+  transactions.push(transaction);
+  
   return { 
     success: true, 
     message: 'Book purchased successfully', 
     price: originalPrice 
   };
+};
+
+// Admin Functions
+export const getAllBooks = async (includeSold: boolean = false): Promise<Book[]> => {
+  // Simulate API delay
+  await new Promise(resolve => setTimeout(resolve, 500));
+  
+  return includeSold ? books : books.filter(book => !book.sold);
+};
+
+export const getTransactions = async (): Promise<Transaction[]> => {
+  // Simulate API delay
+  await new Promise(resolve => setTimeout(resolve, 500));
+  
+  return transactions;
+};
+
+export const getTotalCommission = async (): Promise<number> => {
+  // Simulate API delay
+  await new Promise(resolve => setTimeout(resolve, 300));
+  
+  return transactions.reduce((total, transaction) => total + transaction.commission, 0);
+};
+
+export const removeBook = async (bookId: string): Promise<{ success: boolean; message: string }> => {
+  // Simulate API delay
+  await new Promise(resolve => setTimeout(resolve, 800));
+  
+  const bookIndex = books.findIndex(book => book.id === bookId);
+  
+  if (bookIndex === -1) {
+    return { success: false, message: 'Book not found' };
+  }
+  
+  books.splice(bookIndex, 1);
+  
+  return { success: true, message: 'Book removed successfully' };
 };

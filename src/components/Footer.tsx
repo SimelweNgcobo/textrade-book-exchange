@@ -36,6 +36,11 @@ const Footer = () => {
                       My Profile
                     </Link>
                   </li>
+                  <li className="mb-2">
+                    <Link to="/admin" className="text-gray-600 hover:text-book-600 font-semibold">
+                      Admin Dashboard
+                    </Link>
+                  </li>
                 </ul>
               </div>
               <div className="w-full md:w-4/12 px-4">
