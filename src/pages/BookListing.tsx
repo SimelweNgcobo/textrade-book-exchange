@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
-import { BookOpen, Filter, Search } from 'lucide-react';
+import { BookOpen, Filter, Search, School, GraduationCap } from 'lucide-react';
 
 const BookListing = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -20,11 +20,22 @@ const BookListing = () => {
   const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || '');
   const [selectedCategory, setSelectedCategory] = useState(searchParams.get('category') || '');
   const [selectedCondition, setSelectedCondition] = useState('');
+  const [selectedGrade, setSelectedGrade] = useState('');
+  const [selectedUniversityYear, setSelectedUniversityYear] = useState('');
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 1000]);
+  const [bookType, setBookType] = useState<'all' | 'school' | 'university'>('all');
   
   // Available filter options
   const categories = ['Computer Science', 'Mathematics', 'Biology', 'Chemistry', 'Physics', 'Economics', 'Psychology'];
-  const conditions = ['New', 'Like New', 'Very Good', 'Good', 'Acceptable', 'Poor'];
+  const conditions = ['New', 'Good', 'Better', 'Average', 'Below Average'];
+  const grades = [
+    'Grade 1', 'Grade 2', 'Grade 3', 'Grade 4', 'Grade 5', 
+    'Grade 6', 'Grade 7', 'Grade 8', 'Grade 9', 'Grade 10',
+    'Grade 11', 'Grade 12'
+  ];
+  const universityYears = [
+    '1st Year', '2nd Year', '3rd Year', '4th Year', 'Masters', 'Doctorate'
+  ];
   
   useEffect(() => {
     loadBooks();
@@ -35,12 +46,16 @@ const BookListing = () => {
     try {
       const searchQuery = searchParams.get('search') || '';
       const category = searchParams.get('category') || '';
+      const grade = searchParams.get('grade') || '';
+      const universityYear = searchParams.get('universityYear') || '';
       
       // Create a filters object based on current search params
       const filters: {
         search?: string;
         category?: string;
         condition?: string;
+        grade?: string;
+        universityYear?: string;
         minPrice?: number;
         maxPrice?: number;
       } = {};
@@ -48,6 +63,8 @@ const BookListing = () => {
       if (searchQuery) filters.search = searchQuery;
       if (category) filters.category = category;
       if (selectedCondition) filters.condition = selectedCondition;
+      if (grade) filters.grade = grade;
+      if (universityYear) filters.universityYear = universityYear;
       
       // Only add price filters if they've been adjusted
       if (priceRange[0] > 0) filters.minPrice = priceRange[0];
@@ -74,12 +91,39 @@ const BookListing = () => {
   const handleConditionChange = (condition: string) => {
     setSelectedCondition(condition === selectedCondition ? '' : condition);
   };
+
+  const handleGradeChange = (grade: string) => {
+    setSelectedGrade(grade === selectedGrade ? '' : grade);
+    if (grade && grade !== selectedGrade) {
+      setSelectedUniversityYear('');
+      setBookType('school');
+    }
+  };
+
+  const handleUniversityYearChange = (year: string) => {
+    setSelectedUniversityYear(year === selectedUniversityYear ? '' : year);
+    if (year && year !== selectedUniversityYear) {
+      setSelectedGrade('');
+      setBookType('university');
+    }
+  };
+
+  const handleBookTypeChange = (type: 'all' | 'school' | 'university') => {
+    setBookType(type);
+    if (type === 'school') {
+      setSelectedUniversityYear('');
+    } else if (type === 'university') {
+      setSelectedGrade('');
+    }
+  };
   
   const updateFilters = () => {
     const params = new URLSearchParams();
     
     if (searchQuery) params.set('search', searchQuery);
     if (selectedCategory) params.set('category', selectedCategory);
+    if (selectedGrade) params.set('grade', selectedGrade);
+    if (selectedUniversityYear) params.set('universityYear', selectedUniversityYear);
     
     setSearchParams(params);
     
@@ -91,14 +135,17 @@ const BookListing = () => {
     setSearchQuery('');
     setSelectedCategory('');
     setSelectedCondition('');
+    setSelectedGrade('');
+    setSelectedUniversityYear('');
     setPriceRange([0, 1000]);
+    setBookType('all');
     setSearchParams({});
   };
   
   return (
     <Layout>
       <div className="container mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold text-book-800 mb-8">Browse Textbooks</h1>
+        <h1 className="text-3xl font-bold text-book-800 mb-8">Browse Books</h1>
         
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Filters Section - Mobile Toggle */}
@@ -146,6 +193,92 @@ const BookListing = () => {
                   </button>
                 </div>
               </form>
+
+              {/* Book Type Filter */}
+              <div className="mb-6">
+                <h3 className="text-sm font-medium text-gray-700 mb-2">Book Type</h3>
+                <div className="flex flex-wrap gap-2">
+                  <Button 
+                    variant={bookType === 'all' ? 'default' : 'outline'} 
+                    size="sm"
+                    onClick={() => handleBookTypeChange('all')}
+                    className="flex items-center"
+                  >
+                    <BookOpen className="mr-1 h-4 w-4" />
+                    All
+                  </Button>
+                  <Button 
+                    variant={bookType === 'school' ? 'default' : 'outline'} 
+                    size="sm"
+                    onClick={() => handleBookTypeChange('school')}
+                    className="flex items-center"
+                  >
+                    <School className="mr-1 h-4 w-4" />
+                    School
+                  </Button>
+                  <Button 
+                    variant={bookType === 'university' ? 'default' : 'outline'} 
+                    size="sm"
+                    onClick={() => handleBookTypeChange('university')}
+                    className="flex items-center"
+                  >
+                    <GraduationCap className="mr-1 h-4 w-4" />
+                    University
+                  </Button>
+                </div>
+              </div>
+              
+              {/* Grade Filter - Show only if bookType is 'school' or 'all' */}
+              {(bookType === 'school' || bookType === 'all') && (
+                <div className="mb-6">
+                  <h3 className="text-sm font-medium text-gray-700 mb-2">Grade</h3>
+                  <div className="grid grid-cols-2 gap-2">
+                    {grades.map((grade) => (
+                      <div key={grade} className="flex items-center">
+                        <input
+                          type="checkbox"
+                          id={`grade-${grade}`}
+                          checked={selectedGrade === grade}
+                          onChange={() => handleGradeChange(grade)}
+                          className="h-4 w-4 text-book-600 focus:ring-book-500 border-gray-300 rounded"
+                        />
+                        <label
+                          htmlFor={`grade-${grade}`}
+                          className="ml-2 text-sm text-gray-700"
+                        >
+                          {grade}
+                        </label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* University Year Filter - Show only if bookType is 'university' or 'all' */}
+              {(bookType === 'university' || bookType === 'all') && (
+                <div className="mb-6">
+                  <h3 className="text-sm font-medium text-gray-700 mb-2">University Year</h3>
+                  <div className="space-y-2">
+                    {universityYears.map((year) => (
+                      <div key={year} className="flex items-center">
+                        <input
+                          type="checkbox"
+                          id={`year-${year}`}
+                          checked={selectedUniversityYear === year}
+                          onChange={() => handleUniversityYearChange(year)}
+                          className="h-4 w-4 text-book-600 focus:ring-book-500 border-gray-300 rounded"
+                        />
+                        <label
+                          htmlFor={`year-${year}`}
+                          className="ml-2 text-sm text-gray-700"
+                        >
+                          {year}
+                        </label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
               
               {/* Category Filter */}
               <div className="mb-6">
@@ -264,11 +397,23 @@ const BookListing = () => {
                       <h3 className="font-bold text-lg mb-1 text-book-800 line-clamp-1">{book.title}</h3>
                       <p className="text-gray-600 mb-2">{book.author}</p>
                       <p className="text-gray-500 text-sm mb-auto line-clamp-2">{book.description}</p>
-                      <div className="flex items-center justify-between mt-4">
+                      <div className="flex flex-wrap items-center justify-between mt-4 gap-1">
                         <span className="bg-book-100 text-book-800 px-2 py-1 rounded text-xs font-medium">
                           {book.condition}
                         </span>
-                        <span className="text-gray-500 text-sm">{book.category}</span>
+                        {book.grade && (
+                          <span className="bg-indigo-100 text-indigo-800 px-2 py-1 rounded text-xs font-medium flex items-center">
+                            <School className="h-3 w-3 mr-1" />
+                            {book.grade}
+                          </span>
+                        )}
+                        {book.universityYear && (
+                          <span className="bg-purple-100 text-purple-800 px-2 py-1 rounded text-xs font-medium flex items-center">
+                            <GraduationCap className="h-3 w-3 mr-1" />
+                            {book.universityYear}
+                          </span>
+                        )}
+                        <span className="text-gray-500 text-xs">{book.category}</span>
                       </div>
                     </div>
                   </Link>

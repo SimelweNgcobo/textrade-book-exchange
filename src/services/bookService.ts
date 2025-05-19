@@ -23,6 +23,8 @@ let transactions: Transaction[] = [];
 export const getBooks = async (filters?: {
   category?: string;
   condition?: string;
+  grade?: string;
+  universityYear?: string;
   minPrice?: number;
   maxPrice?: number;
   search?: string;
@@ -45,6 +47,18 @@ export const getBooks = async (filters?: {
       );
     }
 
+    if (filters.grade) {
+      filteredBooks = filteredBooks.filter(book => 
+        book.grade === filters.grade
+      );
+    }
+
+    if (filters.universityYear) {
+      filteredBooks = filteredBooks.filter(book => 
+        book.universityYear === filters.universityYear
+      );
+    }
+
     if (filters.minPrice !== undefined) {
       filteredBooks = filteredBooks.filter(book => 
         book.price >= filters.minPrice!
@@ -63,7 +77,9 @@ export const getBooks = async (filters?: {
         book.title.toLowerCase().includes(searchLower) ||
         book.author.toLowerCase().includes(searchLower) ||
         book.description.toLowerCase().includes(searchLower) ||
-        book.category.toLowerCase().includes(searchLower)
+        book.category.toLowerCase().includes(searchLower) ||
+        (book.grade && book.grade.toLowerCase().includes(searchLower)) ||
+        (book.universityYear && book.universityYear.toLowerCase().includes(searchLower))
       );
     }
   }
@@ -104,14 +120,6 @@ export const createBook = async (
   
   books.push(newBook);
   return newBook;
-};
-
-// Get books by seller ID
-export const getBooksBySeller = async (sellerId: string): Promise<Book[]> => {
-  // Simulate API delay
-  await new Promise(resolve => setTimeout(resolve, 400));
-  
-  return books.filter(book => book.seller.id === sellerId);
 };
 
 // Purchase a book
@@ -161,6 +169,14 @@ export const purchaseBook = async (
     message: 'Book purchased successfully', 
     price: originalPrice 
   };
+};
+
+// Get books by seller ID
+export const getBooksBySeller = async (sellerId: string): Promise<Book[]> => {
+  // Simulate API delay
+  await new Promise(resolve => setTimeout(resolve, 400));
+  
+  return books.filter(book => book.seller.id === sellerId);
 };
 
 // Admin Functions

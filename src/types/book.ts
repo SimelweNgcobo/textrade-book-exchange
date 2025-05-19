@@ -5,8 +5,10 @@ export interface Book {
   author: string;
   description: string;
   price: number;
-  condition: 'New' | 'Like New' | 'Very Good' | 'Good' | 'Acceptable' | 'Poor';
+  condition: 'New' | 'Good' | 'Better' | 'Average' | 'Below Average';
   category: string;
+  grade?: string; // For school books
+  universityYear?: '1st Year' | '2nd Year' | '3rd Year' | '4th Year' | 'Masters' | 'Doctorate' | null; // For university books
   imageUrl: string;
   seller: {
     id: string;

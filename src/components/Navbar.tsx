@@ -30,7 +30,7 @@ const Navbar = () => {
           <div className="flex items-center">
             <Link to="/" className="flex items-center">
               <Book className="h-8 w-8 text-book-600" />
-              <span className="ml-2 text-xl font-bold text-book-800">BookBackZA</span>
+              <span className="ml-2 text-xl font-bold text-book-800">Rebooked</span>
             </Link>
           </div>
 
@@ -38,7 +38,7 @@ const Navbar = () => {
             <form onSubmit={handleSearch} className="relative">
               <input
                 type="text"
-                placeholder="Search textbooks..."
+                placeholder="Search books..."
                 className="py-2 pl-10 pr-4 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-book-500 focus:border-transparent"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -102,7 +102,7 @@ const Navbar = () => {
             <form onSubmit={handleSearch} className="relative mb-3">
               <input
                 type="text"
-                placeholder="Search textbooks..."
+                placeholder="Search books..."
                 className="w-full py-2 pl-10 pr-4 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-book-500 focus:border-transparent"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}

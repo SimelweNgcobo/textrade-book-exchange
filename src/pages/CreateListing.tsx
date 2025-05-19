@@ -8,10 +8,12 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { createBook } from '@/services/bookService';
 import { BookFormData } from '@/types/book';
 import { toast } from 'sonner';
-import { ArrowLeft, Upload } from 'lucide-react';
+import { ArrowLeft, Upload, Book, School, GraduationCap } from 'lucide-react';
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 
 const CreateListing = () => {
   const { user } = useAuth();
@@ -24,11 +26,14 @@ const CreateListing = () => {
     price: 0,
     condition: 'Good',
     category: '',
+    grade: '',
+    universityYear: null,
     imageUrl: 'https://source.unsplash.com/random/300x400/?textbook'
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [bookType, setBookType] = useState<'school' | 'university'>('school');
 
   const categories = [
     'Computer Science',
@@ -50,11 +55,20 @@ const CreateListing = () => {
 
   const conditions = [
     'New',
-    'Like New',
-    'Very Good',
     'Good',
-    'Acceptable',
-    'Poor'
+    'Better',
+    'Average',
+    'Below Average'
+  ];
+
+  const grades = [
+    'Grade 1', 'Grade 2', 'Grade 3', 'Grade 4', 'Grade 5', 
+    'Grade 6', 'Grade 7', 'Grade 8', 'Grade 9', 'Grade 10',
+    'Grade 11', 'Grade 12'
+  ];
+
+  const universityYears = [
+    '1st Year', '2nd Year', '3rd Year', '4th Year', 'Masters', 'Doctorate'
   ];
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -66,6 +80,16 @@ const CreateListing = () => {
     setFormData({ ...formData, [name]: value });
   };
 
+  const handleBookTypeChange = (type: 'school' | 'university') => {
+    setBookType(type);
+    // Reset the other type's value
+    if (type === 'school') {
+      setFormData({ ...formData, universityYear: null });
+    } else {
+      setFormData({ ...formData, grade: '' });
+    }
+  };
+
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
 
@@ -74,6 +98,14 @@ const CreateListing = () => {
     if (!formData.description.trim()) newErrors.description = 'Description is required';
     if (formData.price <= 0) newErrors.price = 'Price must be greater than 0';
     if (!formData.category) newErrors.category = 'Category is required';
+    
+    if (bookType === 'school' && !formData.grade) {
+      newErrors.grade = 'Grade is required for school books';
+    }
+    
+    if (bookType === 'university' && !formData.universityYear) {
+      newErrors.universityYear = 'University year is required for university books';
+    }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -114,9 +146,38 @@ const CreateListing = () => {
         </Button>
 
         <div className="bg-white rounded-lg shadow-md p-6 md:p-8">
-          <h1 className="text-3xl font-bold text-book-800 mb-6">Sell Your Textbook</h1>
+          <h1 className="text-3xl font-bold text-book-800 mb-6">Sell Your Book</h1>
 
           <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Book Type Selection */}
+            <div className="bg-gray-50 p-4 rounded-lg mb-6">
+              <Label className="text-base font-medium mb-2 block">Book Type</Label>
+              <RadioGroup 
+                className="flex flex-col sm:flex-row gap-4" 
+                defaultValue="school"
+                value={bookType}
+                onValueChange={(value) => handleBookTypeChange(value as 'school' | 'university')}
+              >
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="school" id="school" />
+                  <Label htmlFor="school" className="flex items-center">
+                    <Book className="mr-2 h-4 w-4" />
+                    School Book
+                  </Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="university" id="university" />
+                  <Label htmlFor="university" className="flex items-center">
+                    <GraduationCap className="mr-2 h-4 w-4" />
+                    University Book
+                  </Label>
+                </div>
+              </RadioGroup>
+              <p className="text-sm text-gray-500 mt-2">
+                We have both new and second-hand books available
+              </p>
+            </div>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Left Column */}
               <div className="space-y-6">
@@ -130,7 +191,7 @@ const CreateListing = () => {
                     name="title"
                     value={formData.title}
                     onChange={handleInputChange}
-                    placeholder="Enter the title of your textbook"
+                    placeholder="Enter the title of your book"
                     className={errors.title ? 'border-red-500' : ''}
                   />
                   {errors.title && <p className="text-sm text-red-500 mt-1">{errors.title}</p>}
@@ -197,6 +258,72 @@ const CreateListing = () => {
                   {errors.category && <p className="text-sm text-red-500 mt-1">{errors.category}</p>}
                 </div>
 
+                {/* Grade or University Year based on type */}
+                {bookType === 'school' ? (
+                  <div>
+                    <Label htmlFor="grade" className="text-base font-medium">
+                      Grade <span className="text-red-500">*</span>
+                    </Label>
+                    <Select
+                      value={formData.grade}
+                      onValueChange={(value) => handleSelectChange('grade', value)}
+                    >
+                      <SelectTrigger className={errors.grade ? 'border-red-500' : ''}>
+                        <SelectValue placeholder="Select a grade" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {grades.map((grade) => (
+                          <SelectItem key={grade} value={grade}>
+                            {grade}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    {errors.grade && <p className="text-sm text-red-500 mt-1">{errors.grade}</p>}
+                  </div>
+                ) : (
+                  <div>
+                    <Label htmlFor="universityYear" className="text-base font-medium">
+                      University Year <span className="text-red-500">*</span>
+                    </Label>
+                    <Select
+                      value={formData.universityYear || ''}
+                      onValueChange={(value) => handleSelectChange('universityYear', value)}
+                    >
+                      <SelectTrigger className={errors.universityYear ? 'border-red-500' : ''}>
+                        <SelectValue placeholder="Select university year" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {universityYears.map((year) => (
+                          <SelectItem key={year} value={year}>
+                            {year}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    {errors.universityYear && <p className="text-sm text-red-500 mt-1">{errors.universityYear}</p>}
+                  </div>
+                )}
+              </div>
+
+              {/* Right Column */}
+              <div className="space-y-6">
+                {/* Description */}
+                <div>
+                  <Label htmlFor="description" className="text-base font-medium">
+                    Description <span className="text-red-500">*</span>
+                  </Label>
+                  <Textarea
+                    id="description"
+                    name="description"
+                    value={formData.description}
+                    onChange={handleInputChange}
+                    placeholder="Provide details about the book's condition, any marks or highlights, edition, etc."
+                    className={`min-h-[150px] ${errors.description ? 'border-red-500' : ''}`}
+                  />
+                  {errors.description && <p className="text-sm text-red-500 mt-1">{errors.description}</p>}
+                </div>
+
                 {/* Condition */}
                 <div>
                   <Label htmlFor="condition" className="text-base font-medium">
@@ -217,25 +344,9 @@ const CreateListing = () => {
                       ))}
                     </SelectContent>
                   </Select>
-                </div>
-              </div>
-
-              {/* Right Column */}
-              <div className="space-y-6">
-                {/* Description */}
-                <div>
-                  <Label htmlFor="description" className="text-base font-medium">
-                    Description <span className="text-red-500">*</span>
-                  </Label>
-                  <Textarea
-                    id="description"
-                    name="description"
-                    value={formData.description}
-                    onChange={handleInputChange}
-                    placeholder="Provide details about the book's condition, any marks or highlights, edition, etc."
-                    className={`min-h-[150px] ${errors.description ? 'border-red-500' : ''}`}
-                  />
-                  {errors.description && <p className="text-sm text-red-500 mt-1">{errors.description}</p>}
+                  <FormDescription className="text-sm text-gray-500 mt-2">
+                    Rate the condition of your book from New to Below Average
+                  </FormDescription>
                 </div>
 
                 {/* Image Upload (Simulated) */}

@@ -10,10 +10,10 @@ const Footer = () => {
           <div className="w-full lg:w-4/12 px-4">
             <div className="flex items-center mb-4">
               <Book className="h-6 w-6 text-book-600" />
-              <span className="ml-2 text-xl font-bold text-book-800">BookBackZA</span>
+              <span className="ml-2 text-xl font-bold text-book-800">Rebooked</span>
             </div>
             <p className="text-gray-600 mt-2 mb-4">
-              Buy and sell second-hand textbooks easily and safely. Save money and reduce waste by giving books a second life!
+              Buy and sell new and second-hand textbooks easily and safely. Save money and reduce waste by giving books a second life!
             </p>
           </div>
           <div className="w-full lg:w-8/12 px-4">
@@ -90,7 +90,7 @@ const Footer = () => {
         <div className="flex flex-wrap items-center md:justify-between justify-center">
           <div className="w-full md:w-4/12 px-4 mx-auto text-center">
             <div className="text-sm text-gray-600 font-semibold py-1">
-              Copyright © {new Date().getFullYear()} BookBackZA. All rights reserved.
+              Copyright © {new Date().getFullYear()} Rebooked. All rights reserved.
             </div>
           </div>
         </div>
