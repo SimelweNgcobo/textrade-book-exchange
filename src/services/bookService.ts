@@ -1,8 +1,84 @@
 
 import { Book, BookFormData } from '../types/book';
 
-// Start with an empty books array instead of mock data
-let books: Book[] = [];
+// Helper to persist data in localStorage
+const saveToLocalStorage = (key: string, data: any) => {
+  localStorage.setItem(key, JSON.stringify(data));
+};
+
+const getFromLocalStorage = (key: string, defaultValue: any) => {
+  const stored = localStorage.getItem(key);
+  return stored ? JSON.parse(stored) : defaultValue;
+};
+
+// Initialize books with mock data from localStorage or empty array
+let books: Book[] = getFromLocalStorage('books', []);
+
+// Mock data setup - only populate if books array is empty
+if (books.length === 0) {
+  const mockBooks: Book[] = [
+    {
+      id: '1',
+      title: 'Introduction to Psychology',
+      author: 'James Watson',
+      description: 'A comprehensive introduction to the field of psychology for first-year university students.',
+      price: 450,
+      condition: 'Good',
+      category: 'Psychology',
+      grade: undefined,
+      universityYear: '1st Year',
+      imageUrl: 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?q=80&w=1000&auto=format&fit=crop',
+      seller: {
+        id: '101',
+        name: 'Michael Johnson',
+        email: 'michael@example.com'
+      },
+      createdAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(), // 7 days ago
+      sold: false
+    },
+    {
+      id: '2',
+      title: 'Grade 11 Mathematics',
+      author: 'Sarah Williams',
+      description: 'A complete mathematics textbook covering the Grade 11 curriculum.',
+      price: 280,
+      condition: 'Better',
+      category: 'Mathematics',
+      grade: 'Grade 11',
+      universityYear: undefined,
+      imageUrl: 'https://images.unsplash.com/photo-1576872381149-7847515ce5d8?q=80&w=1000&auto=format&fit=crop',
+      seller: {
+        id: '102',
+        name: 'Emily Davis',
+        email: 'emily@example.com'
+      },
+      createdAt: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString(), // 14 days ago
+      sold: false
+    },
+    {
+      id: '3',
+      title: 'Advanced Organic Chemistry',
+      author: 'Robert Smith',
+      description: 'A detailed textbook on advanced organic chemistry principles for third-year chemistry students.',
+      price: 550,
+      condition: 'New',
+      category: 'Chemistry',
+      grade: undefined,
+      universityYear: '3rd Year',
+      imageUrl: 'https://images.unsplash.com/photo-1532153975070-2e9ab71f1b14?q=80&w=1000&auto=format&fit=crop',
+      seller: {
+        id: '103',
+        name: 'David Wilson',
+        email: 'david@example.com'
+      },
+      createdAt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 days ago
+      sold: false
+    }
+  ];
+
+  books = mockBooks;
+  saveToLocalStorage('books', books);
+}
 
 // Track sold books and commissions
 interface Transaction {
@@ -17,7 +93,8 @@ interface Transaction {
   date: string;
 }
 
-let transactions: Transaction[] = [];
+// Initialize transactions from localStorage or empty array
+let transactions: Transaction[] = getFromLocalStorage('transactions', []);
 
 // Get all books with optional filtering
 export const getBooks = async (filters?: {
@@ -31,6 +108,9 @@ export const getBooks = async (filters?: {
 }): Promise<Book[]> => {
   // Simulate API delay
   await new Promise(resolve => setTimeout(resolve, 500));
+  
+  // Refresh data from localStorage to ensure we have the latest
+  books = getFromLocalStorage('books', []);
 
   let filteredBooks = [...books];
 
@@ -92,6 +172,8 @@ export const getBookById = async (id: string): Promise<Book | null> => {
   // Simulate API delay
   await new Promise(resolve => setTimeout(resolve, 300));
   
+  // Refresh data from localStorage
+  books = getFromLocalStorage('books', []);
   const book = books.find(book => book.id === id);
   return book || null;
 };
@@ -106,6 +188,9 @@ export const createBook = async (
   // Simulate API delay
   await new Promise(resolve => setTimeout(resolve, 800));
   
+  // Refresh data from localStorage
+  books = getFromLocalStorage('books', []);
+  
   const newBook: Book = {
     id: Date.now().toString(),
     ...bookData,
@@ -119,6 +204,8 @@ export const createBook = async (
   };
   
   books.push(newBook);
+  saveToLocalStorage('books', books);
+  
   return newBook;
 };
 
@@ -129,6 +216,10 @@ export const purchaseBook = async (
 ): Promise<{ success: boolean; message: string; price: number }> => {
   // Simulate API delay
   await new Promise(resolve => setTimeout(resolve, 1000));
+  
+  // Refresh data from localStorage
+  books = getFromLocalStorage('books', []);
+  transactions = getFromLocalStorage('transactions', []);
   
   const bookIndex = books.findIndex(book => book.id === bookId);
   
@@ -164,6 +255,10 @@ export const purchaseBook = async (
   
   transactions.push(transaction);
   
+  // Save updated data
+  saveToLocalStorage('books', books);
+  saveToLocalStorage('transactions', transactions);
+  
   return { 
     success: true, 
     message: 'Book purchased successfully', 
@@ -176,6 +271,9 @@ export const getBooksBySeller = async (sellerId: string): Promise<Book[]> => {
   // Simulate API delay
   await new Promise(resolve => setTimeout(resolve, 400));
   
+  // Refresh data from localStorage
+  books = getFromLocalStorage('books', []);
+  
   return books.filter(book => book.seller.id === sellerId);
 };
 
@@ -184,12 +282,18 @@ export const getAllBooks = async (includeSold: boolean = false): Promise<Book[]>
   // Simulate API delay
   await new Promise(resolve => setTimeout(resolve, 500));
   
+  // Refresh data from localStorage
+  books = getFromLocalStorage('books', []);
+  
   return includeSold ? books : books.filter(book => !book.sold);
 };
 
 export const getTransactions = async (): Promise<Transaction[]> => {
   // Simulate API delay
   await new Promise(resolve => setTimeout(resolve, 500));
+  
+  // Refresh data from localStorage
+  transactions = getFromLocalStorage('transactions', []);
   
   return transactions;
 };
@@ -198,12 +302,18 @@ export const getTotalCommission = async (): Promise<number> => {
   // Simulate API delay
   await new Promise(resolve => setTimeout(resolve, 300));
   
+  // Refresh data from localStorage
+  transactions = getFromLocalStorage('transactions', []);
+  
   return transactions.reduce((total, transaction) => total + transaction.commission, 0);
 };
 
 export const removeBook = async (bookId: string): Promise<{ success: boolean; message: string }> => {
   // Simulate API delay
   await new Promise(resolve => setTimeout(resolve, 800));
+  
+  // Refresh data from localStorage
+  books = getFromLocalStorage('books', []);
   
   const bookIndex = books.findIndex(book => book.id === bookId);
   
@@ -212,6 +322,7 @@ export const removeBook = async (bookId: string): Promise<{ success: boolean; me
   }
   
   books.splice(bookIndex, 1);
+  saveToLocalStorage('books', books);
   
   return { success: true, message: 'Book removed successfully' };
 };
