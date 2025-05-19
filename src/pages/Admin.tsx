@@ -33,7 +33,8 @@ import {
   TableCell, 
   TableHead, 
   TableHeader, 
-  TableRow 
+  TableRow,
+  TableFooter
 } from '@/components/ui/table';
 import { Book as BookIcon, Trash, Users, TrendingUp } from 'lucide-react';
 
