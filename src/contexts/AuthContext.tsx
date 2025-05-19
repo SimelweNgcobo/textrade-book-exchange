@@ -6,6 +6,7 @@ interface User {
   id: string;
   email: string;
   name: string;
+  isAdmin?: boolean;
 }
 
 interface AuthContextType {
@@ -49,16 +50,30 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         // Simulate API call delay
         await new Promise(resolve => setTimeout(resolve, 1000));
         
-        // Mock user data - in a real app, this would come from your backend
-        const userData = {
-          id: '123',
-          email,
-          name: email.split('@')[0]
-        };
-        
-        setUser(userData);
-        localStorage.setItem('user', JSON.stringify(userData));
-        toast.success('Logged in successfully');
+        // Check for admin login
+        if (email === 'admin@example.com' && password === 'Simelwe2006') {
+          const adminUserData = {
+            id: 'admin123',
+            email,
+            name: 'Admin User',
+            isAdmin: true
+          };
+          setUser(adminUserData);
+          localStorage.setItem('user', JSON.stringify(adminUserData));
+          toast.success('Admin logged in successfully');
+        } else {
+          // Mock user data - in a real app, this would come from your backend
+          const userData = {
+            id: '123',
+            email,
+            name: email.split('@')[0],
+            isAdmin: false
+          };
+          
+          setUser(userData);
+          localStorage.setItem('user', JSON.stringify(userData));
+          toast.success('Logged in successfully');
+        }
       } else {
         throw new Error('Please provide email and password');
       }
@@ -80,7 +95,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const userData = {
         id: '123',
         email,
-        name
+        name,
+        isAdmin: false
       };
       
       setUser(userData);

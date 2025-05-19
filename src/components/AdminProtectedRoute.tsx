@@ -15,9 +15,9 @@ const AdminProtectedRoute: React.FC<AdminProtectedRouteProps> = ({ children }) =
   useEffect(() => {
     if (!isLoading) {
       if (!isAuthenticated) {
-        toast.error('Please login to access this page');
+        toast.error('Please login to access the admin dashboard');
         navigate('/login');
-      } else if (user?.email !== 'admin@example.com') {
+      } else if (!user?.isAdmin) {
         toast.error('You do not have admin privileges');
         navigate('/');
       }
@@ -32,7 +32,7 @@ const AdminProtectedRoute: React.FC<AdminProtectedRouteProps> = ({ children }) =
     );
   }
 
-  return isAuthenticated && user?.email === 'admin@example.com' ? <>{children}</> : null;
+  return isAuthenticated && user?.isAdmin ? <>{children}</> : null;
 };
 
 export default AdminProtectedRoute;

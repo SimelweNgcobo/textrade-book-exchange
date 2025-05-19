@@ -134,6 +134,12 @@ const Login = () => {
               </Button>
             </div>
           </form>
+
+          <div className="mt-4 text-sm text-gray-500 p-3 bg-gray-50 rounded-md">
+            <p className="font-semibold">Admin Access:</p>
+            <p>Email: admin@example.com</p>
+            <p>Password: Simelwe2006</p>
+          </div>
         </div>
       </div>
     </Layout>
