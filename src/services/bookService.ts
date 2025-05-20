@@ -1,100 +1,7 @@
 
 import { Book, BookFormData } from '../types/book';
-
-// Helper to persist data in localStorage
-const saveToLocalStorage = (key: string, data: any) => {
-  localStorage.setItem(key, JSON.stringify(data));
-};
-
-const getFromLocalStorage = (key: string, defaultValue: any) => {
-  const stored = localStorage.getItem(key);
-  return stored ? JSON.parse(stored) : defaultValue;
-};
-
-// Initialize books with mock data from localStorage or empty array
-let books: Book[] = getFromLocalStorage('books', []);
-
-// Mock data setup - only populate if books array is empty
-if (books.length === 0) {
-  const mockBooks: Book[] = [
-    {
-      id: '1',
-      title: 'Introduction to Psychology',
-      author: 'James Watson',
-      description: 'A comprehensive introduction to the field of psychology for first-year university students.',
-      price: 450,
-      condition: 'Good',
-      category: 'Psychology',
-      grade: undefined,
-      universityYear: '1st Year',
-      imageUrl: 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?q=80&w=1000&auto=format&fit=crop',
-      seller: {
-        id: '101',
-        name: 'Michael Johnson',
-        email: 'michael@example.com'
-      },
-      createdAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(), // 7 days ago
-      sold: false
-    },
-    {
-      id: '2',
-      title: 'Grade 11 Mathematics',
-      author: 'Sarah Williams',
-      description: 'A complete mathematics textbook covering the Grade 11 curriculum.',
-      price: 280,
-      condition: 'Better',
-      category: 'Mathematics',
-      grade: 'Grade 11',
-      universityYear: undefined,
-      imageUrl: 'https://images.unsplash.com/photo-1576872381149-7847515ce5d8?q=80&w=1000&auto=format&fit=crop',
-      seller: {
-        id: '102',
-        name: 'Emily Davis',
-        email: 'emily@example.com'
-      },
-      createdAt: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString(), // 14 days ago
-      sold: false
-    },
-    {
-      id: '3',
-      title: 'Advanced Organic Chemistry',
-      author: 'Robert Smith',
-      description: 'A detailed textbook on advanced organic chemistry principles for third-year chemistry students.',
-      price: 550,
-      condition: 'New',
-      category: 'Chemistry',
-      grade: undefined,
-      universityYear: '3rd Year',
-      imageUrl: 'https://images.unsplash.com/photo-1532153975070-2e9ab71f1b14?q=80&w=1000&auto=format&fit=crop',
-      seller: {
-        id: '103',
-        name: 'David Wilson',
-        email: 'david@example.com'
-      },
-      createdAt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 days ago
-      sold: false
-    }
-  ];
-
-  books = mockBooks;
-  saveToLocalStorage('books', books);
-}
-
-// Track sold books and commissions
-interface Transaction {
-  id: string;
-  bookId: string;
-  bookTitle: string;
-  sellerId: string;
-  sellerName: string;
-  buyerId: string;
-  price: number;
-  commission: number;
-  date: string;
-}
-
-// Initialize transactions from localStorage or empty array
-let transactions: Transaction[] = getFromLocalStorage('transactions', []);
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
 // Get all books with optional filtering
 export const getBooks = async (filters?: {
@@ -106,76 +13,114 @@ export const getBooks = async (filters?: {
   maxPrice?: number;
   search?: string;
 }): Promise<Book[]> => {
-  // Simulate API delay
-  await new Promise(resolve => setTimeout(resolve, 500));
-  
-  // Refresh data from localStorage to ensure we have the latest
-  books = getFromLocalStorage('books', []);
-
-  let filteredBooks = [...books];
-
-  if (filters) {
-    if (filters.category) {
-      filteredBooks = filteredBooks.filter(book => 
-        book.category.toLowerCase() === filters.category?.toLowerCase()
-      );
+  try {
+    let query = supabase
+      .from('books')
+      .select(`
+        id,
+        title,
+        author,
+        description,
+        price,
+        condition,
+        category,
+        grade,
+        university_year,
+        image_url,
+        created_at,
+        sold,
+        seller_id,
+        profiles:seller_id (
+          id,
+          name,
+          email
+        )
+      `)
+      .eq('sold', false);
+    
+    if (filters) {
+      if (filters.category) {
+        query = query.eq('category', filters.category);
+      }
+      
+      if (filters.condition) {
+        query = query.eq('condition', filters.condition);
+      }
+      
+      if (filters.grade) {
+        query = query.eq('grade', filters.grade);
+      }
+      
+      if (filters.universityYear) {
+        query = query.eq('university_year', filters.universityYear);
+      }
+      
+      if (filters.minPrice !== undefined) {
+        query = query.gte('price', filters.minPrice);
+      }
+      
+      if (filters.maxPrice !== undefined) {
+        query = query.lte('price', filters.maxPrice);
+      }
+      
+      if (filters.search) {
+        const searchTerm = `%${filters.search.toLowerCase()}%`;
+        query = query.or(`title.ilike.${searchTerm},author.ilike.${searchTerm},description.ilike.${searchTerm},category.ilike.${searchTerm}`);
+      }
     }
-
-    if (filters.condition) {
-      filteredBooks = filteredBooks.filter(book => 
-        book.condition === filters.condition
-      );
+    
+    const { data, error } = await query;
+    
+    if (error) {
+      console.error('Error fetching books:', error);
+      throw error;
     }
-
-    if (filters.grade) {
-      filteredBooks = filteredBooks.filter(book => 
-        book.grade === filters.grade
-      );
-    }
-
-    if (filters.universityYear) {
-      filteredBooks = filteredBooks.filter(book => 
-        book.universityYear === filters.universityYear
-      );
-    }
-
-    if (filters.minPrice !== undefined) {
-      filteredBooks = filteredBooks.filter(book => 
-        book.price >= filters.minPrice!
-      );
-    }
-
-    if (filters.maxPrice !== undefined) {
-      filteredBooks = filteredBooks.filter(book => 
-        book.price <= filters.maxPrice!
-      );
-    }
-
-    if (filters.search) {
-      const searchLower = filters.search.toLowerCase();
-      filteredBooks = filteredBooks.filter(book => 
-        book.title.toLowerCase().includes(searchLower) ||
-        book.author.toLowerCase().includes(searchLower) ||
-        book.description.toLowerCase().includes(searchLower) ||
-        book.category.toLowerCase().includes(searchLower) ||
-        (book.grade && book.grade.toLowerCase().includes(searchLower)) ||
-        (book.universityYear && book.universityYear.toLowerCase().includes(searchLower))
-      );
-    }
+    
+    return data.map(transformBookData);
+  } catch (error) {
+    console.error('Error in getBooks:', error);
+    return [];
   }
-
-  return filteredBooks.filter(book => !book.sold);
 };
 
 // Get a single book by ID
 export const getBookById = async (id: string): Promise<Book | null> => {
-  // Simulate API delay
-  await new Promise(resolve => setTimeout(resolve, 300));
-  
-  // Refresh data from localStorage
-  books = getFromLocalStorage('books', []);
-  const book = books.find(book => book.id === id);
-  return book || null;
+  try {
+    const { data, error } = await supabase
+      .from('books')
+      .select(`
+        id,
+        title,
+        author,
+        description,
+        price,
+        condition,
+        category,
+        grade,
+        university_year,
+        image_url,
+        created_at,
+        sold,
+        seller_id,
+        profiles:seller_id (
+          id,
+          name,
+          email
+        )
+      `)
+      .eq('id', id)
+      .single();
+    
+    if (error) {
+      console.error('Error fetching book:', error);
+      return null;
+    }
+    
+    return transformBookData(data);
+  } catch (error) {
+    console.error('Error in getBookById:', error);
+    return null;
+  }
 };
 
 // Create a new book listing
@@ -185,28 +130,52 @@ export const createBook = async (
   sellerName: string,
   sellerEmail: string
 ): Promise<Book> => {
-  // Simulate API delay
-  await new Promise(resolve => setTimeout(resolve, 800));
-  
-  // Refresh data from localStorage
-  books = getFromLocalStorage('books', []);
-  
-  const newBook: Book = {
-    id: Date.now().toString(),
-    ...bookData,
-    seller: {
-      id: sellerId,
-      name: sellerName,
-      email: sellerEmail
-    },
-    createdAt: new Date().toISOString(),
-    sold: false
-  };
-  
-  books.push(newBook);
-  saveToLocalStorage('books', books);
-  
-  return newBook;
+  try {
+    const { data, error } = await supabase
+      .from('books')
+      .insert({
+        title: bookData.title,
+        author: bookData.author,
+        description: bookData.description,
+        price: bookData.price,
+        condition: bookData.condition,
+        category: bookData.category,
+        grade: bookData.grade || null,
+        university_year: bookData.universityYear || null,
+        image_url: bookData.imageUrl,
+        seller_id: sellerId
+      })
+      .select()
+      .single();
+    
+    if (error) {
+      console.error('Error creating book:', error);
+      throw error;
+    }
+    
+    return {
+      id: data.id,
+      title: data.title,
+      author: data.author,
+      description: data.description,
+      price: data.price,
+      condition: data.condition as any,
+      category: data.category,
+      grade: data.grade || undefined,
+      universityYear: data.university_year as any,
+      imageUrl: data.image_url,
+      seller: {
+        id: sellerId,
+        name: sellerName,
+        email: sellerEmail
+      },
+      createdAt: data.created_at,
+      sold: data.sold
+    };
+  } catch (error) {
+    console.error('Error in createBook:', error);
+    throw error;
+  }
 };
 
 // Purchase a book
@@ -214,115 +183,251 @@ export const purchaseBook = async (
   bookId: string, 
   buyerId: string
 ): Promise<{ success: boolean; message: string; price: number }> => {
-  // Simulate API delay
-  await new Promise(resolve => setTimeout(resolve, 1000));
-  
-  // Refresh data from localStorage
-  books = getFromLocalStorage('books', []);
-  transactions = getFromLocalStorage('transactions', []);
-  
-  const bookIndex = books.findIndex(book => book.id === bookId);
-  
-  if (bookIndex === -1) {
-    return { success: false, message: 'Book not found', price: 0 };
+  try {
+    // Get the book details first
+    const { data: book, error: bookError } = await supabase
+      .from('books')
+      .select('*, profiles:seller_id (name)')
+      .eq('id', bookId)
+      .single();
+    
+    if (bookError) {
+      console.error('Error fetching book for purchase:', bookError);
+      return { success: false, message: 'Book not found', price: 0 };
+    }
+    
+    if (book.sold) {
+      return { success: false, message: 'This book has already been sold', price: 0 };
+    }
+    
+    const originalPrice = book.price;
+    const commission = 15; // R15 fixed commission
+    
+    // Begin transaction
+    // 1. Mark the book as sold
+    const { error: updateError } = await supabase
+      .from('books')
+      .update({ sold: true })
+      .eq('id', bookId);
+    
+    if (updateError) {
+      console.error('Error updating book status:', updateError);
+      return { success: false, message: 'Failed to process purchase', price: 0 };
+    }
+    
+    // 2. Record the transaction
+    const { error: transactionError } = await supabase
+      .from('transactions')
+      .insert({
+        book_id: bookId,
+        book_title: book.title,
+        seller_id: book.seller_id,
+        buyer_id: buyerId,
+        price: originalPrice,
+        commission: commission
+      });
+    
+    if (transactionError) {
+      console.error('Error recording transaction:', transactionError);
+      // Attempt to rollback the book status
+      await supabase
+        .from('books')
+        .update({ sold: false })
+        .eq('id', bookId);
+      
+      return { success: false, message: 'Failed to record transaction', price: 0 };
+    }
+    
+    return { 
+      success: true, 
+      message: 'Book purchased successfully', 
+      price: originalPrice 
+    };
+  } catch (error) {
+    console.error('Error in purchaseBook:', error);
+    return { success: false, message: 'An unexpected error occurred', price: 0 };
   }
-  
-  if (books[bookIndex].sold) {
-    return { success: false, message: 'This book has already been sold', price: 0 };
-  }
-  
-  const originalPrice = books[bookIndex].price;
-  const commission = 15; // R15 commission
-  
-  // Mark the book as sold
-  books[bookIndex] = {
-    ...books[bookIndex],
-    sold: true
-  };
-  
-  // Record the transaction
-  const transaction: Transaction = {
-    id: Date.now().toString(),
-    bookId,
-    bookTitle: books[bookIndex].title,
-    sellerId: books[bookIndex].seller.id,
-    sellerName: books[bookIndex].seller.name,
-    buyerId,
-    price: originalPrice,
-    commission,
-    date: new Date().toISOString()
-  };
-  
-  transactions.push(transaction);
-  
-  // Save updated data
-  saveToLocalStorage('books', books);
-  saveToLocalStorage('transactions', transactions);
-  
-  return { 
-    success: true, 
-    message: 'Book purchased successfully', 
-    price: originalPrice 
-  };
 };
 
 // Get books by seller ID
 export const getBooksBySeller = async (sellerId: string): Promise<Book[]> => {
-  // Simulate API delay
-  await new Promise(resolve => setTimeout(resolve, 400));
-  
-  // Refresh data from localStorage
-  books = getFromLocalStorage('books', []);
-  
-  return books.filter(book => book.seller.id === sellerId);
+  try {
+    const { data, error } = await supabase
+      .from('books')
+      .select(`
+        id,
+        title,
+        author,
+        description,
+        price,
+        condition,
+        category,
+        grade,
+        university_year,
+        image_url,
+        created_at,
+        sold,
+        seller_id,
+        profiles:seller_id (
+          id,
+          name,
+          email
+        )
+      `)
+      .eq('seller_id', sellerId);
+    
+    if (error) {
+      console.error('Error fetching seller books:', error);
+      throw error;
+    }
+    
+    return data.map(transformBookData);
+  } catch (error) {
+    console.error('Error in getBooksBySeller:', error);
+    return [];
+  }
 };
 
 // Admin Functions
 export const getAllBooks = async (includeSold: boolean = false): Promise<Book[]> => {
-  // Simulate API delay
-  await new Promise(resolve => setTimeout(resolve, 500));
-  
-  // Refresh data from localStorage
-  books = getFromLocalStorage('books', []);
-  
-  return includeSold ? books : books.filter(book => !book.sold);
+  try {
+    let query = supabase
+      .from('books')
+      .select(`
+        id,
+        title,
+        author,
+        description,
+        price,
+        condition,
+        category,
+        grade,
+        university_year,
+        image_url,
+        created_at,
+        sold,
+        seller_id,
+        profiles:seller_id (
+          id,
+          name,
+          email
+        )
+      `);
+    
+    if (!includeSold) {
+      query = query.eq('sold', false);
+    }
+    
+    const { data, error } = await query;
+    
+    if (error) {
+      console.error('Error fetching all books:', error);
+      throw error;
+    }
+    
+    return data.map(transformBookData);
+  } catch (error) {
+    console.error('Error in getAllBooks:', error);
+    return [];
+  }
 };
 
-export const getTransactions = async (): Promise<Transaction[]> => {
-  // Simulate API delay
-  await new Promise(resolve => setTimeout(resolve, 500));
-  
-  // Refresh data from localStorage
-  transactions = getFromLocalStorage('transactions', []);
-  
-  return transactions;
+export const getTransactions = async (): Promise<any[]> => {
+  try {
+    const { data, error } = await supabase
+      .from('transactions')
+      .select(`
+        id,
+        book_id,
+        book_title,
+        seller_id,
+        seller:seller_id(name),
+        buyer_id,
+        buyer:buyer_id(name),
+        price,
+        commission,
+        created_at
+      `)
+      .order('created_at', { ascending: false });
+    
+    if (error) {
+      console.error('Error fetching transactions:', error);
+      throw error;
+    }
+    
+    return data.map(transaction => ({
+      id: transaction.id,
+      bookId: transaction.book_id,
+      bookTitle: transaction.book_title,
+      sellerId: transaction.seller_id,
+      sellerName: transaction.seller ? transaction.seller.name : 'Unknown',
+      buyerId: transaction.buyer_id,
+      price: transaction.price,
+      commission: transaction.commission,
+      date: transaction.created_at
+    }));
+  } catch (error) {
+    console.error('Error in getTransactions:', error);
+    return [];
+  }
 };
 
 export const getTotalCommission = async (): Promise<number> => {
-  // Simulate API delay
-  await new Promise(resolve => setTimeout(resolve, 300));
-  
-  // Refresh data from localStorage
-  transactions = getFromLocalStorage('transactions', []);
-  
-  return transactions.reduce((total, transaction) => total + transaction.commission, 0);
+  try {
+    const { data, error } = await supabase
+      .from('transactions')
+      .select('commission');
+    
+    if (error) {
+      console.error('Error fetching commissions:', error);
+      throw error;
+    }
+    
+    return data.reduce((total, transaction) => total + transaction.commission, 0);
+  } catch (error) {
+    console.error('Error in getTotalCommission:', error);
+    return 0;
+  }
 };
 
 export const removeBook = async (bookId: string): Promise<{ success: boolean; message: string }> => {
-  // Simulate API delay
-  await new Promise(resolve => setTimeout(resolve, 800));
-  
-  // Refresh data from localStorage
-  books = getFromLocalStorage('books', []);
-  
-  const bookIndex = books.findIndex(book => book.id === bookId);
-  
-  if (bookIndex === -1) {
-    return { success: false, message: 'Book not found' };
+  try {
+    const { error } = await supabase
+      .from('books')
+      .delete()
+      .eq('id', bookId);
+    
+    if (error) {
+      console.error('Error removing book:', error);
+      throw error;
+    }
+    
+    return { success: true, message: 'Book removed successfully' };
+  } catch (error) {
+    console.error('Error in removeBook:', error);
+    return { success: false, message: 'Failed to remove book' };
   }
-  
-  books.splice(bookIndex, 1);
-  saveToLocalStorage('books', books);
-  
-  return { success: true, message: 'Book removed successfully' };
 };
+
+// Helper function to transform database book data to our Book type
+function transformBookData(data: any): Book {
+  return {
+    id: data.id,
+    title: data.title,
+    author: data.author,
+    description: data.description,
+    price: data.price,
+    condition: data.condition,
+    category: data.category,
+    grade: data.grade || undefined,
+    universityYear: data.university_year || undefined,
+    imageUrl: data.image_url,
+    seller: {
+      id: data.seller_id,
+      name: data.profiles?.name || 'Unknown',
+      email: data.profiles?.email || 'unknown@example.com'
+    },
+    createdAt: data.created_at,
+    sold: data.sold
+  };
+}

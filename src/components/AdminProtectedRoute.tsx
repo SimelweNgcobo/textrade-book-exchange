@@ -9,7 +9,7 @@ interface AdminProtectedRouteProps {
 }
 
 const AdminProtectedRoute: React.FC<AdminProtectedRouteProps> = ({ children }) => {
-  const { user, isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isAdmin, isLoading } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -17,12 +17,12 @@ const AdminProtectedRoute: React.FC<AdminProtectedRouteProps> = ({ children }) =
       if (!isAuthenticated) {
         toast.error('Please login to access the admin dashboard');
         navigate('/login');
-      } else if (!user?.isAdmin) {
+      } else if (!isAdmin) {
         toast.error('You do not have admin privileges');
         navigate('/');
       }
     }
-  }, [isAuthenticated, isLoading, navigate, user]);
+  }, [isAuthenticated, isAdmin, isLoading, navigate]);
 
   if (isLoading) {
     return (
@@ -32,7 +32,7 @@ const AdminProtectedRoute: React.FC<AdminProtectedRouteProps> = ({ children }) =
     );
   }
 
-  return isAuthenticated && user?.isAdmin ? <>{children}</> : null;
+  return isAuthenticated && isAdmin ? <>{children}</> : null;
 };
 
 export default AdminProtectedRoute;

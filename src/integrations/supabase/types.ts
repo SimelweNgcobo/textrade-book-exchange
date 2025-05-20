@@ -9,13 +9,131 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      books: {
+        Row: {
+          author: string
+          category: string
+          condition: string
+          created_at: string
+          description: string
+          grade: string | null
+          id: string
+          image_url: string
+          price: number
+          seller_id: string
+          sold: boolean
+          title: string
+          university_year: string | null
+        }
+        Insert: {
+          author: string
+          category: string
+          condition: string
+          created_at?: string
+          description: string
+          grade?: string | null
+          id?: string
+          image_url: string
+          price: number
+          seller_id: string
+          sold?: boolean
+          title: string
+          university_year?: string | null
+        }
+        Update: {
+          author?: string
+          category?: string
+          condition?: string
+          created_at?: string
+          description?: string
+          grade?: string | null
+          id?: string
+          image_url?: string
+          price?: number
+          seller_id?: string
+          sold?: boolean
+          title?: string
+          university_year?: string | null
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          email: string | null
+          id: string
+          is_admin: boolean | null
+          name: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          id: string
+          is_admin?: boolean | null
+          name?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          is_admin?: boolean | null
+          name?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      transactions: {
+        Row: {
+          book_id: string
+          book_title: string
+          buyer_id: string
+          commission: number
+          created_at: string
+          id: string
+          price: number
+          seller_id: string
+        }
+        Insert: {
+          book_id: string
+          book_title: string
+          buyer_id: string
+          commission: number
+          created_at?: string
+          id?: string
+          price: number
+          seller_id: string
+        }
+        Update: {
+          book_id?: string
+          book_title?: string
+          buyer_id?: string
+          commission?: number
+          created_at?: string
+          id?: string
+          price?: number
+          seller_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transactions_book_id_fkey"
+            columns: ["book_id"]
+            isOneToOne: false
+            referencedRelation: "books"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      is_admin: {
+        Args: { user_id: string }
+        Returns: boolean
+      }
     }
     Enums: {
       [_ in never]: never
