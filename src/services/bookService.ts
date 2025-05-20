@@ -1,4 +1,3 @@
-
 import { Book, BookFormData } from '../types/book';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -341,9 +340,7 @@ export const getTransactions = async (): Promise<any[]> => {
         book_id,
         book_title,
         seller_id,
-        seller:seller_id(name),
         buyer_id,
-        buyer:buyer_id(name),
         price,
         commission,
         created_at
@@ -355,17 +352,50 @@ export const getTransactions = async (): Promise<any[]> => {
       throw error;
     }
     
-    return data.map(transaction => ({
-      id: transaction.id,
-      bookId: transaction.book_id,
-      bookTitle: transaction.book_title,
-      sellerId: transaction.seller_id,
-      sellerName: transaction.seller ? transaction.seller.name : 'Unknown',
-      buyerId: transaction.buyer_id,
-      price: transaction.price,
-      commission: transaction.commission,
-      date: transaction.created_at
-    }));
+    // Get seller and buyer profiles separately
+    if (data && data.length > 0) {
+      const sellerIds = [...new Set(data.map(t => t.seller_id))];
+      const buyerIds = [...new Set(data.map(t => t.buyer_id))];
+      
+      const { data: sellerProfiles, error: sellerError } = await supabase
+        .from('profiles')
+        .select('id, name')
+        .in('id', sellerIds);
+        
+      const { data: buyerProfiles, error: buyerError } = await supabase
+        .from('profiles')
+        .select('id, name')
+        .in('id', buyerIds);
+      
+      if (sellerError || buyerError) {
+        console.error('Error fetching profiles:', sellerError || buyerError);
+      }
+      
+      const sellerMap = sellerProfiles ? sellerProfiles.reduce((map: Record<string, any>, profile) => {
+        map[profile.id] = profile;
+        return map;
+      }, {}) : {};
+      
+      const buyerMap = buyerProfiles ? buyerProfiles.reduce((map: Record<string, any>, profile) => {
+        map[profile.id] = profile;
+        return map;
+      }, {}) : {};
+      
+      return data.map(transaction => ({
+        id: transaction.id,
+        bookId: transaction.book_id,
+        bookTitle: transaction.book_title,
+        sellerId: transaction.seller_id,
+        sellerName: sellerMap[transaction.seller_id]?.name || 'Unknown',
+        buyerId: transaction.buyer_id,
+        buyerName: buyerMap[transaction.buyer_id]?.name || 'Unknown',
+        price: transaction.price,
+        commission: transaction.commission,
+        date: transaction.created_at
+      }));
+    }
+    
+    return [];
   } catch (error) {
     console.error('Error in getTransactions:', error);
     return [];

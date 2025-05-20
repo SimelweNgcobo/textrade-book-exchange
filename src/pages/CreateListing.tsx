@@ -16,7 +16,7 @@ import { ArrowLeft, Upload, Book, School, GraduationCap } from 'lucide-react';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 
 const CreateListing = () => {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState<BookFormData>({
@@ -118,15 +118,15 @@ const CreateListing = () => {
 
     setIsSubmitting(true);
     try {
-      if (!user) {
+      if (!user || !profile) {
         throw new Error('You must be logged in to create a listing');
       }
 
       const newBook = await createBook(
         formData,
         user.id,
-        user.name,
-        user.email
+        profile.name || 'Unknown',
+        profile.email || user.email || ''
       );
 
       toast.success('Book listing created successfully!');

@@ -6,7 +6,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Menu, X, Book, User, LogIn, Search } from 'lucide-react';
 
 const Navbar = () => {
-  const { user, isAuthenticated, logout } = useAuth();
+  const { profile, isAuthenticated, logout } = useAuth();
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -56,7 +56,7 @@ const Navbar = () => {
                     onClick={() => navigate('/profile')}
                   >
                     <User className="h-5 w-5" />
-                    <span>{user?.name}</span>
+                    <span>{profile?.name || 'User'}</span>
                   </Button>
                   <div className="absolute right-0 w-48 mt-2 py-2 bg-white rounded-md shadow-xl hidden group-hover:block">
                     <Link to="/profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-book-100">My Profile</Link>

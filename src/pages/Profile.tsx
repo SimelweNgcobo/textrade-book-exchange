@@ -10,7 +10,7 @@ import { Book } from '@/types/book';
 import { BookOpen, Plus, User } from 'lucide-react';
 
 const Profile = () => {
-  const { user, logout } = useAuth();
+  const { user, profile, logout } = useAuth();
   const [myBooks, setMyBooks] = useState<Book[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
@@ -55,8 +55,8 @@ const Profile = () => {
               <User className="h-12 w-12" />
             </div>
             <div className="flex-grow text-center md:text-left">
-              <h1 className="text-3xl font-bold text-book-800">{user?.name}</h1>
-              <p className="text-gray-600 mb-4">{user?.email}</p>
+              <h1 className="text-3xl font-bold text-book-800">{profile?.name || 'User'}</h1>
+              <p className="text-gray-600 mb-4">{profile?.email || user?.email}</p>
               <div className="flex flex-wrap justify-center md:justify-start gap-4">
                 <Button 
                   variant="outline" 
