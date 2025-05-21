@@ -117,20 +117,6 @@ const Login = () => {
                   </Link>
                 </p>
               </div>
-
-              <div className="mt-4 pt-4 border-t border-gray-200">
-                <p className="text-sm text-gray-500 text-center">
-                  For demo purposes:
-                </p>
-                <div className="mt-2 text-xs text-gray-500 space-y-1">
-                  <p>
-                    <strong>Admin:</strong> admin@example.com / Simelwe2006
-                  </p>
-                  <p>
-                    <strong>Register:</strong> Create a new account to test user features
-                  </p>
-                </div>
-              </div>
             </div>
           </div>
         </div>
