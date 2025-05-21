@@ -134,6 +134,15 @@ export type Database = {
         Args: { user_id: string }
         Returns: boolean
       }
+      list_all_profiles: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          id: number
+          username: string
+          email: string
+          created_at: string
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never

@@ -18,6 +18,10 @@ import Admin from "./pages/Admin";
 import { AuthProvider } from "./contexts/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminProtectedRoute from "./components/AdminProtectedRoute";
+import ActivityLog from "./pages/ActivityLog";
+import ReportForm from "./pages/ReportForm";
+import AdminReports from "./pages/AdminReports";
+import UserProfile from "./pages/UserProfile";
 
 const queryClient = new QueryClient();
 
@@ -40,9 +44,20 @@ const App = () => {
               <Route path="/register" element={<Register />} />
               <Route path="/books" element={<BookListing />} />
               <Route path="/books/:id" element={<BookDetails />} />
+              <Route path="/user/:userId" element={<UserProfile />} />
               <Route path="/profile" element={
                 <ProtectedRoute>
                   <Profile />
+                </ProtectedRoute>
+              } />
+              <Route path="/activity" element={
+                <ProtectedRoute>
+                  <ActivityLog />
+                </ProtectedRoute>
+              } />
+              <Route path="/report" element={
+                <ProtectedRoute>
+                  <ReportForm />
                 </ProtectedRoute>
               } />
               <Route path="/create-listing" element={
@@ -58,6 +73,11 @@ const App = () => {
               <Route path="/admin" element={
                 <AdminProtectedRoute>
                   <Admin />
+                </AdminProtectedRoute>
+              } />
+              <Route path="/admin/reports" element={
+                <AdminProtectedRoute>
+                  <AdminReports />
                 </AdminProtectedRoute>
               } />
               <Route path="*" element={<NotFound />} />
