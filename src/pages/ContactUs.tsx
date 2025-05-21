@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
-import { ArrowLeft, Mail, Phone, Send } from 'lucide-react';
+import { ArrowLeft, Mail, Send } from 'lucide-react';
 
 const ContactUs = () => {
   const { user, profile } = useAuth();
@@ -138,17 +138,6 @@ const ContactUs = () => {
                   <a href="mailto:rebooked.co.za@gmail.com" className="text-book-600 hover:text-book-800 mt-1 inline-block">
                     Send us an email
                   </a>
-                </div>
-              </div>
-
-              <div className="flex items-start">
-                <div className="bg-book-100 p-3 rounded-full mr-4">
-                  <Phone className="h-6 w-6 text-book-600" />
-                </div>
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-800">Phone</h3>
-                  <p className="text-gray-600 mt-1">+27 123 456 7890</p>
-                  <p className="text-gray-500 mt-1 text-sm">Monday to Friday, 9am to 5pm</p>
                 </div>
               </div>
 

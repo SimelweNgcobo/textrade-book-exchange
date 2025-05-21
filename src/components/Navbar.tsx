@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -13,6 +12,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Badge } from '@/components/ui/badge';
+import AdminAccess from './AdminAccess';
 
 const Navbar = () => {
   const { profile, isAuthenticated, isAdmin, logout } = useAuth();
@@ -158,9 +158,6 @@ const Navbar = () => {
                     <Link to="/profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-book-100">My Profile</Link>
                     <Link to="/activity" className="block px-4 py-2 text-sm text-gray-700 hover:bg-book-100">Activity History</Link>
                     <Link to="/wishlist" className="block px-4 py-2 text-sm text-gray-700 hover:bg-book-100">My Wishlist</Link>
-                    {isAdmin && (
-                      <Link to="/admin" className="block px-4 py-2 text-sm text-gray-700 hover:bg-book-100">Admin Dashboard</Link>
-                    )}
                     <div className="border-t border-gray-100 my-1"></div>
                     <button
                       onClick={() => logout()}
@@ -186,6 +183,9 @@ const Navbar = () => {
                 <Button onClick={() => navigate('/register')}>Register</Button>
               </div>
             )}
+            
+            {/* Admin Access Button - Always visible */}
+            <AdminAccess />
           </div>
 
           <div className="md:hidden flex items-center">
@@ -264,7 +264,7 @@ const Navbar = () => {
                 </Link>
                 <Link
                   to="/wishlist"
-                  className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-white hover:bg-book-500"
+                  className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-white hover:bg-book-100"
                   onClick={() => setIsOpen(false)}
                 >
                   My Wishlist
@@ -276,15 +276,8 @@ const Navbar = () => {
                 >
                   Report an Issue
                 </Link>
-                {isAdmin && (
-                  <Link
-                    to="/admin"
-                    className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-white hover:bg-book-500"
-                    onClick={() => setIsOpen(false)}
-                  >
-                    Admin Dashboard
-                  </Link>
-                )}
+                <AdminAccess />
+                <div className="border-t border-gray-100 my-1"></div>
                 <button
                   onClick={() => {
                     logout();
