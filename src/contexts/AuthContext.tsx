@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
@@ -9,6 +8,11 @@ interface Profile {
   name: string;
   email: string;
   isAdmin: boolean;
+  isVerified: boolean;
+  successfulDeliveries?: number;
+  isBanned?: boolean;
+  banReason?: string;
+  rating?: number;
 }
 
 interface AuthContextType {
@@ -19,8 +23,9 @@ interface AuthContextType {
   isAdmin: boolean;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
-  register: (name: string, email: string, password: string) => Promise<void>;
+  register: (name: string, email: string, password: string, enable2FA?: boolean) => Promise<void>;
   logout: () => Promise<void>;
+  updateProfile: (updates: Partial<Profile>) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -92,7 +97,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           id: data.id,
           name: data.name,
           email: data.email,
-          isAdmin: data.is_admin
+          isAdmin: data.is_admin,
+          isVerified: data.is_verified,
+          successfulDeliveries: data.successful_deliveries,
+          isBanned: data.is_banned,
+          banReason: data.ban_reason,
+          rating: data.rating
         });
       }
     } catch (error) {
@@ -118,7 +128,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const register = async (name: string, email: string, password: string) => {
+  const register = async (name: string, email: string, password: string, enable2FA?: boolean) => {
     try {
       const { data, error } = await supabase.auth.signUp({
         email,
@@ -126,7 +136,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         options: {
           data: {
             name
-          }
+          },
+          redirectTo: enable2FA ? 'https://your-2fa-redirect-url.com' : undefined
         }
       });
 
@@ -158,6 +169,35 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const updateProfile = async (updates: Partial<Profile>) => {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .update(updates)
+        .eq('id', user?.id ?? '');
+
+      if (error) {
+        throw error;
+      }
+
+      if (data) {
+        setProfile({
+          id: data.id,
+          name: data.name,
+          email: data.email,
+          isAdmin: data.is_admin,
+          isVerified: data.is_verified,
+          successfulDeliveries: data.successful_deliveries,
+          isBanned: data.is_banned,
+          banReason: data.ban_reason,
+          rating: data.rating
+        });
+      }
+    } catch (error) {
+      console.error('Error updating profile:', error);
+    }
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -169,7 +209,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         isLoading,
         login,
         register,
-        logout
+        logout,
+        updateProfile
       }}
     >
       {children}

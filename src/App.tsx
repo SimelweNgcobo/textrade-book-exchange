@@ -22,6 +22,7 @@ import ActivityLog from "./pages/ActivityLog";
 import ReportForm from "./pages/ReportForm";
 import AdminReports from "./pages/AdminReports";
 import UserProfile from "./pages/UserProfile";
+import ContactUs from "./pages/ContactUs";
 
 const queryClient = new QueryClient();
 
@@ -45,6 +46,7 @@ const App = () => {
               <Route path="/books" element={<BookListing />} />
               <Route path="/books/:id" element={<BookDetails />} />
               <Route path="/user/:userId" element={<UserProfile />} />
+              <Route path="/contact" element={<ContactUs />} />
               <Route path="/profile" element={
                 <ProtectedRoute>
                   <Profile />

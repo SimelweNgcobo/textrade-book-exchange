@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
-import { Menu, X, Book, User, LogIn, Search, Bell, Flag, AlertTriangle, Shield, Check } from 'lucide-react';
+import { Menu, X, Book, User, LogIn, Search, Bell, Flag, AlertTriangle, Shield, Mail } from 'lucide-react';
 import { 
   DropdownMenu,
   DropdownMenuContent,
@@ -77,6 +77,10 @@ const Navbar = () => {
               <Search className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
             </form>
             <Link to="/books" className="text-gray-700 hover:text-book-600">Browse Books</Link>
+            <Link to="/contact" className="text-gray-700 hover:text-book-600 flex items-center">
+              <Mail className="h-4 w-4 mr-1" />
+              Contact
+            </Link>
             {isAuthenticated ? (
               <>
                 <Link to="/create-listing" className="text-gray-700 hover:text-book-600">Sell a Book</Link>
@@ -144,7 +148,7 @@ const Navbar = () => {
                       {profile?.isVerified && (
                         <span className="ml-1">
                           <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 flex items-center">
-                            <Check className="h-3 w-3 mr-1" /> Verified
+                            Verified
                           </Badge>
                         </span>
                       )}
@@ -220,6 +224,13 @@ const Navbar = () => {
               onClick={() => setIsOpen(false)}
             >
               Browse Books
+            </Link>
+            <Link
+              to="/contact"
+              className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-white hover:bg-book-500"
+              onClick={() => setIsOpen(false)}
+            >
+              Contact Us
             </Link>
             {isAuthenticated ? (
               <>
