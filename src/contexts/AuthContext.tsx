@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
@@ -8,7 +9,7 @@ interface Profile {
   name: string;
   email: string;
   isAdmin: boolean;
-  isVerified: boolean;
+  isVerified?: boolean;
   successfulDeliveries?: number;
   isBanned?: boolean;
   banReason?: string;
@@ -93,16 +94,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
 
       if (data) {
+        // Map the database fields to our Profile interface
+        // Using optional chaining to handle potentially missing fields
         setProfile({
           id: data.id,
-          name: data.name,
-          email: data.email,
-          isAdmin: data.is_admin,
-          isVerified: data.is_verified,
-          successfulDeliveries: data.successful_deliveries,
-          isBanned: data.is_banned,
-          banReason: data.ban_reason,
-          rating: data.rating
+          name: data.name || '',
+          email: data.email || '',
+          isAdmin: !!data.is_admin,
+          // For fields that don't exist in the database yet, we'll set defaults
+          isVerified: false,
+          successfulDeliveries: 0,
+          isBanned: false,
+          banReason: '',
+          rating: 0
         });
       }
     } catch (error) {
@@ -128,16 +132,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const register = async (name: string, email: string, password: string, enable2FA?: boolean) => {
+  const register = async (name: string, email: string, password: string, enable2FA = false) => {
     try {
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
           data: {
-            name
+            name,
+            enable_2fa: enable2FA
           },
-          redirectTo: enable2FA ? 'https://your-2fa-redirect-url.com' : undefined
+          // Using the correct property name for email redirects
+          emailRedirectTo: window.location.origin
         }
       });
 
@@ -148,6 +154,39 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       toast.success('Registered successfully. Check your email to confirm your account.');
     } catch (error: any) {
       toast.error(error.message || 'Failed to register');
+      throw error;
+    }
+  };
+
+  const updateProfile = async (updates: Partial<Profile>) => {
+    try {
+      if (!user) throw new Error('User not authenticated');
+      
+      // Map our Profile interface fields to the database fields
+      const dbUpdates: any = {};
+      if (updates.name !== undefined) dbUpdates.name = updates.name;
+      if (updates.email !== undefined) dbUpdates.email = updates.email;
+      
+      // Only proceed if we have updates to make
+      if (Object.keys(dbUpdates).length === 0) {
+        return;
+      }
+      
+      const { error } = await supabase
+        .from('profiles')
+        .update(dbUpdates)
+        .eq('id', user.id);
+      
+      if (error) throw error;
+      
+      // Update local state
+      if (profile) {
+        setProfile({ ...profile, ...updates });
+      }
+      
+      toast.success('Profile updated successfully');
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to update profile');
       throw error;
     }
   };
@@ -166,35 +205,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       toast.success('Logged out successfully');
     } catch (error: any) {
       toast.error(error.message || 'Failed to logout');
-    }
-  };
-
-  const updateProfile = async (updates: Partial<Profile>) => {
-    try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .update(updates)
-        .eq('id', user?.id ?? '');
-
-      if (error) {
-        throw error;
-      }
-
-      if (data) {
-        setProfile({
-          id: data.id,
-          name: data.name,
-          email: data.email,
-          isAdmin: data.is_admin,
-          isVerified: data.is_verified,
-          successfulDeliveries: data.successful_deliveries,
-          isBanned: data.is_banned,
-          banReason: data.ban_reason,
-          rating: data.rating
-        });
-      }
-    } catch (error) {
-      console.error('Error updating profile:', error);
     }
   };
 
