@@ -1,8 +1,9 @@
+
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
-import { Menu, X, Book, User, LogIn, Search, Bell, Flag, AlertTriangle, Shield, Mail } from 'lucide-react';
+import { Menu, X, Book, User, LogIn, Search, Bell, Flag, AlertTriangle, Shield } from 'lucide-react';
 import { 
   DropdownMenu,
   DropdownMenuContent,
@@ -27,9 +28,9 @@ const Navbar = () => {
     if (isAuthenticated) {
       // In a real app, you'd fetch these from the database
       const mockNotifications = [
-        { id: 1, type: 'message', message: 'You have a new message', read: false },
-        { id: 2, type: 'wishlist', message: 'A book on your wishlist is now available', read: false },
-        { id: 3, type: 'delivery', message: 'Your book has been marked as delivered', read: true },
+        { id: 1, type: 'wishlist', message: 'A book on your wishlist is now available', read: false },
+        { id: 2, type: 'delivery', message: 'Your book has been marked as delivered', read: false },
+        { id: 3, type: 'delivery', message: 'Your book has been shipped', read: true },
       ];
       
       setNotifications(mockNotifications);
@@ -61,7 +62,7 @@ const Navbar = () => {
           <div className="flex items-center">
             <Link to="/" className="flex items-center">
               <Book className="h-8 w-8 text-book-600" />
-              <span className="ml-2 text-xl font-bold text-book-800">Rebooked</span>
+              <span className="ml-2 text-xl font-bold text-book-800">ReBooked Solutions</span>
             </Link>
           </div>
 
@@ -78,8 +79,7 @@ const Navbar = () => {
             </form>
             <Link to="/books" className="text-gray-700 hover:text-book-600">Browse Books</Link>
             <Link to="/contact" className="text-gray-700 hover:text-book-600 flex items-center">
-              <Mail className="h-4 w-4 mr-1" />
-              Contact
+              Contact Us
             </Link>
             {isAuthenticated ? (
               <>
@@ -116,7 +116,6 @@ const Navbar = () => {
                       notifications.map(notification => (
                         <DropdownMenuItem key={notification.id} className={`${notification.read ? 'opacity-70' : 'font-medium'}`}>
                           <div className="flex items-start space-x-2">
-                            {notification.type === 'message' && <Bell className="h-4 w-4 mt-0.5 text-book-600" />}
                             {notification.type === 'wishlist' && <Book className="h-4 w-4 mt-0.5 text-green-600" />}
                             {notification.type === 'delivery' && <Shield className="h-4 w-4 mt-0.5 text-purple-600" />}
                             <span className="text-sm">{notification.message}</span>
@@ -314,7 +313,7 @@ const Navbar = () => {
       {isAuthenticated && (
         <div className="bg-amber-50 p-2 text-xs text-amber-800 text-center border-t border-amber-100 md:hidden">
           <AlertTriangle className="inline-block h-3 w-3 mr-1" />
-          Only meet in public places for book exchanges
+          All transactions are handled securely by ReBooked Solutions
         </div>
       )}
     </nav>

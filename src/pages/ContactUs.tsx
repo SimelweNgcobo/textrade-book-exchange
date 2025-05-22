@@ -134,15 +134,15 @@ const ContactUs = () => {
                 </div>
                 <div>
                   <h3 className="text-lg font-semibold text-gray-800">Email</h3>
-                  <p className="text-gray-600 mt-1">rebooked.co.za@gmail.com</p>
-                  <a href="mailto:rebooked.co.za@gmail.com" className="text-book-600 hover:text-book-800 mt-1 inline-block">
+                  <p className="text-gray-600 mt-1">rebooked.solutions@gmail.com</p>
+                  <a href="mailto:rebooked.solutions@gmail.com" className="text-book-600 hover:text-book-800 mt-1 inline-block">
                     Send us an email
                   </a>
                 </div>
               </div>
 
               <div className="mt-8 bg-gray-50 p-6 rounded-lg">
-                <h3 className="text-lg font-semibold text-gray-800 mb-2">Rebooked Support Team</h3>
+                <h3 className="text-lg font-semibold text-gray-800 mb-2">ReBooked Solutions Support Team</h3>
                 <p className="text-gray-600">
                   Our dedicated support team is here to help with any questions you may have about using our platform, book transactions, or account issues.
                 </p>

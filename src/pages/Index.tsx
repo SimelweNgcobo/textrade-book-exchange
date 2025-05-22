@@ -54,8 +54,7 @@ const Index = () => {
               Buy and Sell Textbooks with Ease
             </h1>
             <p className="text-xl text-book-700 mb-8">
-              Save money on textbooks and give your books a second life.
-              Connect with students on your campus and trade safely.
+              Buy affordable secondhand textbooks and give your old ones a new home — all handled securely through ReBooked Solutions.
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
               <Button 
@@ -208,9 +207,9 @@ const Index = () => {
               <div className="bg-white rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-4 shadow-md">
                 <Search className="h-10 w-10 text-book-600" />
               </div>
-              <h3 className="text-xl font-semibold mb-2 text-book-800">Connect with Buyers</h3>
+              <h3 className="text-xl font-semibold mb-2 text-book-800">List your books for sale</h3>
               <p className="text-gray-600">
-                Students looking for your books will contact you through our secure messaging system.
+                List your books for sale and let ReBooked Solutions handle the rest.
               </p>
             </div>
             <div className="text-center">
@@ -231,7 +230,7 @@ const Index = () => {
         <div className="container mx-auto px-4 text-center">
           <h2 className="text-3xl font-bold mb-4">Ready to Get Started?</h2>
           <p className="text-xl mb-8 max-w-3xl mx-auto">
-            Join our community of students buying and selling textbooks. Save money and help others do the same!
+            Join ReBooked Solutions to buy and sell textbooks securely. Save money and help others do the same!
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button 

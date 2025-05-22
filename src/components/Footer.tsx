@@ -1,6 +1,6 @@
 
 import { Link } from 'react-router-dom';
-import { Book, Mail } from 'lucide-react';
+import { Book } from 'lucide-react';
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
@@ -12,10 +12,10 @@ const Footer = () => {
           <div className="space-y-4">
             <Link to="/" className="flex items-center">
               <Book className="h-6 w-6 text-book-600" />
-              <span className="ml-2 text-xl font-bold text-book-800">Rebooked</span>
+              <span className="ml-2 text-xl font-bold text-book-800">ReBooked Solutions</span>
             </Link>
             <p className="text-gray-600 text-sm">
-              Buy and sell new and used books directly from other students and book lovers.
+              Buy and sell new and used books through our secure platform. No direct communication needed.
             </p>
           </div>
 
@@ -81,8 +81,7 @@ const Footer = () => {
             </h3>
             <ul className="space-y-2">
               <li>
-                <Link to="/contact" className="text-gray-600 hover:text-book-600 text-sm flex items-center">
-                  <Mail className="h-4 w-4 mr-1" />
+                <Link to="/contact" className="text-gray-600 hover:text-book-600 text-sm">
                   Contact Us
                 </Link>
               </li>
@@ -107,7 +106,7 @@ const Footer = () => {
 
         <div className="border-t border-gray-200 pt-6 mt-8 flex flex-col md:flex-row justify-between items-center">
           <p className="text-sm text-gray-500">
-            &copy; {currentYear} Rebooked. All rights reserved.
+            &copy; {currentYear} ReBooked Solutions. All rights reserved.
           </p>
         </div>
       </div>
