@@ -33,6 +33,7 @@ const Login = () => {
 
       console.log("Attempting login with:", email);
       await login(email, password);
+      console.log("Login successful, navigating to home");
       navigate('/');
     } catch (error) {
       // Error is already handled in the login function

@@ -1,90 +1,67 @@
 
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { useEffect } from "react";
-import Index from "./pages/Index";
-import NotFound from "./pages/NotFound";
-import Login from "./pages/Login";
-import Register from "./pages/Register";
-import BookListing from "./pages/BookListing";
-import BookDetails from "./pages/BookDetails";
-import Profile from "./pages/Profile";
-import CreateListing from "./pages/CreateListing";
-import Checkout from "./pages/Checkout";
-import Admin from "./pages/Admin";
-import { AuthProvider } from "./contexts/AuthContext";
-import ProtectedRoute from "./components/ProtectedRoute";
-import AdminProtectedRoute from "./components/AdminProtectedRoute";
-import ActivityLog from "./pages/ActivityLog";
-import ReportForm from "./pages/ReportForm";
-import AdminReports from "./pages/AdminReports";
-import UserProfile from "./pages/UserProfile";
-import ContactUs from "./pages/ContactUs";
-import FAQ from "./pages/FAQ";
-import Terms from "./pages/Terms";
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { Toaster } from 'sonner';
+import { AuthProvider } from './contexts/AuthContext';
+import ProtectedRoute from './components/ProtectedRoute';
+import AdminProtectedRoute from './components/AdminProtectedRoute';
 
-const queryClient = new QueryClient();
+// Pages
+import Index from './pages/Index';
+import BookListing from './pages/BookListing';
+import BookDetails from './pages/BookDetails';
+import Login from './pages/Login';
+import Register from './pages/Register';
+import Profile from './pages/Profile';
+import UserProfile from './pages/UserProfile';
+import NotFound from './pages/NotFound';
+import CreateListing from './pages/CreateListing';
+import Checkout from './pages/Checkout';
+import Admin from './pages/Admin';
+import ContactUs from './pages/ContactUs';
+import ActivityLog from './pages/ActivityLog';
+import FAQ from './pages/FAQ';
+import Terms from './pages/Terms';
+import ReportForm from './pages/ReportForm';
+import AdminReports from './pages/AdminReports';
 
-const App = () => {
-  // Set document title
-  useEffect(() => {
-    document.title = "Rebooked - Buy and Sell New & Used Books";
-  }, []);
+import './App.css';
 
+function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <AuthProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/register" element={<Register />} />
-              <Route path="/books" element={<BookListing />} />
-              <Route path="/books/:id" element={<BookDetails />} />
-              <Route path="/user/:userId" element={<UserProfile />} />
-              <Route path="/contact" element={<ContactUs />} />
-              <Route path="/faq" element={<FAQ />} />
-              <Route path="/terms" element={<Terms />} />
-              <Route path="/profile" element={
-                <ProtectedRoute>
-                  <Profile />
-                </ProtectedRoute>
-              } />
-              <Route path="/activity" element={
-                <ProtectedRoute>
-                  <ActivityLog />
-                </ProtectedRoute>
-              } />
-              <Route path="/report" element={
-                <ProtectedRoute>
-                  <ReportForm />
-                </ProtectedRoute>
-              } />
-              <Route path="/create-listing" element={
-                <ProtectedRoute>
-                  <CreateListing />
-                </ProtectedRoute>
-              } />
-              <Route path="/checkout/:id" element={
-                <ProtectedRoute>
-                  <Checkout />
-                </ProtectedRoute>
-              } />
-              <Route path="/admin" element={<Admin />} />
-              <Route path="/admin/reports" element={<AdminReports />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </BrowserRouter>
-        </AuthProvider>
-      </TooltipProvider>
-    </QueryClientProvider>
+    <Router>
+      <AuthProvider>
+        <Routes>
+          <Route path="/" element={<Index />} />
+          <Route path="/books" element={<BookListing />} />
+          <Route path="/books/:id" element={<BookDetails />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/faq" element={<FAQ />} />
+          <Route path="/terms" element={<Terms />} />
+          <Route path="/contact" element={<ContactUs />} />
+          
+          {/* Protected Routes */}
+          <Route element={<ProtectedRoute />}>
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/user/:id" element={<UserProfile />} />
+            <Route path="/create-listing" element={<CreateListing />} />
+            <Route path="/checkout/:id" element={<Checkout />} />
+            <Route path="/activity" element={<ActivityLog />} />
+            <Route path="/report" element={<ReportForm />} />
+          </Route>
+          
+          {/* Admin Routes */}
+          <Route element={<AdminProtectedRoute />}>
+            <Route path="/admin" element={<Admin />} />
+            <Route path="/admin/reports" element={<AdminReports />} />
+          </Route>
+          
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+        <Toaster position="top-center" richColors />
+      </AuthProvider>
+    </Router>
   );
-};
+}
 
 export default App;

@@ -38,7 +38,7 @@ import {
   ShieldAlert,
   ShieldCheck
 } from 'lucide-react';
-import { Report, UserReport } from '@/types/report';
+import { Report, UserReport, ReportType, ReportSeverity, ReportStatus } from '@/types/report';
 
 const AdminReports = () => {
   const { user, isAdmin } = useAuth();
@@ -53,7 +53,7 @@ const AdminReports = () => {
   }, [isAdmin, navigate]);
   
   const [activeTab, setActiveTab] = useState("pending");
-  const [selectedReport, setSelectedReport] = useState<any>(null);
+  const [selectedReport, setSelectedReport] = useState<Report | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isBanDialogOpen, setIsBanDialogOpen] = useState(false);
   const [banReason, setBanReason] = useState('');
@@ -64,91 +64,91 @@ const AdminReports = () => {
   useEffect(() => {
     // In a real app, this would fetch from your database
     setTimeout(() => {
-      const mockReports = [
+      const mockReports: Report[] = [
         {
           id: 1,
-          type: 'listing',
+          type: 'listing' as ReportType,
           entityId: 'book-1',
           entityName: 'Calculus Textbook',
           reportedBy: 'user-123',
           reporterName: 'Jane Smith',
           reason: 'Price seems suspiciously low, potential scam',
           createdAt: '2025-05-18T10:30:00',
-          severity: 'high',
-          status: 'pending'
+          severity: 'high' as ReportSeverity,
+          status: 'pending' as ReportStatus
         },
         {
           id: 2,
-          type: 'user',
+          type: 'user' as ReportType,
           entityId: 'user-456',
           entityName: 'John Doe',
           reportedBy: 'user-789',
           reporterName: 'Alice Johnson',
           reason: 'User did not show up for book exchange',
           createdAt: '2025-05-17T14:20:00',
-          severity: 'medium',
-          status: 'pending'
+          severity: 'medium' as ReportSeverity,
+          status: 'pending' as ReportStatus
         },
         {
           id: 3,
-          type: 'listing',
+          type: 'listing' as ReportType,
           entityId: 'book-2',
           entityName: 'Physics 101',
           reportedBy: 'user-456',
           reporterName: 'John Doe',
           reason: 'Book condition much worse than described',
           createdAt: '2025-05-16T09:15:00',
-          severity: 'low',
-          status: 'resolved'
+          severity: 'low' as ReportSeverity,
+          status: 'resolved' as ReportStatus
         },
         {
           id: 4,
-          type: 'user',
+          type: 'user' as ReportType,
           entityId: 'user-321',
           entityName: 'Bob Williams',
           reportedBy: 'user-123',
           reporterName: 'Jane Smith',
           reason: 'Harassing messages after transaction',
           createdAt: '2025-05-15T16:45:00',
-          severity: 'high',
-          status: 'dismissed'
+          severity: 'high' as ReportSeverity,
+          status: 'dismissed' as ReportStatus
         },
         // Add more user reports to show warning levels
         {
           id: 5,
-          type: 'user',
+          type: 'user' as ReportType,
           entityId: 'user-555',
           entityName: 'David Smith',
           reportedBy: 'user-123',
           reporterName: 'Jane Smith',
           reason: 'Sent threatening messages',
           createdAt: '2025-05-14T11:30:00',
-          severity: 'high',
-          status: 'pending'
+          severity: 'high' as ReportSeverity,
+          status: 'pending' as ReportStatus
         },
         {
           id: 6,
-          type: 'user',
+          type: 'user' as ReportType,
           entityId: 'user-555',
           entityName: 'David Smith',
           reportedBy: 'user-456',
           reporterName: 'John Doe',
           reason: 'Tried to scam me with fake book',
           createdAt: '2025-05-13T09:45:00',
-          severity: 'high',
-          status: 'pending'
+          severity: 'high' as ReportSeverity,
+          status: 'pending' as ReportStatus
         },
         {
           id: 7,
-          type: 'user',
+          type: 'user' as ReportType,
           entityId: 'user-666',
           entityName: 'Mary Johnson',
           reportedBy: 'user-123',
           reporterName: 'Jane Smith',
           reason: 'Didn\'t deliver book as promised',
           createdAt: '2025-05-12T14:20:00',
-          severity: 'medium',
-          status: 'pending'
+          severity: 'medium' as ReportSeverity,
+          status: 'pending' as ReportStatus
         },
       ];
       
@@ -197,24 +197,26 @@ const AdminReports = () => {
     }
     
     // In a real app, you would call your API to ban the user
-    toast.success(`User ${selectedReport.entityName} has been banned`);
+    toast.success(`User ${selectedReport?.entityName} has been banned`);
     setIsBanDialogOpen(false);
     setBanReason('');
     
     // Update the report status
-    const updatedReports = reports.map(report => 
-      report.id === selectedReport.id 
-        ? { ...report, status: 'resolved' } 
-        : report
-    );
-    setReports(updatedReports);
+    if (selectedReport) {
+      const updatedReports = reports.map(report => 
+        report.id === selectedReport.id 
+          ? { ...report, status: 'resolved' as ReportStatus } 
+          : report
+      );
+      setReports(updatedReports);
+    }
   };
 
   const handleResolveReport = (reportId: number) => {
     // In a real app, you would call your API to resolve the report
     const updatedReports = reports.map(report => 
       report.id === reportId 
-        ? { ...report, status: 'resolved' } 
+        ? { ...report, status: 'resolved' as ReportStatus } 
         : report
     );
     setReports(updatedReports);
@@ -226,7 +228,7 @@ const AdminReports = () => {
     // In a real app, you would call your API to dismiss the report
     const updatedReports = reports.map(report => 
       report.id === reportId 
-        ? { ...report, status: 'dismissed' } 
+        ? { ...report, status: 'dismissed' as ReportStatus } 
         : report
     );
     setReports(updatedReports);
