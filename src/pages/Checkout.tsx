@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
@@ -146,7 +147,9 @@ const Checkout = () => {
   };
 
   const calculateCommission = () => {
-    return 15; // R15 fixed commission
+    if (!book) return 0;
+    // Updated to calculate 10% of book price
+    return book.price * 0.10;
   };
 
   const calculateSellerReceives = () => {
@@ -199,20 +202,20 @@ const Checkout = () => {
             <div className="flex mb-6 border-b pb-6">
               <div className="w-1/3">
                 <img
-                  src={book.imageUrl}
-                  alt={book.title}
+                  src={book?.imageUrl}
+                  alt={book?.title}
                   className="w-full h-auto rounded-md"
                 />
               </div>
               <div className="w-2/3 pl-4">
-                <h3 className="font-bold text-lg text-book-800">{book.title}</h3>
-                <p className="text-gray-600 mb-2">{book.author}</p>
+                <h3 className="font-bold text-lg text-book-800">{book?.title}</h3>
+                <p className="text-gray-600 mb-2">{book?.author}</p>
                 <div className="flex flex-wrap gap-2">
                   <span className="bg-book-100 text-book-800 px-2 py-1 rounded text-xs font-medium">
-                    {book.condition}
+                    {book?.condition}
                   </span>
                   <span className="bg-gray-100 text-gray-800 px-2 py-1 rounded text-xs">
-                    {book.category}
+                    {book?.category}
                   </span>
                 </div>
               </div>
@@ -221,10 +224,10 @@ const Checkout = () => {
             <div className="space-y-2">
               <div className="flex justify-between">
                 <span className="text-gray-600">Book Price:</span>
-                <span className="font-medium">R{book.price.toFixed(2)}</span>
+                <span className="font-medium">R{book?.price.toFixed(2)}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600">Commission:</span>
+                <span className="text-gray-600">Commission (10%):</span>
                 <span className="font-medium">R{calculateCommission().toFixed(2)}</span>
               </div>
               <div className="border-t border-dashed border-gray-200 my-2 pt-2"></div>

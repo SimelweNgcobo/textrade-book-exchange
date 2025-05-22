@@ -1,3 +1,4 @@
+
 import { Book, BookFormData } from '../types/book';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -200,7 +201,8 @@ export const purchaseBook = async (
     }
     
     const originalPrice = book.price;
-    const commission = 15; // R15 fixed commission
+    // Calculate commission as 10% of the book price (updated from fixed R15)
+    const commission = originalPrice * 0.10;
     
     // Begin transaction
     // 1. Mark the book as sold

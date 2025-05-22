@@ -23,6 +23,8 @@ import ReportForm from "./pages/ReportForm";
 import AdminReports from "./pages/AdminReports";
 import UserProfile from "./pages/UserProfile";
 import ContactUs from "./pages/ContactUs";
+import FAQ from "./pages/FAQ";
+import Terms from "./pages/Terms";
 
 const queryClient = new QueryClient();
 
@@ -47,6 +49,8 @@ const App = () => {
               <Route path="/books/:id" element={<BookDetails />} />
               <Route path="/user/:userId" element={<UserProfile />} />
               <Route path="/contact" element={<ContactUs />} />
+              <Route path="/faq" element={<FAQ />} />
+              <Route path="/terms" element={<Terms />} />
               <Route path="/profile" element={
                 <ProtectedRoute>
                   <Profile />

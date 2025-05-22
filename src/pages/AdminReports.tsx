@@ -33,8 +33,12 @@ import {
   AlertTriangle, 
   Ban,
   Eye,
-  Shield
+  Shield,
+  UserX,
+  ShieldAlert,
+  ShieldCheck
 } from 'lucide-react';
+import { Report, UserReport } from '@/types/report';
 
 const AdminReports = () => {
   const { user, isAdmin } = useAuth();
@@ -53,7 +57,8 @@ const AdminReports = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isBanDialogOpen, setIsBanDialogOpen] = useState(false);
   const [banReason, setBanReason] = useState('');
-  const [reports, setReports] = useState<any[]>([]);
+  const [reports, setReports] = useState<Report[]>([]);
+  const [userWarningLevels, setUserWarningLevels] = useState<Record<string, 'none' | 'yellow' | 'red'>>({});
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -108,19 +113,79 @@ const AdminReports = () => {
           severity: 'high',
           status: 'dismissed'
         },
+        // Add more user reports to show warning levels
+        {
+          id: 5,
+          type: 'user',
+          entityId: 'user-555',
+          entityName: 'David Smith',
+          reportedBy: 'user-123',
+          reporterName: 'Jane Smith',
+          reason: 'Sent threatening messages',
+          createdAt: '2025-05-14T11:30:00',
+          severity: 'high',
+          status: 'pending'
+        },
+        {
+          id: 6,
+          type: 'user',
+          entityId: 'user-555',
+          entityName: 'David Smith',
+          reportedBy: 'user-456',
+          reporterName: 'John Doe',
+          reason: 'Tried to scam me with fake book',
+          createdAt: '2025-05-13T09:45:00',
+          severity: 'high',
+          status: 'pending'
+        },
+        {
+          id: 7,
+          type: 'user',
+          entityId: 'user-666',
+          entityName: 'Mary Johnson',
+          reportedBy: 'user-123',
+          reporterName: 'Jane Smith',
+          reason: 'Didn't deliver book as promised',
+          createdAt: '2025-05-12T14:20:00',
+          severity: 'medium',
+          status: 'pending'
+        },
       ];
       
       setReports(mockReports);
+
+      // Calculate warning levels based on report counts
+      const userReportCounts: Record<string, number> = {};
+      const userReports = mockReports.filter(r => r.type === 'user');
+      
+      userReports.forEach(report => {
+        const userId = report.entityId;
+        userReportCounts[userId] = (userReportCounts[userId] || 0) + 1;
+      });
+
+      // Set warning levels based on count
+      const warningLevels: Record<string, 'none' | 'yellow' | 'red'> = {};
+      Object.entries(userReportCounts).forEach(([userId, count]) => {
+        if (count >= 3) {
+          warningLevels[userId] = 'red';
+        } else if (count >= 1) {
+          warningLevels[userId] = 'yellow';
+        } else {
+          warningLevels[userId] = 'none';
+        }
+      });
+
+      setUserWarningLevels(warningLevels);
       setIsLoading(false);
     }, 1000);
   }, []);
 
-  const handleViewReport = (report: any) => {
+  const handleViewReport = (report: Report) => {
     setSelectedReport(report);
     setIsDialogOpen(true);
   };
 
-  const handleBanUser = (report: any) => {
+  const handleBanUser = (report: Report) => {
     setSelectedReport(report);
     setIsBanDialogOpen(true);
   };
@@ -195,6 +260,29 @@ const AdminReports = () => {
     }
   };
 
+  const getUserWarningBadge = (userId: string) => {
+    const warningLevel = userWarningLevels[userId] || 'none';
+    
+    switch (warningLevel) {
+      case 'red':
+        return (
+          <div className="flex items-center">
+            <ShieldAlert className="h-4 w-4 text-red-600 mr-1" />
+            <span className="px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">High Risk</span>
+          </div>
+        );
+      case 'yellow':
+        return (
+          <div className="flex items-center">
+            <Shield className="h-4 w-4 text-amber-600 mr-1" />
+            <span className="px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">Warning</span>
+          </div>
+        );
+      default:
+        return null;
+    }
+  };
+
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('en-US', { 
@@ -243,6 +331,7 @@ const AdminReports = () => {
                       <TableRow>
                         <TableHead>Type</TableHead>
                         <TableHead>Reported Entity</TableHead>
+                        <TableHead>Warning Level</TableHead>
                         <TableHead>Reported By</TableHead>
                         <TableHead>Date</TableHead>
                         <TableHead>Severity</TableHead>
@@ -263,6 +352,9 @@ const AdminReports = () => {
                             </div>
                           </TableCell>
                           <TableCell>{report.entityName}</TableCell>
+                          <TableCell>
+                            {report.type === 'user' && getUserWarningBadge(report.entityId)}
+                          </TableCell>
                           <TableCell>{report.reporterName}</TableCell>
                           <TableCell>{formatDate(report.createdAt)}</TableCell>
                           <TableCell>{getSeverityBadge(report.severity)}</TableCell>
@@ -284,7 +376,7 @@ const AdminReports = () => {
                                       size="sm"
                                       onClick={() => handleBanUser(report)}
                                     >
-                                      <Ban className="h-4 w-4" />
+                                      <UserX className="h-4 w-4" />
                                     </Button>
                                   )}
                                   <Button 
@@ -362,6 +454,13 @@ const AdminReports = () => {
                   <p className="text-sm text-gray-500 mb-1">Status</p>
                   <p>{getStatusBadge(selectedReport.status)}</p>
                 </div>
+                
+                {selectedReport.type === 'user' && (
+                  <div>
+                    <p className="text-sm text-gray-500 mb-1">Warning Level</p>
+                    <p>{getUserWarningBadge(selectedReport.entityId)}</p>
+                  </div>
+                )}
               </div>
               
               <div className="mb-6">
@@ -382,7 +481,7 @@ const AdminReports = () => {
                           setIsBanDialogOpen(true);
                         }}
                       >
-                        <Ban className="h-4 w-4 mr-2" />
+                        <UserX className="h-4 w-4 mr-2" />
                         Ban User
                       </Button>
                     )}
@@ -417,7 +516,7 @@ const AdminReports = () => {
             <DialogContent className="max-w-md">
               <DialogHeader>
                 <DialogTitle className="flex items-center text-red-600">
-                  <Ban className="h-5 w-5 mr-2" />
+                  <UserX className="h-5 w-5 mr-2" />
                   Ban User
                 </DialogTitle>
                 <DialogDescription>
