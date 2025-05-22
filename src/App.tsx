@@ -41,20 +41,16 @@ function App() {
           <Route path="/contact" element={<ContactUs />} />
           
           {/* Protected Routes */}
-          <Route element={<ProtectedRoute />}>
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/user/:id" element={<UserProfile />} />
-            <Route path="/create-listing" element={<CreateListing />} />
-            <Route path="/checkout/:id" element={<Checkout />} />
-            <Route path="/activity" element={<ActivityLog />} />
-            <Route path="/report" element={<ReportForm />} />
-          </Route>
+          <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+          <Route path="/user/:id" element={<ProtectedRoute><UserProfile /></ProtectedRoute>} />
+          <Route path="/create-listing" element={<ProtectedRoute><CreateListing /></ProtectedRoute>} />
+          <Route path="/checkout/:id" element={<ProtectedRoute><Checkout /></ProtectedRoute>} />
+          <Route path="/activity" element={<ProtectedRoute><ActivityLog /></ProtectedRoute>} />
+          <Route path="/report" element={<ProtectedRoute><ReportForm /></ProtectedRoute>} />
           
           {/* Admin Routes */}
-          <Route element={<AdminProtectedRoute />}>
-            <Route path="/admin" element={<Admin />} />
-            <Route path="/admin/reports" element={<AdminReports />} />
-          </Route>
+          <Route path="/admin" element={<AdminProtectedRoute><Admin /></AdminProtectedRoute>} />
+          <Route path="/admin/reports" element={<AdminProtectedRoute><AdminReports /></AdminProtectedRoute>} />
           
           <Route path="*" element={<NotFound />} />
         </Routes>
