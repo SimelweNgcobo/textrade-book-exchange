@@ -49,6 +49,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, currentSession) => {
+        console.log('Auth state changed:', event, currentSession?.user?.email);
         setSession(currentSession);
         setUser(currentSession?.user ?? null);
         
@@ -65,6 +66,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     // THEN check for existing session
     supabase.auth.getSession().then(({ data: { session: currentSession } }) => {
+      console.log('Existing session check:', currentSession?.user?.email);
       setSession(currentSession);
       setUser(currentSession?.user ?? null);
       
@@ -82,6 +84,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const fetchUserProfile = async (userId: string) => {
     try {
+      console.log('Fetching profile for user:', userId);
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
@@ -94,6 +97,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
 
       if (data) {
+        console.log('Profile data retrieved:', data);
         // Map the database fields to our Profile interface
         // Using optional chaining to handle potentially missing fields
         setProfile({
@@ -116,17 +120,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const login = async (email: string, password: string) => {
     try {
+      console.log('Attempting login with email:', email);
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password
       });
 
       if (error) {
+        console.error('Login error:', error.message);
         throw error;
       }
 
+      console.log('Login successful:', data.user?.email);
       toast.success('Logged in successfully');
     } catch (error: any) {
+      console.error('Login error caught:', error.message);
       toast.error(error.message || 'Failed to login');
       throw error;
     }
@@ -134,6 +142,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const register = async (name: string, email: string, password: string, enable2FA = false) => {
     try {
+      console.log('Attempting registration with email:', email);
+      // Disable email confirmation for now
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
@@ -142,17 +152,43 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             name,
             enable_2fa: enable2FA
           },
-          // Using the correct property name for email redirects
+          // No email redirect needed since we're skipping confirmation
           emailRedirectTo: window.location.origin
         }
       });
 
       if (error) {
+        console.error('Registration error:', error.message);
         throw error;
       }
 
-      toast.success('Registered successfully. Check your email to confirm your account.');
+      console.log('Registration successful');
+      
+      // Since we're skipping email confirmation, sign in the user immediately
+      if (data.user) {
+        await supabase.auth.signInWithPassword({
+          email,
+          password
+        });
+        
+        // Create profile record
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .insert({
+            id: data.user.id,
+            name: name,
+            email: email,
+            is_admin: false
+          });
+          
+        if (profileError) {
+          console.error('Profile creation error:', profileError);
+        }
+        
+        toast.success('Registered and logged in successfully');
+      }
     } catch (error: any) {
+      console.error('Registration error caught:', error.message);
       toast.error(error.message || 'Failed to register');
       throw error;
     }

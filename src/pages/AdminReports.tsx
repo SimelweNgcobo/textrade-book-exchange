@@ -145,7 +145,7 @@ const AdminReports = () => {
           entityName: 'Mary Johnson',
           reportedBy: 'user-123',
           reporterName: 'Jane Smith',
-          reason: 'Didn't deliver book as promised',
+          reason: 'Didn\'t deliver book as promised',
           createdAt: '2025-05-12T14:20:00',
           severity: 'medium',
           status: 'pending'

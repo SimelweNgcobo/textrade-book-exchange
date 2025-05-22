@@ -41,11 +41,12 @@ const Register = () => {
         throw new Error("Password must be at least 6 characters long");
       }
 
+      console.log("Attempting registration with:", email);
       await register(name, email, password);
-      toast.success("Registration successful!");
-      navigate('/');
+      // The navigation to home happens in the register function now
     } catch (error: any) {
-      toast.error(error.message || "Registration failed");
+      console.error("Registration error in component:", error);
+      // Error is already handled in the register function
     } finally {
       setIsLoading(false);
     }

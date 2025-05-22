@@ -31,11 +31,12 @@ const Login = () => {
         throw new Error("Email and password are required");
       }
 
+      console.log("Attempting login with:", email);
       await login(email, password);
       navigate('/');
     } catch (error) {
       // Error is already handled in the login function
-      console.error('Login error:', error);
+      console.error('Login error in component:', error);
     } finally {
       setIsLoading(false);
     }
