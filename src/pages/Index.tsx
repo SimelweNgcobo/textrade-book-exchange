@@ -76,7 +76,7 @@ const Index = () => {
           </div>
           <div className="md:w-1/2 flex justify-center">
             <img 
-              src="/lovable-uploads/e478b483-1ef1-4894-b1e9-96bf8b4b857e.png"
+              src="/lovable-uploads/bd1bff70-5398-480d-ab05-1a01e839c2d0.png"
               alt="Students reading colorful books"
               className="rounded-lg shadow-xl max-w-full h-auto"
             />

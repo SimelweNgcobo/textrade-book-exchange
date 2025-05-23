@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import Layout from '@/components/Layout';
@@ -16,9 +16,13 @@ const Login = () => {
   const { login, isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   // Redirect if already authenticated
   if (isAuthenticated) {
-    navigate('/');
+    navigate('/', { replace: true });
     return null;
   }
 
@@ -34,7 +38,7 @@ const Login = () => {
       console.log("Attempting login with:", email);
       await login(email, password);
       console.log("Login successful, navigating to home");
-      navigate('/');
+      navigate('/', { replace: true });
     } catch (error) {
       // Error is already handled in the login function
       console.error('Login error in component:', error);

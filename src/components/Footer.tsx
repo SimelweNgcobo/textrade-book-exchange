@@ -5,12 +5,18 @@ import { Book } from 'lucide-react';
 const Footer = () => {
   const currentYear = new Date().getFullYear();
 
+  const handleLinkClick = () => {
+    setTimeout(() => {
+      window.scrollTo(0, 0);
+    }, 100);
+  };
+
   return (
     <footer className="bg-white border-t border-gray-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="space-y-4">
-            <Link to="/" className="flex items-center">
+            <Link to="/" className="flex items-center" onClick={handleLinkClick}>
               <Book className="h-6 w-6 text-book-600" />
               <span className="ml-2 text-xl font-bold text-book-800">ReBooked Solutions</span>
             </Link>
@@ -25,22 +31,17 @@ const Footer = () => {
             </h3>
             <ul className="space-y-2">
               <li>
-                <Link to="/books" className="text-gray-600 hover:text-book-600 text-sm">
+                <Link to="/books" className="text-gray-600 hover:text-book-600 text-sm" onClick={handleLinkClick}>
                   Browse Books
                 </Link>
               </li>
               <li>
-                <Link to="/books?category=textbooks" className="text-gray-600 hover:text-book-600 text-sm">
+                <Link to="/books?category=textbooks" className="text-gray-600 hover:text-book-600 text-sm" onClick={handleLinkClick}>
                   Textbooks
                 </Link>
               </li>
               <li>
-                <Link to="/books?condition=new" className="text-gray-600 hover:text-book-600 text-sm">
-                  New Books
-                </Link>
-              </li>
-              <li>
-                <Link to="/books?condition=used" className="text-gray-600 hover:text-book-600 text-sm">
+                <Link to="/books?condition=used" className="text-gray-600 hover:text-book-600 text-sm" onClick={handleLinkClick}>
                   Used Books
                 </Link>
               </li>
@@ -53,23 +54,18 @@ const Footer = () => {
             </h3>
             <ul className="space-y-2">
               <li>
-                <Link to="/profile" className="text-gray-600 hover:text-book-600 text-sm">
+                <Link to="/profile" className="text-gray-600 hover:text-book-600 text-sm" onClick={handleLinkClick}>
                   My Profile
                 </Link>
               </li>
               <li>
-                <Link to="/create-listing" className="text-gray-600 hover:text-book-600 text-sm">
+                <Link to="/create-listing" className="text-gray-600 hover:text-book-600 text-sm" onClick={handleLinkClick}>
                   Sell a Book
                 </Link>
               </li>
               <li>
-                <Link to="/activity" className="text-gray-600 hover:text-book-600 text-sm">
+                <Link to="/activity" className="text-gray-600 hover:text-book-600 text-sm" onClick={handleLinkClick}>
                   My Activity
-                </Link>
-              </li>
-              <li>
-                <Link to="/wishlist" className="text-gray-600 hover:text-book-600 text-sm">
-                  Wishlist
                 </Link>
               </li>
             </ul>
@@ -81,22 +77,22 @@ const Footer = () => {
             </h3>
             <ul className="space-y-2">
               <li>
-                <Link to="/contact" className="text-gray-600 hover:text-book-600 text-sm">
+                <Link to="/contact" className="text-gray-600 hover:text-book-600 text-sm" onClick={handleLinkClick}>
                   Contact Us
                 </Link>
               </li>
               <li>
-                <Link to="/report" className="text-gray-600 hover:text-book-600 text-sm">
+                <Link to="/report" className="text-gray-600 hover:text-book-600 text-sm" onClick={handleLinkClick}>
                   Report an Issue
                 </Link>
               </li>
               <li>
-                <Link to="/faq" className="text-gray-600 hover:text-book-600 text-sm">
+                <Link to="/faq" className="text-gray-600 hover:text-book-600 text-sm" onClick={handleLinkClick}>
                   FAQ
                 </Link>
               </li>
               <li>
-                <Link to="/terms" className="text-gray-600 hover:text-book-600 text-sm">
+                <Link to="/terms" className="text-gray-600 hover:text-book-600 text-sm" onClick={handleLinkClick}>
                   Terms & Conditions
                 </Link>
               </li>

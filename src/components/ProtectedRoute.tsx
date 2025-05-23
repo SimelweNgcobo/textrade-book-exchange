@@ -15,7 +15,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
       toast.error('Please login to access this page');
-      navigate('/login');
+      navigate('/login', { replace: true });
     }
   }, [isAuthenticated, isLoading, navigate]);
 

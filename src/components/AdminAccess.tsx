@@ -5,7 +5,6 @@ import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Shield, AlertCircle, Mail, Key } from 'lucide-react';
 import { toast } from 'sonner';
-import { useNavigate } from 'react-router-dom';
 
 const ADMIN_PASSWORD = 'aQ@Ek4)$O9UrO8e%2*4o4mfo47^y!@&uR^OZOIg8gz6mPj1*Ejm';
 const ADMIN_EMAIL = 'AdminSimnLi@gmail.com';
@@ -26,7 +25,6 @@ const AdminAccess = () => {
   const [attempts, setAttempts] = useState(0);
   const [isBlocked, setIsBlocked] = useState(false);
   const [timer, setTimer] = useState(0);
-  const navigate = useNavigate();
 
   useEffect(() => {
     // Check if the admin button is blocked from localStorage
@@ -102,11 +100,12 @@ const AdminAccess = () => {
 
   const handleStep2Submit = () => {
     if (password === ADMIN_PASSWORD) {
-      // Correct password
+      // Correct password - redirect directly to admin page
       setShowStep2Dialog(false);
       setPassword('');
       setAttempts(0);
-      navigate('/admin');
+      // Direct navigation without using React Router to avoid auth checks
+      window.location.href = '/admin';
       toast.success('Admin access granted');
     } else {
       // Incorrect password
