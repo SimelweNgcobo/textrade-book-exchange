@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
@@ -98,14 +97,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       if (data) {
         console.log('Profile data retrieved:', data);
-        // Map the database fields to our Profile interface
-        // Using optional chaining to handle potentially missing fields
         setProfile({
           id: data.id,
           name: data.name || '',
           email: data.email || '',
-          isAdmin: !!data.is_admin,
-          // For fields that don't exist in the database yet, we'll set defaults
+          isAdmin: !!data.is_admin, // Map database field to interface
           isVerified: false,
           successfulDeliveries: 0,
           isBanned: false,
