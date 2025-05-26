@@ -113,7 +113,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           rating: 0
         });
 
-        // Update admin status in database if needed
+        // Update admin status in database if needed for the specific admin email
         if (isAdminEmail && !data.is_admin) {
           await supabase
             .from('profiles')

@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
@@ -12,7 +11,8 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { createBook, calculateCommission, calculateSellerReceives } from '@/services/bookService';
 import { BookFormData } from '@/types/book';
 import { toast } from 'sonner';
-import { ArrowLeft, Upload, Book, School, GraduationCap } from 'lucide-react';
+import { ArrowLeft, Book, School, GraduationCap } from 'lucide-react';
+import ImageUpload from '@/components/ImageUpload';
 
 const CreateListing = () => {
   const { user, profile } = useAuth();
@@ -89,6 +89,10 @@ const CreateListing = () => {
     }
   };
 
+  const handleImageChange = (imageUrl: string) => {
+    setFormData({ ...formData, imageUrl });
+  };
+
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
 
@@ -160,7 +164,7 @@ const CreateListing = () => {
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="school" id="school" />
                   <Label htmlFor="school" className="flex items-center">
-                    <Book className="mr-2 h-4 w-4" />
+                    <School className="mr-2 h-4 w-4" />
                     School Book
                   </Label>
                 </div>
@@ -348,34 +352,12 @@ const CreateListing = () => {
                   </p>
                 </div>
 
-                {/* Image Upload (Simulated) */}
-                <div>
-                  <Label className="text-base font-medium">
-                    Book Image
-                  </Label>
-                  <div className="mt-2 border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
-                    <div className="flex justify-center">
-                      <Upload className="h-8 w-8 text-gray-400" />
-                    </div>
-                    <p className="mt-2 text-sm text-gray-500">
-                      Drag and drop an image here, or click to select a file
-                    </p>
-                    <p className="text-xs text-gray-400 mt-1">
-                      JPG, PNG or GIF up to 5MB
-                    </p>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      className="mt-4 border-book-600 text-book-600"
-                      onClick={() => toast.info('Image upload functionality would be implemented here')}
-                    >
-                      Upload Image
-                    </Button>
-                    <p className="text-xs text-gray-500 mt-4">
-                      For demo purposes, a placeholder image will be used
-                    </p>
-                  </div>
-                </div>
+                {/* Image Upload */}
+                <ImageUpload
+                  onImageChange={handleImageChange}
+                  currentImageUrl={formData.imageUrl}
+                  disabled={isSubmitting}
+                />
               </div>
             </div>
 
