@@ -146,16 +146,6 @@ const Checkout = () => {
     return book.price;
   };
 
-  const calculateCommission = () => {
-    if (!book) return 0;
-    return book.price * 0.10;
-  };
-
-  const calculateSellerReceives = () => {
-    if (!book) return 0;
-    return book.price - calculateCommission();
-  };
-
   if (isLoading) {
     return (
       <Layout>
@@ -229,18 +219,6 @@ const Checkout = () => {
               <div className="flex justify-between font-bold text-lg">
                 <span>Total:</span>
                 <span className="text-book-600">R{calculateTotal().toFixed(2)}</span>
-              </div>
-              <div className="border-t border-gray-200 my-2 pt-2">
-                <div className="text-sm text-gray-500 space-y-1">
-                  <div className="flex justify-between">
-                    <span>ReBooked Commission (10%):</span>
-                    <span>R{calculateCommission().toFixed(2)}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Seller receives:</span>
-                    <span>R{calculateSellerReceives().toFixed(2)}</span>
-                  </div>
-                </div>
               </div>
             </div>
           </div>

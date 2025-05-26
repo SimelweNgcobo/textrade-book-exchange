@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
@@ -11,8 +12,8 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { createBook, calculateCommission, calculateSellerReceives } from '@/services/bookService';
 import { BookFormData } from '@/types/book';
 import { toast } from 'sonner';
-import { ArrowLeft, Book, School, GraduationCap } from 'lucide-react';
-import ImageUpload from '@/components/ImageUpload';
+import { ArrowLeft, School, GraduationCap } from 'lucide-react';
+import MultiImageUpload from '@/components/MultiImageUpload';
 
 const CreateListing = () => {
   const { user, profile } = useAuth();
@@ -27,7 +28,13 @@ const CreateListing = () => {
     category: '',
     grade: '',
     universityYear: null,
-    imageUrl: 'https://source.unsplash.com/random/300x400/?textbook'
+    imageUrl: ''
+  });
+
+  const [bookImages, setBookImages] = useState({
+    frontCover: '',
+    backCover: '',
+    insidePages: ''
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -89,8 +96,10 @@ const CreateListing = () => {
     }
   };
 
-  const handleImageChange = (imageUrl: string) => {
-    setFormData({ ...formData, imageUrl });
+  const handleImagesChange = (images: { frontCover: string; backCover: string; insidePages: string }) => {
+    setBookImages(images);
+    // Use front cover as the main image URL
+    setFormData({ ...formData, imageUrl: images.frontCover });
   };
 
   const validateForm = (): boolean => {
@@ -110,6 +119,11 @@ const CreateListing = () => {
       newErrors.universityYear = 'University year is required for university books';
     }
 
+    // Validate all three images are uploaded
+    if (!bookImages.frontCover) newErrors.frontCover = 'Front cover photo is required';
+    if (!bookImages.backCover) newErrors.backCover = 'Back cover photo is required';
+    if (!bookImages.insidePages) newErrors.insidePages = 'Inside pages photo is required';
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -117,7 +131,12 @@ const CreateListing = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!validateForm()) return;
+    if (!validateForm()) {
+      if (!bookImages.frontCover || !bookImages.backCover || !bookImages.insidePages) {
+        toast.error('Please upload all three required photos before submitting');
+      }
+      return;
+    }
 
     setIsSubmitting(true);
     try {
@@ -133,8 +152,12 @@ const CreateListing = () => {
       );
 
       toast.success('Book listing created successfully!');
+      console.log('Book created successfully:', newBook);
+      
+      // Navigate to the new book's detail page to confirm it was created
       navigate(`/books/${newBook.id}`);
     } catch (error) {
+      console.error('Error creating book:', error);
       toast.error(error instanceof Error ? error.message : 'Failed to create listing');
     } finally {
       setIsSubmitting(false);
@@ -351,14 +374,19 @@ const CreateListing = () => {
                     Rate the condition of your book from New to Below Average
                   </p>
                 </div>
-
-                {/* Image Upload */}
-                <ImageUpload
-                  onImageChange={handleImageChange}
-                  currentImageUrl={formData.imageUrl}
-                  disabled={isSubmitting}
-                />
               </div>
+            </div>
+
+            {/* Multi-Image Upload */}
+            <div className="mt-6">
+              <MultiImageUpload
+                onImagesChange={handleImagesChange}
+                currentImages={bookImages}
+                disabled={isSubmitting}
+              />
+              {(errors.frontCover || errors.backCover || errors.insidePages) && (
+                <p className="text-sm text-red-500 mt-2">All three photos are required</p>
+              )}
             </div>
 
             {/* Commission and earnings notice */}

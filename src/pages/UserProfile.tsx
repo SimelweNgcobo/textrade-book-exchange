@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
@@ -16,7 +15,10 @@ import {
   Shield,
   AlertTriangle, 
   MessageCircle, 
-  Flag
+  Flag,
+  Share2,
+  Copy,
+  ExternalLink
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { 
@@ -29,7 +31,7 @@ import {
 } from '@/components/ui/dialog';
 
 const UserProfile = () => {
-  const { userId } = useParams();
+  const { id: userId } = useParams();
   const { user, profile, isAdmin } = useAuth();
   const navigate = useNavigate();
   
@@ -37,6 +39,7 @@ const UserProfile = () => {
   const [activeTab, setActiveTab] = useState("listings");
   const [isLoading, setIsLoading] = useState(true);
   const [isRatingDialogOpen, setIsRatingDialogOpen] = useState(false);
+  const [isShareDialogOpen, setIsShareDialogOpen] = useState(false);
   const [rating, setRating] = useState(5);
   const [reviewComment, setReviewComment] = useState('');
   const [isSubmittingRating, setIsSubmittingRating] = useState(false);
@@ -102,6 +105,39 @@ const UserProfile = () => {
 
   const handleRateUser = () => {
     setIsRatingDialogOpen(true);
+  };
+
+  const handleShareProfile = () => {
+    setIsShareDialogOpen(true);
+  };
+
+  const copyProfileLink = () => {
+    const profileUrl = `${window.location.origin}/user/${userData?.id}`;
+    navigator.clipboard.writeText(profileUrl);
+    toast.success('Profile link copied to clipboard!');
+  };
+
+  const shareToSocial = (platform: string) => {
+    const profileUrl = `${window.location.origin}/user/${userData?.id}`;
+    const text = `Check out ${userData?.name}'s textbook listings on ReBooked Solutions!`;
+    
+    let shareUrl = '';
+    
+    switch (platform) {
+      case 'twitter':
+        shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(profileUrl)}`;
+        break;
+      case 'facebook':
+        shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(profileUrl)}`;
+        break;
+      case 'whatsapp':
+        shareUrl = `https://wa.me/?text=${encodeURIComponent(text + ' ' + profileUrl)}`;
+        break;
+      default:
+        return;
+    }
+    
+    window.open(shareUrl, '_blank', 'width=600,height=400');
   };
 
   const submitRating = async () => {
@@ -213,46 +249,57 @@ const UserProfile = () => {
           </div>
           
           {/* Action Buttons */}
-          {!isOwnProfile && (
-            <div className="bg-gray-50 p-4 border-b border-gray-200 flex flex-wrap gap-2">
-              <Button 
-                variant="outline" 
-                className="bg-white border-book-600 text-book-600 hover:bg-book-50"
-                onClick={() => toast.info('Message feature coming soon')}
-              >
-                <MessageCircle className="h-4 w-4 mr-2" />
-                Message
-              </Button>
-              
-              <Button 
-                variant="outline" 
-                className="bg-white"
-                onClick={handleRateUser}
-              >
-                <Star className="h-4 w-4 mr-2" />
-                Rate User
-              </Button>
-              
-              <Button 
-                variant="outline" 
-                className="bg-white border-red-600 text-red-600 hover:bg-red-50 ml-auto"
-                onClick={() => navigate('/report')}
-              >
-                <Flag className="h-4 w-4 mr-2" />
-                Report
-              </Button>
-              
-              {isAdmin && !isOwnProfile && (
+          <div className="bg-gray-50 p-4 border-b border-gray-200 flex flex-wrap gap-2">
+            <Button 
+              variant="outline" 
+              className="bg-white border-book-600 text-book-600 hover:bg-book-50"
+              onClick={handleShareProfile}
+            >
+              <Share2 className="h-4 w-4 mr-2" />
+              Share Profile
+            </Button>
+            
+            {!isOwnProfile && (
+              <>
                 <Button 
-                  variant="destructive"
-                  onClick={() => toast.info('Admin action coming soon')}
+                  variant="outline" 
+                  className="bg-white border-book-600 text-book-600 hover:bg-book-50"
+                  onClick={() => toast.info('Message feature coming soon')}
                 >
-                  <AlertTriangle className="h-4 w-4 mr-2" />
-                  Admin Actions
+                  <MessageCircle className="h-4 w-4 mr-2" />
+                  Message
                 </Button>
-              )}
-            </div>
-          )}
+                
+                <Button 
+                  variant="outline" 
+                  className="bg-white"
+                  onClick={handleRateUser}
+                >
+                  <Star className="h-4 w-4 mr-2" />
+                  Rate User
+                </Button>
+                
+                <Button 
+                  variant="outline" 
+                  className="bg-white border-red-600 text-red-600 hover:bg-red-50 ml-auto"
+                  onClick={() => navigate('/report')}
+                >
+                  <Flag className="h-4 w-4 mr-2" />
+                  Report
+                </Button>
+                
+                {isAdmin && (
+                  <Button 
+                    variant="destructive"
+                    onClick={() => toast.info('Admin action coming soon')}
+                  >
+                    <AlertTriangle className="h-4 w-4 mr-2" />
+                    Admin Actions
+                  </Button>
+                )}
+              </>
+            )}
+          </div>
           
           {/* Tabs Content */}
           <div className="p-6">
@@ -410,6 +457,77 @@ const UserProfile = () => {
           </div>
         </div>
       </div>
+
+      {/* Share Profile Dialog */}
+      <Dialog open={isShareDialogOpen} onOpenChange={setIsShareDialogOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center">
+              <Share2 className="h-5 w-5 text-book-600 mr-2" />
+              Share Profile
+            </DialogTitle>
+            <DialogDescription>
+              Share {isOwnProfile ? 'your' : `${userData?.name}'s`} profile with others
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            <div>
+              <Label className="text-sm font-medium mb-2 block">Profile Link</Label>
+              <div className="flex items-center space-x-2">
+                <Input
+                  readOnly
+                  value={`${window.location.origin}/user/${userData?.id}`}
+                  className="flex-1"
+                />
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={copyProfileLink}
+                >
+                  <Copy className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+            
+            <div>
+              <Label className="text-sm font-medium mb-2 block">Share on Social Media</Label>
+              <div className="flex space-x-2">
+                <Button
+                  variant="outline"
+                  onClick={() => shareToSocial('twitter')}
+                  className="flex-1"
+                >
+                  <ExternalLink className="h-4 w-4 mr-2" />
+                  Twitter
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => shareToSocial('facebook')}
+                  className="flex-1"
+                >
+                  <ExternalLink className="h-4 w-4 mr-2" />
+                  Facebook
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => shareToSocial('whatsapp')}
+                  className="flex-1"
+                >
+                  <ExternalLink className="h-4 w-4 mr-2" />
+                  WhatsApp
+                </Button>
+              </div>
+            </div>
+          </div>
+          
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsShareDialogOpen(false)}>
+              Close
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Rating Dialog */}
       <Dialog open={isRatingDialogOpen} onOpenChange={setIsRatingDialogOpen}>

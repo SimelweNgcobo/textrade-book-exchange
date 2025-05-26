@@ -24,6 +24,7 @@ import Terms from './pages/Terms';
 import Privacy from './pages/Privacy';
 import ReportForm from './pages/ReportForm';
 import AdminReports from './pages/AdminReports';
+import Notifications from './pages/Notifications';
 
 import './App.css';
 
@@ -49,6 +50,7 @@ function App() {
           <Route path="/checkout/:id" element={<ProtectedRoute><Checkout /></ProtectedRoute>} />
           <Route path="/activity" element={<ProtectedRoute><ActivityLog /></ProtectedRoute>} />
           <Route path="/report" element={<ProtectedRoute><ReportForm /></ProtectedRoute>} />
+          <Route path="/notifications" element={<ProtectedRoute><Notifications /></ProtectedRoute>} />
           
           {/* Admin Routes */}
           <Route path="/admin" element={<AdminProtectedRoute><Admin /></AdminProtectedRoute>} />
