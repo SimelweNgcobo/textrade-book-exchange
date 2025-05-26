@@ -29,12 +29,7 @@ export const getBooks = async (filters?: {
         image_url,
         created_at,
         sold,
-        seller_id,
-        profiles:seller_id (
-          id,
-          name,
-          email
-        )
+        seller_id
       `)
       .eq('sold', false);
     
@@ -76,7 +71,27 @@ export const getBooks = async (filters?: {
       throw error;
     }
     
-    return data.map(transformBookData);
+    // Get seller profiles separately to avoid relationship issues
+    if (data && data.length > 0) {
+      const sellerIds = [...new Set(data.map(book => book.seller_id))];
+      const { data: profiles, error: profileError } = await supabase
+        .from('profiles')
+        .select('id, name, email')
+        .in('id', sellerIds);
+      
+      if (profileError) {
+        console.error('Error fetching seller profiles:', profileError);
+      }
+      
+      const profileMap = profiles ? profiles.reduce((map: Record<string, any>, profile) => {
+        map[profile.id] = profile;
+        return map;
+      }, {}) : {};
+      
+      return data.map(book => transformBookData(book, profileMap[book.seller_id]));
+    }
+    
+    return [];
   } catch (error) {
     console.error('Error in getBooks:', error);
     return [];
@@ -101,12 +116,7 @@ export const getBookById = async (id: string): Promise<Book | null> => {
         image_url,
         created_at,
         sold,
-        seller_id,
-        profiles:seller_id (
-          id,
-          name,
-          email
-        )
+        seller_id
       `)
       .eq('id', id)
       .single();
@@ -116,7 +126,18 @@ export const getBookById = async (id: string): Promise<Book | null> => {
       return null;
     }
     
-    return transformBookData(data);
+    // Get seller profile separately
+    const { data: profile, error: profileError } = await supabase
+      .from('profiles')
+      .select('id, name, email')
+      .eq('id', data.seller_id)
+      .single();
+    
+    if (profileError) {
+      console.error('Error fetching seller profile:', profileError);
+    }
+    
+    return transformBookData(data, profile);
   } catch (error) {
     console.error('Error in getBookById:', error);
     return null;
@@ -307,12 +328,7 @@ export const getAllBooks = async (includeSold: boolean = false): Promise<Book[]>
         image_url,
         created_at,
         sold,
-        seller_id,
-        profiles:seller_id (
-          id,
-          name,
-          email
-        )
+        seller_id
       `);
     
     if (!includeSold) {
@@ -326,7 +342,27 @@ export const getAllBooks = async (includeSold: boolean = false): Promise<Book[]>
       throw error;
     }
     
-    return data.map(transformBookData);
+    // Get seller profiles separately
+    if (data && data.length > 0) {
+      const sellerIds = [...new Set(data.map(book => book.seller_id))];
+      const { data: profiles, error: profileError } = await supabase
+        .from('profiles')
+        .select('id, name, email')
+        .in('id', sellerIds);
+      
+      if (profileError) {
+        console.error('Error fetching seller profiles:', profileError);
+      }
+      
+      const profileMap = profiles ? profiles.reduce((map: Record<string, any>, profile) => {
+        map[profile.id] = profile;
+        return map;
+      }, {}) : {};
+      
+      return data.map(book => transformBookData(book, profileMap[book.seller_id]));
+    }
+    
+    return [];
   } catch (error) {
     console.error('Error in getAllBooks:', error);
     return [];
@@ -442,7 +478,7 @@ export const removeBook = async (bookId: string): Promise<{ success: boolean; me
 };
 
 // Helper function to transform database book data to our Book type
-function transformBookData(data: any): Book {
+function transformBookData(data: any, profile?: any): Book {
   return {
     id: data.id,
     title: data.title,
@@ -456,8 +492,8 @@ function transformBookData(data: any): Book {
     imageUrl: data.image_url,
     seller: {
       id: data.seller_id,
-      name: data.profiles?.name || 'Unknown',
-      email: data.profiles?.email || 'unknown@example.com'
+      name: profile?.name || 'Unknown',
+      email: profile?.email || 'unknown@example.com'
     },
     createdAt: data.created_at,
     sold: data.sold

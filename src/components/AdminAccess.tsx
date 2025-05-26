@@ -3,21 +3,19 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
-import { Shield, AlertCircle, Lock } from 'lucide-react';
+import { Shield, Lock } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 
 const ADMIN_PASSWORD = 'aQ@Ek4)$O9UrO8e%2*4o4mfo47^y!@&uR^OZOIg8gz6mPj1*Ejm';
 
 const AdminAccess = () => {
-  const { profile, isAuthenticated } = useAuth();
+  const { profile, isAuthenticated, isAdmin } = useAuth();
   const [showPasswordDialog, setShowPasswordDialog] = useState(false);
   const [password, setPassword] = useState('');
 
   // Only show the Admin Access button if user is authenticated and is an admin
-  const isAdmin = isAuthenticated && profile?.isAdmin;
-
-  if (!isAdmin) {
+  if (!isAuthenticated || !isAdmin) {
     return null; // Don't render anything for non-admin users
   }
 
