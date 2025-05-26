@@ -13,7 +13,6 @@ import { createBook } from '@/services/bookService';
 import { BookFormData } from '@/types/book';
 import { toast } from 'sonner';
 import { ArrowLeft, Upload, Book, School, GraduationCap } from 'lucide-react';
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 
 const CreateListing = () => {
   const { user, profile } = useAuth();
@@ -344,9 +343,9 @@ const CreateListing = () => {
                       ))}
                     </SelectContent>
                   </Select>
-                  <FormDescription className="text-sm text-gray-500 mt-2">
+                  <p className="text-sm text-gray-500 mt-2">
                     Rate the condition of your book from New to Below Average
-                  </FormDescription>
+                  </p>
                 </div>
 
                 {/* Image Upload (Simulated) */}
