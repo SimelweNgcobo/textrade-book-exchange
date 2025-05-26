@@ -50,6 +50,11 @@ const Index = () => {
       <section className="bg-gradient-to-r from-book-100 to-book-200 py-20">
         <div className="container mx-auto px-4 flex flex-col md:flex-row items-center">
           <div className="md:w-1/2 mb-10 md:mb-0">
+            <div className="mb-4">
+              <span className="inline-block bg-book-600/10 text-book-700 px-4 py-2 rounded-full text-sm font-medium italic">
+                "Old Pages, New Adventures"
+              </span>
+            </div>
             <h1 className="text-4xl md:text-5xl font-bold text-book-900 mb-4">
               Buy and Sell Textbooks with Ease
             </h1>

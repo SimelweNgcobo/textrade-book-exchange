@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { getBookById, purchaseBook, calculateCommission, calculateSellerReceives } from '@/services/bookService';
+import { getBookById, purchaseBook } from '@/services/bookService';
 import { Book } from '@/types/book';
 import { toast } from 'sonner';
 import { ArrowLeft, CreditCard, AlertCircle } from 'lucide-react';
@@ -148,7 +148,6 @@ const Checkout = () => {
 
   const calculateCommission = () => {
     if (!book) return 0;
-    // Updated to calculate 10% of book price
     return book.price * 0.10;
   };
 
@@ -235,11 +234,11 @@ const Checkout = () => {
                 <div className="text-sm text-gray-500 space-y-1">
                   <div className="flex justify-between">
                     <span>ReBooked Commission (10%):</span>
-                    <span>R{book ? calculateCommission(book.price).toFixed(2) : '0.00'}</span>
+                    <span>R{calculateCommission().toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between">
                     <span>Seller receives:</span>
-                    <span>R{book ? calculateSellerReceives(book.price).toFixed(2) : '0.00'}</span>
+                    <span>R{calculateSellerReceives().toFixed(2)}</span>
                   </div>
                 </div>
               </div>
