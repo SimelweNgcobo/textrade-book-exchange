@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { createBook } from '@/services/bookService';
+import { createBook, calculateCommission, calculateSellerReceives } from '@/services/bookService';
 import { BookFormData } from '@/types/book';
 import { toast } from 'sonner';
 import { ArrowLeft, Upload, Book, School, GraduationCap } from 'lucide-react';
@@ -379,10 +379,22 @@ const CreateListing = () => {
               </div>
             </div>
 
-            {/* Commission notice */}
+            {/* Commission and earnings notice */}
             <div className="p-4 bg-book-50 rounded-lg border border-book-200 mt-6">
-              <p className="text-book-800">
-                <strong>Please note:</strong> A commission fee of R15 will be deducted from the sale price when your book is sold.
+              <h3 className="font-semibold text-book-800 mb-2">Commission & Earnings</h3>
+              <div className="space-y-2 text-sm">
+                <p className="text-book-700">
+                  <strong>Book Price:</strong> R{formData.price.toFixed(2)}
+                </p>
+                <p className="text-orange-600">
+                  <strong>ReBooked Commission (10%):</strong> -R{calculateCommission(formData.price).toFixed(2)}
+                </p>
+                <p className="text-green-600 font-semibold">
+                  <strong>You will receive:</strong> R{calculateSellerReceives(formData.price).toFixed(2)}
+                </p>
+              </div>
+              <p className="text-book-600 mt-3 text-sm">
+                ReBooked takes a 10% commission from each sale to maintain the platform and provide secure transactions.
               </p>
             </div>
 

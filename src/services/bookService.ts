@@ -3,6 +3,9 @@ import { Book, BookFormData } from '../types/book';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
+// Commission rate constant - 10% of book price
+const COMMISSION_RATE = 0.10;
+
 // Get all books with optional filtering
 export const getBooks = async (filters?: {
   category?: string;
@@ -222,8 +225,8 @@ export const purchaseBook = async (
     }
     
     const originalPrice = book.price;
-    // Calculate commission as 10% of the book price (updated from fixed R15)
-    const commission = originalPrice * 0.10;
+    // Calculate commission as 10% of the book price
+    const commission = originalPrice * COMMISSION_RATE;
     
     // Begin transaction
     // 1. Mark the book as sold
@@ -269,6 +272,16 @@ export const purchaseBook = async (
     console.error('Error in purchaseBook:', error);
     return { success: false, message: 'An unexpected error occurred', price: 0 };
   }
+};
+
+// Calculate commission for display purposes
+export const calculateCommission = (price: number): number => {
+  return price * COMMISSION_RATE;
+};
+
+// Calculate what seller receives after commission
+export const calculateSellerReceives = (price: number): number => {
+  return price - calculateCommission(price);
 };
 
 // Get books by seller ID

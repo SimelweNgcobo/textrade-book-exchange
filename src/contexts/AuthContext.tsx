@@ -53,7 +53,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setSession(currentSession);
         setUser(currentSession?.user ?? null);
         
-        // Don't call supabase directly here - defer with setTimeout
+        // Defer profile fetching to avoid Supabase deadlock
         if (currentSession?.user) {
           setTimeout(() => {
             fetchUserProfile(currentSession.user.id);
@@ -98,17 +98,28 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       if (data) {
         console.log('Profile data retrieved:', data);
+        // Check if this is the admin email and ensure admin status
+        const isAdminEmail = data.email === 'AdminSimnLi@gmail.com';
+        
         setProfile({
           id: data.id,
           name: data.name || '',
           email: data.email || '',
-          isAdmin: !!data.is_admin, // Map database field to interface
+          isAdmin: isAdminEmail || !!data.is_admin, // Force admin status for admin email
           isVerified: false,
           successfulDeliveries: 0,
           isBanned: false,
           banReason: '',
           rating: 0
         });
+
+        // Update admin status in database if needed
+        if (isAdminEmail && !data.is_admin) {
+          await supabase
+            .from('profiles')
+            .update({ is_admin: true })
+            .eq('id', userId);
+        }
       }
     } catch (error) {
       console.error('Error fetching profile:', error);
@@ -144,7 +155,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const register = async (name: string, email: string, password: string, enable2FA = false) => {
     try {
       console.log('Attempting registration with email:', email);
-      // Disable email confirmation for now
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
@@ -153,7 +163,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             name,
             enable_2fa: enable2FA
           },
-          // No email redirect needed since we're skipping confirmation
           emailRedirectTo: window.location.origin
         }
       });
@@ -165,28 +174,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       console.log('Registration successful');
       
-      // Since we're skipping email confirmation, sign in the user immediately
+      // Create profile record if user was created
       if (data.user) {
-        await supabase.auth.signInWithPassword({
-          email,
-          password
-        });
+        // Check if this is the admin email
+        const isAdminEmail = email === 'AdminSimnLi@gmail.com';
         
-        // Create profile record
         const { error: profileError } = await supabase
           .from('profiles')
           .insert({
             id: data.user.id,
             name: name,
             email: email,
-            is_admin: false
+            is_admin: isAdminEmail // Set admin status for admin email
           });
           
         if (profileError) {
           console.error('Profile creation error:', profileError);
         }
         
-        toast.success('Registered and logged in successfully');
+        toast.success('Registered successfully');
       }
     } catch (error: any) {
       console.error('Registration error caught:', error.message);

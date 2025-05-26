@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { getBookById, purchaseBook } from '@/services/bookService';
+import { getBookById, purchaseBook, calculateCommission, calculateSellerReceives } from '@/services/bookService';
 import { Book } from '@/types/book';
 import { toast } from 'sonner';
 import { ArrowLeft, CreditCard, AlertCircle } from 'lucide-react';
@@ -226,18 +226,21 @@ const Checkout = () => {
                 <span className="text-gray-600">Book Price:</span>
                 <span className="font-medium">R{book?.price.toFixed(2)}</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">Commission (10%):</span>
-                <span className="font-medium">R{calculateCommission().toFixed(2)}</span>
-              </div>
               <div className="border-t border-dashed border-gray-200 my-2 pt-2"></div>
               <div className="flex justify-between font-bold text-lg">
                 <span>Total:</span>
                 <span className="text-book-600">R{calculateTotal().toFixed(2)}</span>
               </div>
               <div className="border-t border-gray-200 my-2 pt-2">
-                <div className="text-sm text-gray-500">
-                  <p>Seller receives: R{calculateSellerReceives().toFixed(2)}</p>
+                <div className="text-sm text-gray-500 space-y-1">
+                  <div className="flex justify-between">
+                    <span>ReBooked Commission (10%):</span>
+                    <span>R{book ? calculateCommission(book.price).toFixed(2) : '0.00'}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Seller receives:</span>
+                    <span>R{book ? calculateSellerReceives(book.price).toFixed(2) : '0.00'}</span>
+                  </div>
                 </div>
               </div>
             </div>
