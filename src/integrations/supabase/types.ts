@@ -130,18 +130,6 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      delete_user_profile: {
-        Args: { user_id: string }
-        Returns: undefined
-      }
-      get_user_profile: {
-        Args: { user_id: string }
-        Returns: {
-          id: number
-          name: string
-          email: string
-        }[]
-      }
       is_admin: {
         Args: { user_id: string }
         Returns: boolean
@@ -154,10 +142,6 @@ export type Database = {
           email: string
           created_at: string
         }[]
-      }
-      update_user_profile: {
-        Args: { user_id: string; new_name: string; new_email: string }
-        Returns: undefined
       }
     }
     Enums: {
