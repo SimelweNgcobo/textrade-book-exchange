@@ -96,6 +96,11 @@ const Footer = () => {
                   Terms & Conditions
                 </Link>
               </li>
+              <li>
+                <Link to="/privacy" className="text-gray-600 hover:text-book-600 text-sm" onClick={handleLinkClick}>
+                  Privacy Policy
+                </Link>
+              </li>
             </ul>
           </div>
         </div>

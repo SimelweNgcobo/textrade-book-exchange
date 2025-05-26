@@ -21,6 +21,7 @@ import ContactUs from './pages/ContactUs';
 import ActivityLog from './pages/ActivityLog';
 import FAQ from './pages/FAQ';
 import Terms from './pages/Terms';
+import Privacy from './pages/Privacy';
 import ReportForm from './pages/ReportForm';
 import AdminReports from './pages/AdminReports';
 
@@ -38,6 +39,7 @@ function App() {
           <Route path="/register" element={<Register />} />
           <Route path="/faq" element={<FAQ />} />
           <Route path="/terms" element={<Terms />} />
+          <Route path="/privacy" element={<Privacy />} />
           <Route path="/contact" element={<ContactUs />} />
           
           {/* Protected Routes */}
