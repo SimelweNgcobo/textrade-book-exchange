@@ -27,7 +27,7 @@ const BookNotSellingHelp = ({ bookId, bookTitle }: BookNotSellingHelpProps) => {
   const shareToWhatsApp = () => {
     if (bookId && bookTitle) {
       const listingUrl = `${window.location.origin}/books/${bookId}`;
-      const text = `Check out this textbook "${bookTitle}" on ReBooked Solutions!`;
+      const text = `Check out this textbook "${bookTitle}" on Rebooked Solutions!`;
       const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(text + ' ' + listingUrl)}`;
       window.open(whatsappUrl, '_blank');
     }
@@ -78,7 +78,10 @@ const BookNotSellingHelp = ({ bookId, bookTitle }: BookNotSellingHelpProps) => {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" className="flex items-center text-orange-600 border-orange-600 hover:bg-orange-50">
+        <Button 
+          variant="outline" 
+          className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl px-4 py-2 text-sm shadow border-0 flex items-center"
+        >
           <TrendingDown className="mr-2 h-4 w-4" />
           Book not selling? Here's what to do
         </Button>

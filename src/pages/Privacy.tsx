@@ -13,7 +13,7 @@ const Privacy = () => {
           </CardHeader>
           <CardContent className="prose prose-lg max-w-none">
             <p className="text-gray-700 mb-6">
-              At ReBooked Solutions, we are committed to protecting your privacy and ensuring the security of your personal information. This Privacy Policy explains how we collect, use, and safeguard your data when you use our textbook marketplace platform.
+              At Rebooked Solutions, we are committed to protecting your privacy and ensuring the security of your personal information. This Privacy Policy explains how we collect, use, and safeguard your data when you use our textbook marketplace platform.
             </p>
 
             <h2 className="text-2xl font-semibold text-book-800 mt-8 mb-4">Information We Collect</h2>
@@ -85,7 +85,10 @@ const Privacy = () => {
               We use cookies and similar technologies to enhance your experience, remember your preferences, and analyze platform usage. You can control cookie settings through your browser preferences.
             </p>
 
-            <h2 className="text-2xl font-semibold text-book-800 mt-8 mb-4">Children's Privacy</h2>
+            <h2 className="text-2xl font-semibold text-book-800 mt-8 mb-4">Eligibility and Children's Privacy</h2>
+            <p className="mb-4">
+              Rebooked Solutions is intended for users aged 18 and older. If you are under 18, you must obtain parental or legal guardian consent to use this platform. Rebooked Solutions does not encourage users under the age of 18 to sell or trade books.
+            </p>
             <p className="mb-4">
               Our platform is not intended for users under 13 years of age. We do not knowingly collect personal information from children under 13.
             </p>
@@ -100,7 +103,7 @@ const Privacy = () => {
               If you have questions about this Privacy Policy or how we handle your data, please contact us at:
             </p>
             <p className="mb-2"><strong>Email:</strong> privacy@rebooked.co.za</p>
-            <p className="mb-2"><strong>Address:</strong> ReBooked Solutions, Gauteng, South Africa</p>
+            <p className="mb-2"><strong>Address:</strong> Rebooked Solutions, Gauteng, South Africa</p>
           </CardContent>
         </Card>
       </div>

@@ -15,14 +15,14 @@ const Terms = () => {
             <section className="mb-8">
               <h2 className="text-2xl font-semibold text-book-700 mb-4">1. Acceptance of Terms</h2>
               <p className="mb-4">
-                By accessing and using ReBooked ("the Service"), you accept and agree to be bound by the terms and provision of this agreement. This service is provided in <strong>Gauteng</strong>, South Africa, and is subject to South African law.
+                By accessing and using Rebooked Solutions ("the Service"), you accept and agree to be bound by the terms and provision of this agreement. This service is provided in <strong>Gauteng</strong>, South Africa, and is subject to South African law.
               </p>
             </section>
 
             <section className="mb-8">
               <h2 className="text-2xl font-semibold text-book-700 mb-4">2. Use License</h2>
               <p className="mb-4">
-                Permission is granted to temporarily use ReBooked for personal, non-commercial transitory viewing only. This includes:
+                Permission is granted to temporarily use Rebooked Solutions for personal, non-commercial transitory viewing only. This includes:
               </p>
               <ul className="list-disc list-inside mb-4 ml-4">
                 <li>Browsing available textbooks</li>
@@ -67,7 +67,7 @@ const Terms = () => {
             <section className="mb-8">
               <h2 className="text-2xl font-semibold text-book-700 mb-4">5. Payments and Fees</h2>
               <p className="mb-4">
-                ReBooked charges a 10% commission on all successful sales. This fee covers:
+                Rebooked Solutions charges a 10% commission on all successful sales. This fee covers:
               </p>
               <ul className="list-disc list-inside mb-4 ml-4">
                 <li>Platform maintenance and hosting</li>
@@ -96,7 +96,7 @@ const Terms = () => {
             <section className="mb-8">
               <h2 className="text-2xl font-semibold text-book-700 mb-4">7. Shipping and Returns</h2>
               <p className="mb-4">
-                Shipping arrangements are made between buyers and sellers. ReBooked facilitates these transactions but is not responsible for:
+                Shipping arrangements are made between buyers and sellers. Rebooked Solutions facilitates these transactions but is not responsible for:
               </p>
               <ul className="list-disc list-inside mb-4 ml-4">
                 <li>Lost or damaged items during shipping</li>
@@ -118,7 +118,7 @@ const Terms = () => {
             <section className="mb-8">
               <h2 className="text-2xl font-semibold text-book-700 mb-4">9. Disclaimers</h2>
               <p className="mb-4">
-                The information on this website is provided on an "as is" basis. To the fullest extent permitted by law, ReBooked:
+                The information on this website is provided on an "as is" basis. To the fullest extent permitted by law, Rebooked Solutions:
               </p>
               <ul className="list-disc list-inside mb-4 ml-4">
                 <li>Excludes all representations and warranties relating to this website and its contents</li>
@@ -130,7 +130,7 @@ const Terms = () => {
             <section className="mb-8">
               <h2 className="text-2xl font-semibold text-book-700 mb-4">10. Limitations</h2>
               <p className="mb-4">
-                In no event shall ReBooked or its suppliers be liable for any damages (including, without limitation, damages for loss of data or profit, or due to business interruption) arising out of the use or inability to use the materials on ReBooked's website.
+                In no event shall Rebooked Solutions or its suppliers be liable for any damages (including, without limitation, damages for loss of data or profit, or due to business interruption) arising out of the use or inability to use the materials on Rebooked Solutions's website.
               </p>
             </section>
 
@@ -144,7 +144,7 @@ const Terms = () => {
             <section className="mb-8">
               <h2 className="text-2xl font-semibold text-book-700 mb-4">12. Changes to Terms</h2>
               <p className="mb-4">
-                ReBooked reserves the right to revise these terms of service at any time without notice. By using this website, you are agreeing to be bound by the then current version of these terms of service.
+                Rebooked Solutions reserves the right to revise these terms of service at any time without notice. By using this website, you are agreeing to be bound by the then current version of these terms of service.
               </p>
             </section>
 

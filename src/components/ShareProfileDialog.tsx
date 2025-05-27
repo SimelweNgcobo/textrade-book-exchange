@@ -31,7 +31,7 @@ const ShareProfileDialog = ({ isOpen, onClose, userId, userName, isOwnProfile }:
   };
 
   const shareToSocial = (platform: string) => {
-    const text = `Check out ${userName}'s textbook listings on ReBooked Solutions!`;
+    const text = `Check out ${userName}'s textbook listings on Rebooked Solutions!`;
     
     let shareUrl = '';
     

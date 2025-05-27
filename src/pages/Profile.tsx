@@ -15,11 +15,13 @@ import {
   Calendar, 
   Edit,
   MapPin,
-  Package
+  Package,
+  Share2
 } from 'lucide-react';
 import { toast } from 'sonner';
 import AddressForm from '@/components/AddressForm';
 import BookNotSellingHelp from '@/components/BookNotSellingHelp';
+import ShareProfileDialog from '@/components/ShareProfileDialog';
 import { saveUserAddresses, getUserAddresses } from '@/services/addressService';
 
 const Profile = () => {
@@ -28,6 +30,7 @@ const Profile = () => {
   
   const [activeTab, setActiveTab] = useState("listings");
   const [isLoadingAddresses, setIsLoadingAddresses] = useState(false);
+  const [isShareDialogOpen, setIsShareDialogOpen] = useState(false);
   const [userAddresses, setUserAddresses] = useState({
     pickup_address: null,
     shipping_address: null,
@@ -87,12 +90,22 @@ const Profile = () => {
         shipping_address: shippingAddress,
         addresses_same: addressesSame
       });
+      toast.success('Addresses updated successfully!');
     } catch (error) {
       console.error('Error saving addresses:', error);
+      toast.error('Failed to update addresses');
       throw error;
     } finally {
       setIsLoadingAddresses(false);
     }
+  };
+
+  const handleEditProfile = () => {
+    toast.info('Edit profile functionality coming soon');
+  };
+
+  const handleShareProfile = () => {
+    setIsShareDialogOpen(true);
   };
 
   if (!user || !profile) {
@@ -131,6 +144,28 @@ const Profile = () => {
             </div>
           </div>
           
+          {/* Action Buttons Section */}
+          <div className="bg-gray-50 p-4 border-b border-gray-200">
+            <div className="flex flex-wrap gap-2">
+              <Button 
+                onClick={handleEditProfile}
+                className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl px-4 py-2 text-sm shadow"
+              >
+                <Edit className="mr-2 h-4 w-4" />
+                Edit Profile
+              </Button>
+              
+              <Button 
+                onClick={handleShareProfile}
+                variant="outline"
+                className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl px-4 py-2 text-sm shadow border-0"
+              >
+                <Share2 className="mr-2 h-4 w-4" />
+                Share Profile
+              </Button>
+            </div>
+          </div>
+          
           <div className="p-6">
             <Tabs defaultValue={activeTab} onValueChange={setActiveTab}>
               <TabsList className="w-full mb-6">
@@ -140,116 +175,123 @@ const Profile = () => {
               </TabsList>
               
               <TabsContent value="listings">
-                <div className="space-y-4">
-                  <div className="flex justify-between items-center">
-                    <h2 className="text-xl font-semibold">Your Book Listings</h2>
-                    <Button onClick={() => navigate('/create-listing')} className="bg-book-600 hover:bg-book-700">
-                      <Plus className="mr-2 h-4 w-4" />
-                      Add New Listing
-                    </Button>
-                  </div>
-
-                  {mockListings.length > 0 ? (
-                    <div className="space-y-4">
-                      <div className="flex justify-end mb-4">
-                        <BookNotSellingHelp />
-                      </div>
-                      
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {mockListings.map((listing) => (
-                          <div 
-                            key={listing.id}
-                            className="border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow"
-                          >
-                            <div className="relative h-48">
-                              <img 
-                                src={listing.imageUrl} 
-                                alt={listing.title}
-                                className="w-full h-full object-cover"
-                              />
-                              {listing.sold && (
-                                <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-                                  <Badge className="bg-red-600 text-white border-0 text-lg py-1 px-3">SOLD</Badge>
-                                </div>
-                              )}
-                            </div>
-                            <div className="p-4">
-                              <h3 className="font-medium text-lg mb-1 line-clamp-1">{listing.title}</h3>
-                              <div className="flex justify-between items-center mb-2">
-                                <p className="font-bold text-book-600">R{listing.price}</p>
-                                <Badge variant="outline">{listing.condition}</Badge>
-                              </div>
-                              <div className="flex justify-between items-center text-sm text-gray-500">
-                                <div className="flex items-center">
-                                  <Calendar className="h-4 w-4 mr-1" />
-                                  {new Date(listing.createdAt).toLocaleDateString()}
-                                </div>
-                                <div className="space-x-2">
-                                  <Button 
-                                    variant="link" 
-                                    size="sm"
-                                    className="p-0 h-auto"
-                                    onClick={() => navigate(`/books/${listing.id}`)}
-                                  >
-                                    View
-                                  </Button>
-                                  <Button 
-                                    variant="link" 
-                                    size="sm"
-                                    className="p-0 h-auto text-orange-600"
-                                  >
-                                    <Edit className="h-3 w-3 mr-1" />
-                                    Edit
-                                  </Button>
-                                </div>
-                              </div>
-                              {!listing.sold && (
-                                <div className="mt-3">
-                                  <BookNotSellingHelp 
-                                    bookId={listing.id} 
-                                    bookTitle={listing.title}
-                                  />
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="text-center py-10">
-                      <BookIcon className="h-12 w-12 text-gray-300 mx-auto mb-3" />
-                      <p className="text-gray-500 mb-4">You haven't listed any books yet</p>
-                      <Button onClick={() => navigate('/create-listing')} className="bg-book-600 hover:bg-book-700">
+                <Card className="mb-6">
+                  <CardHeader>
+                    <div className="flex justify-between items-center">
+                      <CardTitle>Your Book Listings</CardTitle>
+                      <Button 
+                        onClick={() => navigate('/create-listing')} 
+                        className="bg-book-600 hover:bg-book-700"
+                      >
                         <Plus className="mr-2 h-4 w-4" />
-                        Create Your First Listing
+                        Add New Listing
                       </Button>
                     </div>
-                  )}
-                </div>
+                  </CardHeader>
+                  <CardContent>
+                    {mockListings.length > 0 ? (
+                      <div className="space-y-4">
+                        <div className="flex justify-end mb-4">
+                          <BookNotSellingHelp />
+                        </div>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                          {mockListings.map((listing) => (
+                            <div 
+                              key={listing.id}
+                              className="border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow"
+                            >
+                              <div className="relative h-48">
+                                <img 
+                                  src={listing.imageUrl} 
+                                  alt={listing.title}
+                                  className="w-full h-full object-cover"
+                                />
+                                {listing.sold && (
+                                  <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+                                    <Badge className="bg-red-600 text-white border-0 text-lg py-1 px-3">SOLD</Badge>
+                                  </div>
+                                )}
+                              </div>
+                              <div className="p-4">
+                                <h3 className="font-medium text-lg mb-1 line-clamp-1">{listing.title}</h3>
+                                <div className="flex justify-between items-center mb-2">
+                                  <p className="font-bold text-book-600">R{listing.price}</p>
+                                  <Badge variant="outline">{listing.condition}</Badge>
+                                </div>
+                                <div className="flex justify-between items-center text-sm text-gray-500">
+                                  <div className="flex items-center">
+                                    <Calendar className="h-4 w-4 mr-1" />
+                                    {new Date(listing.createdAt).toLocaleDateString()}
+                                  </div>
+                                  <div className="space-x-2">
+                                    <Button 
+                                      variant="link" 
+                                      size="sm"
+                                      className="p-0 h-auto"
+                                      onClick={() => navigate(`/books/${listing.id}`)}
+                                    >
+                                      View
+                                    </Button>
+                                    <Button 
+                                      variant="link" 
+                                      size="sm"
+                                      className="p-0 h-auto text-orange-600"
+                                    >
+                                      <Edit className="h-3 w-3 mr-1" />
+                                      Edit
+                                    </Button>
+                                  </div>
+                                </div>
+                                {!listing.sold && (
+                                  <div className="mt-3">
+                                    <BookNotSellingHelp 
+                                      bookId={listing.id} 
+                                      bookTitle={listing.title}
+                                    />
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="text-center py-10">
+                        <BookIcon className="h-12 w-12 text-gray-300 mx-auto mb-3" />
+                        <p className="text-gray-500 mb-4">You haven't listed any books yet</p>
+                        <Button onClick={() => navigate('/create-listing')} className="bg-book-600 hover:bg-book-700">
+                          <Plus className="mr-2 h-4 w-4" />
+                          Create Your First Listing
+                        </Button>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
               </TabsContent>
               
               <TabsContent value="addresses">
-                <div className="space-y-6">
-                  <div>
-                    <h2 className="text-xl font-semibold mb-2">Manage Your Addresses</h2>
-                    <p className="text-gray-600 mb-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Manage Your Addresses</CardTitle>
+                    <p className="text-gray-600">
                       Set up your pickup address for selling books and shipping address for purchases.
                     </p>
-                  </div>
-
-                  <AddressForm
-                    pickupAddress={userAddresses.pickup_address}
-                    shippingAddress={userAddresses.shipping_address}
-                    addressesSame={userAddresses.addresses_same}
-                    onSave={handleSaveAddresses}
-                    isLoading={isLoadingAddresses}
-                  />
-                </div>
+                  </CardHeader>
+                  <CardContent>
+                    <AddressForm
+                      pickupAddress={userAddresses.pickup_address}
+                      shippingAddress={userAddresses.shipping_address}
+                      addressesSame={userAddresses.addresses_same}
+                      onSave={handleSaveAddresses}
+                      isLoading={isLoadingAddresses}
+                    />
+                  </CardContent>
+                </Card>
               </TabsContent>
               
               <TabsContent value="settings">
-                <div className="space-y-6">
+                <div className="grid gap-6">
                   <Card>
                     <CardHeader>
                       <CardTitle>Account Information</CardTitle>
@@ -263,7 +305,10 @@ const Profile = () => {
                         <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
                         <p className="text-gray-900">{profile.email || user.email}</p>
                       </div>
-                      <Button variant="outline">
+                      <Button 
+                        onClick={handleEditProfile}
+                        className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl px-4 py-2 text-sm shadow"
+                      >
                         <Edit className="mr-2 h-4 w-4" />
                         Edit Profile
                       </Button>
@@ -304,6 +349,7 @@ const Profile = () => {
                         <Button 
                           variant="outline" 
                           onClick={() => setActiveTab('addresses')}
+                          className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl px-4 py-2 text-sm shadow border-0"
                         >
                           <Edit className="mr-2 h-4 w-4" />
                           Update Addresses
@@ -317,6 +363,16 @@ const Profile = () => {
           </div>
         </div>
       </div>
+
+      {user && (
+        <ShareProfileDialog
+          isOpen={isShareDialogOpen}
+          onClose={() => setIsShareDialogOpen(false)}
+          userId={user.id}
+          userName={profile?.name || 'User'}
+          isOwnProfile={true}
+        />
+      )}
     </Layout>
   );
 };
