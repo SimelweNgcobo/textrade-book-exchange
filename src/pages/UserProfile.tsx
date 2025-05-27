@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
@@ -12,17 +11,13 @@ import {
   Star, 
   BookIcon, 
   Calendar, 
-  Shield,
   AlertTriangle, 
-  MessageCircle, 
-  Flag,
-  Share2
+  MessageCircle
 } from 'lucide-react';
 import { toast } from 'sonner';
 import ShareProfileDialog from '@/components/ShareProfileDialog';
 import BookNotSellingHelp from '@/components/BookNotSellingHelp';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import ProfileHeader from '@/components/ProfileHeader';
 import { 
   Dialog, 
   DialogContent, 
@@ -31,7 +26,6 @@ import {
   DialogFooter,
   DialogDescription, 
 } from '@/components/ui/dialog';
-import { Copy, ExternalLink } from 'lucide-react';
 
 const UserProfile = () => {
   const { id: userId } = useParams();
@@ -49,15 +43,18 @@ const UserProfile = () => {
   const [isSubmittingRating, setIsSubmittingRating] = useState(false);
 
   useEffect(() => {
-    setIsOwnProfile(userId === user?.id || !userId);
+    // Check if user is authenticated and if this is their own profile
+    const isAuthenticated = !!user;
+    const isOwn = isAuthenticated && (userId === user?.id || !userId);
+    setIsOwnProfile(isOwn);
     
     setTimeout(() => {
       const mockUser = {
         id: userId || user?.id,
-        name: isOwnProfile ? profile?.name || 'Current User' : 'Jane Smith',
-        email: isOwnProfile ? profile?.email : 'jane.smith@example.com',
+        name: isOwn ? profile?.name || 'Current User' : 'Jane Smith',
+        email: isOwn ? profile?.email : 'jane.smith@example.com',
         joinDate: '2024-11-15T00:00:00',
-        isVerified: isOwnProfile ? profile?.isVerified : true,
+        isVerified: isOwn ? profile?.isVerified : true,
         rating: 4.8,
         successfulDeliveries: 12,
         listings: [
@@ -101,7 +98,7 @@ const UserProfile = () => {
       setUserData(mockUser);
       setIsLoading(false);
     }, 1000);
-  }, [userId, user, profile, isOwnProfile]);
+  }, [userId, user, profile]);
 
   const handleShareProfile = () => {
     setIsShareDialogOpen(true);
@@ -117,7 +114,33 @@ const UserProfile = () => {
   };
 
   const handleRateUser = () => {
+    // Check if user is authenticated before allowing rating
+    if (!user) {
+      toast.error('Please log in to rate this user');
+      navigate('/login');
+      return;
+    }
     setIsRatingDialogOpen(true);
+  };
+
+  const handleMessageUser = () => {
+    // Check if user is authenticated before allowing messaging
+    if (!user) {
+      toast.error('Please log in to message this user');
+      navigate('/login');
+      return;
+    }
+    toast.info('Message feature coming soon');
+  };
+
+  const handleReportUser = () => {
+    // Check if user is authenticated before allowing reports
+    if (!user) {
+      toast.error('Please log in to report this user');
+      navigate('/login');
+      return;
+    }
+    navigate('/report');
   };
 
   const submitRating = async () => {
@@ -129,10 +152,8 @@ const UserProfile = () => {
     setIsSubmittingRating(true);
     
     try {
-      // In a real app, you would call your API to submit the rating
-      await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000));
       
-      // Update local state to reflect the new rating
       const newReview = {
         id: Date.now(),
         from: profile?.name || 'Anonymous',
@@ -144,7 +165,6 @@ const UserProfile = () => {
       setUserData({
         ...userData,
         reviews: [newReview, ...userData.reviews],
-        // Recalculate average rating
         rating: ((userData.rating * userData.reviews.length) + rating) / (userData.reviews.length + 1)
       });
       
@@ -178,272 +198,194 @@ const UserProfile = () => {
           <ArrowLeft className="mr-2 h-4 w-4" /> Back
         </Button>
 
-        <div className="bg-white rounded-lg shadow-md overflow-hidden">
-          <div className="bg-gradient-to-r from-book-600 to-book-800 p-6 text-white">
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between">
-              <div className="flex items-center mb-4 md:mb-0">
-                <div className="bg-white rounded-full p-3 mr-4">
-                  <User className="h-10 w-10 text-book-600" />
-                </div>
-                <div>
-                  <h1 className="text-2xl font-bold">{userData.name}</h1>
-                  <p className="text-book-100">Member since {formatDate(userData.joinDate)}</p>
-                </div>
-              </div>
-              
-              <div className="flex flex-col items-start md:items-end">
-                <div className="flex items-center mb-2">
-                  <div className="flex mr-2">
-                    {[...Array(5)].map((_, i) => (
-                      <Star 
-                        key={i} 
-                        className={`h-5 w-5 ${i < Math.round(userData.rating) ? 'fill-yellow-400 text-yellow-400' : 'text-book-200'}`} 
-                      />
-                    ))}
-                  </div>
-                  <span className="text-lg font-medium">{userData.rating.toFixed(1)}</span>
-                </div>
-                
-                <div className="flex items-center space-x-2">
-                  {userData.isVerified && (
-                    <Badge className="bg-book-500 text-white border-0 flex items-center">
-                      <Shield className="h-3 w-3 mr-1" /> Verified Seller
-                    </Badge>
-                  )}
-                  <Badge className="bg-book-400 text-white border-0">
-                    {userData.successfulDeliveries} Deliveries
-                  </Badge>
-                </div>
-              </div>
-            </div>
-          </div>
-          
-          <div className="bg-gray-50 p-4 border-b border-gray-200 flex flex-wrap gap-2">
-            <Button 
-              variant="outline" 
-              className="border-book-600 text-book-600 hover:bg-book-50 rounded-xl px-4 py-2"
-              onClick={handleShareProfile}
-            >
-              <Share2 className="h-4 w-4 mr-2" />
-              Share Profile
-            </Button>
-            
-            {!isOwnProfile && (
-              <>
-                <Button 
-                  variant="outline" 
-                  className="border-book-600 text-book-600 hover:bg-book-50 rounded-xl px-4 py-2"
-                  onClick={() => toast.info('Message feature coming soon')}
-                >
-                  <MessageCircle className="h-4 w-4 mr-2" />
-                  Message
-                </Button>
-                
-                <Button 
-                  variant="outline" 
-                  className="border-book-600 text-book-600 hover:bg-book-50 rounded-xl px-4 py-2"
-                  onClick={handleRateUser}
-                >
-                  <Star className="h-4 w-4 mr-2" />
-                  Rate User
-                </Button>
-                
-                <Button 
-                  variant="outline" 
-                  className="border-red-600 text-red-600 hover:bg-red-50 ml-auto rounded-xl px-4 py-2"
-                  onClick={() => navigate('/report')}
-                >
-                  <Flag className="h-4 w-4 mr-2" />
-                  Report
-                </Button>
-                
-                {isAdmin && (
-                  <Button 
-                    variant="destructive"
-                    onClick={() => toast.info('Admin action coming soon')}
-                  >
-                    <AlertTriangle className="h-4 w-4 mr-2" />
-                    Admin Actions
-                  </Button>
-                )}
-              </>
-            )}
-          </div>
-          
-          <div className="p-6">
-            <Tabs defaultValue={activeTab} onValueChange={setActiveTab}>
-              <TabsList className="w-full mb-6">
-                <TabsTrigger value="listings">Listings</TabsTrigger>
-                <TabsTrigger value="reviews">Reviews</TabsTrigger>
-                {isOwnProfile && (
-                  <TabsTrigger value="settings">Account Settings</TabsTrigger>
-                )}
-              </TabsList>
-              
-              <TabsContent value="listings">
-                {userData.listings.length > 0 ? (
-                  <div className="space-y-4">
-                    {isOwnProfile && (
-                      <div className="flex justify-end mb-4">
-                        <BookNotSellingHelp />
-                      </div>
-                    )}
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                      {userData.listings.map((listing: any) => (
-                        <div 
-                          key={listing.id}
-                          className="border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow"
-                        >
-                          <div className="relative h-48">
-                            <img 
-                              src={listing.imageUrl} 
-                              alt={listing.title}
-                              className="w-full h-full object-cover"
-                            />
-                            {listing.sold && (
-                              <div className="absolute inset-0">
-                                <div className="absolute inset-0 bg-black bg-opacity-30"></div>
-                                <div className="absolute top-4 -left-8 bg-book-600 text-white text-sm font-bold py-1 px-8 transform rotate-[-45deg] shadow-lg">
-                                  SOLD
-                                </div>
-                              </div>
-                            )}
-                          </div>
-                          <div className="p-4">
-                            <h3 className="font-medium text-lg mb-1 line-clamp-1">{listing.title}</h3>
-                            <div className="flex justify-between items-center mb-2">
-                              <p className="font-bold text-book-600">R{listing.price}</p>
-                              <Badge variant="outline">{listing.condition}</Badge>
-                            </div>
-                            <div className="flex justify-between items-center text-sm text-gray-500">
-                              <div className="flex items-center">
-                                <Calendar className="h-4 w-4 mr-1" />
-                                {new Date(listing.createdAt).toLocaleDateString()}
-                              </div>
-                              <Button 
-                                variant="link" 
-                                size="sm"
-                                className="p-0 h-auto text-book-600"
-                                onClick={() => navigate(`/books/${listing.id}`)}
-                              >
-                                View Details
-                              </Button>
-                            </div>
-                            {isOwnProfile && !listing.sold && (
-                              <div className="mt-3">
-                                <BookNotSellingHelp 
-                                  bookId={listing.id} 
-                                  bookTitle={listing.title}
-                                />
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                ) : (
-                  <div className="text-center py-10">
-                    <BookIcon className="h-12 w-12 text-gray-300 mx-auto mb-3" />
-                    <p className="text-gray-500">No listings found</p>
-                    {isOwnProfile && (
-                      <Button 
-                        variant="outline" 
-                        className="mt-4"
-                        onClick={() => navigate('/create-listing')}
-                      >
-                        Create Your First Listing
-                      </Button>
-                    )}
-                  </div>
-                )}
-              </TabsContent>
-              
-              <TabsContent value="reviews">
-                {userData.reviews.length > 0 ? (
-                  <div className="space-y-6">
-                    {userData.reviews.map((review: any) => (
-                      <div 
-                        key={review.id}
-                        className="bg-gray-50 rounded-lg p-4 border border-gray-200"
-                      >
-                        <div className="flex justify-between items-start mb-3">
-                          <div className="flex items-center">
-                            <div className="mr-3 bg-white p-2 rounded-full">
-                              <User className="h-5 w-5 text-gray-600" />
-                            </div>
-                            <div>
-                              <p className="font-medium">{review.from}</p>
-                              <p className="text-sm text-gray-500">{formatDate(review.date)}</p>
-                            </div>
-                          </div>
-                          <div className="flex">
-                            {[...Array(5)].map((_, i) => (
-                              <Star 
-                                key={i} 
-                                className={`h-4 w-4 ${i < review.rating ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'}`} 
-                              />
-                            ))}
-                          </div>
-                        </div>
-                        <p className="text-gray-700">{review.comment}</p>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center py-10">
-                    <Star className="h-12 w-12 text-gray-300 mx-auto mb-3" />
-                    <p className="text-gray-500">No reviews yet</p>
-                  </div>
-                )}
-              </TabsContent>
-              
+        {/* New Profile Header */}
+        <ProfileHeader 
+          userData={userData}
+          isOwnProfile={isOwnProfile}
+          onShareProfile={handleShareProfile}
+          onRateUser={!isOwnProfile ? handleRateUser : undefined}
+          onMessageUser={!isOwnProfile ? handleMessageUser : undefined}
+          onReportUser={!isOwnProfile ? handleReportUser : undefined}
+        />
+        
+        <div className="mt-6">
+          <Tabs defaultValue={activeTab} onValueChange={setActiveTab}>
+            <TabsList className="w-full mb-6">
+              <TabsTrigger value="listings">Listings</TabsTrigger>
+              <TabsTrigger value="reviews">Reviews</TabsTrigger>
               {isOwnProfile && (
-                <TabsContent value="settings">
-                  <div className="max-w-2xl mx-auto">
-                    <h3 className="text-xl font-medium mb-4">Account Settings</h3>
-                    <div className="space-y-6">
-                      <div className="bg-amber-50 rounded-lg p-4 border border-amber-200">
-                        <div className="flex items-start">
-                          <AlertTriangle className="h-5 w-5 text-amber-600 mr-2 mt-0.5" />
-                          <div>
-                            <h4 className="font-medium text-amber-800">Important</h4>
-                            <p className="text-sm text-amber-700 mt-1">
-                              Settings functionality will be available in the next update.
-                            </p>
+                <TabsTrigger value="settings">Account Settings</TabsTrigger>
+              )}
+            </TabsList>
+            
+            <TabsContent value="listings">
+              {userData.listings.length > 0 ? (
+                <div className="space-y-4">
+                  {isOwnProfile && (
+                    <div className="flex justify-end mb-4">
+                      <BookNotSellingHelp />
+                    </div>
+                  )}
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {userData.listings.map((listing: any) => (
+                      <div 
+                        key={listing.id}
+                        className="border border-book-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow bg-white"
+                      >
+                        <div className="relative h-48">
+                          <img 
+                            src={listing.imageUrl} 
+                            alt={listing.title}
+                            className="w-full h-full object-cover"
+                          />
+                          {listing.sold && (
+                            <div className="absolute inset-0">
+                              <div className="absolute inset-0 bg-black bg-opacity-20"></div>
+                              <div className="absolute top-4 -left-8 bg-book-600 text-white text-sm font-bold py-2 px-10 transform rotate-[-45deg] shadow-lg">
+                                SOLD
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                        <div className="p-4">
+                          <h3 className="font-medium text-lg mb-2 line-clamp-1 text-gray-900">{listing.title}</h3>
+                          <div className="flex justify-between items-center mb-3">
+                            <p className="font-bold text-book-600 text-xl">R{listing.price}</p>
+                            <Badge 
+                              variant="outline" 
+                              className="border-book-200 text-book-700 bg-book-50"
+                            >
+                              {listing.condition}
+                            </Badge>
                           </div>
+                          <div className="flex justify-between items-center text-sm text-gray-500">
+                            <div className="flex items-center">
+                              <Calendar className="h-4 w-4 mr-1" />
+                              {new Date(listing.createdAt).toLocaleDateString()}
+                            </div>
+                            <Button 
+                              variant="link" 
+                              size="sm"
+                              className="p-0 h-auto text-book-600 hover:text-book-700"
+                              onClick={() => navigate(`/books/${listing.id}`)}
+                            >
+                              View Details
+                            </Button>
+                          </div>
+                          {isOwnProfile && !listing.sold && (
+                            <div className="mt-3">
+                              <BookNotSellingHelp 
+                                bookId={listing.id} 
+                                bookTitle={listing.title}
+                              />
+                            </div>
+                          )}
                         </div>
                       </div>
-                      
-                      <div className="space-y-2">
-                        <h4 className="font-medium">Two-Factor Authentication</h4>
-                        <p className="text-sm text-gray-500">
-                          Add an extra layer of security to your account
-                        </p>
-                        <Button 
-                          onClick={() => toast.info('2FA coming soon')}
-                          className="bg-book-600 hover:bg-book-700"
-                        >
-                          <Shield className="mr-2 h-4 w-4" />
-                          Enable 2FA
-                        </Button>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <div className="text-center py-10">
+                  <BookIcon className="h-12 w-12 text-gray-300 mx-auto mb-3" />
+                  <p className="text-gray-500">No listings found</p>
+                  {isOwnProfile && (
+                    <Button 
+                      variant="outline" 
+                      className="mt-4 border-book-300 text-book-600 hover:bg-book-50"
+                      onClick={() => navigate('/create-listing')}
+                    >
+                      Create Your First Listing
+                    </Button>
+                  )}
+                </div>
+              )}
+            </TabsContent>
+            
+            <TabsContent value="reviews">
+              {userData.reviews.length > 0 ? (
+                <div className="space-y-6">
+                  {userData.reviews.map((review: any) => (
+                    <div 
+                      key={review.id}
+                      className="bg-gray-50 rounded-lg p-4 border border-gray-200"
+                    >
+                      <div className="flex justify-between items-start mb-3">
+                        <div className="flex items-center">
+                          <div className="mr-3 bg-white p-2 rounded-full">
+                            <User className="h-5 w-5 text-gray-600" />
+                          </div>
+                          <div>
+                            <p className="font-medium">{review.from}</p>
+                            <p className="text-sm text-gray-500">{formatDate(review.date)}</p>
+                          </div>
+                        </div>
+                        <div className="flex">
+                          {[...Array(5)].map((_, i) => (
+                            <Star 
+                              key={i} 
+                              className={`h-4 w-4 ${i < review.rating ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'}`} 
+                            />
+                          ))}
+                        </div>
                       </div>
-                      
-                      <div className="pt-4 border-t border-gray-200">
-                        <Button 
-                          variant="destructive" 
-                          onClick={() => toast.info('Account deletion coming soon')}
-                        >
-                          Delete Account
-                        </Button>
+                      <p className="text-gray-700">{review.comment}</p>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-10">
+                  <Star className="h-12 w-12 text-gray-300 mx-auto mb-3" />
+                  <p className="text-gray-500">No reviews yet</p>
+                </div>
+              )}
+            </TabsContent>
+            
+            {isOwnProfile && (
+              <TabsContent value="settings">
+                <div className="max-w-2xl mx-auto">
+                  <h3 className="text-xl font-medium mb-4">Account Settings</h3>
+                  <div className="space-y-6">
+                    <div className="bg-amber-50 rounded-lg p-4 border border-amber-200">
+                      <div className="flex items-start">
+                        <AlertTriangle className="h-5 w-5 text-amber-600 mr-2 mt-0.5" />
+                        <div>
+                          <h4 className="font-medium text-amber-800">Important</h4>
+                          <p className="text-sm text-amber-700 mt-1">
+                            Settings functionality will be available in the next update.
+                          </p>
+                        </div>
                       </div>
                     </div>
+                    
+                    <div className="space-y-2">
+                      <h4 className="font-medium">Two-Factor Authentication</h4>
+                      <p className="text-sm text-gray-500">
+                        Add an extra layer of security to your account
+                      </p>
+                      <Button 
+                        onClick={() => toast.info('2FA coming soon')}
+                        className="bg-book-600 hover:bg-book-700"
+                      >
+                        <Shield className="mr-2 h-4 w-4" />
+                        Enable 2FA
+                      </Button>
+                    </div>
+                    
+                    <div className="pt-4 border-t border-gray-200">
+                      <Button 
+                        variant="destructive" 
+                        onClick={() => toast.info('Account deletion coming soon')}
+                      >
+                        Delete Account
+                      </Button>
+                    </div>
                   </div>
-                </TabsContent>
-              )}
-            </Tabs>
-          </div>
+                </div>
+              </TabsContent>
+            )}
+          </Tabs>
         </div>
       </div>
 

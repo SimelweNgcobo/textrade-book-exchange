@@ -1,5 +1,3 @@
-
-
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -32,7 +30,7 @@ const Navbar = () => {
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-2 text-book-600">
             <BookOpen className="h-8 w-8" />
-            <span className="text-xl font-bold">ReBooked</span>
+            <span className="text-xl font-bold">ReBooked Solutions</span>
           </Link>
 
           {/* Desktop Navigation */}
@@ -188,4 +186,3 @@ const Navbar = () => {
 };
 
 export default Navbar;
-

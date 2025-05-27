@@ -45,9 +45,11 @@ function App() {
           <Route path="/privacy" element={<Privacy />} />
           <Route path="/contact" element={<ContactUs />} />
           
+          {/* Public user profiles - no authentication required */}
+          <Route path="/user/:id" element={<UserProfile />} />
+          
           {/* Protected Routes */}
           <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
-          <Route path="/user/:id" element={<ProtectedRoute><UserProfile /></ProtectedRoute>} />
           <Route path="/create-listing" element={<ProtectedRoute><CreateListing /></ProtectedRoute>} />
           <Route path="/checkout/:id" element={<ProtectedRoute><Checkout /></ProtectedRoute>} />
           <Route path="/activity" element={<ProtectedRoute><ActivityLog /></ProtectedRoute>} />
