@@ -1,226 +1,138 @@
 
 import Layout from '@/components/Layout';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 const Terms = () => {
   return (
     <Layout>
-      <div className="container mx-auto px-4 py-12 max-w-4xl">
-        <div className="bg-white rounded-lg shadow-sm border p-8">
-          <div className="text-center mb-8">
-            <h1 className="text-4xl font-bold text-book-800 mb-4">Terms and Conditions</h1>
-            <p className="text-gray-600 text-lg">Effective Date: January 1, 2025</p>
-            <div className="w-24 h-1 bg-book-600 mx-auto mt-4"></div>
-          </div>
-
-          <div className="prose prose-lg max-w-none">
-            <section className="mb-10">
-              <h2 className="text-2xl font-semibold text-book-800 mb-4 border-b-2 border-book-100 pb-2">
-                1. Agreement to Terms
-              </h2>
-              <p className="text-gray-700 leading-relaxed mb-4">
-                By accessing and using ReBooked Solutions ("the Platform"), you agree to be bound by these Terms and Conditions. 
-                If you do not agree to these terms, please do not use our services.
-              </p>
-              <ul className="list-disc pl-6 space-y-2 text-gray-700">
-                <li>These terms apply to all users of the platform</li>
-                <li>We reserve the right to modify these terms at any time</li>
-                <li>Continued use constitutes acceptance of updated terms</li>
-              </ul>
-            </section>
-
-            <section className="mb-10">
-              <h2 className="text-2xl font-semibold text-book-800 mb-4 border-b-2 border-book-100 pb-2">
-                2. Platform Description
-              </h2>
-              <p className="text-gray-700 leading-relaxed mb-4">
-                ReBooked Solutions is a marketplace platform that connects buyers and sellers of used textbooks. 
-                We facilitate transactions but are not party to the actual sale agreements between users.
-              </p>
-              <div className="bg-book-50 p-4 rounded-lg border-l-4 border-book-600">
-                <p className="text-book-800 font-medium">
-                  Our Mission: "Old Pages, New Adventures" - Making education more affordable through textbook sharing.
-                </p>
-              </div>
-            </section>
-
-            <section className="mb-10">
-              <h2 className="text-2xl font-semibold text-book-800 mb-4 border-b-2 border-book-100 pb-2">
-                3. User Accounts and Registration
-              </h2>
-              <div className="space-y-4">
-                <h3 className="text-xl font-medium text-book-700">3.1 Account Requirements</h3>
-                <ul className="list-disc pl-6 space-y-2 text-gray-700">
-                  <li>Users must be at least 18 years old or have parental consent</li>
-                  <li>All registration information must be accurate and up-to-date</li>
-                  <li>One account per person is permitted</li>
-                  <li>Account sharing is prohibited</li>
-                </ul>
-                
-                <h3 className="text-xl font-medium text-book-700">3.2 Account Security</h3>
-                <ul className="list-disc pl-6 space-y-2 text-gray-700">
-                  <li>Users are responsible for maintaining account security</li>
-                  <li>Password protection is the user's responsibility</li>
-                  <li>Notify us immediately of any unauthorized access</li>
-                </ul>
-              </div>
-            </section>
-
-            <section className="mb-10">
-              <h2 className="text-2xl font-semibold text-book-800 mb-4 border-b-2 border-book-100 pb-2">
-                4. Commission and Fees
-              </h2>
-              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6 mb-4">
-                <h3 className="text-xl font-semibold text-yellow-800 mb-3">Important Fee Information</h3>
-                <p className="text-yellow-700 mb-3">
-                  <strong>ReBooked Solutions charges a 10% commission on all successful book sales.</strong>
-                </p>
-                <ul className="list-disc pl-6 space-y-2 text-yellow-700">
-                  <li>Commission is automatically deducted from the sale price</li>
-                  <li>Sellers receive 90% of the listed book price</li>
-                  <li>Commission covers platform maintenance and secure transactions</li>
-                  <li>No hidden fees or additional charges</li>
-                </ul>
-              </div>
-            </section>
-
-            <section className="mb-10">
-              <h2 className="text-2xl font-semibold text-book-800 mb-4 border-b-2 border-book-100 pb-2">
-                5. Buying and Selling
-              </h2>
-              <div className="grid md:grid-cols-2 gap-6">
-                <div>
-                  <h3 className="text-xl font-medium text-book-700 mb-3">5.1 For Sellers</h3>
-                  <ul className="list-disc pl-6 space-y-2 text-gray-700">
-                    <li>Accurate book descriptions required</li>
-                    <li>Honest condition assessments</li>
-                    <li>Prompt communication with buyers</li>
-                    <li>Timely book delivery</li>
-                  </ul>
-                </div>
-                <div>
-                  <h3 className="text-xl font-medium text-book-700 mb-3">5.2 For Buyers</h3>
-                  <ul className="list-disc pl-6 space-y-2 text-gray-700">
-                    <li>Review book details carefully</li>
-                    <li>Communicate delivery preferences</li>
-                    <li>Confirm receipt promptly</li>
-                    <li>Report any issues immediately</li>
-                  </ul>
-                </div>
-              </div>
-            </section>
-
-            <section className="mb-10">
-              <h2 className="text-2xl font-semibold text-book-800 mb-4 border-b-2 border-book-100 pb-2">
-                6. Prohibited Activities
-              </h2>
-              <div className="bg-red-50 border border-red-200 rounded-lg p-6">
-                <h3 className="text-xl font-semibold text-red-800 mb-3">Strictly Prohibited</h3>
-                <ul className="list-disc pl-6 space-y-2 text-red-700">
-                  <li>Listing counterfeit or illegal materials</li>
-                  <li>Fraudulent transactions or misrepresentation</li>
-                  <li>Harassment or inappropriate communication</li>
-                  <li>Attempting to bypass platform fees</li>
-                  <li>Creating multiple accounts</li>
-                  <li>Automated scraping or data collection</li>
-                </ul>
-              </div>
-            </section>
-
-            <section className="mb-10">
-              <h2 className="text-2xl font-semibold text-book-800 mb-4 border-b-2 border-book-100 pb-2">
-                7. Platform Responsibilities
-              </h2>
-              <div className="space-y-4">
-                <h3 className="text-xl font-medium text-book-700">7.1 What We Provide</h3>
-                <ul className="list-disc pl-6 space-y-2 text-gray-700">
-                  <li>Secure platform for book transactions</li>
-                  <li>User verification and safety measures</li>
-                  <li>Customer support and dispute resolution</li>
-                  <li>Platform maintenance and security</li>
-                </ul>
-                
-                <h3 className="text-xl font-medium text-book-700">7.2 Platform Limitations</h3>
-                <ul className="list-disc pl-6 space-y-2 text-gray-700">
-                  <li>We do not guarantee book condition or delivery</li>
-                  <li>Users are responsible for their own transactions</li>
-                  <li>We are not liable for user disputes</li>
-                  <li>Platform availability may be limited during maintenance</li>
-                </ul>
-              </div>
-            </section>
-
-            <section className="mb-10">
-              <h2 className="text-2xl font-semibold text-book-800 mb-4 border-b-2 border-book-100 pb-2">
-                8. Privacy and Data Protection
-              </h2>
-              <p className="text-gray-700 leading-relaxed mb-4">
-                Your privacy is important to us. We collect and use personal information only as outlined in our Privacy Policy.
-              </p>
-              <ul className="list-disc pl-6 space-y-2 text-gray-700">
-                <li>We protect user data with industry-standard security</li>
-                <li>Personal information is not sold to third parties</li>
-                <li>Users can request data deletion at any time</li>
-                <li>Cookies are used to improve user experience</li>
-              </ul>
-            </section>
-
-            <section className="mb-10">
-              <h2 className="text-2xl font-semibold text-book-800 mb-4 border-b-2 border-book-100 pb-2">
-                9. Dispute Resolution
-              </h2>
-              <div className="space-y-4">
-                <p className="text-gray-700 leading-relaxed">
-                  If disputes arise between users, we encourage direct communication first. If resolution cannot be reached:
-                </p>
-                <ol className="list-decimal pl-6 space-y-2 text-gray-700">
-                  <li>Contact our support team within 7 days of the issue</li>
-                  <li>Provide all relevant transaction details</li>
-                  <li>Cooperate with our investigation process</li>
-                  <li>Accept mediated resolution or pursue external legal options</li>
-                </ol>
-              </div>
-            </section>
-
-            <section className="mb-10">
-              <h2 className="text-2xl font-semibold text-book-800 mb-4 border-b-2 border-book-100 pb-2">
-                10. Termination
-              </h2>
-              <p className="text-gray-700 leading-relaxed mb-4">
-                We reserve the right to terminate or suspend accounts that violate these terms. Users may also close their accounts at any time.
-              </p>
-              <div className="bg-gray-50 p-4 rounded-lg">
-                <h3 className="text-lg font-medium text-gray-800 mb-2">Account Termination Results In:</h3>
-                <ul className="list-disc pl-6 space-y-1 text-gray-700">
-                  <li>Loss of access to the platform</li>
-                  <li>Removal of all active listings</li>
-                  <li>Forfeiture of any pending transactions</li>
-                </ul>
-              </div>
-            </section>
-
-            <section className="mb-8">
-              <h2 className="text-2xl font-semibold text-book-800 mb-4 border-b-2 border-book-100 pb-2">
-                11. Contact Information
-              </h2>
-              <div className="bg-book-50 p-6 rounded-lg">
-                <p className="text-gray-700 mb-4">
-                  For questions about these Terms and Conditions, please contact us:
-                </p>
-                <div className="space-y-2 text-gray-700">
-                  <p><strong>Email:</strong> support@rebookedsolutions.com</p>
-                  <p><strong>Platform:</strong> Use our contact form for general inquiries</p>
-                  <p><strong>Response Time:</strong> We aim to respond within 24-48 hours</p>
-                </div>
-              </div>
-            </section>
-          </div>
-
-          <div className="border-t border-gray-200 pt-6 mt-8 text-center">
-            <p className="text-gray-500 text-sm">
-              Last updated: January 1, 2025 | ReBooked Solutions - "Old Pages, New Adventures"
+      <div className="container mx-auto px-4 py-8">
+        <Card className="max-w-4xl mx-auto">
+          <CardHeader>
+            <CardTitle className="text-3xl font-bold text-book-800">Terms and Conditions</CardTitle>
+            <p className="text-gray-600">Effective Date: May 25, 2025</p>
+          </CardHeader>
+          <CardContent className="prose prose-lg max-w-none">
+            <p className="text-gray-700 mb-6">
+              Welcome to ReBooked Solutions. These Terms and Conditions ("Terms") govern your use of our textbook marketplace platform. By accessing or using our services, you agree to be bound by these Terms.
             </p>
-          </div>
-        </div>
+
+            <h2 className="text-2xl font-semibold text-book-800 mt-8 mb-4">1. Acceptance of Terms</h2>
+            <p className="mb-4">
+              By creating an account or using ReBooked Solutions, you confirm that you accept these Terms and agree to comply with them. If you do not agree to these Terms, you must not use our services.
+            </p>
+
+            <h2 className="text-2xl font-semibold text-book-800 mt-8 mb-4">2. Description of Service</h2>
+            <p className="mb-4">
+              ReBooked Solutions is an online marketplace that connects buyers and sellers of textbooks. We provide a platform for users to list, browse, and purchase textbooks but are not party to the actual transactions between users.
+            </p>
+
+            <h2 className="text-2xl font-semibold text-book-800 mt-8 mb-4">3. User Accounts</h2>
+            <h3 className="text-xl font-semibold text-book-700 mt-6 mb-3">Registration</h3>
+            <ul className="list-disc pl-6 mb-4 space-y-2">
+              <li>You must provide accurate and complete information when creating an account</li>
+              <li>You are responsible for maintaining the security of your account credentials</li>
+              <li>You must be at least 13 years old to create an account</li>
+              <li>One person may not maintain multiple accounts</li>
+            </ul>
+
+            <h3 className="text-xl font-semibold text-book-700 mt-6 mb-3">Account Responsibilities</h3>
+            <ul className="list-disc pl-6 mb-4 space-y-2">
+              <li>You are responsible for all activity under your account</li>
+              <li>You must notify us immediately of any unauthorized access</li>
+              <li>We reserve the right to suspend or terminate accounts that violate these Terms</li>
+            </ul>
+
+            <h2 className="text-2xl font-semibold text-book-800 mt-8 mb-4">4. Buying and Selling</h2>
+            <h3 className="text-xl font-semibold text-book-700 mt-6 mb-3">Seller Obligations</h3>
+            <ul className="list-disc pl-6 mb-4 space-y-2">
+              <li>Provide accurate descriptions and photos of textbooks</li>
+              <li>Honor the listed price and condition</li>
+              <li>Respond promptly to buyer inquiries</li>
+              <li>Complete transactions in good faith</li>
+              <li>Only list textbooks you legally own</li>
+            </ul>
+
+            <h3 className="text-xl font-semibold text-book-700 mt-6 mb-3">Buyer Obligations</h3>
+            <ul className="list-disc pl-6 mb-4 space-y-2">
+              <li>Review listings carefully before purchasing</li>
+              <li>Complete payment as agreed</li>
+              <li>Communicate respectfully with sellers</li>
+              <li>Report any issues promptly</li>
+            </ul>
+
+            <h2 className="text-2xl font-semibold text-book-800 mt-8 mb-4">5. Fees and Payments</h2>
+            <ul className="list-disc pl-6 mb-4 space-y-2">
+              <li>ReBooked Solutions charges a 10% commission on completed sales</li>
+              <li>Commission is automatically deducted from the sale price</li>
+              <li>Sellers receive 90% of the listing price upon successful transaction</li>
+              <li>We reserve the right to modify our fee structure with notice</li>
+            </ul>
+
+            <h2 className="text-2xl font-semibold text-book-800 mt-8 mb-4">6. Prohibited Activities</h2>
+            <p className="mb-4">Users are prohibited from:</p>
+            <ul className="list-disc pl-6 mb-4 space-y-2">
+              <li>Posting false, misleading, or inaccurate listings</li>
+              <li>Selling counterfeit or pirated materials</li>
+              <li>Engaging in fraudulent activities</li>
+              <li>Harassing or abusing other users</li>
+              <li>Attempting to circumvent platform fees</li>
+              <li>Using automated tools to scrape or manipulate the platform</li>
+              <li>Posting content that violates intellectual property rights</li>
+            </ul>
+
+            <h2 className="text-2xl font-semibold text-book-800 mt-8 mb-4">7. Content and Intellectual Property</h2>
+            <ul className="list-disc pl-6 mb-4 space-y-2">
+              <li>You retain ownership of content you post but grant us license to use it on our platform</li>
+              <li>You must have rights to all content you upload</li>
+              <li>We respect intellectual property rights and will remove infringing content</li>
+              <li>Our platform content and trademarks are protected by intellectual property laws</li>
+            </ul>
+
+            <h2 className="text-2xl font-semibold text-book-800 mt-8 mb-4">8. Privacy and Data</h2>
+            <p className="mb-4">
+              Your privacy is important to us. Please review our Privacy Policy to understand how we collect, use, and protect your information.
+            </p>
+
+            <h2 className="text-2xl font-semibold text-book-800 mt-8 mb-4">9. Disclaimers</h2>
+            <ul className="list-disc pl-6 mb-4 space-y-2">
+              <li>We provide the platform "as is" without warranties</li>
+              <li>We are not responsible for the quality, safety, or legality of listed items</li>
+              <li>We do not guarantee that transactions will be completed</li>
+              <li>Users interact at their own risk</li>
+            </ul>
+
+            <h2 className="text-2xl font-semibold text-book-800 mt-8 mb-4">10. Limitation of Liability</h2>
+            <p className="mb-4">
+              ReBooked Solutions shall not be liable for any indirect, incidental, special, or consequential damages arising from your use of our platform. Our total liability is limited to the fees paid to us in the 12 months preceding the claim.
+            </p>
+
+            <h2 className="text-2xl font-semibold text-book-800 mt-8 mb-4">11. Termination</h2>
+            <p className="mb-4">
+              We may terminate or suspend your account at any time for violations of these Terms. You may also delete your account at any time. Certain provisions of these Terms will survive termination.
+            </p>
+
+            <h2 className="text-2xl font-semibold text-book-800 mt-8 mb-4">12. Dispute Resolution</h2>
+            <p className="mb-4">
+              We encourage users to resolve disputes directly. For unresolved issues, disputes will be governed by South African law and resolved through arbitration in Cape Town, South Africa.
+            </p>
+
+            <h2 className="text-2xl font-semibold text-book-800 mt-8 mb-4">13. Changes to Terms</h2>
+            <p className="mb-4">
+              We may update these Terms from time to time. We will notify users of significant changes and continued use constitutes acceptance of the updated Terms.
+            </p>
+
+            <h2 className="text-2xl font-semibold text-book-800 mt-8 mb-4">14. Contact Information</h2>
+            <p className="mb-4">
+              If you have questions about these Terms, please contact us at:
+            </p>
+            <p className="mb-2"><strong>Email:</strong> legal@rebooked.co.za</p>
+            <p className="mb-2"><strong>Address:</strong> ReBooked Solutions, Cape Town, South Africa</p>
+
+            <p className="mt-8 text-sm text-gray-600">
+              These Terms and Conditions were last updated on May 25, 2025.
+            </p>
+          </CardContent>
+        </Card>
       </div>
     </Layout>
   );

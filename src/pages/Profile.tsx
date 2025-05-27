@@ -7,12 +7,15 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { getBooksBySeller } from '@/services/bookService';
 import { Book } from '@/types/book';
-import { BookOpen, Plus, User } from 'lucide-react';
+import { BookOpen, Plus, User, Share2, Copy } from 'lucide-react';
+import { toast } from 'sonner';
+import ShareProfileDialog from '@/components/ShareProfileDialog';
 
 const Profile = () => {
   const { user, profile, logout } = useAuth();
   const [myBooks, setMyBooks] = useState<Book[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [showShareDialog, setShowShareDialog] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -23,6 +26,7 @@ const Profile = () => {
       try {
         const books = await getBooksBySeller(user.id);
         setMyBooks(books);
+        console.log('Loaded user books:', books);
       } catch (error) {
         console.error('Error loading user books:', error);
       } finally {
@@ -45,6 +49,16 @@ const Profile = () => {
     });
   };
 
+  const handleShareProfile = () => {
+    setShowShareDialog(true);
+  };
+
+  const copyProfileLink = () => {
+    const profileUrl = `${window.location.origin}/user/${user?.id}`;
+    navigator.clipboard.writeText(profileUrl);
+    toast.success('Profile link copied to clipboard!');
+  };
+
   return (
     <Layout>
       <div className="container mx-auto px-4 py-8">
@@ -64,6 +78,20 @@ const Profile = () => {
                   onClick={() => navigate('/create-listing')}
                 >
                   <Plus className="mr-2 h-4 w-4" /> Sell a Book
+                </Button>
+                <Button 
+                  variant="outline" 
+                  className="border-book-600 text-book-600"
+                  onClick={handleShareProfile}
+                >
+                  <Share2 className="mr-2 h-4 w-4" /> Share Profile
+                </Button>
+                <Button 
+                  variant="outline" 
+                  className="border-gray-300 text-gray-600"
+                  onClick={copyProfileLink}
+                >
+                  <Copy className="mr-2 h-4 w-4" /> Copy Link
                 </Button>
                 <Button 
                   variant="ghost" 
@@ -106,42 +134,40 @@ const Profile = () => {
                 </Button>
               </div>
             ) : (
-              <div className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {activeBooks.map(book => (
-                  <div key={book.id} className="border border-gray-200 rounded-lg overflow-hidden flex flex-col sm:flex-row">
-                    <div className="sm:w-1/4 md:w-1/5">
+                  <div key={book.id} className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+                    <div className="relative h-48">
                       <img 
                         src={book.imageUrl} 
                         alt={book.title} 
-                        className="w-full h-40 sm:h-full object-cover"
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.src = 'https://images.unsplash.com/photo-1543002588-bfa74002ed7e?auto=format&fit=crop&w=300&h=400';
+                        }}
                       />
                     </div>
-                    <div className="p-4 flex-grow">
-                      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start">
-                        <div>
-                          <h3 className="font-bold text-lg text-book-800">{book.title}</h3>
-                          <p className="text-gray-600 mb-2">{book.author}</p>
-                          <div className="flex flex-wrap gap-2 mb-2">
-                            <span className="bg-book-100 text-book-800 px-2 py-1 rounded text-xs font-medium">
-                              {book.condition}
-                            </span>
-                            <span className="bg-gray-100 text-gray-800 px-2 py-1 rounded text-xs">
-                              {book.category}
-                            </span>
-                          </div>
-                          <p className="text-gray-500 text-sm">Listed on: {formatDate(book.createdAt)}</p>
-                        </div>
-                        <div className="mt-4 sm:mt-0 text-right">
-                          <p className="text-xl font-bold text-book-600">R{book.price}</p>
-                        </div>
+                    <div className="p-4">
+                      <h3 className="font-bold text-lg text-book-800 mb-1 line-clamp-2">{book.title}</h3>
+                      <p className="text-gray-600 mb-2">{book.author}</p>
+                      <div className="flex flex-wrap gap-2 mb-3">
+                        <span className="bg-book-100 text-book-800 px-2 py-1 rounded text-xs font-medium">
+                          {book.condition}
+                        </span>
+                        <span className="bg-gray-100 text-gray-800 px-2 py-1 rounded text-xs">
+                          {book.category}
+                        </span>
                       </div>
-                      <div className="mt-4 flex justify-end">
+                      <div className="flex justify-between items-center">
+                        <p className="text-xl font-bold text-book-600">R{book.price}</p>
                         <Link to={`/books/${book.id}`}>
-                          <Button variant="outline" className="border-book-600 text-book-600">
-                            View Listing
+                          <Button variant="outline" size="sm" className="border-book-600 text-book-600">
+                            View
                           </Button>
                         </Link>
                       </div>
+                      <p className="text-gray-500 text-sm mt-2">Listed: {formatDate(book.createdAt)}</p>
                     </div>
                   </div>
                 ))}
@@ -161,42 +187,42 @@ const Profile = () => {
                 <p className="text-gray-500">You haven't sold any books yet.</p>
               </div>
             ) : (
-              <div className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {soldBooks.map(book => (
-                  <div key={book.id} className="border border-gray-200 rounded-lg overflow-hidden flex flex-col sm:flex-row bg-gray-50">
-                    <div className="sm:w-1/4 md:w-1/5">
+                  <div key={book.id} className="bg-gray-50 border border-gray-200 rounded-lg overflow-hidden shadow-sm">
+                    <div className="relative h-48">
                       <img 
                         src={book.imageUrl} 
                         alt={book.title} 
-                        className="w-full h-40 sm:h-full object-cover opacity-75"
+                        className="w-full h-full object-cover opacity-75"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.src = 'https://images.unsplash.com/photo-1543002588-bfa74002ed7e?auto=format&fit=crop&w=300&h=400';
+                        }}
                       />
-                    </div>
-                    <div className="p-4 flex-grow">
-                      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start">
-                        <div>
-                          <div className="flex items-center mb-1">
-                            <h3 className="font-bold text-lg text-gray-700">{book.title}</h3>
-                            <span className="ml-2 bg-green-100 text-green-800 px-2 py-1 rounded text-xs font-medium">
-                              Sold
-                            </span>
-                          </div>
-                          <p className="text-gray-600 mb-2">{book.author}</p>
-                          <div className="flex flex-wrap gap-2 mb-2">
-                            <span className="bg-gray-100 text-gray-700 px-2 py-1 rounded text-xs font-medium">
-                              {book.condition}
-                            </span>
-                            <span className="bg-gray-100 text-gray-700 px-2 py-1 rounded text-xs">
-                              {book.category}
-                            </span>
-                          </div>
-                          <p className="text-gray-500 text-sm">Sold on: {formatDate(book.createdAt)}</p>
-                        </div>
-                        <div className="mt-4 sm:mt-0 text-right">
-                          <p className="text-lg font-medium text-gray-700">R{book.price}</p>
-                          <p className="text-sm text-gray-500">Commission: R15</p>
-                          <p className="text-md font-bold text-book-600">You received: R{book.price - 15}</p>
-                        </div>
+                      <div className="absolute inset-0 bg-black bg-opacity-20 flex items-center justify-center">
+                        <span className="bg-green-600 text-white px-3 py-1 rounded text-sm font-medium">
+                          SOLD
+                        </span>
                       </div>
+                    </div>
+                    <div className="p-4">
+                      <h3 className="font-bold text-lg text-gray-700 mb-1 line-clamp-2">{book.title}</h3>
+                      <p className="text-gray-600 mb-2">{book.author}</p>
+                      <div className="flex flex-wrap gap-2 mb-3">
+                        <span className="bg-gray-100 text-gray-700 px-2 py-1 rounded text-xs font-medium">
+                          {book.condition}
+                        </span>
+                        <span className="bg-gray-100 text-gray-700 px-2 py-1 rounded text-xs">
+                          {book.category}
+                        </span>
+                      </div>
+                      <div className="space-y-1">
+                        <p className="text-lg font-medium text-gray-700">R{book.price}</p>
+                        <p className="text-sm text-gray-500">Commission: R15</p>
+                        <p className="text-md font-bold text-book-600">You received: R{book.price - 15}</p>
+                      </div>
+                      <p className="text-gray-500 text-sm mt-2">Sold: {formatDate(book.createdAt)}</p>
                     </div>
                   </div>
                 ))}
@@ -205,6 +231,16 @@ const Profile = () => {
           </TabsContent>
         </Tabs>
       </div>
+
+      {user && profile && (
+        <ShareProfileDialog
+          isOpen={showShareDialog}
+          onClose={() => setShowShareDialog(false)}
+          userId={user.id}
+          userName={profile.name || 'User'}
+          isOwnProfile={true}
+        />
+      )}
     </Layout>
   );
 };

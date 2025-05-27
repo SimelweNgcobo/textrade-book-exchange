@@ -1,65 +1,65 @@
 
 import { useState, useEffect } from 'react';
 import Layout from '@/components/Layout';
-import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Bell, ArrowLeft, Check, Trash2, BookOpen, CreditCard } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Bell, Trash2, AlertCircle, CheckCircle, Info } from 'lucide-react';
+import { toast } from 'sonner';
 
 interface Notification {
   id: string;
-  type: 'purchase' | 'sale' | 'message' | 'system';
+  type: 'info' | 'warning' | 'success' | 'error';
   title: string;
   message: string;
+  timestamp: string;
   read: boolean;
-  createdAt: string;
-  bookTitle?: string;
-  amount?: number;
 }
 
 const Notifications = () => {
-  const { user } = useAuth();
-  const navigate = useNavigate();
-  const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [notifications, setNotifications] = useState<Notification[]>([
+    {
+      id: '1',
+      type: 'warning',
+      title: 'Book Listing Removed',
+      message: 'Your book listing for "Introduction to Psychology" was removed because it did not have a clear image or enough detail. Try uploading it again with a better image or description 😉',
+      timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+      read: false
+    },
+    {
+      id: '2',
+      type: 'success',
+      title: 'Welcome to ReBooked!',
+      message: 'Your account has been successfully created. Start selling your textbooks today!',
+      timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
+      read: false
+    }
+  ]);
 
-  useEffect(() => {
-    // Mock notifications data - in a real app, fetch from API
-    const mockNotifications: Notification[] = [
-      {
-        id: '1',
-        type: 'sale',
-        title: 'Book Sold!',
-        message: 'Your book "Introduction to Psychology" has been sold.',
-        read: false,
-        createdAt: '2025-01-20T10:30:00Z',
-        bookTitle: 'Introduction to Psychology',
-        amount: 450
-      },
-      {
-        id: '2',
-        type: 'purchase',
-        title: 'Purchase Confirmed',
-        message: 'You successfully purchased "Calculus Made Easy".',
-        read: false,
-        createdAt: '2025-01-19T14:20:00Z',
-        bookTitle: 'Calculus Made Easy',
-        amount: 350
-      },
-      {
-        id: '3',
-        type: 'system',
-        title: 'Welcome to ReBooked!',
-        message: 'Thanks for joining our textbook marketplace.',
-        read: true,
-        createdAt: '2025-01-15T09:00:00Z'
-      }
-    ];
+  const getIcon = (type: string) => {
+    switch (type) {
+      case 'info': return <Info className="h-5 w-5 text-blue-500" />;
+      case 'warning': return <AlertCircle className="h-5 w-5 text-yellow-500" />;
+      case 'success': return <CheckCircle className="h-5 w-5 text-green-500" />;
+      case 'error': return <AlertCircle className="h-5 w-5 text-red-500" />;
+      default: return <Bell className="h-5 w-5 text-gray-500" />;
+    }
+  };
 
-    setNotifications(mockNotifications);
-    setIsLoading(false);
-  }, [user]);
+  const formatTimestamp = (timestamp: string) => {
+    const date = new Date(timestamp);
+    const now = new Date();
+    const diff = now.getTime() - date.getTime();
+    const hours = Math.floor(diff / (1000 * 60 * 60));
+    const days = Math.floor(hours / 24);
+
+    if (days > 0) {
+      return `${days} day${days > 1 ? 's' : ''} ago`;
+    } else if (hours > 0) {
+      return `${hours} hour${hours > 1 ? 's' : ''} ago`;
+    } else {
+      return 'Just now';
+    }
+  };
 
   const markAsRead = (id: string) => {
     setNotifications(prev => 
@@ -71,122 +71,87 @@ const Notifications = () => {
 
   const deleteNotification = (id: string) => {
     setNotifications(prev => prev.filter(notif => notif.id !== id));
+    toast.success('Notification deleted');
   };
 
   const markAllAsRead = () => {
     setNotifications(prev => 
       prev.map(notif => ({ ...notif, read: true }))
     );
+    toast.success('All notifications marked as read');
   };
 
-  const getNotificationIcon = (type: string) => {
-    switch (type) {
-      case 'purchase':
-        return <CreditCard className="h-5 w-5 text-blue-600" />;
-      case 'sale':
-        return <BookOpen className="h-5 w-5 text-green-600" />;
-      case 'message':
-        return <Bell className="h-5 w-5 text-yellow-600" />;
-      default:
-        return <Bell className="h-5 w-5 text-gray-600" />;
-    }
-  };
-
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
+  const clearAll = () => {
+    setNotifications([]);
+    toast.success('All notifications cleared');
   };
 
   const unreadCount = notifications.filter(n => !n.read).length;
 
-  if (isLoading) {
-    return (
-      <Layout>
-        <div className="container mx-auto px-4 py-8 flex justify-center items-center min-h-[60vh]">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-book-600"></div>
-        </div>
-      </Layout>
-    );
-  }
+  // Update the global notification count in localStorage
+  useEffect(() => {
+    localStorage.setItem('notificationCount', unreadCount.toString());
+    // Dispatch a custom event to update the navbar
+    window.dispatchEvent(new CustomEvent('notificationUpdate', { detail: unreadCount }));
+  }, [unreadCount]);
 
   return (
     <Layout>
       <div className="container mx-auto px-4 py-8">
-        <Button variant="ghost" onClick={() => navigate(-1)} className="mb-6 text-book-600">
-          <ArrowLeft className="mr-2 h-4 w-4" /> Back
-        </Button>
-
-        <div className="bg-white rounded-lg shadow-md">
-          <div className="p-6 border-b border-gray-200">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center">
-                <Bell className="h-6 w-6 text-book-600 mr-3" />
-                <h1 className="text-2xl font-bold text-book-800">Notifications</h1>
-                {unreadCount > 0 && (
-                  <Badge className="ml-3 bg-red-500">{unreadCount}</Badge>
-                )}
-              </div>
-              {unreadCount > 0 && (
-                <Button variant="outline" onClick={markAllAsRead}>
-                  <Check className="mr-2 h-4 w-4" />
+        <div className="flex justify-between items-center mb-6">
+          <div className="flex items-center">
+            <Bell className="h-6 w-6 text-book-600 mr-2" />
+            <h1 className="text-3xl font-bold text-book-800">Notifications</h1>
+            {unreadCount > 0 && (
+              <span className="ml-2 bg-red-500 text-white text-xs px-2 py-1 rounded-full">
+                {unreadCount}
+              </span>
+            )}
+          </div>
+          <div className="flex gap-2">
+            {notifications.length > 0 && (
+              <>
+                <Button variant="outline" onClick={markAllAsRead} disabled={unreadCount === 0}>
                   Mark All Read
                 </Button>
-              )}
-            </div>
+                <Button variant="outline" onClick={clearAll}>
+                  Clear All
+                </Button>
+              </>
+            )}
           </div>
+        </div>
 
-          <div className="divide-y divide-gray-200">
-            {notifications.length === 0 ? (
-              <div className="p-8 text-center">
-                <Bell className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">No notifications</h3>
-                <p className="text-gray-500">You're all caught up!</p>
-              </div>
-            ) : (
-              notifications.map((notification) => (
-                <div
-                  key={notification.id}
-                  className={`p-4 hover:bg-gray-50 transition-colors ${
-                    !notification.read ? 'bg-blue-50 border-l-4 border-l-blue-500' : ''
-                  }`}
-                >
+        {notifications.length === 0 ? (
+          <Card>
+            <CardContent className="text-center py-16">
+              <Bell className="mx-auto h-12 w-12 text-gray-300 mb-4" />
+              <h3 className="text-xl font-semibold mb-2">No notifications</h3>
+              <p className="text-gray-500">You're all caught up! We'll notify you when something new happens.</p>
+            </CardContent>
+          </Card>
+        ) : (
+          <div className="space-y-4">
+            {notifications.map((notification) => (
+              <Card key={notification.id} className={`transition-all ${!notification.read ? 'bg-blue-50 border-blue-200' : ''}`}>
+                <CardHeader className="pb-3">
                   <div className="flex items-start justify-between">
-                    <div className="flex items-start space-x-3 flex-grow">
-                      <div className="flex-shrink-0 mt-1">
-                        {getNotificationIcon(notification.type)}
-                      </div>
-                      <div className="flex-grow min-w-0">
-                        <div className="flex items-center space-x-2 mb-1">
-                          <h3 className={`font-medium ${!notification.read ? 'text-gray-900' : 'text-gray-700'}`}>
-                            {notification.title}
-                          </h3>
-                          {!notification.read && (
-                            <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                          )}
-                        </div>
-                        <p className="text-gray-600 mb-2">{notification.message}</p>
-                        {notification.amount && (
-                          <p className="text-sm font-medium text-book-600">
-                            Amount: R{notification.amount.toFixed(2)}
-                          </p>
-                        )}
-                        <p className="text-sm text-gray-500">{formatDate(notification.createdAt)}</p>
+                    <div className="flex items-center space-x-3">
+                      {getIcon(notification.type)}
+                      <div>
+                        <CardTitle className="text-lg">{notification.title}</CardTitle>
+                        <p className="text-sm text-gray-500">{formatTimestamp(notification.timestamp)}</p>
                       </div>
                     </div>
-                    <div className="flex items-center space-x-2 ml-4">
+                    <div className="flex items-center space-x-2">
                       {!notification.read && (
                         <Button
                           variant="ghost"
                           size="sm"
                           onClick={() => markAsRead(notification.id)}
+                          className="text-blue-600 hover:text-blue-700"
                         >
-                          <Check className="h-4 w-4" />
+                          Mark Read
                         </Button>
                       )}
                       <Button
@@ -199,11 +164,14 @@ const Notifications = () => {
                       </Button>
                     </div>
                   </div>
-                </div>
-              ))
-            )}
+                </CardHeader>
+                <CardContent className="pt-0">
+                  <p className="text-gray-700">{notification.message}</p>
+                </CardContent>
+              </Card>
+            ))}
           </div>
-        </div>
+        )}
       </div>
     </Layout>
   );

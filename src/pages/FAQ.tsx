@@ -1,120 +1,101 @@
 
 import Layout from '@/components/Layout';
-import { 
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from '@/components/ui/accordion';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Button } from '@/components/ui/button';
-import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, HelpCircle } from 'lucide-react';
+import { MessageCircle } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const FAQ = () => {
-  const navigate = useNavigate();
-
   const faqs = [
     {
-      question: "How do I sell my textbook on ReBooked?",
-      answer: "To sell your textbook, create an account, click 'Sell a Book', fill in the details including title, author, condition, and price. Upload clear photos of your book and submit the listing. Your book will be visible to potential buyers immediately."
+      question: "How do I sell my textbooks on ReBooked?",
+      answer: "Simply create an account, click 'Sell a Book', fill in the details about your textbook including photos, condition, and price. Your listing will be live immediately for buyers to see."
     },
     {
       question: "What commission does ReBooked charge?",
-      answer: "ReBooked charges a 10% commission on each successful sale. This helps us maintain the platform, ensure secure transactions, and provide customer support."
+      answer: "ReBooked charges a 10% commission on completed sales. This means if you sell a book for R100, you'll receive R90 and ReBooked keeps R10 to maintain the platform."
     },
     {
-      question: "How do I get paid for my sold books?",
-      answer: "Once your book is sold and the transaction is completed, you'll receive 90% of the sale price (after our 10% commission). Payment processing typically takes 2-3 business days."
+      question: "How do I get paid when I sell a book?",
+      answer: "Once a buyer purchases your book and the transaction is completed, you'll receive 90% of the sale price. Payment details and methods will be provided in your account dashboard."
     },
     {
-      question: "What condition should my book be in to sell?",
-      answer: "We accept books in various conditions from 'New' to 'Below Average'. Be honest about your book's condition and include clear photos. Books with highlighting, notes, or wear are still valuable to students!"
+      question: "What condition should my textbook be in?",
+      answer: "We accept textbooks in various conditions from 'New' to 'Below Average'. Be honest about the condition and include clear photos. Books with excessive damage, missing pages, or illegible text may not be suitable for sale."
     },
     {
-      question: "How do I search for specific textbooks?",
-      answer: "Use our search bar to look for books by title, author, or subject. You can also filter by category, condition, price range, and grade level to find exactly what you need."
+      question: "How do I contact a seller or buyer?",
+      answer: "You can message other users through our secure messaging system. Go to the book listing and click 'Contact Seller' or check your notifications for buyer messages."
     },
     {
-      question: "Is it safe to buy and sell on ReBooked?",
-      answer: "Yes! We prioritize safety with secure payment processing, user verification systems, and a rating system for buyers and sellers. All transactions are protected and monitored."
+      question: "What if there's a problem with my purchase?",
+      answer: "If you experience any issues with a purchase, please contact the seller first to resolve the matter. If that doesn't work, you can report the issue through our support system."
     },
     {
-      question: "Can I negotiate prices with sellers?",
-      answer: "Currently, prices are set by sellers. However, you can contact sellers through our messaging system to inquire about books or ask questions before purchasing."
+      question: "Can I edit my book listing after posting?",
+      answer: "Currently, you cannot edit listings after they're posted. If you need to make changes, you'll need to remove the listing and create a new one with the correct information."
     },
     {
-      question: "What if I'm not satisfied with my purchase?",
-      answer: "If your book doesn't match the description or photos, contact our support team within 7 days of delivery. We'll work with you and the seller to resolve the issue."
+      question: "How long do listings stay active?",
+      answer: "Listings remain active until the book is sold or you manually remove them. We recommend keeping your listings up to date and removing books that are no longer available."
     },
     {
-      question: "How long does delivery take?",
-      answer: "Delivery times vary depending on the seller's location and chosen shipping method. Most books are delivered within 3-7 business days. You'll receive tracking information once shipped."
+      question: "What types of books can I sell?",
+      answer: "You can sell textbooks for both school (Grade 1-12) and university levels. We accept books in various subjects including science, mathematics, literature, and more."
+    },
+    {
+      question: "Is my personal information safe?",
+      answer: "Yes, we take privacy seriously. We only share necessary contact information between buyers and sellers for transaction purposes. Please review our Privacy Policy for full details."
+    },
+    {
+      question: "What payment methods do you accept?",
+      answer: "Payment methods and arrangements are typically handled between buyers and sellers. We recommend using secure payment methods and meeting in safe, public locations for exchanges."
     },
     {
       question: "Can I sell books that aren't textbooks?",
-      answer: "ReBooked focuses primarily on academic textbooks for school and university levels. While we occasionally accept relevant study guides and academic materials, recreational books aren't typically accepted."
+      answer: "ReBooked is specifically designed for textbooks and educational materials. We focus on school and university textbooks to provide the best experience for students."
     }
   ];
 
   return (
     <Layout>
-      <div className="min-h-screen bg-gray-50">
-        <div className="container mx-auto px-4 py-8">
-          {/* Header */}
-          <div className="mb-8">
-            <Button 
-              variant="ghost" 
-              onClick={() => navigate(-1)} 
-              className="mb-4 text-book-600 hover:bg-book-50"
-            >
-              <ArrowLeft className="mr-2 h-4 w-4" /> Back
-            </Button>
-            
-            <div className="bg-white rounded-lg shadow-sm p-8 text-center">
-              <div className="flex justify-center mb-4">
-                <div className="bg-book-100 rounded-full p-3">
-                  <HelpCircle className="h-8 w-8 text-book-600" />
-                </div>
-              </div>
-              <h1 className="text-4xl font-bold text-book-800 mb-4">
-                Frequently Asked Questions
-              </h1>
-              <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-                Find answers to common questions about buying and selling textbooks on ReBooked Solutions.
-              </p>
-            </div>
-          </div>
-
-          {/* FAQ Content */}
-          <div className="bg-white rounded-lg shadow-sm p-8">
-            <Accordion type="single" collapsible className="space-y-4">
+      <div className="container mx-auto px-4 py-8">
+        <Card className="max-w-4xl mx-auto">
+          <CardHeader className="text-center">
+            <CardTitle className="text-3xl font-bold text-book-800">Frequently Asked Questions</CardTitle>
+            <p className="text-gray-600 mt-2">
+              Find answers to common questions about using ReBooked Solutions
+            </p>
+          </CardHeader>
+          <CardContent>
+            <Accordion type="single" collapsible className="w-full space-y-4">
               {faqs.map((faq, index) => (
-                <AccordionItem key={index} value={`item-${index}`} className="border border-gray-200 rounded-lg px-6">
-                  <AccordionTrigger className="text-left hover:no-underline py-6">
-                    <span className="font-semibold text-book-800">{faq.question}</span>
+                <AccordionItem key={index} value={`item-${index}`} className="border border-gray-200 rounded-lg px-4">
+                  <AccordionTrigger className="text-left hover:no-underline py-4">
+                    <span className="font-medium text-book-800">{faq.question}</span>
                   </AccordionTrigger>
-                  <AccordionContent className="pb-6">
+                  <AccordionContent className="pb-4">
                     <p className="text-gray-700 leading-relaxed">{faq.answer}</p>
                   </AccordionContent>
                 </AccordionItem>
               ))}
             </Accordion>
-          </div>
 
-          {/* Contact Support */}
-          <div className="mt-8 bg-book-600 rounded-lg shadow-sm p-8 text-center text-white">
-            <h2 className="text-2xl font-bold mb-4">Still have questions?</h2>
-            <p className="mb-6 text-book-100">
-              Our support team is here to help. Get in touch and we'll respond as quickly as possible.
-            </p>
-            <Button 
-              onClick={() => navigate('/contact')} 
-              className="bg-white text-book-600 hover:bg-gray-100"
-            >
-              Contact Support
-            </Button>
-          </div>
-        </div>
+            <div className="mt-12 text-center p-6 bg-book-50 rounded-lg border border-book-200">
+              <h3 className="text-xl font-semibold text-book-800 mb-2">Still have questions?</h3>
+              <p className="text-gray-600 mb-4">
+                If you couldn't find the answer you're looking for, feel free to contact our support team.
+              </p>
+              <Link to="/contact">
+                <Button className="bg-book-600 hover:bg-book-700">
+                  <MessageCircle className="mr-2 h-4 w-4" />
+                  Contact Support
+                </Button>
+              </Link>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </Layout>
   );
