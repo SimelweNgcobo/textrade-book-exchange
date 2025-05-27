@@ -473,6 +473,30 @@ export const getTotalCommission = async (): Promise<number> => {
 
 export const removeBook = async (bookId: string): Promise<{ success: boolean; message: string }> => {
   try {
+    console.log('Attempting to remove book:', bookId);
+    
+    // First check if user is authenticated and is admin
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      console.error('User not authenticated');
+      return { success: false, message: 'Authentication required' };
+    }
+
+    // Check if user is admin
+    const { data: profile, error: profileError } = await supabase
+      .from('profiles')
+      .select('is_admin')
+      .eq('id', user.id)
+      .single();
+
+    if (profileError || !profile?.is_admin) {
+      console.error('Admin access required:', profileError);
+      return { success: false, message: 'Admin access required' };
+    }
+
+    console.log('Admin verified, proceeding with book deletion');
+
+    // Delete the book
     const { error } = await supabase
       .from('books')
       .delete()
@@ -480,13 +504,14 @@ export const removeBook = async (bookId: string): Promise<{ success: boolean; me
     
     if (error) {
       console.error('Error removing book:', error);
-      throw error;
+      return { success: false, message: `Failed to remove book: ${error.message}` };
     }
     
+    console.log('Book removed successfully');
     return { success: true, message: 'Book removed successfully' };
   } catch (error) {
     console.error('Error in removeBook:', error);
-    return { success: false, message: 'Failed to remove book' };
+    return { success: false, message: 'An unexpected error occurred while removing the book' };
   }
 };
 

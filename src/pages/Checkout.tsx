@@ -17,7 +17,7 @@ import { supabase } from '@/integrations/supabase/client';
 
 // Add Paystack script to the document
 const loadPaystackScript = () => {
-  return new Promise((resolve) => {
+  return new Promise((resolve, reject) => {
     if (window.PaystackPop) {
       resolve(window.PaystackPop);
       return;
@@ -25,7 +25,14 @@ const loadPaystackScript = () => {
     
     const script = document.createElement('script');
     script.src = 'https://js.paystack.co/v1/inline.js';
-    script.onload = () => resolve(window.PaystackPop);
+    script.onload = () => {
+      console.log('Paystack script loaded successfully');
+      resolve(window.PaystackPop);
+    };
+    script.onerror = () => {
+      console.error('Failed to load Paystack script');
+      reject(new Error('Failed to load Paystack script'));
+    };
     document.head.appendChild(script);
   });
 };
@@ -101,6 +108,13 @@ const Checkout = () => {
       }
     }
     
+    // Basic email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(shippingInfo.email)) {
+      toast.error('Please enter a valid email address');
+      return false;
+    }
+    
     return true;
   };
 
@@ -108,6 +122,8 @@ const Checkout = () => {
     if (!book || !user) return;
     
     try {
+      console.log('Initializing payment for book:', book.id);
+      
       const { data, error } = await supabase.functions.invoke('paystack-payment', {
         body: {
           amount: book.price,
@@ -124,33 +140,38 @@ const Checkout = () => {
 
       if (error) {
         console.error('Payment initialization error:', error);
-        toast.error('Failed to initialize payment');
-        return;
+        toast.error('Failed to initialize payment. Please try again.');
+        return null;
       }
 
+      console.log('Payment initialized successfully:', data);
       return data;
     } catch (error) {
       console.error('Payment initialization error:', error);
-      toast.error('Failed to initialize payment');
+      toast.error('Failed to initialize payment. Please try again.');
+      return null;
     }
   };
 
   const verifyPayment = async (reference: string) => {
     try {
+      console.log('Verifying payment with reference:', reference);
+      
       const { data, error } = await supabase.functions.invoke('verify-paystack-payment', {
         body: { reference }
       });
 
       if (error) {
         console.error('Payment verification error:', error);
-        toast.error('Payment verification failed');
+        toast.error('Payment verification failed. Please contact support.');
         return false;
       }
 
+      console.log('Payment verification result:', data);
       return data.verified;
     } catch (error) {
       console.error('Payment verification error:', error);
-      toast.error('Payment verification failed');
+      toast.error('Payment verification failed. Please contact support.');
       return false;
     }
   };
@@ -158,13 +179,18 @@ const Checkout = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!book || !user) return;
+    if (!book || !user) {
+      toast.error('Missing required information');
+      return;
+    }
     
     if (!validateForm()) return;
     
     setIsProcessing(true);
     
     try {
+      console.log('Starting payment process');
+      
       // Load Paystack script
       await loadPaystackScript();
       
@@ -176,6 +202,8 @@ const Checkout = () => {
         return;
       }
 
+      console.log('Creating Paystack popup with data:', paymentData);
+
       // Create Paystack popup
       const handler = window.PaystackPop.setup({
         key: 'pk_test_8da15fc8b9880e3479419f8d858739cb3588f25f',
@@ -184,26 +212,32 @@ const Checkout = () => {
         currency: 'ZAR',
         ref: paymentData.reference,
         onClose: function() {
+          console.log('Payment popup closed');
           setIsProcessing(false);
           toast.info('Payment cancelled');
         },
         callback: async function(response: any) {
-          console.log('Payment successful:', response.reference);
+          console.log('Payment callback received:', response);
           
-          // Verify payment
-          const verified = await verifyPayment(response.reference);
-          
-          if (verified) {
-            toast.success('Payment successful! You will receive a confirmation email shortly.');
-            navigate('/profile');
+          if (response.status === 'success') {
+            // Verify payment
+            const verified = await verifyPayment(response.reference);
+            
+            if (verified) {
+              toast.success('Payment successful! You will receive a confirmation email shortly.');
+              navigate('/profile');
+            } else {
+              toast.error('Payment verification failed. Please contact support with reference: ' + response.reference);
+            }
           } else {
-            toast.error('Payment verification failed. Please contact support.');
+            toast.error('Payment failed. Please try again.');
           }
           
           setIsProcessing(false);
         }
       });
 
+      console.log('Opening Paystack iframe');
       handler.openIframe();
       
     } catch (error) {
@@ -385,14 +419,14 @@ const Checkout = () => {
                 <CardHeader>
                   <CardTitle className="flex items-center">
                     <CreditCard className="mr-2 h-5 w-5" />
-                    Payment with Paystack
+                    Secure Payment with Paystack
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="bg-green-50 p-4 rounded-lg border border-green-200">
                     <div className="flex items-center text-green-700 text-sm">
                       <ShieldCheck className="mr-2 h-4 w-4" />
-                      <span>Secure payment powered by Paystack. Your payment information is encrypted and secure.</span>
+                      <span>Your payment is processed securely by Paystack. Your card details never touch our servers.</span>
                     </div>
                   </div>
                   
@@ -401,6 +435,7 @@ const Checkout = () => {
                     <p>• Bank transfer</p>
                     <p>• Mobile money</p>
                     <p>• All major South African banks supported</p>
+                    <p>• PCI DSS compliant - your card details are secure</p>
                   </div>
                 </CardContent>
               </Card>
@@ -420,7 +455,7 @@ const Checkout = () => {
                     Processing Payment...
                   </span>
                 ) : (
-                  `Pay with Paystack - R${totalAmount.toFixed(2)}`
+                  `Pay Securely with Paystack - R${totalAmount.toFixed(2)}`
                 )}
               </Button>
             </form>

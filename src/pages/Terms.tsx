@@ -113,7 +113,7 @@ const Terms = () => {
 
             <h2 className="text-2xl font-semibold text-book-800 mt-8 mb-4">12. Dispute Resolution</h2>
             <p className="mb-4">
-              We encourage users to resolve disputes directly. For unresolved issues, disputes will be governed by South African law and resolved through arbitration in Cape Town, South Africa.
+              We encourage users to resolve disputes directly. For unresolved issues, disputes will be governed by South African law and resolved through arbitration in Gauteng, South Africa.
             </p>
 
             <h2 className="text-2xl font-semibold text-book-800 mt-8 mb-4">13. Changes to Terms</h2>
@@ -126,7 +126,7 @@ const Terms = () => {
               If you have questions about these Terms, please contact us at:
             </p>
             <p className="mb-2"><strong>Email:</strong> legal@rebooked.co.za</p>
-            <p className="mb-2"><strong>Address:</strong> ReBooked Solutions, Cape Town, South Africa</p>
+            <p className="mb-2"><strong>Address:</strong> ReBooked Solutions, Gauteng, South Africa</p>
 
             <p className="mt-8 text-sm text-gray-600">
               These Terms and Conditions were last updated on May 25, 2025.
