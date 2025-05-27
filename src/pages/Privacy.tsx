@@ -100,7 +100,7 @@ const Privacy = () => {
               If you have questions about this Privacy Policy or how we handle your data, please contact us at:
             </p>
             <p className="mb-2"><strong>Email:</strong> privacy@rebooked.co.za</p>
-            <p className="mb-2"><strong>Address:</strong> ReBooked Solutions, Cape Town, South Africa</p>
+            <p className="mb-2"><strong>Address:</strong> ReBooked Solutions, Gauteng, South Africa</p>
           </CardContent>
         </Card>
       </div>
