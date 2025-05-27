@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
@@ -12,7 +13,8 @@ import {
   BookIcon, 
   Calendar, 
   AlertTriangle, 
-  MessageCircle
+  MessageCircle,
+  Shield
 } from 'lucide-react';
 import { toast } from 'sonner';
 import ShareProfileDialog from '@/components/ShareProfileDialog';
