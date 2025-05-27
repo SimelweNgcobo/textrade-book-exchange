@@ -13,6 +13,22 @@ import { getBookById } from '@/services/bookService';
 import { Book } from '@/types/book';
 import { toast } from 'sonner';
 import { ArrowLeft, CreditCard, ShieldCheck, Truck } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+
+// Add Paystack script to the document
+const loadPaystackScript = () => {
+  return new Promise((resolve) => {
+    if (window.PaystackPop) {
+      resolve(window.PaystackPop);
+      return;
+    }
+    
+    const script = document.createElement('script');
+    script.src = 'https://js.paystack.co/v1/inline.js';
+    script.onload = () => resolve(window.PaystackPop);
+    document.head.appendChild(script);
+  });
+};
 
 const Checkout = () => {
   const { id } = useParams();
@@ -26,18 +42,11 @@ const Checkout = () => {
   // Form state
   const [shippingInfo, setShippingInfo] = useState({
     fullName: '',
-    email: '',
+    email: user?.email || '',
     address: '',
     city: '',
     postalCode: '',
     phone: ''
-  });
-  
-  const [paymentInfo, setPaymentInfo] = useState({
-    cardNumber: '',
-    expiryDate: '',
-    cvv: '',
-    cardholderName: ''
   });
 
   useEffect(() => {
@@ -71,33 +80,79 @@ const Checkout = () => {
     loadBook();
   }, [id, navigate]);
 
-  const handleInputChange = (section: 'shipping' | 'payment', field: string, value: string) => {
-    if (section === 'shipping') {
-      setShippingInfo(prev => ({ ...prev, [field]: value }));
-    } else {
-      setPaymentInfo(prev => ({ ...prev, [field]: value }));
+  // Load user's email when component mounts
+  useEffect(() => {
+    if (user?.email) {
+      setShippingInfo(prev => ({ ...prev, email: user.email }));
     }
+  }, [user]);
+
+  const handleInputChange = (field: string, value: string) => {
+    setShippingInfo(prev => ({ ...prev, [field]: value }));
   };
 
   const validateForm = () => {
-    const requiredShippingFields = ['fullName', 'email', 'address', 'city', 'postalCode', 'phone'];
-    const requiredPaymentFields = ['cardNumber', 'expiryDate', 'cvv', 'cardholderName'];
+    const requiredFields = ['fullName', 'email', 'address', 'city', 'postalCode', 'phone'];
     
-    for (const field of requiredShippingFields) {
+    for (const field of requiredFields) {
       if (!shippingInfo[field as keyof typeof shippingInfo].trim()) {
         toast.error(`Please fill in ${field.replace(/([A-Z])/g, ' $1').toLowerCase()}`);
         return false;
       }
     }
     
-    for (const field of requiredPaymentFields) {
-      if (!paymentInfo[field as keyof typeof paymentInfo].trim()) {
-        toast.error(`Please fill in ${field.replace(/([A-Z])/g, ' $1').toLowerCase()}`);
+    return true;
+  };
+
+  const initializePayment = async () => {
+    if (!book || !user) return;
+    
+    try {
+      const { data, error } = await supabase.functions.invoke('paystack-payment', {
+        body: {
+          amount: book.price,
+          email: shippingInfo.email,
+          bookId: book.id,
+          buyerId: user.id,
+          metadata: {
+            shipping_info: shippingInfo,
+            book_title: book.title,
+            book_author: book.author
+          }
+        }
+      });
+
+      if (error) {
+        console.error('Payment initialization error:', error);
+        toast.error('Failed to initialize payment');
+        return;
+      }
+
+      return data;
+    } catch (error) {
+      console.error('Payment initialization error:', error);
+      toast.error('Failed to initialize payment');
+    }
+  };
+
+  const verifyPayment = async (reference: string) => {
+    try {
+      const { data, error } = await supabase.functions.invoke('verify-paystack-payment', {
+        body: { reference }
+      });
+
+      if (error) {
+        console.error('Payment verification error:', error);
+        toast.error('Payment verification failed');
         return false;
       }
+
+      return data.verified;
+    } catch (error) {
+      console.error('Payment verification error:', error);
+      toast.error('Payment verification failed');
+      return false;
     }
-    
-    return true;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -110,20 +165,50 @@ const Checkout = () => {
     setIsProcessing(true);
     
     try {
-      // Simulate payment processing
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // Load Paystack script
+      await loadPaystackScript();
       
-      // In a real app, you would process the payment here
-      console.log('Processing payment for book:', book.id);
-      console.log('Shipping info:', shippingInfo);
-      console.log('Payment info:', paymentInfo);
+      // Initialize payment
+      const paymentData = await initializePayment();
       
-      toast.success('Purchase successful! You will receive a confirmation email shortly.');
-      navigate('/profile');
+      if (!paymentData) {
+        setIsProcessing(false);
+        return;
+      }
+
+      // Create Paystack popup
+      const handler = window.PaystackPop.setup({
+        key: 'pk_test_8da15fc8b9880e3479419f8d858739cb3588f25f',
+        email: shippingInfo.email,
+        amount: book.price * 100, // Convert to kobo
+        currency: 'ZAR',
+        ref: paymentData.reference,
+        onClose: function() {
+          setIsProcessing(false);
+          toast.info('Payment cancelled');
+        },
+        callback: async function(response: any) {
+          console.log('Payment successful:', response.reference);
+          
+          // Verify payment
+          const verified = await verifyPayment(response.reference);
+          
+          if (verified) {
+            toast.success('Payment successful! You will receive a confirmation email shortly.');
+            navigate('/profile');
+          } else {
+            toast.error('Payment verification failed. Please contact support.');
+          }
+          
+          setIsProcessing(false);
+        }
+      });
+
+      handler.openIframe();
+      
     } catch (error) {
       console.error('Payment processing error:', error);
       toast.error('Payment failed. Please try again.');
-    } finally {
       setIsProcessing(false);
     }
   };
@@ -229,7 +314,7 @@ const Checkout = () => {
                       <Input
                         id="fullName"
                         value={shippingInfo.fullName}
-                        onChange={(e) => handleInputChange('shipping', 'fullName', e.target.value)}
+                        onChange={(e) => handleInputChange('fullName', e.target.value)}
                         placeholder="John Doe"
                         required
                       />
@@ -240,7 +325,7 @@ const Checkout = () => {
                         id="email"
                         type="email"
                         value={shippingInfo.email}
-                        onChange={(e) => handleInputChange('shipping', 'email', e.target.value)}
+                        onChange={(e) => handleInputChange('email', e.target.value)}
                         placeholder="john@example.com"
                         required
                       />
@@ -252,7 +337,7 @@ const Checkout = () => {
                     <Input
                       id="address"
                       value={shippingInfo.address}
-                      onChange={(e) => handleInputChange('shipping', 'address', e.target.value)}
+                      onChange={(e) => handleInputChange('address', e.target.value)}
                       placeholder="123 Main Street"
                       required
                     />
@@ -264,7 +349,7 @@ const Checkout = () => {
                       <Input
                         id="city"
                         value={shippingInfo.city}
-                        onChange={(e) => handleInputChange('shipping', 'city', e.target.value)}
+                        onChange={(e) => handleInputChange('city', e.target.value)}
                         placeholder="Cape Town"
                         required
                       />
@@ -274,7 +359,7 @@ const Checkout = () => {
                       <Input
                         id="postalCode"
                         value={shippingInfo.postalCode}
-                        onChange={(e) => handleInputChange('shipping', 'postalCode', e.target.value)}
+                        onChange={(e) => handleInputChange('postalCode', e.target.value)}
                         placeholder="8001"
                         required
                       />
@@ -287,7 +372,7 @@ const Checkout = () => {
                       id="phone"
                       type="tel"
                       value={shippingInfo.phone}
-                      onChange={(e) => handleInputChange('shipping', 'phone', e.target.value)}
+                      onChange={(e) => handleInputChange('phone', e.target.value)}
                       placeholder="+27 12 345 6789"
                       required
                     />
@@ -300,60 +385,22 @@ const Checkout = () => {
                 <CardHeader>
                   <CardTitle className="flex items-center">
                     <CreditCard className="mr-2 h-5 w-5" />
-                    Payment Information
+                    Payment with Paystack
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div>
-                    <Label htmlFor="cardholderName">Cardholder Name *</Label>
-                    <Input
-                      id="cardholderName"
-                      value={paymentInfo.cardholderName}
-                      onChange={(e) => handleInputChange('payment', 'cardholderName', e.target.value)}
-                      placeholder="John Doe"
-                      required
-                    />
-                  </div>
-                  
-                  <div>
-                    <Label htmlFor="cardNumber">Card Number *</Label>
-                    <Input
-                      id="cardNumber"
-                      value={paymentInfo.cardNumber}
-                      onChange={(e) => handleInputChange('payment', 'cardNumber', e.target.value)}
-                      placeholder="1234 5678 9012 3456"
-                      required
-                    />
-                  </div>
-                  
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="expiryDate">Expiry Date *</Label>
-                      <Input
-                        id="expiryDate"
-                        value={paymentInfo.expiryDate}
-                        onChange={(e) => handleInputChange('payment', 'expiryDate', e.target.value)}
-                        placeholder="MM/YY"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="cvv">CVV *</Label>
-                      <Input
-                        id="cvv"
-                        value={paymentInfo.cvv}
-                        onChange={(e) => handleInputChange('payment', 'cvv', e.target.value)}
-                        placeholder="123"
-                        required
-                      />
-                    </div>
-                  </div>
-                  
-                  <div className="bg-gray-50 p-4 rounded-lg">
-                    <div className="flex items-center text-gray-600 text-sm">
+                  <div className="bg-green-50 p-4 rounded-lg border border-green-200">
+                    <div className="flex items-center text-green-700 text-sm">
                       <ShieldCheck className="mr-2 h-4 w-4" />
-                      <span>Your payment information is encrypted and secure</span>
+                      <span>Secure payment powered by Paystack. Your payment information is encrypted and secure.</span>
                     </div>
+                  </div>
+                  
+                  <div className="text-sm text-gray-600">
+                    <p>• Pay with your credit/debit card</p>
+                    <p>• Bank transfer</p>
+                    <p>• Mobile money</p>
+                    <p>• All major South African banks supported</p>
                   </div>
                 </CardContent>
               </Card>
@@ -373,7 +420,7 @@ const Checkout = () => {
                     Processing Payment...
                   </span>
                 ) : (
-                  `Complete Purchase - R${totalAmount.toFixed(2)}`
+                  `Pay with Paystack - R${totalAmount.toFixed(2)}`
                 )}
               </Button>
             </form>
@@ -383,5 +430,12 @@ const Checkout = () => {
     </Layout>
   );
 };
+
+// Declare Paystack global
+declare global {
+  interface Window {
+    PaystackPop: any;
+  }
+}
 
 export default Checkout;
