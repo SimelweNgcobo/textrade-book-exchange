@@ -59,27 +59,36 @@ export type Database = {
       }
       profiles: {
         Row: {
+          addresses_same: boolean | null
           created_at: string
           email: string | null
           id: string
           is_admin: boolean | null
           name: string | null
+          pickup_address: Json | null
+          shipping_address: Json | null
           updated_at: string
         }
         Insert: {
+          addresses_same?: boolean | null
           created_at?: string
           email?: string | null
           id: string
           is_admin?: boolean | null
           name?: string | null
+          pickup_address?: Json | null
+          shipping_address?: Json | null
           updated_at?: string
         }
         Update: {
+          addresses_same?: boolean | null
           created_at?: string
           email?: string | null
           id?: string
           is_admin?: boolean | null
           name?: string | null
+          pickup_address?: Json | null
+          shipping_address?: Json | null
           updated_at?: string
         }
         Relationships: []

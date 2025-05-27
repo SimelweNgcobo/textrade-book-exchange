@@ -14,6 +14,7 @@ import { toast } from 'sonner';
 import { ArrowLeft, School, GraduationCap } from 'lucide-react';
 import MultiImageUpload from '@/components/MultiImageUpload';
 import FirstUploadSuccessDialog from '@/components/FirstUploadSuccessDialog';
+import PostListingSuccessDialog from '@/components/PostListingSuccessDialog';
 import ShareProfileDialog from '@/components/ShareProfileDialog';
 import { hasCompletedFirstUpload, markFirstUploadCompleted } from '@/services/userPreferenceService';
 
@@ -43,7 +44,9 @@ const CreateListing = () => {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [bookType, setBookType] = useState<'school' | 'university'>('school');
   const [showFirstUploadDialog, setShowFirstUploadDialog] = useState(false);
+  const [showPostListingDialog, setShowPostListingDialog] = useState(false);
   const [showShareDialog, setShowShareDialog] = useState(false);
+  const [createdBookId, setCreatedBookId] = useState<string | null>(null);
 
   const categories = [
     'Computer Science',
@@ -152,6 +155,7 @@ const CreateListing = () => {
         profile.email || user.email || ''
       );
 
+      setCreatedBookId(newBook.id);
       toast.success('Book listing created successfully!');
       console.log('Book created successfully:', newBook);
       
@@ -160,8 +164,8 @@ const CreateListing = () => {
         markFirstUploadCompleted(user.id);
         setShowFirstUploadDialog(true);
       } else {
-        // Navigate directly if not first upload
-        navigate(`/books/${newBook.id}`);
+        // Show the "What to Expect Next" dialog for subsequent uploads
+        setShowPostListingDialog(true);
       }
     } catch (error) {
       console.error('Error creating book:', error);
@@ -173,7 +177,16 @@ const CreateListing = () => {
 
   const handleFirstUploadClose = () => {
     setShowFirstUploadDialog(false);
-    // Navigate to the book details after closing the dialog
+    setShowPostListingDialog(true);
+  };
+
+  const handlePostListingClose = () => {
+    setShowPostListingDialog(false);
+    navigate('/profile');
+  };
+
+  const handleGoToProfile = () => {
+    setShowPostListingDialog(false);
     navigate('/profile');
   };
 
@@ -441,6 +454,12 @@ const CreateListing = () => {
         isOpen={showFirstUploadDialog}
         onClose={handleFirstUploadClose}
         onShareProfile={handleShareProfile}
+      />
+
+      <PostListingSuccessDialog
+        isOpen={showPostListingDialog}
+        onClose={handlePostListingClose}
+        onGoToProfile={handleGoToProfile}
       />
 
       {user && profile && (

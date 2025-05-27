@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import ShareProfileDialog from '@/components/ShareProfileDialog';
+import BookNotSellingHelp from '@/components/BookNotSellingHelp';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { 
@@ -245,7 +246,6 @@ const UserProfile = () => {
             </div>
           </div>
           
-          {/* Action Buttons */}
           <div className="bg-gray-50 p-4 border-b border-gray-200 flex flex-wrap gap-2">
             <Button 
               variant="outline" 
@@ -298,7 +298,6 @@ const UserProfile = () => {
             )}
           </div>
           
-          {/* Tabs Content */}
           <div className="p-6">
             <Tabs defaultValue={activeTab} onValueChange={setActiveTab}>
               <TabsList className="w-full mb-6">
@@ -311,47 +310,63 @@ const UserProfile = () => {
               
               <TabsContent value="listings">
                 {userData.listings.length > 0 ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {userData.listings.map((listing: any) => (
-                      <div 
-                        key={listing.id}
-                        className="border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow"
-                      >
-                        <div className="relative h-48">
-                          <img 
-                            src={listing.imageUrl} 
-                            alt={listing.title}
-                            className="w-full h-full object-cover"
-                          />
-                          {listing.sold && (
-                            <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-                              <Badge className="bg-red-600 text-white border-0 text-lg py-1 px-3">SOLD</Badge>
-                            </div>
-                          )}
-                        </div>
-                        <div className="p-4">
-                          <h3 className="font-medium text-lg mb-1 line-clamp-1">{listing.title}</h3>
-                          <div className="flex justify-between items-center mb-2">
-                            <p className="font-bold text-book-600">R{listing.price}</p>
-                            <Badge variant="outline">{listing.condition}</Badge>
-                          </div>
-                          <div className="flex justify-between items-center text-sm text-gray-500">
-                            <div className="flex items-center">
-                              <Calendar className="h-4 w-4 mr-1" />
-                              {new Date(listing.createdAt).toLocaleDateString()}
-                            </div>
-                            <Button 
-                              variant="link" 
-                              size="sm"
-                              className="p-0 h-auto"
-                              onClick={() => navigate(`/books/${listing.id}`)}
-                            >
-                              View Details
-                            </Button>
-                          </div>
-                        </div>
+                  <div className="space-y-4">
+                    {isOwnProfile && (
+                      <div className="flex justify-end mb-4">
+                        <BookNotSellingHelp />
                       </div>
-                    ))}
+                    )}
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                      {userData.listings.map((listing: any) => (
+                        <div 
+                          key={listing.id}
+                          className="border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow"
+                        >
+                          <div className="relative h-48">
+                            <img 
+                              src={listing.imageUrl} 
+                              alt={listing.title}
+                              className="w-full h-full object-cover"
+                            />
+                            {listing.sold && (
+                              <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+                                <Badge className="bg-red-600 text-white border-0 text-lg py-1 px-3">SOLD</Badge>
+                              </div>
+                            )}
+                          </div>
+                          <div className="p-4">
+                            <h3 className="font-medium text-lg mb-1 line-clamp-1">{listing.title}</h3>
+                            <div className="flex justify-between items-center mb-2">
+                              <p className="font-bold text-book-600">R{listing.price}</p>
+                              <Badge variant="outline">{listing.condition}</Badge>
+                            </div>
+                            <div className="flex justify-between items-center text-sm text-gray-500">
+                              <div className="flex items-center">
+                                <Calendar className="h-4 w-4 mr-1" />
+                                {new Date(listing.createdAt).toLocaleDateString()}
+                              </div>
+                              <Button 
+                                variant="link" 
+                                size="sm"
+                                className="p-0 h-auto"
+                                onClick={() => navigate(`/books/${listing.id}`)}
+                              >
+                                View Details
+                              </Button>
+                            </div>
+                            {isOwnProfile && !listing.sold && (
+                              <div className="mt-3">
+                                <BookNotSellingHelp 
+                                  bookId={listing.id} 
+                                  bookTitle={listing.title}
+                                />
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 ) : (
                   <div className="text-center py-10">
@@ -464,7 +479,6 @@ const UserProfile = () => {
         />
       )}
 
-      {/* Rating Dialog */}
       <Dialog open={isRatingDialogOpen} onOpenChange={setIsRatingDialogOpen}>
         <DialogContent className="max-w-md">
           <DialogHeader>

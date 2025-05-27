@@ -1,246 +1,322 @@
 
 import { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { getBooksBySeller } from '@/services/bookService';
-import { Book } from '@/types/book';
-import { BookOpen, Plus, User, Share2, Copy } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { 
+  User, 
+  Plus, 
+  Star, 
+  BookIcon, 
+  Calendar, 
+  Edit,
+  MapPin,
+  Package
+} from 'lucide-react';
 import { toast } from 'sonner';
-import ShareProfileDialog from '@/components/ShareProfileDialog';
+import AddressForm from '@/components/AddressForm';
+import BookNotSellingHelp from '@/components/BookNotSellingHelp';
+import { saveUserAddresses, getUserAddresses } from '@/services/addressService';
 
 const Profile = () => {
-  const { user, profile, logout } = useAuth();
-  const [myBooks, setMyBooks] = useState<Book[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [showShareDialog, setShowShareDialog] = useState(false);
+  const { user, profile } = useAuth();
   const navigate = useNavigate();
+  
+  const [activeTab, setActiveTab] = useState("listings");
+  const [isLoadingAddresses, setIsLoadingAddresses] = useState(false);
+  const [userAddresses, setUserAddresses] = useState({
+    pickup_address: null,
+    shipping_address: null,
+    addresses_same: false
+  });
+
+  // Mock data for listings - in real app this would come from your book service
+  const mockListings = [
+    {
+      id: 'book-1',
+      title: 'Introduction to Psychology',
+      price: 450,
+      imageUrl: 'https://source.unsplash.com/random/300x400/?textbook-1',
+      condition: 'Good',
+      createdAt: '2025-04-10T10:30:00',
+      sold: false
+    },
+    {
+      id: 'book-2',
+      title: 'Calculus Made Easy',
+      price: 350,
+      imageUrl: 'https://source.unsplash.com/random/300x400/?textbook-2',
+      condition: 'New',
+      createdAt: '2025-03-15T14:20:00',
+      sold: true
+    }
+  ];
 
   useEffect(() => {
-    const loadUserBooks = async () => {
-      if (!user) return;
+    if (user?.id) {
+      loadUserAddresses();
+    }
+  }, [user?.id]);
 
-      setIsLoading(true);
-      try {
-        const books = await getBooksBySeller(user.id);
-        setMyBooks(books);
-        console.log('Loaded user books:', books);
-      } catch (error) {
-        console.error('Error loading user books:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    loadUserBooks();
-  }, [user]);
-
-  const activeBooks = myBooks.filter(book => !book.sold);
-  const soldBooks = myBooks.filter(book => book.sold);
-
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
+  const loadUserAddresses = async () => {
+    if (!user?.id) return;
+    
+    try {
+      const addresses = await getUserAddresses(user.id);
+      setUserAddresses(addresses);
+    } catch (error) {
+      console.error('Error loading addresses:', error);
+    }
   };
 
-  const handleShareProfile = () => {
-    setShowShareDialog(true);
+  const handleSaveAddresses = async (pickupAddress: any, shippingAddress: any, addressesSame: boolean) => {
+    if (!user?.id) {
+      toast.error('User not authenticated');
+      return;
+    }
+
+    setIsLoadingAddresses(true);
+    try {
+      await saveUserAddresses(user.id, pickupAddress, shippingAddress, addressesSame);
+      setUserAddresses({
+        pickup_address: pickupAddress,
+        shipping_address: shippingAddress,
+        addresses_same: addressesSame
+      });
+    } catch (error) {
+      console.error('Error saving addresses:', error);
+      throw error;
+    } finally {
+      setIsLoadingAddresses(false);
+    }
   };
 
-  const copyProfileLink = () => {
-    const profileUrl = `${window.location.origin}/user/${user?.id}`;
-    navigator.clipboard.writeText(profileUrl);
-    toast.success('Profile link copied to clipboard!');
-  };
+  if (!user || !profile) {
+    return (
+      <Layout>
+        <div className="container mx-auto px-4 py-8">
+          <div className="text-center">
+            <p className="text-gray-600">Please log in to view your profile.</p>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
 
   return (
     <Layout>
       <div className="container mx-auto px-4 py-8">
-        {/* Profile Header */}
-        <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-          <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
-            <div className="bg-book-100 rounded-full w-24 h-24 flex items-center justify-center text-book-600">
-              <User className="h-12 w-12" />
-            </div>
-            <div className="flex-grow text-center md:text-left">
-              <h1 className="text-3xl font-bold text-book-800">{profile?.name || 'User'}</h1>
-              <p className="text-gray-600 mb-4">{profile?.email || user?.email}</p>
-              <div className="flex flex-wrap justify-center md:justify-start gap-4">
-                <Button 
-                  variant="outline" 
-                  className="border-book-600 text-book-600"
-                  onClick={() => navigate('/create-listing')}
-                >
-                  <Plus className="mr-2 h-4 w-4" /> Sell a Book
-                </Button>
-                <Button 
-                  variant="outline" 
-                  className="border-book-600 text-book-600"
-                  onClick={handleShareProfile}
-                >
-                  <Share2 className="mr-2 h-4 w-4" /> Share Profile
-                </Button>
-                <Button 
-                  variant="outline" 
-                  className="border-gray-300 text-gray-600"
-                  onClick={copyProfileLink}
-                >
-                  <Copy className="mr-2 h-4 w-4" /> Copy Link
-                </Button>
-                <Button 
-                  variant="ghost" 
-                  className="text-gray-600"
-                  onClick={() => logout()}
-                >
-                  Sign Out
-                </Button>
+        <div className="bg-white rounded-lg shadow-md overflow-hidden">
+          <div className="bg-gradient-to-r from-book-600 to-book-800 p-6 text-white">
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between">
+              <div className="flex items-center mb-4 md:mb-0">
+                <div className="bg-white rounded-full p-3 mr-4">
+                  <User className="h-10 w-10 text-book-600" />
+                </div>
+                <div>
+                  <h1 className="text-2xl font-bold">{profile.name || 'User'}</h1>
+                  <p className="text-book-100">{profile.email || user.email}</p>
+                </div>
+              </div>
+              
+              <div className="flex items-center space-x-2">
+                <Badge className="bg-green-500 text-white border-0">
+                  Active Seller
+                </Badge>
               </div>
             </div>
           </div>
+          
+          <div className="p-6">
+            <Tabs defaultValue={activeTab} onValueChange={setActiveTab}>
+              <TabsList className="w-full mb-6">
+                <TabsTrigger value="listings">My Listings</TabsTrigger>
+                <TabsTrigger value="addresses">Addresses</TabsTrigger>
+                <TabsTrigger value="settings">Settings</TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="listings">
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center">
+                    <h2 className="text-xl font-semibold">Your Book Listings</h2>
+                    <Button onClick={() => navigate('/create-listing')} className="bg-book-600 hover:bg-book-700">
+                      <Plus className="mr-2 h-4 w-4" />
+                      Add New Listing
+                    </Button>
+                  </div>
+
+                  {mockListings.length > 0 ? (
+                    <div className="space-y-4">
+                      <div className="flex justify-end mb-4">
+                        <BookNotSellingHelp />
+                      </div>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {mockListings.map((listing) => (
+                          <div 
+                            key={listing.id}
+                            className="border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow"
+                          >
+                            <div className="relative h-48">
+                              <img 
+                                src={listing.imageUrl} 
+                                alt={listing.title}
+                                className="w-full h-full object-cover"
+                              />
+                              {listing.sold && (
+                                <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+                                  <Badge className="bg-red-600 text-white border-0 text-lg py-1 px-3">SOLD</Badge>
+                                </div>
+                              )}
+                            </div>
+                            <div className="p-4">
+                              <h3 className="font-medium text-lg mb-1 line-clamp-1">{listing.title}</h3>
+                              <div className="flex justify-between items-center mb-2">
+                                <p className="font-bold text-book-600">R{listing.price}</p>
+                                <Badge variant="outline">{listing.condition}</Badge>
+                              </div>
+                              <div className="flex justify-between items-center text-sm text-gray-500">
+                                <div className="flex items-center">
+                                  <Calendar className="h-4 w-4 mr-1" />
+                                  {new Date(listing.createdAt).toLocaleDateString()}
+                                </div>
+                                <div className="space-x-2">
+                                  <Button 
+                                    variant="link" 
+                                    size="sm"
+                                    className="p-0 h-auto"
+                                    onClick={() => navigate(`/books/${listing.id}`)}
+                                  >
+                                    View
+                                  </Button>
+                                  <Button 
+                                    variant="link" 
+                                    size="sm"
+                                    className="p-0 h-auto text-orange-600"
+                                  >
+                                    <Edit className="h-3 w-3 mr-1" />
+                                    Edit
+                                  </Button>
+                                </div>
+                              </div>
+                              {!listing.sold && (
+                                <div className="mt-3">
+                                  <BookNotSellingHelp 
+                                    bookId={listing.id} 
+                                    bookTitle={listing.title}
+                                  />
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="text-center py-10">
+                      <BookIcon className="h-12 w-12 text-gray-300 mx-auto mb-3" />
+                      <p className="text-gray-500 mb-4">You haven't listed any books yet</p>
+                      <Button onClick={() => navigate('/create-listing')} className="bg-book-600 hover:bg-book-700">
+                        <Plus className="mr-2 h-4 w-4" />
+                        Create Your First Listing
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              </TabsContent>
+              
+              <TabsContent value="addresses">
+                <div className="space-y-6">
+                  <div>
+                    <h2 className="text-xl font-semibold mb-2">Manage Your Addresses</h2>
+                    <p className="text-gray-600 mb-6">
+                      Set up your pickup address for selling books and shipping address for purchases.
+                    </p>
+                  </div>
+
+                  <AddressForm
+                    pickupAddress={userAddresses.pickup_address}
+                    shippingAddress={userAddresses.shipping_address}
+                    addressesSame={userAddresses.addresses_same}
+                    onSave={handleSaveAddresses}
+                    isLoading={isLoadingAddresses}
+                  />
+                </div>
+              </TabsContent>
+              
+              <TabsContent value="settings">
+                <div className="space-y-6">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Account Information</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
+                        <p className="text-gray-900">{profile.name || 'Not set'}</p>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                        <p className="text-gray-900">{profile.email || user.email}</p>
+                      </div>
+                      <Button variant="outline">
+                        <Edit className="mr-2 h-4 w-4" />
+                        Edit Profile
+                      </Button>
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Address Summary</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-4">
+                        <div className="flex items-start space-x-3">
+                          <Package className="h-5 w-5 text-book-600 mt-0.5" />
+                          <div>
+                            <p className="font-medium">Pickup Address</p>
+                            <p className="text-sm text-gray-600">
+                              {userAddresses.pickup_address ? 
+                                `${userAddresses.pickup_address.streetAddress}, ${userAddresses.pickup_address.suburb}` : 
+                                'Not set'
+                              }
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex items-start space-x-3">
+                          <MapPin className="h-5 w-5 text-book-600 mt-0.5" />
+                          <div>
+                            <p className="font-medium">Shipping Address</p>
+                            <p className="text-sm text-gray-600">
+                              {userAddresses.addresses_same ? 'Same as pickup address' :
+                                userAddresses.shipping_address ? 
+                                  `${userAddresses.shipping_address.streetAddress}, ${userAddresses.shipping_address.suburb}` : 
+                                  'Not set'
+                              }
+                            </p>
+                          </div>
+                        </div>
+                        <Button 
+                          variant="outline" 
+                          onClick={() => setActiveTab('addresses')}
+                        >
+                          <Edit className="mr-2 h-4 w-4" />
+                          Update Addresses
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              </TabsContent>
+            </Tabs>
+          </div>
         </div>
-
-        {/* Books Tabs */}
-        <Tabs defaultValue="active" className="bg-white rounded-lg shadow-md p-6">
-          <TabsList className="grid w-full grid-cols-2 mb-6">
-            <TabsTrigger value="active" className="text-lg py-3">
-              Active Listings ({activeBooks.length})
-            </TabsTrigger>
-            <TabsTrigger value="sold" className="text-lg py-3">
-              Sold Books ({soldBooks.length})
-            </TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="active">
-            {isLoading ? (
-              <div className="flex justify-center items-center h-64">
-                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-book-600"></div>
-              </div>
-            ) : activeBooks.length === 0 ? (
-              <div className="text-center py-16">
-                <BookOpen className="mx-auto h-12 w-12 text-book-300 mb-4" />
-                <h3 className="text-xl font-semibold mb-2">No active listings</h3>
-                <p className="text-gray-500 mb-6">You don't have any books listed for sale yet.</p>
-                <Button 
-                  onClick={() => navigate('/create-listing')}
-                  className="bg-book-600 hover:bg-book-700"
-                >
-                  <Plus className="mr-2 h-4 w-4" /> Sell a Book
-                </Button>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {activeBooks.map(book => (
-                  <div key={book.id} className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-                    <div className="relative h-48">
-                      <img 
-                        src={book.imageUrl} 
-                        alt={book.title} 
-                        className="w-full h-full object-cover"
-                        onError={(e) => {
-                          const target = e.target as HTMLImageElement;
-                          target.src = 'https://images.unsplash.com/photo-1543002588-bfa74002ed7e?auto=format&fit=crop&w=300&h=400';
-                        }}
-                      />
-                    </div>
-                    <div className="p-4">
-                      <h3 className="font-bold text-lg text-book-800 mb-1 line-clamp-2">{book.title}</h3>
-                      <p className="text-gray-600 mb-2">{book.author}</p>
-                      <div className="flex flex-wrap gap-2 mb-3">
-                        <span className="bg-book-100 text-book-800 px-2 py-1 rounded text-xs font-medium">
-                          {book.condition}
-                        </span>
-                        <span className="bg-gray-100 text-gray-800 px-2 py-1 rounded text-xs">
-                          {book.category}
-                        </span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <p className="text-xl font-bold text-book-600">R{book.price}</p>
-                        <Link to={`/books/${book.id}`}>
-                          <Button variant="outline" size="sm" className="border-book-600 text-book-600">
-                            View
-                          </Button>
-                        </Link>
-                      </div>
-                      <p className="text-gray-500 text-sm mt-2">Listed: {formatDate(book.createdAt)}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </TabsContent>
-
-          <TabsContent value="sold">
-            {isLoading ? (
-              <div className="flex justify-center items-center h-64">
-                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-book-600"></div>
-              </div>
-            ) : soldBooks.length === 0 ? (
-              <div className="text-center py-16">
-                <BookOpen className="mx-auto h-12 w-12 text-book-300 mb-4" />
-                <h3 className="text-xl font-semibold mb-2">No sold books</h3>
-                <p className="text-gray-500">You haven't sold any books yet.</p>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {soldBooks.map(book => (
-                  <div key={book.id} className="bg-gray-50 border border-gray-200 rounded-lg overflow-hidden shadow-sm">
-                    <div className="relative h-48">
-                      <img 
-                        src={book.imageUrl} 
-                        alt={book.title} 
-                        className="w-full h-full object-cover opacity-75"
-                        onError={(e) => {
-                          const target = e.target as HTMLImageElement;
-                          target.src = 'https://images.unsplash.com/photo-1543002588-bfa74002ed7e?auto=format&fit=crop&w=300&h=400';
-                        }}
-                      />
-                      <div className="absolute inset-0 bg-black bg-opacity-20 flex items-center justify-center">
-                        <span className="bg-green-600 text-white px-3 py-1 rounded text-sm font-medium">
-                          SOLD
-                        </span>
-                      </div>
-                    </div>
-                    <div className="p-4">
-                      <h3 className="font-bold text-lg text-gray-700 mb-1 line-clamp-2">{book.title}</h3>
-                      <p className="text-gray-600 mb-2">{book.author}</p>
-                      <div className="flex flex-wrap gap-2 mb-3">
-                        <span className="bg-gray-100 text-gray-700 px-2 py-1 rounded text-xs font-medium">
-                          {book.condition}
-                        </span>
-                        <span className="bg-gray-100 text-gray-700 px-2 py-1 rounded text-xs">
-                          {book.category}
-                        </span>
-                      </div>
-                      <div className="space-y-1">
-                        <p className="text-lg font-medium text-gray-700">R{book.price}</p>
-                        <p className="text-sm text-gray-500">Commission: R15</p>
-                        <p className="text-md font-bold text-book-600">You received: R{book.price - 15}</p>
-                      </div>
-                      <p className="text-gray-500 text-sm mt-2">Sold: {formatDate(book.createdAt)}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </TabsContent>
-        </Tabs>
       </div>
-
-      {user && profile && (
-        <ShareProfileDialog
-          isOpen={showShareDialog}
-          onClose={() => setShowShareDialog(false)}
-          userId={user.id}
-          userName={profile.name || 'User'}
-          isOwnProfile={true}
-        />
-      )}
     </Layout>
   );
 };

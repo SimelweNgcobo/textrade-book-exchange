@@ -1,9 +1,10 @@
 
+
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
-import { BookOpen, Menu, X, Plus, User, LogOut, Bell } from 'lucide-react';
+import { BookOpen, Menu, X, Plus, User, LogOut, Bell, UserPlus } from 'lucide-react';
 import AdminAccess from './AdminAccess';
 
 const Navbar = () => {
@@ -85,6 +86,7 @@ const Navbar = () => {
                 </Link>
                 <Link to="/register">
                   <Button className="bg-book-600 hover:bg-book-700 text-white">
+                    <UserPlus className="h-4 w-4 mr-1" />
                     Sign Up
                   </Button>
                 </Link>
@@ -169,9 +171,10 @@ const Navbar = () => {
                   </Link>
                   <Link
                     to="/register"
-                    className="text-gray-700 hover:text-book-600 px-3 py-2 transition-colors"
+                    className="flex items-center text-gray-700 hover:text-book-600 px-3 py-2 transition-colors"
                     onClick={() => setIsMenuOpen(false)}
                   >
+                    <UserPlus className="h-4 w-4 mr-1" />
                     Sign Up
                   </Link>
                 </>
@@ -185,3 +188,4 @@ const Navbar = () => {
 };
 
 export default Navbar;
+
