@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
@@ -14,6 +13,9 @@ import { BookFormData } from '@/types/book';
 import { toast } from 'sonner';
 import { ArrowLeft, School, GraduationCap } from 'lucide-react';
 import MultiImageUpload from '@/components/MultiImageUpload';
+import FirstUploadSuccessDialog from '@/components/FirstUploadSuccessDialog';
+import ShareProfileDialog from '@/components/ShareProfileDialog';
+import { hasCompletedFirstUpload, markFirstUploadCompleted } from '@/services/userPreferenceService';
 
 const CreateListing = () => {
   const { user, profile } = useAuth();
@@ -40,6 +42,8 @@ const CreateListing = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [bookType, setBookType] = useState<'school' | 'university'>('school');
+  const [showFirstUploadDialog, setShowFirstUploadDialog] = useState(false);
+  const [showShareDialog, setShowShareDialog] = useState(false);
 
   const categories = [
     'Computer Science',
@@ -88,7 +92,6 @@ const CreateListing = () => {
 
   const handleBookTypeChange = (type: 'school' | 'university') => {
     setBookType(type);
-    // Reset the other type's value
     if (type === 'school') {
       setFormData({ ...formData, universityYear: null });
     } else {
@@ -98,7 +101,6 @@ const CreateListing = () => {
 
   const handleImagesChange = (images: { frontCover: string; backCover: string; insidePages: string }) => {
     setBookImages(images);
-    // Use front cover as the main image URL
     setFormData({ ...formData, imageUrl: images.frontCover });
   };
 
@@ -119,7 +121,6 @@ const CreateListing = () => {
       newErrors.universityYear = 'University year is required for university books';
     }
 
-    // Validate all three images are uploaded
     if (!bookImages.frontCover) newErrors.frontCover = 'Front cover photo is required';
     if (!bookImages.backCover) newErrors.backCover = 'Back cover photo is required';
     if (!bookImages.insidePages) newErrors.insidePages = 'Inside pages photo is required';
@@ -154,14 +155,30 @@ const CreateListing = () => {
       toast.success('Book listing created successfully!');
       console.log('Book created successfully:', newBook);
       
-      // Navigate to the new book's detail page to confirm it was created
-      navigate(`/books/${newBook.id}`);
+      // Check if this is the user's first upload
+      if (!hasCompletedFirstUpload(user.id)) {
+        markFirstUploadCompleted(user.id);
+        setShowFirstUploadDialog(true);
+      } else {
+        // Navigate directly if not first upload
+        navigate(`/books/${newBook.id}`);
+      }
     } catch (error) {
       console.error('Error creating book:', error);
       toast.error(error instanceof Error ? error.message : 'Failed to create listing');
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const handleFirstUploadClose = () => {
+    setShowFirstUploadDialog(false);
+    // Navigate to the book details after closing the dialog
+    navigate('/profile');
+  };
+
+  const handleShareProfile = () => {
+    setShowShareDialog(true);
   };
 
   return (
@@ -175,7 +192,6 @@ const CreateListing = () => {
           <h1 className="text-3xl font-bold text-book-800 mb-6">Sell Your Book</h1>
 
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Book Type Selection */}
             <div className="bg-gray-50 p-4 rounded-lg mb-6">
               <Label className="text-base font-medium mb-2 block">Book Type</Label>
               <RadioGroup 
@@ -205,9 +221,7 @@ const CreateListing = () => {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Left Column */}
               <div className="space-y-6">
-                {/* Title */}
                 <div>
                   <Label htmlFor="title" className="text-base font-medium">
                     Book Title <span className="text-red-500">*</span>
@@ -223,7 +237,6 @@ const CreateListing = () => {
                   {errors.title && <p className="text-sm text-red-500 mt-1">{errors.title}</p>}
                 </div>
 
-                {/* Author */}
                 <div>
                   <Label htmlFor="author" className="text-base font-medium">
                     Author <span className="text-red-500">*</span>
@@ -239,7 +252,6 @@ const CreateListing = () => {
                   {errors.author && <p className="text-sm text-red-500 mt-1">{errors.author}</p>}
                 </div>
 
-                {/* Price */}
                 <div>
                   <Label htmlFor="price" className="text-base font-medium">
                     Price (R) <span className="text-red-500">*</span>
@@ -261,7 +273,6 @@ const CreateListing = () => {
                   {errors.price && <p className="text-sm text-red-500 mt-1">{errors.price}</p>}
                 </div>
 
-                {/* Category */}
                 <div>
                   <Label htmlFor="category" className="text-base font-medium">
                     Category <span className="text-red-500">*</span>
@@ -284,7 +295,6 @@ const CreateListing = () => {
                   {errors.category && <p className="text-sm text-red-500 mt-1">{errors.category}</p>}
                 </div>
 
-                {/* Grade or University Year based on type */}
                 {bookType === 'school' ? (
                   <div>
                     <Label htmlFor="grade" className="text-base font-medium">
@@ -332,9 +342,7 @@ const CreateListing = () => {
                 )}
               </div>
 
-              {/* Right Column */}
               <div className="space-y-6">
-                {/* Description */}
                 <div>
                   <Label htmlFor="description" className="text-base font-medium">
                     Description <span className="text-red-500">*</span>
@@ -350,7 +358,6 @@ const CreateListing = () => {
                   {errors.description && <p className="text-sm text-red-500 mt-1">{errors.description}</p>}
                 </div>
 
-                {/* Condition */}
                 <div>
                   <Label htmlFor="condition" className="text-base font-medium">
                     Condition <span className="text-red-500">*</span>
@@ -377,7 +384,6 @@ const CreateListing = () => {
               </div>
             </div>
 
-            {/* Multi-Image Upload */}
             <div className="mt-6">
               <MultiImageUpload
                 onImagesChange={handleImagesChange}
@@ -389,7 +395,6 @@ const CreateListing = () => {
               )}
             </div>
 
-            {/* Commission and earnings notice */}
             <div className="p-4 bg-book-50 rounded-lg border border-book-200 mt-6">
               <h3 className="font-semibold text-book-800 mb-2">Commission & Earnings</h3>
               <div className="space-y-2 text-sm">
@@ -408,7 +413,6 @@ const CreateListing = () => {
               </p>
             </div>
 
-            {/* Submit button */}
             <div className="flex justify-end">
               <Button
                 type="submit"
@@ -432,6 +436,22 @@ const CreateListing = () => {
           </form>
         </div>
       </div>
+
+      <FirstUploadSuccessDialog
+        isOpen={showFirstUploadDialog}
+        onClose={handleFirstUploadClose}
+        onShareProfile={handleShareProfile}
+      />
+
+      {user && profile && (
+        <ShareProfileDialog
+          isOpen={showShareDialog}
+          onClose={() => setShowShareDialog(false)}
+          userId={user.id}
+          userName={profile.name || 'User'}
+          isOwnProfile={true}
+        />
+      )}
     </Layout>
   );
 };

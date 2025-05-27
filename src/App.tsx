@@ -4,6 +4,7 @@ import { Toaster } from 'sonner';
 import { AuthProvider } from './contexts/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import AdminProtectedRoute from './components/AdminProtectedRoute';
+import ScrollToTop from './components/ScrollToTop';
 
 // Pages
 import Index from './pages/Index';
@@ -31,6 +32,7 @@ import './App.css';
 function App() {
   return (
     <Router>
+      <ScrollToTop />
       <AuthProvider>
         <Routes>
           <Route path="/" element={<Index />} />

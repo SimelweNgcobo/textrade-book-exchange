@@ -1,11 +1,8 @@
-
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { 
@@ -14,16 +11,16 @@ import {
   Star, 
   BookIcon, 
   Calendar, 
-  Check, 
   Shield,
   AlertTriangle, 
   MessageCircle, 
   Flag,
-  Share2,
-  Copy,
-  ExternalLink
+  Share2
 } from 'lucide-react';
 import { toast } from 'sonner';
+import ShareProfileDialog from '@/components/ShareProfileDialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { 
   Dialog, 
   DialogContent, 
@@ -32,6 +29,7 @@ import {
   DialogFooter,
   DialogDescription, 
 } from '@/components/ui/dialog';
+import { Copy, ExternalLink } from 'lucide-react';
 
 const UserProfile = () => {
   const { id: userId } = useParams();
@@ -41,20 +39,17 @@ const UserProfile = () => {
   const [userData, setUserData] = useState<any>(null);
   const [activeTab, setActiveTab] = useState("listings");
   const [isLoading, setIsLoading] = useState(true);
-  const [isRatingDialogOpen, setIsRatingDialogOpen] = useState(false);
   const [isShareDialogOpen, setIsShareDialogOpen] = useState(false);
+  const [isOwnProfile, setIsOwnProfile] = useState(false);
+  const [isRatingDialogOpen, setIsRatingDialogOpen] = useState(false);
   const [rating, setRating] = useState(5);
   const [reviewComment, setReviewComment] = useState('');
   const [isSubmittingRating, setIsSubmittingRating] = useState(false);
-  const [isOwnProfile, setIsOwnProfile] = useState(false);
 
   useEffect(() => {
-    // Determine if this is the user's own profile
     setIsOwnProfile(userId === user?.id || !userId);
     
-    // In a real app, you'd fetch this from your database
     setTimeout(() => {
-      // Mock user data
       const mockUser = {
         id: userId || user?.id,
         name: isOwnProfile ? profile?.name || 'Current User' : 'Jane Smith',
@@ -106,41 +101,21 @@ const UserProfile = () => {
     }, 1000);
   }, [userId, user, profile, isOwnProfile]);
 
-  const handleRateUser = () => {
-    setIsRatingDialogOpen(true);
-  };
-
   const handleShareProfile = () => {
     setIsShareDialogOpen(true);
   };
 
-  const copyProfileLink = () => {
-    const profileUrl = `${window.location.origin}/user/${userData?.id}`;
-    navigator.clipboard.writeText(profileUrl);
-    toast.success('Profile link copied to clipboard!');
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { 
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric'
+    });
   };
 
-  const shareToSocial = (platform: string) => {
-    const profileUrl = `${window.location.origin}/user/${userData?.id}`;
-    const text = `Check out ${userData?.name}'s textbook listings on ReBooked Solutions!`;
-    
-    let shareUrl = '';
-    
-    switch (platform) {
-      case 'twitter':
-        shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(profileUrl)}`;
-        break;
-      case 'facebook':
-        shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(profileUrl)}`;
-        break;
-      case 'whatsapp':
-        shareUrl = `https://wa.me/?text=${encodeURIComponent(text + ' ' + profileUrl)}`;
-        break;
-      default:
-        return;
-    }
-    
-    window.open(shareUrl, '_blank', 'width=600,height=400');
+  const handleRateUser = () => {
+    setIsRatingDialogOpen(true);
   };
 
   const submitRating = async () => {
@@ -182,13 +157,33 @@ const UserProfile = () => {
     }
   };
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { 
-      year: 'numeric', 
-      month: 'long', 
-      day: 'numeric'
-    });
+  const copyProfileLink = () => {
+    const profileUrl = `${window.location.origin}/user/${userData?.id}`;
+    navigator.clipboard.writeText(profileUrl);
+    toast.success('Profile link copied to clipboard!');
+  };
+
+  const shareToSocial = (platform: string) => {
+    const profileUrl = `${window.location.origin}/user/${userData?.id}`;
+    const text = `Check out ${userData?.name}'s textbook listings on ReBooked Solutions!`;
+    
+    let shareUrl = '';
+    
+    switch (platform) {
+      case 'twitter':
+        shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(profileUrl)}`;
+        break;
+      case 'facebook':
+        shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(profileUrl)}`;
+        break;
+      case 'whatsapp':
+        shareUrl = `https://wa.me/?text=${encodeURIComponent(text + ' ' + profileUrl)}`;
+        break;
+      default:
+        return;
+    }
+    
+    window.open(shareUrl, '_blank', 'width=600,height=400');
   };
 
   if (isLoading) {
@@ -211,7 +206,6 @@ const UserProfile = () => {
         </Button>
 
         <div className="bg-white rounded-lg shadow-md overflow-hidden">
-          {/* Profile Header */}
           <div className="bg-gradient-to-r from-book-600 to-book-800 p-6 text-white">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between">
               <div className="flex items-center mb-4 md:mb-0">
@@ -420,7 +414,6 @@ const UserProfile = () => {
                   <div className="max-w-2xl mx-auto">
                     <h3 className="text-xl font-medium mb-4">Account Settings</h3>
                     <div className="space-y-6">
-                      {/* Account settings would go here */}
                       <div className="bg-amber-50 rounded-lg p-4 border border-amber-200">
                         <div className="flex items-start">
                           <AlertTriangle className="h-5 w-5 text-amber-600 mr-2 mt-0.5" />
@@ -461,76 +454,15 @@ const UserProfile = () => {
         </div>
       </div>
 
-      {/* Share Profile Dialog */}
-      <Dialog open={isShareDialogOpen} onOpenChange={setIsShareDialogOpen}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle className="flex items-center">
-              <Share2 className="h-5 w-5 text-book-600 mr-2" />
-              Share Profile
-            </DialogTitle>
-            <DialogDescription>
-              Share {isOwnProfile ? 'your' : `${userData?.name}'s`} profile with others
-            </DialogDescription>
-          </DialogHeader>
-          
-          <div className="space-y-4">
-            <div>
-              <Label className="text-sm font-medium mb-2 block">Profile Link</Label>
-              <div className="flex items-center space-x-2">
-                <Input
-                  readOnly
-                  value={`${window.location.origin}/user/${userData?.id}`}
-                  className="flex-1"
-                />
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={copyProfileLink}
-                >
-                  <Copy className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
-            
-            <div>
-              <Label className="text-sm font-medium mb-2 block">Share on Social Media</Label>
-              <div className="flex space-x-2">
-                <Button
-                  variant="outline"
-                  onClick={() => shareToSocial('twitter')}
-                  className="flex-1"
-                >
-                  <ExternalLink className="h-4 w-4 mr-2" />
-                  Twitter
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={() => shareToSocial('facebook')}
-                  className="flex-1"
-                >
-                  <ExternalLink className="h-4 w-4 mr-2" />
-                  Facebook
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={() => shareToSocial('whatsapp')}
-                  className="flex-1"
-                >
-                  <ExternalLink className="h-4 w-4 mr-2" />
-                  WhatsApp
-                </Button>
-              </div>
-            </div>
-          </div>
-          
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsShareDialogOpen(false)}>
-              Close
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      {userData && (
+        <ShareProfileDialog
+          isOpen={isShareDialogOpen}
+          onClose={() => setIsShareDialogOpen(false)}
+          userId={userData.id}
+          userName={userData.name}
+          isOwnProfile={isOwnProfile}
+        />
+      )}
 
       {/* Rating Dialog */}
       <Dialog open={isRatingDialogOpen} onOpenChange={setIsRatingDialogOpen}>
