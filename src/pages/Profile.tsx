@@ -137,7 +137,7 @@ const Profile = () => {
               </div>
               
               <div className="flex items-center space-x-2">
-                <Badge className="bg-green-500 text-white border-0">
+                <Badge className="bg-book-500 text-white border-0">
                   Active Seller
                 </Badge>
               </div>
@@ -149,7 +149,7 @@ const Profile = () => {
             <div className="flex flex-wrap gap-2">
               <Button 
                 onClick={handleEditProfile}
-                className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl px-4 py-2 text-sm shadow"
+                className="bg-book-600 hover:bg-book-700 text-white rounded-xl px-4 py-2 text-sm shadow border-0"
               >
                 <Edit className="mr-2 h-4 w-4" />
                 Edit Profile
@@ -158,7 +158,7 @@ const Profile = () => {
               <Button 
                 onClick={handleShareProfile}
                 variant="outline"
-                className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl px-4 py-2 text-sm shadow border-0"
+                className="border-book-600 text-book-600 hover:bg-book-50 rounded-xl px-4 py-2 text-sm"
               >
                 <Share2 className="mr-2 h-4 w-4" />
                 Share Profile
@@ -208,8 +208,11 @@ const Profile = () => {
                                   className="w-full h-full object-cover"
                                 />
                                 {listing.sold && (
-                                  <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-                                    <Badge className="bg-red-600 text-white border-0 text-lg py-1 px-3">SOLD</Badge>
+                                  <div className="absolute inset-0">
+                                    <div className="absolute inset-0 bg-black bg-opacity-30"></div>
+                                    <div className="absolute top-4 -left-8 bg-book-600 text-white text-sm font-bold py-1 px-8 transform rotate-[-45deg] shadow-lg">
+                                      SOLD
+                                    </div>
                                   </div>
                                 )}
                               </div>
@@ -228,7 +231,7 @@ const Profile = () => {
                                     <Button 
                                       variant="link" 
                                       size="sm"
-                                      className="p-0 h-auto"
+                                      className="p-0 h-auto text-book-600"
                                       onClick={() => navigate(`/books/${listing.id}`)}
                                     >
                                       View
@@ -236,7 +239,7 @@ const Profile = () => {
                                     <Button 
                                       variant="link" 
                                       size="sm"
-                                      className="p-0 h-auto text-orange-600"
+                                      className="p-0 h-auto text-book-600"
                                     >
                                       <Edit className="h-3 w-3 mr-1" />
                                       Edit
@@ -307,7 +310,7 @@ const Profile = () => {
                       </div>
                       <Button 
                         onClick={handleEditProfile}
-                        className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl px-4 py-2 text-sm shadow"
+                        className="bg-book-600 hover:bg-book-700 text-white rounded-xl px-4 py-2 text-sm shadow border-0"
                       >
                         <Edit className="mr-2 h-4 w-4" />
                         Edit Profile
@@ -349,7 +352,7 @@ const Profile = () => {
                         <Button 
                           variant="outline" 
                           onClick={() => setActiveTab('addresses')}
-                          className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl px-4 py-2 text-sm shadow border-0"
+                          className="border-book-600 text-book-600 hover:bg-book-50 rounded-xl px-4 py-2 text-sm"
                         >
                           <Edit className="mr-2 h-4 w-4" />
                           Update Addresses

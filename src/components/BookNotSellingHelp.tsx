@@ -43,32 +43,32 @@ const BookNotSellingHelp = ({ bookId, bookTitle }: BookNotSellingHelpProps) => {
 
   const tips = [
     {
-      icon: <Share2 className="h-5 w-5 text-blue-600" />,
+      icon: <Share2 className="h-5 w-5 text-book-600" />,
       title: "Share your listing link",
       description: "Post on social media, share with classmates, or send to study groups",
       action: "Copy Link",
       onClick: copyListingLink
     },
     {
-      icon: <Camera className="h-5 w-5 text-green-600" />,
+      icon: <Camera className="h-5 w-5 text-book-600" />,
       title: "Improve your photos",
       description: "Use clear, well-lit images showing the book's cover, back, and any important pages",
       action: null
     },
     {
-      icon: <MessageSquare className="h-5 w-5 text-purple-600" />,
+      icon: <MessageSquare className="h-5 w-5 text-book-600" />,
       title: "Add detailed description",
       description: "Be honest about condition, mention highlights, notes, or any missing pages",
       action: null
     },
     {
-      icon: <DollarSign className="h-5 w-5 text-orange-600" />,
+      icon: <DollarSign className="h-5 w-5 text-book-600" />,
       title: "Check your pricing",
       description: "Compare with similar listings to ensure competitive pricing",
       action: null
     },
     {
-      icon: <MapPin className="h-5 w-5 text-red-600" />,
+      icon: <MapPin className="h-5 w-5 text-book-600" />,
       title: "Verify pickup location",
       description: "Make sure your pickup address is accurate and easy to find",
       action: null
@@ -80,7 +80,7 @@ const BookNotSellingHelp = ({ bookId, bookTitle }: BookNotSellingHelpProps) => {
       <DialogTrigger asChild>
         <Button 
           variant="outline" 
-          className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl px-4 py-2 text-sm shadow border-0 flex items-center"
+          className="border-book-600 text-book-600 hover:bg-book-50 rounded-xl px-4 py-2 text-sm flex items-center"
         >
           <TrendingDown className="mr-2 h-4 w-4" />
           Book not selling? Here's what to do
@@ -89,7 +89,7 @@ const BookNotSellingHelp = ({ bookId, bookTitle }: BookNotSellingHelpProps) => {
       
       <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="flex items-center text-orange-600">
+          <DialogTitle className="flex items-center text-book-600">
             <TrendingDown className="mr-2 h-6 w-6" />
             Boost Your Book Sales
           </DialogTitle>
@@ -102,7 +102,7 @@ const BookNotSellingHelp = ({ bookId, bookTitle }: BookNotSellingHelpProps) => {
 
           <div className="grid gap-4">
             {tips.map((tip, index) => (
-              <Card key={index} className="border-l-4 border-l-blue-500">
+              <Card key={index} className="border-l-4 border-l-book-500">
                 <CardContent className="pt-4">
                   <div className="flex items-start justify-between">
                     <div className="flex items-start space-x-3 flex-1">
@@ -113,7 +113,12 @@ const BookNotSellingHelp = ({ bookId, bookTitle }: BookNotSellingHelpProps) => {
                       </div>
                     </div>
                     {tip.action && tip.onClick && (
-                      <Button variant="outline" size="sm" onClick={tip.onClick}>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={tip.onClick}
+                        className="border-book-600 text-book-600 hover:bg-book-50"
+                      >
                         {tip.action}
                       </Button>
                     )}
@@ -130,15 +135,30 @@ const BookNotSellingHelp = ({ bookId, bookTitle }: BookNotSellingHelpProps) => {
               </CardHeader>
               <CardContent>
                 <div className="flex flex-wrap gap-2">
-                  <Button onClick={copyListingLink} variant="outline" size="sm">
+                  <Button 
+                    onClick={copyListingLink} 
+                    variant="outline" 
+                    size="sm"
+                    className="border-book-600 text-book-600 hover:bg-book-100"
+                  >
                     <Copy className="mr-2 h-4 w-4" />
                     Copy Link
                   </Button>
-                  <Button onClick={shareToWhatsApp} variant="outline" size="sm" className="bg-green-500 text-white border-green-500 hover:bg-green-600">
+                  <Button 
+                    onClick={shareToWhatsApp} 
+                    variant="outline" 
+                    size="sm" 
+                    className="bg-green-500 text-white border-green-500 hover:bg-green-600"
+                  >
                     <MessageSquare className="mr-2 h-4 w-4" />
                     WhatsApp
                   </Button>
-                  <Button onClick={shareToFacebook} variant="outline" size="sm" className="bg-blue-600 text-white border-blue-600 hover:bg-blue-700">
+                  <Button 
+                    onClick={shareToFacebook} 
+                    variant="outline" 
+                    size="sm" 
+                    className="bg-blue-600 text-white border-blue-600 hover:bg-blue-700"
+                  >
                     <Facebook className="mr-2 h-4 w-4" />
                     Facebook
                   </Button>

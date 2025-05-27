@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
@@ -158,35 +159,6 @@ const UserProfile = () => {
     }
   };
 
-  const copyProfileLink = () => {
-    const profileUrl = `${window.location.origin}/user/${userData?.id}`;
-    navigator.clipboard.writeText(profileUrl);
-    toast.success('Profile link copied to clipboard!');
-  };
-
-  const shareToSocial = (platform: string) => {
-    const profileUrl = `${window.location.origin}/user/${userData?.id}`;
-    const text = `Check out ${userData?.name}'s textbook listings on ReBooked Solutions!`;
-    
-    let shareUrl = '';
-    
-    switch (platform) {
-      case 'twitter':
-        shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(profileUrl)}`;
-        break;
-      case 'facebook':
-        shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(profileUrl)}`;
-        break;
-      case 'whatsapp':
-        shareUrl = `https://wa.me/?text=${encodeURIComponent(text + ' ' + profileUrl)}`;
-        break;
-      default:
-        return;
-    }
-    
-    window.open(shareUrl, '_blank', 'width=600,height=400');
-  };
-
   if (isLoading) {
     return (
       <Layout>
@@ -234,11 +206,11 @@ const UserProfile = () => {
                 
                 <div className="flex items-center space-x-2">
                   {userData.isVerified && (
-                    <Badge className="bg-green-500 text-white border-0 flex items-center">
+                    <Badge className="bg-book-500 text-white border-0 flex items-center">
                       <Shield className="h-3 w-3 mr-1" /> Verified Seller
                     </Badge>
                   )}
-                  <Badge className="bg-blue-500 text-white border-0">
+                  <Badge className="bg-book-400 text-white border-0">
                     {userData.successfulDeliveries} Deliveries
                   </Badge>
                 </div>
@@ -249,7 +221,7 @@ const UserProfile = () => {
           <div className="bg-gray-50 p-4 border-b border-gray-200 flex flex-wrap gap-2">
             <Button 
               variant="outline" 
-              className="bg-white border-book-600 text-book-600 hover:bg-book-50"
+              className="border-book-600 text-book-600 hover:bg-book-50 rounded-xl px-4 py-2"
               onClick={handleShareProfile}
             >
               <Share2 className="h-4 w-4 mr-2" />
@@ -260,7 +232,7 @@ const UserProfile = () => {
               <>
                 <Button 
                   variant="outline" 
-                  className="bg-white border-book-600 text-book-600 hover:bg-book-50"
+                  className="border-book-600 text-book-600 hover:bg-book-50 rounded-xl px-4 py-2"
                   onClick={() => toast.info('Message feature coming soon')}
                 >
                   <MessageCircle className="h-4 w-4 mr-2" />
@@ -269,7 +241,7 @@ const UserProfile = () => {
                 
                 <Button 
                   variant="outline" 
-                  className="bg-white"
+                  className="border-book-600 text-book-600 hover:bg-book-50 rounded-xl px-4 py-2"
                   onClick={handleRateUser}
                 >
                   <Star className="h-4 w-4 mr-2" />
@@ -278,7 +250,7 @@ const UserProfile = () => {
                 
                 <Button 
                   variant="outline" 
-                  className="bg-white border-red-600 text-red-600 hover:bg-red-50 ml-auto"
+                  className="border-red-600 text-red-600 hover:bg-red-50 ml-auto rounded-xl px-4 py-2"
                   onClick={() => navigate('/report')}
                 >
                   <Flag className="h-4 w-4 mr-2" />
@@ -330,8 +302,11 @@ const UserProfile = () => {
                               className="w-full h-full object-cover"
                             />
                             {listing.sold && (
-                              <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-                                <Badge className="bg-red-600 text-white border-0 text-lg py-1 px-3">SOLD</Badge>
+                              <div className="absolute inset-0">
+                                <div className="absolute inset-0 bg-black bg-opacity-30"></div>
+                                <div className="absolute top-4 -left-8 bg-book-600 text-white text-sm font-bold py-1 px-8 transform rotate-[-45deg] shadow-lg">
+                                  SOLD
+                                </div>
                               </div>
                             )}
                           </div>
@@ -349,7 +324,7 @@ const UserProfile = () => {
                               <Button 
                                 variant="link" 
                                 size="sm"
-                                className="p-0 h-auto"
+                                className="p-0 h-auto text-book-600"
                                 onClick={() => navigate(`/books/${listing.id}`)}
                               >
                                 View Details
@@ -446,7 +421,10 @@ const UserProfile = () => {
                         <p className="text-sm text-gray-500">
                           Add an extra layer of security to your account
                         </p>
-                        <Button onClick={() => toast.info('2FA coming soon')}>
+                        <Button 
+                          onClick={() => toast.info('2FA coming soon')}
+                          className="bg-book-600 hover:bg-book-700"
+                        >
                           <Shield className="mr-2 h-4 w-4" />
                           Enable 2FA
                         </Button>
@@ -527,7 +505,11 @@ const UserProfile = () => {
             <Button variant="outline" onClick={() => setIsRatingDialogOpen(false)}>
               Cancel
             </Button>
-            <Button onClick={submitRating} disabled={isSubmittingRating}>
+            <Button 
+              onClick={submitRating} 
+              disabled={isSubmittingRating}
+              className="bg-book-600 hover:bg-book-700"
+            >
               {isSubmittingRating ? (
                 <span className="flex items-center">
                   <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
