@@ -8,7 +8,7 @@ import {
   DialogDescription,
   DialogFooter 
 } from '@/components/ui/dialog';
-import { Party, Share2 } from 'lucide-react';
+import { Sparkles, Share2 } from 'lucide-react';
 
 interface FirstUploadSuccessDialogProps {
   isOpen: boolean;
@@ -27,7 +27,7 @@ const FirstUploadSuccessDialog = ({ isOpen, onClose, onShareProfile }: FirstUplo
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center text-green-600">
-            <Party className="h-6 w-6 mr-2" />
+            <Sparkles className="h-6 w-6 mr-2" />
             Good job!
           </DialogTitle>
           <DialogDescription className="text-base">
