@@ -32,8 +32,8 @@ import './App.css';
 function App() {
   return (
     <Router>
-      <ScrollToTop />
       <AuthProvider>
+        <ScrollToTop />
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/books" element={<BookListing />} />
