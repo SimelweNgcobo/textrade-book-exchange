@@ -15,7 +15,7 @@ const Terms = () => {
             <section className="mb-8">
               <h2 className="text-2xl font-semibold text-book-700 mb-4">1. Acceptance of Terms</h2>
               <p className="mb-4">
-                By accessing and using Rebooked Solutions ("the Service"), you accept and agree to be bound by the terms and provision of this agreement. This service is provided in <strong>Gauteng</strong>, South Africa, and is subject to South African law.
+                By accessing and using Rebooked Solutions ("the Service"), you accept and agree to be bound by the terms and provision of this agreement. This service is provided in <strong>South Africa</strong>, and is subject to South African law.
               </p>
             </section>
 
