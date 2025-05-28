@@ -30,8 +30,11 @@ const CreateListing = () => {
     condition: 'Good',
     category: '',
     grade: '',
-    universityYear: null,
-    imageUrl: ''
+    universityYear: '',
+    imageUrl: '',
+    frontCover: '',
+    backCover: '',
+    insidePages: ''
   });
 
   const [bookImages, setBookImages] = useState({
@@ -96,7 +99,7 @@ const CreateListing = () => {
   const handleBookTypeChange = (type: 'school' | 'university') => {
     setBookType(type);
     if (type === 'school') {
-      setFormData({ ...formData, universityYear: null });
+      setFormData({ ...formData, universityYear: '' });
     } else {
       setFormData({ ...formData, grade: '' });
     }
@@ -104,7 +107,13 @@ const CreateListing = () => {
 
   const handleImagesChange = (images: { frontCover: string; backCover: string; insidePages: string }) => {
     setBookImages(images);
-    setFormData({ ...formData, imageUrl: images.frontCover });
+    setFormData({ 
+      ...formData, 
+      imageUrl: images.frontCover,
+      frontCover: images.frontCover,
+      backCover: images.backCover,
+      insidePages: images.insidePages
+    });
   };
 
   const validateForm = (): boolean => {
