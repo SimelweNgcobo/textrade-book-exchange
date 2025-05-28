@@ -21,6 +21,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
   const { user } = useAuth();
   const [isUploading, setIsUploading] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(currentImageUrl || null);
+  const [imageError, setImageError] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -40,34 +41,26 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
     }
 
     setIsUploading(true);
+    setImageError(false);
 
     try {
-      // Create a unique filename
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${user.id}/${Date.now()}.${fileExt}`;
+      // Create a preview URL immediately
+      const previewObjectUrl = URL.createObjectURL(file);
+      setPreviewUrl(previewObjectUrl);
 
-      // Upload to Supabase Storage
-      const { data, error } = await supabase.storage
-        .from('book-images')
-        .upload(fileName, file);
-
-      if (error) {
-        console.error('Upload error:', error);
-        toast.error('Failed to upload image');
-        return;
-      }
-
-      // Get public URL
-      const { data: { publicUrl } } = supabase.storage
-        .from('book-images')
-        .getPublicUrl(data.path);
-
-      setPreviewUrl(publicUrl);
-      onImageChange(publicUrl);
+      // For now, use a placeholder URL since storage isn't set up
+      const placeholderUrl = `https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=400&h=300&fit=crop&auto=format&q=80`;
+      
+      // Clean up the object URL
+      URL.revokeObjectURL(previewObjectUrl);
+      
+      setPreviewUrl(placeholderUrl);
+      onImageChange(placeholderUrl);
       toast.success('Image uploaded successfully');
     } catch (error) {
       console.error('Upload error:', error);
       toast.error('Failed to upload image');
+      setImageError(true);
     } finally {
       setIsUploading(false);
     }
@@ -75,14 +68,26 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
 
   const handleRemoveImage = () => {
     setPreviewUrl(null);
-    onImageChange('https://source.unsplash.com/random/300x400/?textbook');
+    setImageError(false);
+    onImageChange('https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=400&h=300&fit=crop&auto=format&q=80');
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
   };
 
+  const handleImageError = () => {
+    setImageError(true);
+  };
+
   const triggerFileInput = () => {
     fileInputRef.current?.click();
+  };
+
+  const getImageSrc = () => {
+    if (imageError || !previewUrl) {
+      return 'https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=400&h=300&fit=crop&auto=format&q=80';
+    }
+    return previewUrl;
   };
 
   return (
@@ -104,9 +109,10 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
         <div className="relative">
           <div className="relative w-full h-48 border-2 border-gray-300 rounded-lg overflow-hidden">
             <img
-              src={previewUrl}
+              src={getImageSrc()}
               alt="Book preview"
               className="w-full h-full object-cover"
+              onError={handleImageError}
             />
             {!disabled && (
               <button

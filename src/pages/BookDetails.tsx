@@ -14,6 +14,7 @@ const BookDetails = () => {
   const [book, setBook] = useState<Book | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
+  const [imageError, setImageError] = useState(false);
   const navigate = useNavigate();
   const { user, isAuthenticated } = useAuth();
 
@@ -52,6 +53,10 @@ const BookDetails = () => {
     }
   };
 
+  const handleImageError = () => {
+    setImageError(true);
+  };
+
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('en-US', {
@@ -59,6 +64,13 @@ const BookDetails = () => {
       month: 'long',
       day: 'numeric'
     });
+  };
+
+  const getImageSrc = () => {
+    if (imageError || !book?.imageUrl) {
+      return `https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=500&h=600&fit=crop`;
+    }
+    return book.imageUrl;
   };
 
   if (isLoading) {
@@ -105,9 +117,10 @@ const BookDetails = () => {
             {/* Book Image */}
             <div className="md:w-1/2 lg:w-2/5 p-6 flex justify-center">
               <img
-                src={book.imageUrl}
+                src={getImageSrc()}
                 alt={book.title}
                 className="rounded-lg shadow-md object-cover max-h-[500px] w-auto"
+                onError={handleImageError}
               />
             </div>
 

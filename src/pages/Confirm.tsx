@@ -91,6 +91,9 @@ const Confirm = () => {
                 <p className="text-gray-600 mb-4">
                   {message}
                 </p>
+                <p className="text-sm text-gray-500 mb-4">
+                  Welcome to ReBooked Solutions - Pre-Loved Pages, New Adventures
+                </p>
                 <p className="text-sm text-gray-500">
                   Redirecting you to the home page...
                 </p>

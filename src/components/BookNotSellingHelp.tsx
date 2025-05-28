@@ -43,32 +43,32 @@ const BookNotSellingHelp = ({ bookId, bookTitle }: BookNotSellingHelpProps) => {
 
   const tips = [
     {
-      icon: <Share2 className="h-5 w-5 text-book-600" />,
+      icon: <Share2 className="h-5 w-5 text-book-600 flex-shrink-0" />,
       title: "Share your listing link",
       description: "Post on social media, share with classmates, or send to study groups",
       action: "Copy Link",
       onClick: copyListingLink
     },
     {
-      icon: <Camera className="h-5 w-5 text-book-600" />,
+      icon: <Camera className="h-5 w-5 text-book-600 flex-shrink-0" />,
       title: "Improve your photos",
       description: "Use clear, well-lit images showing the book's cover, back, and any important pages",
       action: null
     },
     {
-      icon: <MessageSquare className="h-5 w-5 text-book-600" />,
+      icon: <MessageSquare className="h-5 w-5 text-book-600 flex-shrink-0" />,
       title: "Add detailed description",
       description: "Be honest about condition, mention highlights, notes, or any missing pages",
       action: null
     },
     {
-      icon: <DollarSign className="h-5 w-5 text-book-600" />,
+      icon: <DollarSign className="h-5 w-5 text-book-600 flex-shrink-0" />,
       title: "Check your pricing",
       description: "Compare with similar listings to ensure competitive pricing",
       action: null
     },
     {
-      icon: <MapPin className="h-5 w-5 text-book-600" />,
+      icon: <MapPin className="h-5 w-5 text-book-600 flex-shrink-0" />,
       title: "Verify pickup location",
       description: "Make sure your pickup address is accurate and easy to find",
       action: null
@@ -80,14 +80,14 @@ const BookNotSellingHelp = ({ bookId, bookTitle }: BookNotSellingHelpProps) => {
       <DialogTrigger asChild>
         <Button 
           variant="outline" 
-          className="border-book-600 text-book-600 hover:bg-book-50 rounded-xl px-4 py-2 text-sm flex items-center"
+          className="border-book-600 text-book-600 hover:bg-book-50 rounded-xl w-full sm:w-auto px-3 py-2 text-xs sm:text-sm flex items-center justify-center"
         >
-          <TrendingDown className="mr-2 h-4 w-4" />
-          Book not selling? Here's what to do
+          <TrendingDown className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+          <span className="truncate">Book not selling? Here's what to do</span>
         </Button>
       </DialogTrigger>
       
-      <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto mx-4">
         <DialogHeader>
           <DialogTitle className="flex items-center text-book-600">
             <TrendingDown className="mr-2 h-6 w-6" />
@@ -104,10 +104,10 @@ const BookNotSellingHelp = ({ bookId, bookTitle }: BookNotSellingHelpProps) => {
             {tips.map((tip, index) => (
               <Card key={index} className="border-l-4 border-l-book-500">
                 <CardContent className="pt-4">
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-start space-x-3 flex-1">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex items-start space-x-3 flex-1 min-w-0">
                       {tip.icon}
-                      <div>
+                      <div className="min-w-0 flex-1">
                         <h4 className="font-medium">{tip.title}</h4>
                         <p className="text-sm text-gray-600 mt-1">{tip.description}</p>
                       </div>
@@ -117,7 +117,7 @@ const BookNotSellingHelp = ({ bookId, bookTitle }: BookNotSellingHelpProps) => {
                         variant="outline" 
                         size="sm" 
                         onClick={tip.onClick}
-                        className="border-book-600 text-book-600 hover:bg-book-50"
+                        className="border-book-600 text-book-600 hover:bg-book-50 flex-shrink-0"
                       >
                         {tip.action}
                       </Button>

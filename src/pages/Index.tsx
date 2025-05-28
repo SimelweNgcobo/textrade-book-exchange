@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
@@ -51,7 +52,7 @@ const Index = () => {
           <div className="md:w-1/2 mb-10 md:mb-0">
             <div className="mb-4">
               <span className="inline-block bg-book-600/10 text-book-700 px-4 py-2 rounded-full text-sm font-medium italic">
-                "Old Pages, New Adventures"
+                "Pre-Loved Pages, New Adventures"
               </span>
             </div>
             <h1 className="text-4xl md:text-5xl font-bold text-book-900 mb-4">
@@ -168,9 +169,13 @@ const Index = () => {
                 >
                   <div className="relative h-48 overflow-hidden">
                     <img 
-                      src={book.imageUrl} 
+                      src={book.imageUrl || `https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=400&h=300&fit=crop`} 
                       alt={book.title}
                       className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.src = `https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=400&h=300&fit=crop`;
+                      }}
                     />
                     <div className="absolute top-2 right-2 bg-white px-2 py-1 rounded-full text-sm font-semibold text-book-800">
                       R{book.price}
