@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
@@ -692,66 +693,6 @@ const AdminReports = () => {
       </div>
     </Layout>
   );
-
-  function getSeverityBadge(severity: string) {
-    switch (severity) {
-      case 'high':
-        return <span className="px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">High</span>;
-      case 'medium':
-        return <span className="px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">Medium</span>;
-      case 'low':
-        return <span className="px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">Low</span>;
-      default:
-        return null;
-    }
-  }
-
-  function getStatusBadge(status: string) {
-    switch (status) {
-      case 'pending':
-        return <span className="px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">Pending</span>;
-      case 'resolved':
-        return <span className="px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">Resolved</span>;
-      case 'dismissed':
-        return <span className="px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">Dismissed</span>;
-      default:
-        return null;
-    }
-  }
-
-  function getUserWarningBadge(userId: string) {
-    const warningLevel = userWarningLevels[userId] || 'none';
-    
-    switch (warningLevel) {
-      case 'red':
-        return (
-          <div className="flex items-center">
-            <ShieldAlert className="h-4 w-4 text-red-600 mr-1" />
-            <span className="px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">High Risk</span>
-          </div>
-        );
-      case 'yellow':
-        return (
-          <div className="flex items-center">
-            <Shield className="h-4 w-4 text-amber-600 mr-1" />
-            <span className="px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">Warning</span>
-          </div>
-        );
-      default:
-        return null;
-    }
-  }
-
-  function formatDate(dateString: string) {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { 
-      year: 'numeric', 
-      month: 'short', 
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  }
 };
 
 export default AdminReports;
