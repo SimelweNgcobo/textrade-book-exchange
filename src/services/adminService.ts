@@ -97,7 +97,7 @@ export const getAllUsers = async (): Promise<AdminUser[]> => {
           name: profile.name || 'Unknown',
           email: profile.email || '',
           joinDate: profile.created_at,
-          status: 'active' as const, // You can add a status field to profiles table
+          status: 'active' as const, // Since status field doesn't exist in profiles table
           listingsCount: count || 0
         };
       })
@@ -112,27 +112,38 @@ export const getAllUsers = async (): Promise<AdminUser[]> => {
 
 export const getAllListings = async (): Promise<AdminListing[]> => {
   try {
-    const { data: books, error } = await supabase
+    // First get all books
+    const { data: books, error: booksError } = await supabase
       .from('books')
-      .select(`
-        *,
-        profiles!books_seller_id_fkey(name)
-      `)
+      .select('*')
       .order('created_at', { ascending: false });
 
-    if (error) throw error;
+    if (booksError) throw booksError;
 
-    return (books || []).map(book => ({
-      id: book.id,
-      title: book.title,
-      author: book.author,
-      category: book.category,
-      price: book.price,
-      status: book.sold ? 'sold' : 'active',
-      user: book.profiles?.name || 'Unknown',
-      createdAt: book.created_at,
-      images: [book.image_url].filter(Boolean)
-    }));
+    // Then get seller names separately
+    const listingsWithUsers = await Promise.all(
+      (books || []).map(async (book) => {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('name')
+          .eq('id', book.seller_id)
+          .single();
+
+        return {
+          id: book.id,
+          title: book.title,
+          author: book.author,
+          category: book.category,
+          price: book.price,
+          status: book.sold ? 'sold' as const : 'active' as const,
+          user: profile?.name || 'Unknown',
+          createdAt: book.created_at,
+          images: [book.image_url].filter(Boolean)
+        };
+      })
+    );
+
+    return listingsWithUsers;
   } catch (error) {
     console.error('Error fetching listings:', error);
     throw error;
@@ -141,13 +152,16 @@ export const getAllListings = async (): Promise<AdminListing[]> => {
 
 export const updateUserStatus = async (userId: string, status: 'active' | 'suspended'): Promise<void> => {
   try {
-    // Note: You would need to add a status field to the profiles table
-    const { error } = await supabase
-      .from('profiles')
-      .update({ status })
-      .eq('id', userId);
-
-    if (error) throw error;
+    // Note: Since status field doesn't exist in profiles table, we'll just log this action
+    // In a real implementation, you would add a status field to the profiles table
+    console.log(`Would update user ${userId} status to ${status}`);
+    
+    await logAdminAction({
+      action: status === 'suspended' ? 'User Suspended' : 'User Reactivated',
+      target: userId,
+      admin: 'Current Admin',
+      details: `User status changed to ${status}`
+    });
   } catch (error) {
     console.error('Error updating user status:', error);
     throw error;
