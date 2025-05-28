@@ -21,14 +21,7 @@ export const getBooks = async (filters?: {
   try {
     let query = supabase
       .from('books')
-      .select(`
-        *,
-        profiles!books_seller_id_fkey (
-          id,
-          name,
-          email
-        )
-      `)
+      .select('*')
       .eq('sold', false);
 
     if (filters?.category) {
@@ -53,14 +46,73 @@ export const getBooks = async (filters?: {
 
     query = query.order('created_at', { ascending: false });
 
-    const { data, error } = await query;
+    const { data: books, error } = await query;
     
     if (error) {
       console.error('Error fetching books:', error);
       throw error;
     }
 
-    return data?.map(book => ({
+    if (!books) return [];
+
+    // Fetch seller profiles separately
+    const sellerIds = books.map(book => book.seller_id);
+    const { data: profiles } = await supabase
+      .from('profiles')
+      .select('id, name, email')
+      .in('id', sellerIds);
+
+    const profileMap = new Map(profiles?.map(p => [p.id, p]) || []);
+
+    return books.map(book => {
+      const seller = profileMap.get(book.seller_id);
+      return {
+        id: book.id,
+        title: book.title,
+        author: book.author,
+        description: book.description,
+        price: book.price,
+        category: book.category,
+        condition: book.condition as "New" | "Good" | "Better" | "Average" | "Below Average",
+        imageUrl: book.image_url || 'https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=400&h=300&fit=crop&auto=format&q=80',
+        sold: book.sold,
+        createdAt: book.created_at,
+        seller: {
+          id: seller?.id || '',
+          name: seller?.name || 'Anonymous',
+          email: seller?.email || ''
+        }
+      };
+    });
+  } catch (error) {
+    console.error('Error in getBooks:', error);
+    return [];
+  }
+};
+
+export const getBookById = async (id: string): Promise<Book | null> => {
+  try {
+    const { data: book, error } = await supabase
+      .from('books')
+      .select('*')
+      .eq('id', id)
+      .single();
+
+    if (error) {
+      console.error('Error fetching book by ID:', error);
+      return null;
+    }
+
+    if (!book) return null;
+
+    // Fetch seller profile separately
+    const { data: seller } = await supabase
+      .from('profiles')
+      .select('id, name, email')
+      .eq('id', book.seller_id)
+      .single();
+
+    return {
       id: book.id,
       title: book.title,
       author: book.author,
@@ -72,54 +124,9 @@ export const getBooks = async (filters?: {
       sold: book.sold,
       createdAt: book.created_at,
       seller: {
-        id: book.profiles?.id || '',
-        name: book.profiles?.name || 'Anonymous',
-        email: book.profiles?.email || ''
-      }
-    })) || [];
-  } catch (error) {
-    console.error('Error in getBooks:', error);
-    return [];
-  }
-};
-
-export const getBookById = async (id: string): Promise<Book | null> => {
-  try {
-    const { data, error } = await supabase
-      .from('books')
-      .select(`
-        *,
-        profiles!books_seller_id_fkey (
-          id,
-          name,
-          email
-        )
-      `)
-      .eq('id', id)
-      .single();
-
-    if (error) {
-      console.error('Error fetching book by ID:', error);
-      return null;
-    }
-
-    if (!data) return null;
-
-    return {
-      id: data.id,
-      title: data.title,
-      author: data.author,
-      description: data.description,
-      price: data.price,
-      category: data.category,
-      condition: data.condition as "New" | "Good" | "Better" | "Average" | "Below Average",
-      imageUrl: data.image_url || 'https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=400&h=300&fit=crop&auto=format&q=80',
-      sold: data.sold,
-      createdAt: data.created_at,
-      seller: {
-        id: data.profiles?.id || '',
-        name: data.profiles?.name || 'Anonymous',
-        email: data.profiles?.email || ''
+        id: seller?.id || '',
+        name: seller?.name || 'Anonymous',
+        email: seller?.email || ''
       }
     };
   } catch (error) {
@@ -136,7 +143,7 @@ export const createBook = async (bookData: Omit<Book, 'id' | 'createdAt' | 'sell
       throw new Error('User not authenticated');
     }
 
-    const { data, error } = await supabase
+    const { data: book, error } = await supabase
       .from('books')
       .insert({
         title: bookData.title,
@@ -150,14 +157,7 @@ export const createBook = async (bookData: Omit<Book, 'id' | 'createdAt' | 'sell
         university_year: bookData.universityYear || null,
         seller_id: user.id
       })
-      .select(`
-        *,
-        profiles!books_seller_id_fkey (
-          id,
-          name,
-          email
-        )
-      `)
+      .select('*')
       .single();
 
     if (error) {
@@ -165,21 +165,28 @@ export const createBook = async (bookData: Omit<Book, 'id' | 'createdAt' | 'sell
       throw error;
     }
 
+    // Fetch seller profile separately
+    const { data: seller } = await supabase
+      .from('profiles')
+      .select('id, name, email')
+      .eq('id', user.id)
+      .single();
+
     return {
-      id: data.id,
-      title: data.title,
-      author: data.author,
-      description: data.description,
-      price: data.price,
-      category: data.category,
-      condition: data.condition as "New" | "Good" | "Better" | "Average" | "Below Average",
-      imageUrl: data.image_url || 'https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=400&h=300&fit=crop&auto=format&q=80',
-      sold: data.sold,
-      createdAt: data.created_at,
+      id: book.id,
+      title: book.title,
+      author: book.author,
+      description: book.description,
+      price: book.price,
+      category: book.category,
+      condition: book.condition as "New" | "Good" | "Better" | "Average" | "Below Average",
+      imageUrl: book.image_url || 'https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=400&h=300&fit=crop&auto=format&q=80',
+      sold: book.sold,
+      createdAt: book.created_at,
       seller: {
-        id: data.profiles?.id || '',
-        name: data.profiles?.name || 'Anonymous',
-        email: data.profiles?.email || ''
+        id: seller?.id || '',
+        name: seller?.name || 'Anonymous',
+        email: seller?.email || ''
       }
     };
   } catch (error) {
@@ -192,14 +199,7 @@ export const getAllBooks = async (includeSold: boolean = true): Promise<Book[]> 
   try {
     let query = supabase
       .from('books')
-      .select(`
-        *,
-        profiles!books_seller_id_fkey (
-          id,
-          name,
-          email
-        )
-      `);
+      .select('*');
 
     if (!includeSold) {
       query = query.eq('sold', false);
@@ -207,30 +207,44 @@ export const getAllBooks = async (includeSold: boolean = true): Promise<Book[]> 
 
     query = query.order('created_at', { ascending: false });
 
-    const { data, error } = await query;
+    const { data: books, error } = await query;
     
     if (error) {
       console.error('Error fetching all books:', error);
       throw error;
     }
 
-    return data?.map(book => ({
-      id: book.id,
-      title: book.title,
-      author: book.author,
-      description: book.description,
-      price: book.price,
-      category: book.category,
-      condition: book.condition as "New" | "Good" | "Better" | "Average" | "Below Average",
-      imageUrl: book.image_url || 'https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=400&h=300&fit=crop&auto=format&q=80',
-      sold: book.sold,
-      createdAt: book.created_at,
-      seller: {
-        id: book.profiles?.id || '',
-        name: book.profiles?.name || 'Anonymous',
-        email: book.profiles?.email || ''
-      }
-    })) || [];
+    if (!books) return [];
+
+    // Fetch seller profiles separately
+    const sellerIds = books.map(book => book.seller_id);
+    const { data: profiles } = await supabase
+      .from('profiles')
+      .select('id, name, email')
+      .in('id', sellerIds);
+
+    const profileMap = new Map(profiles?.map(p => [p.id, p]) || []);
+
+    return books.map(book => {
+      const seller = profileMap.get(book.seller_id);
+      return {
+        id: book.id,
+        title: book.title,
+        author: book.author,
+        description: book.description,
+        price: book.price,
+        category: book.category,
+        condition: book.condition as "New" | "Good" | "Better" | "Average" | "Below Average",
+        imageUrl: book.image_url || 'https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=400&h=300&fit=crop&auto=format&q=80',
+        sold: book.sold,
+        createdAt: book.created_at,
+        seller: {
+          id: seller?.id || '',
+          name: seller?.name || 'Anonymous',
+          email: seller?.email || ''
+        }
+      };
+    });
   } catch (error) {
     console.error('Error in getAllBooks:', error);
     return [];
@@ -276,14 +290,9 @@ export const removeBook = async (bookId: string): Promise<{ success: boolean; me
 
 export const getTransactions = async () => {
   try {
-    const { data, error } = await supabase
+    const { data: transactions, error } = await supabase
       .from('transactions')
-      .select(`
-        *,
-        profiles!transactions_seller_id_fkey (
-          name
-        )
-      `)
+      .select('*')
       .order('created_at', { ascending: false });
 
     if (error) {
@@ -291,14 +300,28 @@ export const getTransactions = async () => {
       throw error;
     }
 
-    return data?.map(transaction => ({
-      id: transaction.id,
-      bookTitle: transaction.book_title,
-      sellerName: transaction.profiles?.name || 'Unknown',
-      price: transaction.price,
-      commission: transaction.commission,
-      date: transaction.created_at
-    })) || [];
+    if (!transactions) return [];
+
+    // Fetch seller profiles separately
+    const sellerIds = transactions.map(t => t.seller_id);
+    const { data: profiles } = await supabase
+      .from('profiles')
+      .select('id, name')
+      .in('id', sellerIds);
+
+    const profileMap = new Map(profiles?.map(p => [p.id, p]) || []);
+
+    return transactions.map(transaction => {
+      const seller = profileMap.get(transaction.seller_id);
+      return {
+        id: transaction.id,
+        bookTitle: transaction.book_title,
+        sellerName: seller?.name || 'Unknown',
+        price: transaction.price,
+        commission: transaction.commission,
+        date: transaction.created_at
+      };
+    });
   } catch (error) {
     console.error('Error in getTransactions:', error);
     return [];
@@ -326,16 +349,9 @@ export const getTotalCommission = async (): Promise<number> => {
 
 export const getUserBooks = async (userId: string): Promise<Book[]> => {
   try {
-    const { data, error } = await supabase
+    const { data: books, error } = await supabase
       .from('books')
-      .select(`
-        *,
-        profiles!books_seller_id_fkey (
-          id,
-          name,
-          email
-        )
-      `)
+      .select('*')
       .eq('seller_id', userId)
       .order('created_at', { ascending: false });
 
@@ -344,7 +360,16 @@ export const getUserBooks = async (userId: string): Promise<Book[]> => {
       throw error;
     }
 
-    return data?.map(book => ({
+    if (!books) return [];
+
+    // Fetch seller profile separately
+    const { data: seller } = await supabase
+      .from('profiles')
+      .select('id, name, email')
+      .eq('id', userId)
+      .single();
+
+    return books.map(book => ({
       id: book.id,
       title: book.title,
       author: book.author,
@@ -356,11 +381,11 @@ export const getUserBooks = async (userId: string): Promise<Book[]> => {
       sold: book.sold,
       createdAt: book.created_at,
       seller: {
-        id: book.profiles?.id || '',
-        name: book.profiles?.name || 'Anonymous',
-        email: book.profiles?.email || ''
+        id: seller?.id || '',
+        name: seller?.name || 'Anonymous',
+        email: seller?.email || ''
       }
-    })) || [];
+    }));
   } catch (error) {
     console.error('Error in getUserBooks:', error);
     return [];
