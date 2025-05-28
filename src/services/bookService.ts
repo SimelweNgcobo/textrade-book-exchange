@@ -23,7 +23,7 @@ export const getBooks = async (filters?: {
       .from('books')
       .select(`
         *,
-        profiles!seller_id (
+        profiles!books_seller_id_fkey (
           id,
           name,
           email
@@ -89,7 +89,7 @@ export const getBookById = async (id: string): Promise<Book | null> => {
       .from('books')
       .select(`
         *,
-        profiles!seller_id (
+        profiles!books_seller_id_fkey (
           id,
           name,
           email
@@ -152,7 +152,7 @@ export const createBook = async (bookData: Omit<Book, 'id' | 'createdAt' | 'sell
       })
       .select(`
         *,
-        profiles!seller_id (
+        profiles!books_seller_id_fkey (
           id,
           name,
           email
@@ -194,7 +194,7 @@ export const getAllBooks = async (includeSold: boolean = true): Promise<Book[]> 
       .from('books')
       .select(`
         *,
-        profiles!seller_id (
+        profiles!books_seller_id_fkey (
           id,
           name,
           email
@@ -280,7 +280,7 @@ export const getTransactions = async () => {
       .from('transactions')
       .select(`
         *,
-        profiles!seller_id (
+        profiles!transactions_seller_id_fkey (
           name
         )
       `)
@@ -330,7 +330,7 @@ export const getUserBooks = async (userId: string): Promise<Book[]> => {
       .from('books')
       .select(`
         *,
-        profiles!seller_id (
+        profiles!books_seller_id_fkey (
           id,
           name,
           email
