@@ -121,7 +121,7 @@ export const getAllUsers = async (): Promise<AdminUser[]> => {
           name: profile.name || 'Unknown',
           email: profile.email || '',
           joinDate: profile.created_at,
-          status: 'active' as const, // Default to active since status column doesn't exist yet
+          status: (profile.status as 'active' | 'suspended') || 'active',
           listingsCount: count || 0
         };
       })
@@ -177,8 +177,12 @@ export const getAllListings = async (): Promise<AdminListing[]> => {
 
 export const updateUserStatus = async (userId: string, status: 'active' | 'suspended'): Promise<void> => {
   try {
-    // For now, just log the action since status column doesn't exist yet
-    console.log(`Would update user ${userId} status to ${status}`);
+    const { error } = await supabase
+      .from('profiles')
+      .update({ status })
+      .eq('id', userId);
+
+    if (error) throw error;
     
     await logAdminAction({
       action: status === 'suspended' ? 'User Suspended' : 'User Reactivated',
