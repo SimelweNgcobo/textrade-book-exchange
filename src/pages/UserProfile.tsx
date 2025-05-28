@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
@@ -21,6 +20,7 @@ import ShareProfileDialog from '@/components/ShareProfileDialog';
 import BookNotSellingHelp from '@/components/BookNotSellingHelp';
 import ProfileHeader from '@/components/ProfileHeader';
 import { getUserBooks } from '@/services/bookService';
+import { Book } from '@/types/book';
 import { 
   Dialog, 
   DialogContent, 
@@ -36,7 +36,7 @@ const UserProfile = () => {
   const navigate = useNavigate();
   
   const [userData, setUserData] = useState<any>(null);
-  const [userBooks, setUserBooks] = useState<any[]>([]);
+  const [userBooks, setUserBooks] = useState<Book[]>([]);
   const [activeTab, setActiveTab] = useState("listings");
   const [isLoading, setIsLoading] = useState(true);
   const [isShareDialogOpen, setIsShareDialogOpen] = useState(false);
@@ -228,7 +228,7 @@ const UserProfile = () => {
                   )}
                   
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {userBooks.map((listing: any) => (
+                    {userBooks.map((listing: Book) => (
                       <div 
                         key={listing.id}
                         className="border border-book-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow bg-white"

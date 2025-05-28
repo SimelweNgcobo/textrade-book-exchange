@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
@@ -23,6 +24,8 @@ import BookNotSellingHelp from '@/components/BookNotSellingHelp';
 import ShareProfileDialog from '@/components/ShareProfileDialog';
 import ProfileEditDialog from '@/components/ProfileEditDialog';
 import { saveUserAddresses, getUserAddresses } from '@/services/addressService';
+import { getUserBooks } from '@/services/bookService';
+import { Book } from '@/types/book';
 
 const Profile = () => {
   const { user, profile } = useAuth();
@@ -37,32 +40,13 @@ const Profile = () => {
     shipping_address: null,
     addresses_same: false
   });
-
-  // Mock data for listings - in real app this would come from your book service
-  const mockListings = [
-    {
-      id: 'book-1',
-      title: 'Introduction to Psychology',
-      price: 450,
-      imageUrl: 'https://source.unsplash.com/random/300x400/?textbook-1',
-      condition: 'Good',
-      createdAt: '2025-04-10T10:30:00',
-      sold: false
-    },
-    {
-      id: 'book-2',
-      title: 'Calculus Made Easy',
-      price: 350,
-      imageUrl: 'https://source.unsplash.com/random/300x400/?textbook-2',
-      condition: 'New',
-      createdAt: '2025-03-15T14:20:00',
-      sold: true
-    }
-  ];
+  const [userBooks, setUserBooks] = useState<Book[]>([]);
+  const [isLoadingBooks, setIsLoadingBooks] = useState(true);
 
   useEffect(() => {
     if (user?.id) {
       loadUserAddresses();
+      loadUserBooks();
     }
   }, [user?.id]);
 
@@ -74,6 +58,21 @@ const Profile = () => {
       setUserAddresses(addresses);
     } catch (error) {
       console.error('Error loading addresses:', error);
+    }
+  };
+
+  const loadUserBooks = async () => {
+    if (!user?.id) return;
+    
+    setIsLoadingBooks(true);
+    try {
+      const books = await getUserBooks(user.id);
+      setUserBooks(books);
+    } catch (error) {
+      console.error('Error loading user books:', error);
+      toast.error('Failed to load your books');
+    } finally {
+      setIsLoadingBooks(false);
     }
   };
 
@@ -194,25 +193,29 @@ const Profile = () => {
                     </div>
                   </CardHeader>
                   <CardContent>
-                    {mockListings.length > 0 ? (
+                    {isLoadingBooks ? (
+                      <div className="flex justify-center items-center py-10">
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-book-600"></div>
+                      </div>
+                    ) : userBooks.length > 0 ? (
                       <div className="space-y-4">
                         <div className="flex justify-end mb-4">
                           <BookNotSellingHelp />
                         </div>
                         
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                          {mockListings.map((listing) => (
+                          {userBooks.map((book) => (
                             <div 
-                              key={listing.id}
+                              key={book.id}
                               className="border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow"
                             >
                               <div className="relative h-48">
                                 <img 
-                                  src={listing.imageUrl} 
-                                  alt={listing.title}
+                                  src={book.imageUrl} 
+                                  alt={book.title}
                                   className="w-full h-full object-cover"
                                 />
-                                {listing.sold && (
+                                {book.sold && (
                                   <div className="absolute inset-0">
                                     <div className="absolute inset-0 bg-black bg-opacity-30"></div>
                                     <div className="absolute top-4 -left-8 bg-book-600 text-white text-sm font-bold py-1 px-8 transform rotate-[-45deg] shadow-lg">
@@ -222,22 +225,22 @@ const Profile = () => {
                                 )}
                               </div>
                               <div className="p-4">
-                                <h3 className="font-medium text-lg mb-1 line-clamp-1">{listing.title}</h3>
+                                <h3 className="font-medium text-lg mb-1 line-clamp-1">{book.title}</h3>
                                 <div className="flex justify-between items-center mb-2">
-                                  <p className="font-bold text-book-600">R{listing.price}</p>
-                                  <Badge variant="outline">{listing.condition}</Badge>
+                                  <p className="font-bold text-book-600">R{book.price}</p>
+                                  <Badge variant="outline">{book.condition}</Badge>
                                 </div>
                                 <div className="flex justify-between items-center text-sm text-gray-500">
                                   <div className="flex items-center">
                                     <Calendar className="h-4 w-4 mr-1" />
-                                    {new Date(listing.createdAt).toLocaleDateString()}
+                                    {new Date(book.createdAt).toLocaleDateString()}
                                   </div>
                                   <div className="space-x-2">
                                     <Button 
                                       variant="link" 
                                       size="sm"
                                       className="p-0 h-auto text-book-600"
-                                      onClick={() => navigate(`/books/${listing.id}`)}
+                                      onClick={() => navigate(`/books/${book.id}`)}
                                     >
                                       View
                                     </Button>
@@ -251,11 +254,11 @@ const Profile = () => {
                                     </Button>
                                   </div>
                                 </div>
-                                {!listing.sold && (
+                                {!book.sold && (
                                   <div className="mt-3">
                                     <BookNotSellingHelp 
-                                      bookId={listing.id} 
-                                      bookTitle={listing.title}
+                                      bookId={book.id} 
+                                      bookTitle={book.title}
                                     />
                                   </div>
                                 )}
