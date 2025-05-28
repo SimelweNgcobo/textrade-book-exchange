@@ -148,12 +148,8 @@ const CreateListing = () => {
         throw new Error('You must be logged in to create a listing');
       }
 
-      const newBook = await createBook(
-        formData,
-        user.id,
-        profile.name || 'Unknown',
-        profile.email || user.email || ''
-      );
+      // Use the correct createBook function signature
+      const newBook = await createBook(formData);
 
       setCreatedBookId(newBook.id);
       toast.success('Book listing created successfully!');

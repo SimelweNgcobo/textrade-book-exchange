@@ -2,6 +2,15 @@
 import { supabase } from '@/integrations/supabase/client';
 import { Book } from '@/types/book';
 
+// Add the missing calculation functions
+export const calculateCommission = (price: number): number => {
+  return price * 0.1; // 10% commission
+};
+
+export const calculateSellerReceives = (price: number): number => {
+  return price * 0.9; // 90% after commission
+};
+
 export const getBooks = async (filters?: {
   category?: string;
   search?: string;
@@ -58,14 +67,14 @@ export const getBooks = async (filters?: {
       description: book.description,
       price: book.price,
       category: book.category,
-      condition: book.condition,
+      condition: book.condition as "New" | "Good" | "Better" | "Average" | "Below Average",
       imageUrl: book.image_url || 'https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=400&h=300&fit=crop&auto=format&q=80',
       sold: book.sold,
       createdAt: book.created_at,
       seller: {
-        id: book.seller.id,
-        name: book.seller.name || 'Anonymous',
-        email: book.seller.email || ''
+        id: book.seller?.id || '',
+        name: book.seller?.name || 'Anonymous',
+        email: book.seller?.email || ''
       }
     })) || [];
   } catch (error) {
@@ -103,14 +112,14 @@ export const getBookById = async (id: string): Promise<Book | null> => {
       description: data.description,
       price: data.price,
       category: data.category,
-      condition: data.condition,
+      condition: data.condition as "New" | "Good" | "Better" | "Average" | "Below Average",
       imageUrl: data.image_url || 'https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=400&h=300&fit=crop&auto=format&q=80',
       sold: data.sold,
       createdAt: data.created_at,
       seller: {
-        id: data.seller.id,
-        name: data.seller.name || 'Anonymous',
-        email: data.seller.email || ''
+        id: data.seller?.id || '',
+        name: data.seller?.name || 'Anonymous',
+        email: data.seller?.email || ''
       }
     };
   } catch (error) {
@@ -161,14 +170,14 @@ export const createBook = async (bookData: Omit<Book, 'id' | 'createdAt' | 'sell
       description: data.description,
       price: data.price,
       category: data.category,
-      condition: data.condition,
+      condition: data.condition as "New" | "Good" | "Better" | "Average" | "Below Average",
       imageUrl: data.image_url || 'https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=400&h=300&fit=crop&auto=format&q=80',
       sold: data.sold,
       createdAt: data.created_at,
       seller: {
-        id: data.seller.id,
-        name: data.seller.name || 'Anonymous',
-        email: data.seller.email || ''
+        id: data.seller?.id || '',
+        name: data.seller?.name || 'Anonymous',
+        email: data.seller?.email || ''
       }
     };
   } catch (error) {
@@ -210,14 +219,14 @@ export const getAllBooks = async (includeSold: boolean = true): Promise<Book[]> 
       description: book.description,
       price: book.price,
       category: book.category,
-      condition: book.condition,
+      condition: book.condition as "New" | "Good" | "Better" | "Average" | "Below Average",
       imageUrl: book.image_url || 'https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=400&h=300&fit=crop&auto=format&q=80',
       sold: book.sold,
       createdAt: book.created_at,
       seller: {
-        id: book.seller.id,
-        name: book.seller.name || 'Anonymous',
-        email: book.seller.email || ''
+        id: book.seller?.id || '',
+        name: book.seller?.name || 'Anonymous',
+        email: book.seller?.email || ''
       }
     })) || [];
   } catch (error) {
@@ -340,14 +349,14 @@ export const getUserBooks = async (userId: string): Promise<Book[]> => {
       description: book.description,
       price: book.price,
       category: book.category,
-      condition: book.condition,
+      condition: book.condition as "New" | "Good" | "Better" | "Average" | "Below Average",
       imageUrl: book.image_url || 'https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=400&h=300&fit=crop&auto=format&q=80',
       sold: book.sold,
       createdAt: book.created_at,
       seller: {
-        id: book.seller.id,
-        name: book.seller.name || 'Anonymous',
-        email: book.seller.email || ''
+        id: book.seller?.id || '',
+        name: book.seller?.name || 'Anonymous',
+        email: book.seller?.email || ''
       }
     })) || [];
   } catch (error) {
