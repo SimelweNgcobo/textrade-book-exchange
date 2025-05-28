@@ -163,7 +163,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             name,
             enable_2fa: enable2FA
           },
-          emailRedirectTo: window.location.origin
+          emailRedirectTo: `${window.location.origin}/confirm`
         }
       });
 
@@ -192,7 +192,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           console.error('Profile creation error:', profileError);
         }
         
-        toast.success('Registered successfully');
+        toast.success('Registration successful! Please check your email to confirm your account.');
       }
     } catch (error: any) {
       console.error('Registration error caught:', error.message);

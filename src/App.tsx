@@ -26,6 +26,7 @@ import Privacy from './pages/Privacy';
 import ReportForm from './pages/ReportForm';
 import AdminReports from './pages/AdminReports';
 import Notifications from './pages/Notifications';
+import Confirm from './pages/Confirm';
 
 import './App.css';
 
@@ -40,6 +41,7 @@ function App() {
           <Route path="/books/:id" element={<BookDetails />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/confirm" element={<Confirm />} />
           <Route path="/faq" element={<FAQ />} />
           <Route path="/terms" element={<Terms />} />
           <Route path="/privacy" element={<Privacy />} />
