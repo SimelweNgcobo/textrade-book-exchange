@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -50,6 +49,7 @@ import {
   AdminUser,
   AdminListing
 } from '@/services/adminService';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface DashboardStats extends AdminStatsType {}
 
@@ -67,6 +67,8 @@ interface AdminAction {
 }
 
 const AdminDashboard = () => {
+  const isMobile = useIsMobile();
+  
   const [stats, setStats] = useState<DashboardStats>({
     totalUsers: 0,
     activeListings: 0,
@@ -187,55 +189,55 @@ const AdminDashboard = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 md:space-y-6">
       {/* Dashboard Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Users</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
+        <Card className="p-3 md:p-4">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-0 md:p-4">
+            <CardTitle className="text-xs md:text-sm font-medium">Total Users</CardTitle>
+            <Users className="h-3 w-3 md:h-4 md:w-4 text-muted-foreground" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.totalUsers.toLocaleString()}</div>
+          <CardContent className="p-0 md:p-4 pt-2">
+            <div className="text-lg md:text-2xl font-bold">{stats.totalUsers.toLocaleString()}</div>
             <p className="text-xs text-muted-foreground">
               +{stats.newUsersThisWeek} this week
             </p>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Listings</CardTitle>
-            <BookOpen className="h-4 w-4 text-muted-foreground" />
+        <Card className="p-3 md:p-4">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-0 md:p-4">
+            <CardTitle className="text-xs md:text-sm font-medium">Active Listings</CardTitle>
+            <BookOpen className="h-3 w-3 md:h-4 md:w-4 text-muted-foreground" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.activeListings}</div>
+          <CardContent className="p-0 md:p-4 pt-2">
+            <div className="text-lg md:text-2xl font-bold">{stats.activeListings}</div>
             <p className="text-xs text-muted-foreground">
               Auto-approved instantly
             </p>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Books Sold</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
+        <Card className="p-3 md:p-4">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-0 md:p-4">
+            <CardTitle className="text-xs md:text-sm font-medium">Books Sold</CardTitle>
+            <TrendingUp className="h-3 w-3 md:h-4 md:w-4 text-muted-foreground" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.booksSold}</div>
+          <CardContent className="p-0 md:p-4 pt-2">
+            <div className="text-lg md:text-2xl font-bold">{stats.booksSold}</div>
             <p className="text-xs text-muted-foreground">
               +{stats.salesThisMonth} this month
             </p>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Reported Issues</CardTitle>
-            <AlertTriangle className="h-4 w-4 text-muted-foreground" />
+        <Card className="p-3 md:p-4">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-0 md:p-4">
+            <CardTitle className="text-xs md:text-sm font-medium">Reported Issues</CardTitle>
+            <AlertTriangle className="h-3 w-3 md:h-4 md:w-4 text-muted-foreground" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.reportedIssues}</div>
+          <CardContent className="p-0 md:p-4 pt-2">
+            <div className="text-lg md:text-2xl font-bold">{stats.reportedIssues}</div>
             <p className="text-xs text-muted-foreground">
               Pending review
             </p>
@@ -245,46 +247,54 @@ const AdminDashboard = () => {
 
       {/* Main Admin Tabs */}
       <Tabs defaultValue="earnings" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="earnings">Earnings</TabsTrigger>
-          <TabsTrigger value="users">Users</TabsTrigger>
-          <TabsTrigger value="listings">Listings</TabsTrigger>
-          <TabsTrigger value="settings">Settings</TabsTrigger>
+        <TabsList className={`${isMobile ? 'grid grid-cols-2 h-auto' : 'grid grid-cols-4'} w-full`}>
+          <TabsTrigger value="earnings" className={isMobile ? 'text-xs px-2 py-2' : ''}>
+            {isMobile ? 'Earnings' : 'Earnings'}
+          </TabsTrigger>
+          <TabsTrigger value="users" className={isMobile ? 'text-xs px-2 py-2' : ''}>
+            {isMobile ? 'Users' : 'Users'}
+          </TabsTrigger>
+          <TabsTrigger value="listings" className={isMobile ? 'text-xs px-2 py-2' : ''}>
+            {isMobile ? 'Listings' : 'Listings'}
+          </TabsTrigger>
+          <TabsTrigger value="settings" className={isMobile ? 'text-xs px-2 py-2' : ''}>
+            {isMobile ? 'Settings' : 'Settings'}
+          </TabsTrigger>
         </TabsList>
 
         {/* Earnings Tab */}
         <TabsContent value="earnings" className="space-y-4">
           <Card>
-            <CardHeader>
-              <CardTitle>Commission Earnings</CardTitle>
-              <CardDescription>Track your earnings from book sales</CardDescription>
+            <CardHeader className="pb-4">
+              <CardTitle className="text-lg md:text-xl">Commission Earnings</CardTitle>
+              <CardDescription className="text-sm">Track your earnings from book sales</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-4">
-                  <h4 className="text-lg font-semibold">Weekly Summary</h4>
-                  <div className="bg-green-50 p-4 rounded-lg">
-                    <div className="text-3xl font-bold text-green-600">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                <div className="space-y-3 md:space-y-4">
+                  <h4 className="text-base md:text-lg font-semibold">Weekly Summary</h4>
+                  <div className="bg-green-50 p-3 md:p-4 rounded-lg">
+                    <div className="text-2xl md:text-3xl font-bold text-green-600">
                       R{stats.weeklyCommission.toFixed(2)}
                     </div>
-                    <p className="text-sm text-gray-600">Commission earned this week</p>
+                    <p className="text-xs md:text-sm text-gray-600">Commission earned this week</p>
                   </div>
                 </div>
                 
-                <div className="space-y-4">
-                  <h4 className="text-lg font-semibold">Monthly Summary</h4>
-                  <div className="bg-blue-50 p-4 rounded-lg">
-                    <div className="text-3xl font-bold text-blue-600">
+                <div className="space-y-3 md:space-y-4">
+                  <h4 className="text-base md:text-lg font-semibold">Monthly Summary</h4>
+                  <div className="bg-blue-50 p-3 md:p-4 rounded-lg">
+                    <div className="text-2xl md:text-3xl font-bold text-blue-600">
                       R{stats.monthlyCommission.toFixed(2)}
                     </div>
-                    <p className="text-sm text-gray-600">Commission earned this month</p>
+                    <p className="text-xs md:text-sm text-gray-600">Commission earned this month</p>
                   </div>
                 </div>
               </div>
               
-              <div className="mt-6 p-4 bg-gray-50 rounded-lg">
-                <h5 className="font-medium mb-2">Commission Rate</h5>
-                <p className="text-sm text-gray-600">
+              <div className="mt-4 md:mt-6 p-3 md:p-4 bg-gray-50 rounded-lg">
+                <h5 className="font-medium mb-2 text-sm md:text-base">Commission Rate</h5>
+                <p className="text-xs md:text-sm text-gray-600">
                   You earn a commission on every book sold through the platform. 
                   Commission rates may vary based on book category and price.
                 </p>
@@ -296,57 +306,63 @@ const AdminDashboard = () => {
         {/* Users Tab */}
         <TabsContent value="users" className="space-y-4">
           <Card>
-            <CardHeader>
-              <CardTitle>User Management</CardTitle>
-              <CardDescription>Manage registered users and their accounts</CardDescription>
+            <CardHeader className="pb-4">
+              <CardTitle className="text-lg md:text-xl">User Management</CardTitle>
+              <CardDescription className="text-sm">Manage registered users and their accounts</CardDescription>
             </CardHeader>
-            <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Name</TableHead>
-                    <TableHead>Email</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Listings</TableHead>
-                    <TableHead>Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {users.map((user) => (
-                    <TableRow key={user.id}>
-                      <TableCell>{user.name}</TableCell>
-                      <TableCell>{user.email}</TableCell>
-                      <TableCell>
-                        <Badge variant={user.status === 'active' ? 'default' : 'destructive'}>
-                          {user.status}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>{user.listingsCount}</TableCell>
-                      <TableCell>
-                        <div className="flex space-x-2">
-                          {user.status === 'active' ? (
-                            <Button
-                              size="sm"
-                              variant="destructive"
-                              onClick={() => handleUserAction(user.id, 'suspend')}
-                            >
-                              <UserX className="h-4 w-4" />
-                            </Button>
-                          ) : (
-                            <Button
-                              size="sm"
-                              variant="default"
-                              onClick={() => handleUserAction(user.id, 'activate')}
-                            >
-                              <CheckCircle className="h-4 w-4" />
-                            </Button>
-                          )}
-                        </div>
-                      </TableCell>
+            <CardContent className="p-0 md:p-6">
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="text-xs md:text-sm min-w-[100px]">Name</TableHead>
+                      <TableHead className="text-xs md:text-sm min-w-[150px]">Email</TableHead>
+                      <TableHead className="text-xs md:text-sm min-w-[80px]">Status</TableHead>
+                      <TableHead className="text-xs md:text-sm min-w-[80px]">Listings</TableHead>
+                      <TableHead className="text-xs md:text-sm min-w-[100px] text-right">Actions</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {users.map((user) => (
+                      <TableRow key={user.id}>
+                        <TableCell className="text-xs md:text-sm font-medium">{user.name}</TableCell>
+                        <TableCell className="text-xs md:text-sm">{user.email}</TableCell>
+                        <TableCell>
+                          <Badge variant={user.status === 'active' ? 'default' : 'destructive'} className="text-xs">
+                            {user.status}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="text-xs md:text-sm">{user.listingsCount}</TableCell>
+                        <TableCell className="text-right">
+                          <div className="flex justify-end">
+                            {user.status === 'active' ? (
+                              <Button
+                                size="sm"
+                                variant="destructive"
+                                onClick={() => handleUserAction(user.id, 'suspend')}
+                                className="h-7 w-7 p-0 md:h-8 md:w-auto md:px-2"
+                              >
+                                <UserX className="h-3 w-3 md:h-4 md:w-4" />
+                                {!isMobile && <span className="ml-1">Suspend</span>}
+                              </Button>
+                            ) : (
+                              <Button
+                                size="sm"
+                                variant="default"
+                                onClick={() => handleUserAction(user.id, 'activate')}
+                                className="h-7 w-7 p-0 md:h-8 md:w-auto md:px-2"
+                              >
+                                <CheckCircle className="h-3 w-3 md:h-4 md:w-4" />
+                                {!isMobile && <span className="ml-1">Activate</span>}
+                              </Button>
+                            )}
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
@@ -354,49 +370,51 @@ const AdminDashboard = () => {
         {/* Listings Tab */}
         <TabsContent value="listings" className="space-y-4">
           <Card>
-            <CardHeader>
-              <CardTitle>Book Listings Management</CardTitle>
-              <CardDescription>All listings are auto-approved and go live immediately</CardDescription>
+            <CardHeader className="pb-4">
+              <CardTitle className="text-lg md:text-xl">Book Listings Management</CardTitle>
+              <CardDescription className="text-sm">All listings are auto-approved and go live immediately</CardDescription>
             </CardHeader>
-            <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Title</TableHead>
-                    <TableHead>Author</TableHead>
-                    <TableHead>Price</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Seller</TableHead>
-                    <TableHead>Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {listings.map((listing) => (
-                    <TableRow key={listing.id}>
-                      <TableCell>{listing.title}</TableCell>
-                      <TableCell>{listing.author}</TableCell>
-                      <TableCell>R{listing.price}</TableCell>
-                      <TableCell>
-                        <Badge variant={listing.status === 'active' ? 'default' : 'secondary'}>
-                          {listing.status}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>{listing.user}</TableCell>
-                      <TableCell>
-                        <div className="flex space-x-2">
+            <CardContent className="p-0 md:p-6">
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="text-xs md:text-sm min-w-[120px]">Title</TableHead>
+                      <TableHead className="text-xs md:text-sm min-w-[100px]">Author</TableHead>
+                      <TableHead className="text-xs md:text-sm min-w-[80px]">Price</TableHead>
+                      <TableHead className="text-xs md:text-sm min-w-[80px]">Status</TableHead>
+                      <TableHead className="text-xs md:text-sm min-w-[100px]">Seller</TableHead>
+                      <TableHead className="text-xs md:text-sm min-w-[80px] text-right">Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {listings.map((listing) => (
+                      <TableRow key={listing.id}>
+                        <TableCell className="text-xs md:text-sm font-medium">{listing.title}</TableCell>
+                        <TableCell className="text-xs md:text-sm">{listing.author}</TableCell>
+                        <TableCell className="text-xs md:text-sm">R{listing.price}</TableCell>
+                        <TableCell>
+                          <Badge variant={listing.status === 'active' ? 'default' : 'secondary'} className="text-xs">
+                            {listing.status}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="text-xs md:text-sm">{listing.user}</TableCell>
+                        <TableCell className="text-right">
                           <Button
                             size="sm"
                             variant="destructive"
                             onClick={() => handleListingAction(listing.id, 'delete')}
+                            className="h-7 w-7 p-0 md:h-8 md:w-auto md:px-2"
                           >
-                            <Trash2 className="h-4 w-4" />
+                            <Trash2 className="h-3 w-3 md:h-4 md:w-4" />
+                            {!isMobile && <span className="ml-1">Delete</span>}
                           </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
@@ -404,24 +422,24 @@ const AdminDashboard = () => {
         {/* Settings Tab */}
         <TabsContent value="settings" className="space-y-4">
           <Card>
-            <CardHeader>
-              <CardTitle>Site Configuration</CardTitle>
-              <CardDescription>Manage site-wide settings and features</CardDescription>
+            <CardHeader className="pb-4">
+              <CardTitle className="text-lg md:text-xl">Site Configuration</CardTitle>
+              <CardDescription className="text-sm">Manage site-wide settings and features</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-6">
+            <CardContent className="space-y-4 md:space-y-6">
               <div>
                 <h4 className="text-sm font-medium mb-2">Broadcast Message</h4>
                 <p className="text-xs text-gray-500 mb-2">
                   Messages will appear as pop-ups for offline users and notifications for active users
                 </p>
-                <div className="flex space-x-2">
+                <div className="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2">
                   <Input
                     placeholder="Enter message to send to all users..."
                     value={broadcastMessage}
                     onChange={(e) => setBroadcastMessage(e.target.value)}
-                    className="flex-1"
+                    className="flex-1 text-sm"
                   />
-                  <Button onClick={handleSendBroadcast}>
+                  <Button onClick={handleSendBroadcast} className="w-full md:w-auto">
                     <MessageSquare className="h-4 w-4 mr-2" />
                     Send
                   </Button>
@@ -431,20 +449,20 @@ const AdminDashboard = () => {
               <div>
                 <h4 className="text-sm font-medium mb-2">Listing Settings</h4>
                 <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span>Auto-approve new listings</span>
-                    <Badge variant="default">Enabled</Badge>
+                  <div className="flex items-center justify-between py-2">
+                    <span className="text-sm">Auto-approve new listings</span>
+                    <Badge variant="default" className="text-xs">Enabled</Badge>
                   </div>
-                  <div className="flex items-center justify-between">
-                    <span>User registration</span>
-                    <Button variant="outline" size="sm">
-                      <Settings className="h-4 w-4" />
+                  <div className="flex items-center justify-between py-2">
+                    <span className="text-sm">User registration</span>
+                    <Button variant="outline" size="sm" className="h-7 w-7 p-0 md:h-8 md:w-auto md:px-2">
+                      <Settings className="h-3 w-3 md:h-4 md:w-4" />
                     </Button>
                   </div>
-                  <div className="flex items-center justify-between">
-                    <span>Maximum images per listing</span>
-                    <Button variant="outline" size="sm">
-                      <Settings className="h-4 w-4" />
+                  <div className="flex items-center justify-between py-2">
+                    <span className="text-sm">Maximum images per listing</span>
+                    <Button variant="outline" size="sm" className="h-7 w-7 p-0 md:h-8 md:w-auto md:px-2">
+                      <Settings className="h-3 w-3 md:h-4 md:w-4" />
                     </Button>
                   </div>
                 </div>

@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
@@ -39,10 +38,12 @@ import {
 } from 'lucide-react';
 import { Report, UserReport, ReportType, ReportSeverity, ReportStatus } from '@/types/report';
 import { getAllUsers, updateUserStatus, AdminUser } from '@/services/adminService';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const AdminReports = () => {
   const { user, isAdmin } = useAuth();
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   
   // Redirect if not admin
   useEffect(() => {
@@ -301,25 +302,46 @@ const AdminReports = () => {
 
   return (
     <Layout>
-      <div className="container mx-auto px-4 py-8">
-        <Button variant="ghost" onClick={() => navigate(-1)} className="mb-6 text-book-600">
+      <div className="container mx-auto px-2 md:px-4 py-4 md:py-8">
+        <Button variant="ghost" onClick={() => navigate(-1)} className="mb-4 md:mb-6 text-book-600">
           <ArrowLeft className="mr-2 h-4 w-4" /> Back
         </Button>
 
-        <div className="bg-white rounded-lg shadow-md p-6 md:p-8">
-          <div className="flex items-center mb-6">
-            <Flag className="h-6 w-6 text-red-600 mr-3" />
-            <h1 className="text-2xl font-bold text-gray-800">Moderation Dashboard</h1>
+        <div className="bg-white rounded-lg shadow-md p-3 md:p-6">
+          <div className="flex items-center mb-4 md:mb-6">
+            <Flag className="h-5 w-5 md:h-6 md:w-6 text-red-600 mr-2 md:mr-3" />
+            <h1 className="text-xl md:text-2xl font-bold text-gray-800">Moderation Dashboard</h1>
           </div>
 
           <Tabs defaultValue="pending" value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="w-full mb-8">
-              <TabsTrigger value="pending">Pending Reports</TabsTrigger>
-              <TabsTrigger value="resolved">Resolved Reports</TabsTrigger>
-              <TabsTrigger value="dismissed">Dismissed Reports</TabsTrigger>
-              <TabsTrigger value="suspended">Suspended Users</TabsTrigger>
-              <TabsTrigger value="all">All Reports</TabsTrigger>
+            <TabsList className={`${isMobile ? 'grid grid-cols-3 h-auto text-xs' : 'grid grid-cols-5'} w-full mb-6 md:mb-8`}>
+              <TabsTrigger value="pending" className={isMobile ? 'px-2 py-2' : ''}>
+                {isMobile ? 'Pending' : 'Pending Reports'}
+              </TabsTrigger>
+              <TabsTrigger value="resolved" className={isMobile ? 'px-2 py-2' : ''}>
+                {isMobile ? 'Resolved' : 'Resolved Reports'}
+              </TabsTrigger>
+              <TabsTrigger value="dismissed" className={isMobile ? 'px-2 py-2' : ''}>
+                {isMobile ? 'Dismissed' : 'Dismissed Reports'}
+              </TabsTrigger>
+              {!isMobile && (
+                <>
+                  <TabsTrigger value="suspended">Suspended Users</TabsTrigger>
+                  <TabsTrigger value="all">All Reports</TabsTrigger>
+                </>
+              )}
             </TabsList>
+
+            {isMobile && (
+              <TabsList className="grid grid-cols-2 w-full mb-6">
+                <TabsTrigger value="suspended" className="px-2 py-2 text-xs">
+                  Suspended
+                </TabsTrigger>
+                <TabsTrigger value="all" className="px-2 py-2 text-xs">
+                  All Reports
+                </TabsTrigger>
+              </TabsList>
+            )}
 
             {/* Reports Tabs */}
             {activeTab !== "suspended" && (
@@ -333,52 +355,59 @@ const AdminReports = () => {
                     <Table>
                       <TableHeader>
                         <TableRow>
-                          <TableHead>Type</TableHead>
-                          <TableHead>Reported Entity</TableHead>
-                          <TableHead>Email</TableHead>
-                          <TableHead>Warning Level</TableHead>
-                          <TableHead>Reported By</TableHead>
-                          <TableHead>Date</TableHead>
-                          <TableHead>Severity</TableHead>
-                          <TableHead>Status</TableHead>
-                          <TableHead className="text-right">Actions</TableHead>
+                          <TableHead className="text-xs md:text-sm min-w-[60px]">Type</TableHead>
+                          <TableHead className="text-xs md:text-sm min-w-[120px]">Entity</TableHead>
+                          {!isMobile && <TableHead className="text-xs md:text-sm min-w-[150px]">Email</TableHead>}
+                          {!isMobile && <TableHead className="text-xs md:text-sm min-w-[100px]">Warning</TableHead>}
+                          <TableHead className="text-xs md:text-sm min-w-[100px]">Reporter</TableHead>
+                          {!isMobile && <TableHead className="text-xs md:text-sm min-w-[120px]">Date</TableHead>}
+                          <TableHead className="text-xs md:text-sm min-w-[80px]">Severity</TableHead>
+                          <TableHead className="text-xs md:text-sm min-w-[80px]">Status</TableHead>
+                          <TableHead className="text-xs md:text-sm min-w-[120px] text-right">Actions</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
                         {filteredReports.map((report) => (
                           <TableRow key={report.id}>
-                            <TableCell>
+                            <TableCell className="text-xs md:text-sm">
                               <div className="flex items-center">
                                 {report.type === 'listing' 
-                                  ? <BookIcon className="h-4 w-4 text-blue-500 mr-2" />
-                                  : <User className="h-4 w-4 text-purple-500 mr-2" />
+                                  ? <BookIcon className="h-3 w-3 md:h-4 md:w-4 text-blue-500 mr-1" />
+                                  : <User className="h-3 w-3 md:h-4 md:w-4 text-purple-500 mr-1" />
                                 }
-                                {report.type === 'listing' ? 'Listing' : 'User'}
+                                {isMobile ? (report.type === 'listing' ? 'L' : 'U') : (report.type === 'listing' ? 'Listing' : 'User')}
                               </div>
                             </TableCell>
-                            <TableCell>{report.entityName}</TableCell>
-                            <TableCell>
-                              {report.type === 'user' && report.entityEmail ? (
-                                <span className="text-sm text-gray-600">{report.entityEmail}</span>
-                              ) : (
-                                <span className="text-sm text-gray-400">N/A</span>
-                              )}
+                            <TableCell className="text-xs md:text-sm font-medium max-w-[120px] truncate">
+                              {report.entityName}
                             </TableCell>
-                            <TableCell>
-                              {report.type === 'user' && getUserWarningBadge(report.entityId)}
-                            </TableCell>
-                            <TableCell>{report.reporterName}</TableCell>
-                            <TableCell>{formatDate(report.createdAt)}</TableCell>
+                            {!isMobile && (
+                              <TableCell className="text-xs">
+                                {report.type === 'user' && report.entityEmail ? (
+                                  <span className="text-gray-600 truncate block max-w-[150px]">{report.entityEmail}</span>
+                                ) : (
+                                  <span className="text-gray-400">N/A</span>
+                                )}
+                              </TableCell>
+                            )}
+                            {!isMobile && (
+                              <TableCell>
+                                {report.type === 'user' && getUserWarningBadge(report.entityId)}
+                              </TableCell>
+                            )}
+                            <TableCell className="text-xs md:text-sm max-w-[100px] truncate">{report.reporterName}</TableCell>
+                            {!isMobile && <TableCell className="text-xs">{formatDate(report.createdAt)}</TableCell>}
                             <TableCell>{getSeverityBadge(report.severity)}</TableCell>
                             <TableCell>{getStatusBadge(report.status)}</TableCell>
                             <TableCell className="text-right">
-                              <div className="flex justify-end space-x-2">
+                              <div className="flex justify-end space-x-1">
                                 <Button 
                                   variant="outline" 
                                   size="sm" 
                                   onClick={() => handleViewReport(report)}
+                                  className="h-7 w-7 p-0 md:h-8 md:w-auto md:px-2"
                                 >
-                                  <Eye className="h-4 w-4" />
+                                  <Eye className="h-3 w-3 md:h-4 md:w-4" />
                                 </Button>
                                 {report.status === 'pending' && (
                                   <>
@@ -387,24 +416,26 @@ const AdminReports = () => {
                                         variant="destructive" 
                                         size="sm"
                                         onClick={() => handleBanUser(report)}
+                                        className="h-7 w-7 p-0 md:h-8 md:w-auto md:px-2"
                                       >
-                                        <UserX className="h-4 w-4" />
+                                        <UserX className="h-3 w-3 md:h-4 md:w-4" />
                                       </Button>
                                     )}
                                     <Button 
                                       variant="default" 
                                       size="sm"
-                                      className="bg-green-600 hover:bg-green-700"
+                                      className="bg-green-600 hover:bg-green-700 h-7 w-7 p-0 md:h-8 md:w-auto md:px-2"
                                       onClick={() => handleResolveReport(report.id)}
                                     >
-                                      <Check className="h-4 w-4" />
+                                      <Check className="h-3 w-3 md:h-4 md:w-4" />
                                     </Button>
                                     <Button 
                                       variant="secondary" 
                                       size="sm"
                                       onClick={() => handleDismissReport(report.id)}
+                                      className="h-7 w-7 p-0 md:h-8 md:w-auto md:px-2"
                                     >
-                                      <X className="h-4 w-4" />
+                                      <X className="h-3 w-3 md:h-4 md:w-4" />
                                     </Button>
                                   </>
                                 )}
@@ -417,7 +448,7 @@ const AdminReports = () => {
                   </div>
                 ) : (
                   <div className="py-12 text-center">
-                    <p className="text-gray-500">No {activeTab === "all" ? "reports" : `${activeTab} reports`} found.</p>
+                    <p className="text-gray-500 text-sm">No {activeTab === "all" ? "reports" : `${activeTab} reports`} found.</p>
                   </div>
                 )}
               </TabsContent>
@@ -430,13 +461,13 @@ const AdminReports = () => {
                   <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-book-600"></div>
                 </div>
               ) : (
-                <div className="space-y-6">
-                  <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                <div className="space-y-4 md:space-y-6">
+                  <div className="bg-red-50 border border-red-200 rounded-lg p-3 md:p-4">
                     <div className="flex items-center">
-                      <UserX className="h-5 w-5 text-red-600 mr-2" />
-                      <h3 className="text-lg font-semibold text-red-800">Suspended Users ({suspendedUsers.length})</h3>
+                      <UserX className="h-4 w-4 md:h-5 md:w-5 text-red-600 mr-2" />
+                      <h3 className="text-base md:text-lg font-semibold text-red-800">Suspended Users ({suspendedUsers.length})</h3>
                     </div>
-                    <p className="text-sm text-red-600 mt-1">Users who have been suspended from the platform</p>
+                    <p className="text-xs md:text-sm text-red-600 mt-1">Users who have been suspended from the platform</p>
                   </div>
 
                   {suspendedUsers.length > 0 ? (
@@ -444,21 +475,21 @@ const AdminReports = () => {
                       <Table>
                         <TableHeader>
                           <TableRow>
-                            <TableHead>Name</TableHead>
-                            <TableHead>Email</TableHead>
-                            <TableHead>Join Date</TableHead>
-                            <TableHead>Listings</TableHead>
-                            <TableHead>Status</TableHead>
-                            <TableHead className="text-right">Actions</TableHead>
+                            <TableHead className="text-xs md:text-sm min-w-[100px]">Name</TableHead>
+                            <TableHead className="text-xs md:text-sm min-w-[150px]">Email</TableHead>
+                            {!isMobile && <TableHead className="text-xs md:text-sm min-w-[120px]">Join Date</TableHead>}
+                            <TableHead className="text-xs md:text-sm min-w-[80px]">Listings</TableHead>
+                            <TableHead className="text-xs md:text-sm min-w-[80px]">Status</TableHead>
+                            <TableHead className="text-xs md:text-sm min-w-[120px] text-right">Actions</TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody>
                           {suspendedUsers.map((user) => (
                             <TableRow key={user.id}>
-                              <TableCell>{user.name}</TableCell>
-                              <TableCell>{user.email}</TableCell>
-                              <TableCell>{formatDate(user.joinDate)}</TableCell>
-                              <TableCell>{user.listingsCount}</TableCell>
+                              <TableCell className="text-xs md:text-sm font-medium">{user.name}</TableCell>
+                              <TableCell className="text-xs md:text-sm max-w-[150px] truncate">{user.email}</TableCell>
+                              {!isMobile && <TableCell className="text-xs">{formatDate(user.joinDate)}</TableCell>}
+                              <TableCell className="text-xs md:text-sm">{user.listingsCount}</TableCell>
                               <TableCell>
                                 <span className="px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
                                   Suspended
@@ -472,10 +503,10 @@ const AdminReports = () => {
                                     setSelectedUser(user);
                                     setIsUserActionDialogOpen(true);
                                   }}
-                                  className="text-green-600 hover:text-green-700"
+                                  className="text-green-600 hover:text-green-700 h-7 text-xs md:h-8 md:text-sm"
                                 >
-                                  <ShieldCheck className="h-4 w-4 mr-1" />
-                                  Unsuspend
+                                  <ShieldCheck className="h-3 w-3 md:h-4 md:w-4 mr-1" />
+                                  {isMobile ? 'Unsuspend' : 'Unsuspend'}
                                 </Button>
                               </TableCell>
                             </TableRow>
@@ -485,8 +516,8 @@ const AdminReports = () => {
                     </div>
                   ) : (
                     <div className="py-12 text-center">
-                      <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                      <p className="text-gray-500">No suspended users found.</p>
+                      <Users className="h-10 w-10 md:h-12 md:w-12 text-gray-400 mx-auto mb-4" />
+                      <p className="text-gray-500 text-sm">No suspended users found.</p>
                     </div>
                   )}
                 </div>
