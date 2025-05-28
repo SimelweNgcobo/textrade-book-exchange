@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -46,31 +45,16 @@ import {
   updateUserStatus,
   deleteBookListing,
   sendBroadcastMessage as sendBroadcastMessageService,
-  AdminStats as AdminStatsType
+  AdminStats as AdminStatsType,
+  AdminUser,
+  AdminListing
 } from '@/services/adminService';
 
 interface DashboardStats extends AdminStatsType {}
 
-interface User {
-  id: string;
-  name: string;
-  email: string;
-  joinDate: string;
-  status: 'active' | 'suspended';
-  listingsCount: number;
-}
+interface User extends AdminUser {}
 
-interface BookListing {
-  id: string;
-  title: string;
-  author: string;
-  category: string;
-  price: number;
-  status: 'active' | 'sold' | 'pending';
-  user: string;
-  createdAt: string;
-  images: string[];
-}
+interface BookListing extends AdminListing {}
 
 interface AdminAction {
   id: string;
