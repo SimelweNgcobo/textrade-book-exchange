@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -237,39 +238,6 @@ const AdminDashboard = () => {
             <div className="text-2xl font-bold">{stats.reportedIssues}</div>
             <p className="text-xs text-muted-foreground">
               Pending review
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Commission Earnings Section */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Weekly Commission</CardTitle>
-            <DollarSign className="h-4 w-4 text-green-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-green-600">
-              R{stats.weeklyCommission.toFixed(2)}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Last 7 days
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Monthly Commission</CardTitle>
-            <DollarSign className="h-4 w-4 text-green-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-green-600">
-              R{stats.monthlyCommission.toFixed(2)}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Last 30 days
             </p>
           </CardContent>
         </Card>
