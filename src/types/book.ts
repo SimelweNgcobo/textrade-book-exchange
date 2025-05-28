@@ -31,6 +31,7 @@ export interface BookFormData {
   condition: "New" | "Good" | "Better" | "Average" | "Below Average";
   grade?: string;
   universityYear?: string;
+  imageUrl: string;
   frontCover: string;
   backCover: string;
   insidePages: string;

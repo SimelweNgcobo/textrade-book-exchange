@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
@@ -272,8 +271,8 @@ const EditBook = () => {
                   Update Book Images
                 </Label>
                 <MultiImageUpload 
-                  onImagesUpload={handleImageUpload}
-                  existingImages={{
+                  onImagesChange={handleImageUpload}
+                  currentImages={{
                     frontCover,
                     backCover,
                     insidePages
