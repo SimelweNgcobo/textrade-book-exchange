@@ -1,136 +1,105 @@
 
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
+import { useQuery } from '@tanstack/react-query';
 import Layout from '@/components/Layout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { ArrowLeft, Trash2 } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { ArrowLeft, Trash2, Upload } from 'lucide-react';
 import { toast } from 'sonner';
 import { getBookById } from '@/services/bookService';
 import { updateBook, deleteBook } from '@/services/bookEditService';
-import { useAuth } from '@/contexts/AuthContext';
-import { Book } from '@/types/book';
 import MultiImageUpload from '@/components/MultiImageUpload';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
-
-const bookSchema = z.object({
-  title: z.string().min(1, 'Title is required'),
-  author: z.string().min(1, 'Author is required'),
-  description: z.string().min(10, 'Description must be at least 10 characters'),
-  price: z.number().min(1, 'Price must be greater than 0'),
-  category: z.string().min(1, 'Category is required'),
-  condition: z.string().min(1, 'Condition is required'),
-});
-
-type BookFormData = z.infer<typeof bookSchema>;
-
-const categories = [
-  'Engineering', 'Business', 'Science', 'Arts', 'Law', 'Medicine',
-  'Computer Science', 'Mathematics', 'History', 'Literature', 'Other'
-];
-
-const conditions = ['New', 'Good', 'Better', 'Average', 'Below Average'];
+import { useAuth } from '@/contexts/AuthContext';
 
 const EditBook = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [book, setBook] = useState<Book | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [images, setImages] = useState({
-    frontCover: '',
-    backCover: '',
-    insidePages: ''
-  });
+  
+  // Form state
+  const [title, setTitle] = useState('');
+  const [author, setAuthor] = useState('');
+  const [description, setDescription] = useState('');
+  const [price, setPrice] = useState('');
+  const [category, setCategory] = useState('');
+  const [condition, setCondition] = useState('');
+  const [frontCover, setFrontCover] = useState('');
+  const [backCover, setBackCover] = useState('');
+  const [insidePages, setInsidePages] = useState('');
 
-  const form = useForm<BookFormData>({
-    resolver: zodResolver(bookSchema),
-    defaultValues: {
-      title: '',
-      author: '',
-      description: '',
-      price: 0,
-      category: '',
-      condition: '',
-    },
+  const { data: book, isLoading, error } = useQuery({
+    queryKey: ['book', id],
+    queryFn: () => getBookById(id!),
+    enabled: !!id,
   });
 
   useEffect(() => {
-    const loadBook = async () => {
-      if (!id) return;
+    if (book) {
+      setTitle(book.title);
+      setAuthor(book.author);
+      setDescription(book.description);
+      setPrice(book.price.toString());
+      setCategory(book.category);
+      setCondition(book.condition);
+      setFrontCover(book.frontCover || '');
+      setBackCover(book.backCover || '');
+      setInsidePages(book.insidePages || '');
+    }
+  }, [book]);
 
-      try {
-        const bookData = await getBookById(id);
-        if (!bookData) {
-          toast.error('Book not found');
-          navigate('/profile');
-          return;
-        }
+  // Check if user owns this book
+  useEffect(() => {
+    if (book && user && book.seller.id !== user.id) {
+      toast.error('You can only edit your own listings');
+      navigate('/profile');
+    }
+  }, [book, user, navigate]);
 
-        if (bookData.seller.id !== user?.id) {
-          toast.error('You can only edit your own books');
-          navigate('/profile');
-          return;
-        }
+  const handleImageUpload = (images: { frontCover: string; backCover: string; insidePages: string }) => {
+    setFrontCover(images.frontCover);
+    setBackCover(images.backCover);
+    setInsidePages(images.insidePages);
+  };
 
-        setBook(bookData);
-        form.reset({
-          title: bookData.title,
-          author: bookData.author,
-          description: bookData.description,
-          price: bookData.price,
-          category: bookData.category,
-          condition: bookData.condition,
-        });
+  const handleUpdate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!id) return;
+    
+    // Validate required fields
+    if (!title.trim() || !author.trim() || !description.trim() || !price || !category || !condition) {
+      toast.error('Please fill in all required fields');
+      return;
+    }
 
-        // Set initial images if available
-        if (bookData.frontCover || bookData.backCover || bookData.insidePages) {
-          setImages({
-            frontCover: bookData.frontCover || '',
-            backCover: bookData.backCover || '',
-            insidePages: bookData.insidePages || ''
-          });
-        }
-      } catch (error) {
-        console.error('Error loading book:', error);
-        toast.error('Failed to load book details');
-        navigate('/profile');
-      } finally {
-        setIsLoading(false);
-      }
-    };
+    const priceNum = parseFloat(price);
+    if (isNaN(priceNum) || priceNum <= 0) {
+      toast.error('Please enter a valid price');
+      return;
+    }
 
-    loadBook();
-  }, [id, user?.id, navigate, form]);
-
-  const onSubmit = async (data: BookFormData) => {
-    if (!book || !user) return;
-
-    setIsSubmitting(true);
+    setIsUpdating(true);
     try {
-      await updateBook(book.id, {
-        ...data,
-        frontCover: images.frontCover,
-        backCover: images.backCover,
-        insidePages: images.insidePages
+      await updateBook(id, {
+        title: title.trim(),
+        author: author.trim(),
+        description: description.trim(),
+        price: priceNum,
+        category,
+        condition,
+        frontCover,
+        backCover,
+        insidePages
       });
       
       toast.success('Book updated successfully!');
@@ -139,16 +108,16 @@ const EditBook = () => {
       console.error('Error updating book:', error);
       toast.error('Failed to update book');
     } finally {
-      setIsSubmitting(false);
+      setIsUpdating(false);
     }
   };
 
   const handleDelete = async () => {
-    if (!book || !user) return;
-
+    if (!id) return;
+    
     setIsDeleting(true);
     try {
-      await deleteBook(book.id);
+      await deleteBook(id);
       toast.success('Book deleted successfully!');
       navigate('/profile');
     } catch (error) {
@@ -156,11 +125,8 @@ const EditBook = () => {
       toast.error('Failed to delete book');
     } finally {
       setIsDeleting(false);
+      setIsDeleteDialogOpen(false);
     }
-  };
-
-  const handleImagesChange = (newImages: { frontCover: string; backCover: string; insidePages: string }) => {
-    setImages(newImages);
   };
 
   if (isLoading) {
@@ -173,15 +139,14 @@ const EditBook = () => {
     );
   }
 
-  if (!book) {
+  if (error || !book) {
     return (
       <Layout>
         <div className="container mx-auto px-4 py-8">
           <div className="text-center">
-            <p className="text-gray-600">Book not found</p>
-            <Button onClick={() => navigate('/profile')} className="mt-4">
-              Go back to profile
-            </Button>
+            <h2 className="text-2xl font-semibold mb-4">Book Not Found</h2>
+            <p className="text-gray-600 mb-4">The book you're looking for doesn't exist or you don't have permission to edit it.</p>
+            <Button onClick={() => navigate('/profile')}>Back to Profile</Button>
           </div>
         </div>
       </Layout>
@@ -190,7 +155,7 @@ const EditBook = () => {
 
   return (
     <Layout>
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-8 max-w-2xl">
         <Button 
           variant="ghost" 
           onClick={() => navigate('/profile')} 
@@ -199,186 +164,174 @@ const EditBook = () => {
           <ArrowLeft className="mr-2 h-4 w-4" /> Back to Profile
         </Button>
 
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <div className="flex justify-between items-center mb-6">
-            <h1 className="text-2xl font-bold text-book-800">Edit Book Listing</h1>
-            
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <Button variant="destructive" size="sm">
-                  <Trash2 className="mr-2 h-4 w-4" />
-                  Delete Listing
-                </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Delete Book Listing</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    Are you sure you want to delete "{book.title}"? This action cannot be undone.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction 
-                    onClick={handleDelete}
-                    disabled={isDeleting}
-                    className="bg-red-600 hover:bg-red-700"
-                  >
-                    {isDeleting ? 'Deleting...' : 'Delete'}
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
-          </div>
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center justify-between">
+              Edit Book Listing
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={() => setIsDeleteDialogOpen(true)}
+              >
+                <Trash2 className="h-4 w-4 mr-2" />
+                Delete
+              </Button>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleUpdate} className="space-y-6">
+              {/* Basic Information */}
+              <div className="space-y-4">
+                <div>
+                  <Label htmlFor="title">Book Title *</Label>
+                  <Input
+                    id="title"
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    placeholder="Enter book title"
+                    required
+                  />
+                </div>
 
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <FormField
-                  control={form.control}
-                  name="title"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Book Title</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Enter book title" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                <div>
+                  <Label htmlFor="author">Author *</Label>
+                  <Input
+                    id="author"
+                    value={author}
+                    onChange={(e) => setAuthor(e.target.value)}
+                    placeholder="Enter author name"
+                    required
+                  />
+                </div>
 
-                <FormField
-                  control={form.control}
-                  name="author"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Author</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Enter author name" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                <div>
+                  <Label htmlFor="description">Description *</Label>
+                  <Textarea
+                    id="description"
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    placeholder="Describe the book condition, contents, etc."
+                    rows={4}
+                    required
+                  />
+                </div>
 
-                <FormField
-                  control={form.control}
-                  name="price"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Price (R)</FormLabel>
-                      <FormControl>
-                        <Input 
-                          type="number" 
-                          placeholder="0" 
-                          {...field}
-                          onChange={(e) => field.onChange(Number(e.target.value))}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="price">Price (R) *</Label>
+                    <Input
+                      id="price"
+                      type="number"
+                      value={price}
+                      onChange={(e) => setPrice(e.target.value)}
+                      placeholder="0.00"
+                      min="0"
+                      step="0.01"
+                      required
+                    />
+                  </div>
 
-                <FormField
-                  control={form.control}
-                  name="condition"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Condition</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select condition" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {conditions.map((condition) => (
-                            <SelectItem key={condition} value={condition}>
-                              {condition}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-
-              <FormField
-                control={form.control}
-                name="category"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Category</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select category" />
-                        </SelectTrigger>
-                      </FormControl>
+                  <div>
+                    <Label htmlFor="condition">Condition *</Label>
+                    <Select value={condition} onValueChange={setCondition} required>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select condition" />
+                      </SelectTrigger>
                       <SelectContent>
-                        {categories.map((category) => (
-                          <SelectItem key={category} value={category}>
-                            {category}
-                          </SelectItem>
-                        ))}
+                        <SelectItem value="New">New</SelectItem>
+                        <SelectItem value="Good">Good</SelectItem>
+                        <SelectItem value="Better">Better</SelectItem>
+                        <SelectItem value="Average">Average</SelectItem>
+                        <SelectItem value="Below Average">Below Average</SelectItem>
                       </SelectContent>
                     </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                  </div>
+                </div>
 
-              <FormField
-                control={form.control}
-                name="description"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Description</FormLabel>
-                    <FormControl>
-                      <Textarea 
-                        placeholder="Describe the book's condition, content, and any other relevant details..."
-                        className="min-h-[100px]"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                <div>
+                  <Label htmlFor="category">Category *</Label>
+                  <Select value={category} onValueChange={setCategory} required>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select category" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Textbooks">Textbooks</SelectItem>
+                      <SelectItem value="Fiction">Fiction</SelectItem>
+                      <SelectItem value="Non-Fiction">Non-Fiction</SelectItem>
+                      <SelectItem value="Reference">Reference</SelectItem>
+                      <SelectItem value="Other">Other</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
 
-              <div className="space-y-4">
-                <MultiImageUpload
-                  onImagesChange={handleImagesChange}
-                  currentImages={images}
-                  disabled={isSubmitting}
+              {/* Image Upload */}
+              <div>
+                <Label className="flex items-center mb-2">
+                  <Upload className="h-4 w-4 mr-2" />
+                  Update Book Images
+                </Label>
+                <MultiImageUpload 
+                  onImagesUpload={handleImageUpload}
+                  existingImages={{
+                    frontCover,
+                    backCover,
+                    insidePages
+                  }}
                 />
               </div>
 
-              <div className="flex gap-4">
-                <Button 
-                  type="submit" 
-                  disabled={isSubmitting}
-                  className="bg-book-600 hover:bg-book-700"
-                >
-                  {isSubmitting ? 'Updating...' : 'Update Book'}
-                </Button>
-                
-                <Button 
-                  type="button" 
-                  variant="outline" 
-                  onClick={() => navigate('/profile')}
-                  disabled={isSubmitting}
-                >
-                  Cancel
-                </Button>
-              </div>
+              {/* Submit Button */}
+              <Button 
+                type="submit" 
+                className="w-full" 
+                disabled={isUpdating}
+              >
+                {isUpdating ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                    Updating...
+                  </>
+                ) : (
+                  'Update Book Listing'
+                )}
+              </Button>
             </form>
-          </Form>
-        </div>
+          </CardContent>
+        </Card>
+
+        {/* Delete Confirmation Dialog */}
+        <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Delete Book Listing</DialogTitle>
+            </DialogHeader>
+            <p>Are you sure you want to delete "{book.title}"? This action cannot be undone.</p>
+            <DialogFooter>
+              <Button 
+                variant="outline" 
+                onClick={() => setIsDeleteDialogOpen(false)}
+                disabled={isDeleting}
+              >
+                Cancel
+              </Button>
+              <Button 
+                variant="destructive" 
+                onClick={handleDelete}
+                disabled={isDeleting}
+              >
+                {isDeleting ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                    Deleting...
+                  </>
+                ) : (
+                  'Delete'
+                )}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </Layout>
   );

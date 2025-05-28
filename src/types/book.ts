@@ -21,3 +21,17 @@ export interface Book {
     email: string;
   };
 }
+
+export interface BookFormData {
+  title: string;
+  author: string;
+  description: string;
+  price: number;
+  category: string;
+  condition: "New" | "Good" | "Better" | "Average" | "Below Average";
+  grade?: string;
+  universityYear?: string;
+  frontCover: string;
+  backCover: string;
+  insidePages: string;
+}

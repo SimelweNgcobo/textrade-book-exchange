@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
@@ -18,7 +19,7 @@ const AdminDashboard = () => {
   const [isDeleting, setIsDeleting] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!user || !profile?.is_admin) {
+    if (!user || !profile?.isAdmin) {
       navigate('/login');
       return;
     }
@@ -37,7 +38,7 @@ const AdminDashboard = () => {
     };
 
     loadBooks();
-  }, [user, profile?.is_admin, navigate]);
+  }, [user, profile?.isAdmin, navigate]);
 
   const handleDeleteBook = async (bookId: string, bookTitle: string) => {
     if (!window.confirm(`Are you sure you want to delete "${bookTitle}"? This action cannot be undone.`)) {
@@ -84,7 +85,7 @@ const AdminDashboard = () => {
     );
   }
 
-  if (!profile?.is_admin) {
+  if (!profile?.isAdmin) {
     return (
       <Layout>
         <div className="container mx-auto px-4 py-8">
