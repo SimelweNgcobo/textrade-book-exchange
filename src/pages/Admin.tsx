@@ -40,6 +40,7 @@ import { Book as BookIcon, Trash, Users, TrendingUp } from 'lucide-react';
 
 const Admin = () => {
   const [includesSold, setIncludesSold] = useState(true);
+  const [isRemoving, setIsRemoving] = useState<string | null>(null);
   
   const { 
     data: books = [], 
@@ -70,6 +71,7 @@ const Admin = () => {
 
   const handleRemoveBook = async (bookId: string) => {
     try {
+      setIsRemoving(bookId);
       const response = await removeBook(bookId);
       if (response.success) {
         toast.success(response.message);
@@ -78,7 +80,10 @@ const Admin = () => {
         toast.error(response.message);
       }
     } catch (error) {
+      console.error('Error removing book:', error);
       toast.error('Failed to remove book');
+    } finally {
+      setIsRemoving(null);
     }
   };
 
@@ -188,34 +193,46 @@ const Admin = () => {
                 <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
               </div>
             ) : (
-              <div className="rounded-md border">
+              <div className="rounded-md border overflow-hidden">
                 <Table>
                   <TableHeader>
-                    <TableRow>
-                      <TableHead>Title</TableHead>
-                      <TableHead>Author</TableHead>
-                      <TableHead>Price</TableHead>
-                      <TableHead>Seller</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Actions</TableHead>
+                    <TableRow className="bg-gray-50">
+                      <TableHead className="w-1/4 font-semibold text-gray-900">Title</TableHead>
+                      <TableHead className="w-1/6 font-semibold text-gray-900">Author</TableHead>
+                      <TableHead className="w-1/8 font-semibold text-gray-900">Price</TableHead>
+                      <TableHead className="w-1/6 font-semibold text-gray-900">Seller</TableHead>
+                      <TableHead className="w-1/8 font-semibold text-gray-900">Status</TableHead>
+                      <TableHead className="w-1/8 font-semibold text-gray-900 text-center">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {books.length === 0 ? (
                       <TableRow>
-                        <TableCell colSpan={6} className="text-center py-4">
+                        <TableCell colSpan={6} className="text-center py-8 text-gray-500">
                           No books found
                         </TableCell>
                       </TableRow>
                     ) : (
                       books.map((book) => (
-                        <TableRow key={book.id}>
-                          <TableCell className="font-medium">{book.title}</TableCell>
-                          <TableCell>{book.author}</TableCell>
-                          <TableCell>R{book.price}</TableCell>
-                          <TableCell>{book.seller.name}</TableCell>
+                        <TableRow key={book.id} className="hover:bg-gray-50">
+                          <TableCell className="font-medium text-gray-900 max-w-0">
+                            <div className="truncate" title={book.title}>
+                              {book.title}
+                            </div>
+                          </TableCell>
+                          <TableCell className="text-gray-700 max-w-0">
+                            <div className="truncate" title={book.author}>
+                              {book.author}
+                            </div>
+                          </TableCell>
+                          <TableCell className="font-medium text-book-600">R{book.price}</TableCell>
+                          <TableCell className="text-gray-700 max-w-0">
+                            <div className="truncate" title={book.seller.name}>
+                              {book.seller.name}
+                            </div>
+                          </TableCell>
                           <TableCell>
-                            <span className={`px-2 py-1 rounded-full text-xs ${
+                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                               book.sold 
                                 ? 'bg-red-100 text-red-800' 
                                 : 'bg-green-100 text-green-800'
@@ -223,14 +240,20 @@ const Admin = () => {
                               {book.sold ? 'Sold' : 'Active'}
                             </span>
                           </TableCell>
-                          <TableCell>
+                          <TableCell className="text-center">
                             <Button
                               variant="ghost"
-                              size="icon"
+                              size="sm"
                               onClick={() => handleRemoveBook(book.id)}
+                              disabled={isRemoving === book.id}
+                              className="text-red-600 hover:text-red-700 hover:bg-red-50"
                               title="Remove Book"
                             >
-                              <Trash className="h-4 w-4" />
+                              {isRemoving === book.id ? (
+                                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-red-600"></div>
+                              ) : (
+                                <Trash className="h-4 w-4" />
+                              )}
                             </Button>
                           </TableCell>
                         </TableRow>
@@ -250,42 +273,50 @@ const Admin = () => {
                 <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
               </div>
             ) : (
-              <div className="rounded-md border">
+              <div className="rounded-md border overflow-hidden">
                 <Table>
                   <TableHeader>
-                    <TableRow>
-                      <TableHead>Date</TableHead>
-                      <TableHead>Book</TableHead>
-                      <TableHead>Seller</TableHead>
-                      <TableHead>Price</TableHead>
-                      <TableHead>Commission</TableHead>
+                    <TableRow className="bg-gray-50">
+                      <TableHead className="w-1/5 font-semibold text-gray-900">Date</TableHead>
+                      <TableHead className="w-2/5 font-semibold text-gray-900">Book</TableHead>
+                      <TableHead className="w-1/5 font-semibold text-gray-900">Seller</TableHead>
+                      <TableHead className="w-1/10 font-semibold text-gray-900">Price</TableHead>
+                      <TableHead className="w-1/10 font-semibold text-gray-900">Commission</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {transactions.length === 0 ? (
                       <TableRow>
-                        <TableCell colSpan={5} className="text-center py-4">
+                        <TableCell colSpan={5} className="text-center py-8 text-gray-500">
                           No transactions found
                         </TableCell>
                       </TableRow>
                     ) : (
                       transactions.map((transaction) => (
-                        <TableRow key={transaction.id}>
-                          <TableCell className="font-medium">
+                        <TableRow key={transaction.id} className="hover:bg-gray-50">
+                          <TableCell className="font-medium text-gray-900">
                             {new Date(transaction.date).toLocaleDateString()}
                           </TableCell>
-                          <TableCell>{transaction.bookTitle}</TableCell>
-                          <TableCell>{transaction.sellerName}</TableCell>
-                          <TableCell>R{transaction.price}</TableCell>
-                          <TableCell>R{transaction.commission}</TableCell>
+                          <TableCell className="text-gray-700 max-w-0">
+                            <div className="truncate" title={transaction.bookTitle}>
+                              {transaction.bookTitle}
+                            </div>
+                          </TableCell>
+                          <TableCell className="text-gray-700 max-w-0">
+                            <div className="truncate" title={transaction.sellerName}>
+                              {transaction.sellerName}
+                            </div>
+                          </TableCell>
+                          <TableCell className="font-medium text-book-600">R{transaction.price}</TableCell>
+                          <TableCell className="font-medium text-green-600">R{transaction.commission}</TableCell>
                         </TableRow>
                       ))
                     )}
                   </TableBody>
                   <TableFooter>
-                    <TableRow>
-                      <TableCell colSpan={4}>Total Commission</TableCell>
-                      <TableCell className="text-right">R{totalCommission}</TableCell>
+                    <TableRow className="bg-gray-50">
+                      <TableCell colSpan={4} className="font-semibold text-gray-900">Total Commission</TableCell>
+                      <TableCell className="font-bold text-green-600">R{totalCommission}</TableCell>
                     </TableRow>
                   </TableFooter>
                 </Table>

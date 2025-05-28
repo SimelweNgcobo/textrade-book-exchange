@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -13,6 +13,7 @@ import {
 } from '@/components/ui/dialog';
 import { User, Mail, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
 
 interface ProfileEditDialogProps {
   isOpen: boolean;
@@ -20,10 +21,17 @@ interface ProfileEditDialogProps {
 }
 
 const ProfileEditDialog = ({ isOpen, onClose }: ProfileEditDialogProps) => {
-  const { profile, updateProfile } = useAuth();
-  const [name, setName] = useState(profile?.name || '');
-  const [email, setEmail] = useState(profile?.email || '');
+  const { user, profile } = useAuth();
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    if (isOpen && profile) {
+      setName(profile.name || '');
+      setEmail(profile.email || user?.email || '');
+    }
+  }, [isOpen, profile, user]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,12 +41,35 @@ const ProfileEditDialog = ({ isOpen, onClose }: ProfileEditDialogProps) => {
       return;
     }
 
+    if (!user?.id) {
+      toast.error('User not authenticated');
+      return;
+    }
+
     setIsLoading(true);
     
     try {
-      await updateProfile({ name: name.trim(), email: email.trim() });
+      // Update the profile in Supabase
+      const { error } = await supabase
+        .from('profiles')
+        .update({
+          name: name.trim(),
+          email: email.trim(),
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', user.id);
+
+      if (error) {
+        console.error('Error updating profile:', error);
+        toast.error('Failed to update profile');
+        return;
+      }
+
       toast.success('Profile updated successfully');
       onClose();
+      
+      // Refresh the page to update the context
+      window.location.reload();
     } catch (error) {
       console.error('Failed to update profile:', error);
       toast.error('Failed to update profile');
@@ -47,8 +78,17 @@ const ProfileEditDialog = ({ isOpen, onClose }: ProfileEditDialogProps) => {
     }
   };
 
+  const handleClose = () => {
+    if (!isLoading) {
+      onClose();
+      // Reset form when closing
+      setName(profile?.name || '');
+      setEmail(profile?.email || user?.email || '');
+    }
+  };
+
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center">
@@ -72,6 +112,7 @@ const ProfileEditDialog = ({ isOpen, onClose }: ProfileEditDialogProps) => {
                 className="pl-10"
                 placeholder="Enter your full name"
                 required
+                disabled={isLoading}
               />
             </div>
           </div>
@@ -90,13 +131,18 @@ const ProfileEditDialog = ({ isOpen, onClose }: ProfileEditDialogProps) => {
                 className="pl-10"
                 placeholder="Enter your email address"
                 required
+                disabled={isLoading}
               />
             </div>
           </div>
         </form>
         
         <DialogFooter>
-          <Button variant="outline" onClick={onClose} disabled={isLoading}>
+          <Button 
+            variant="outline" 
+            onClick={handleClose} 
+            disabled={isLoading}
+          >
             Cancel
           </Button>
           <Button 

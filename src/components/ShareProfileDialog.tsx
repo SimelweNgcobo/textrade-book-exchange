@@ -45,6 +45,12 @@ const ShareProfileDialog = ({ isOpen, onClose, userId, userName, isOwnProfile }:
       case 'whatsapp':
         shareUrl = `https://wa.me/?text=${encodeURIComponent(text + ' ' + profileUrl)}`;
         break;
+      case 'instagram':
+        // Instagram doesn't support direct URL sharing, so we copy the text and URL
+        const instagramText = `${text}\n\n${profileUrl}`;
+        navigator.clipboard.writeText(instagramText);
+        toast.success('Text and link copied! Paste it in your Instagram story or post.');
+        return;
       default:
         return;
     }
@@ -61,7 +67,7 @@ const ShareProfileDialog = ({ isOpen, onClose, userId, userName, isOwnProfile }:
             Share Profile
           </DialogTitle>
           <DialogDescription>
-            Share {isOwnProfile ? 'your' : `${userName}'s`} profile with others
+            Share {isOwnProfile ? 'your' : `${userName}'s`} profile to boost {isOwnProfile ? 'your' : 'their'} chances of hitting a sale :)
           </DialogDescription>
         </DialogHeader>
         
@@ -72,7 +78,7 @@ const ShareProfileDialog = ({ isOpen, onClose, userId, userName, isOwnProfile }:
               <Input
                 readOnly
                 value={profileUrl}
-                className="flex-1"
+                className="flex-1 text-sm"
               />
               <Button
                 variant="outline"
@@ -86,11 +92,11 @@ const ShareProfileDialog = ({ isOpen, onClose, userId, userName, isOwnProfile }:
           
           <div>
             <Label className="text-sm font-medium mb-2 block">Share on Social Media</Label>
-            <div className="flex space-x-2">
+            <div className="grid grid-cols-2 gap-2">
               <Button
                 variant="outline"
                 onClick={() => shareToSocial('twitter')}
-                className="flex-1"
+                className="flex items-center justify-center"
               >
                 <ExternalLink className="h-4 w-4 mr-2" />
                 Twitter
@@ -98,7 +104,7 @@ const ShareProfileDialog = ({ isOpen, onClose, userId, userName, isOwnProfile }:
               <Button
                 variant="outline"
                 onClick={() => shareToSocial('facebook')}
-                className="flex-1"
+                className="flex items-center justify-center"
               >
                 <ExternalLink className="h-4 w-4 mr-2" />
                 Facebook
@@ -106,10 +112,18 @@ const ShareProfileDialog = ({ isOpen, onClose, userId, userName, isOwnProfile }:
               <Button
                 variant="outline"
                 onClick={() => shareToSocial('whatsapp')}
-                className="flex-1"
+                className="flex items-center justify-center"
               >
                 <ExternalLink className="h-4 w-4 mr-2" />
                 WhatsApp
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => shareToSocial('instagram')}
+                className="flex items-center justify-center"
+              >
+                <Copy className="h-4 w-4 mr-2" />
+                Instagram
               </Button>
             </div>
           </div>

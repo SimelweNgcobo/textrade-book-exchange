@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
@@ -22,6 +21,7 @@ import { toast } from 'sonner';
 import AddressForm from '@/components/AddressForm';
 import BookNotSellingHelp from '@/components/BookNotSellingHelp';
 import ShareProfileDialog from '@/components/ShareProfileDialog';
+import ProfileEditDialog from '@/components/ProfileEditDialog';
 import { saveUserAddresses, getUserAddresses } from '@/services/addressService';
 
 const Profile = () => {
@@ -31,6 +31,7 @@ const Profile = () => {
   const [activeTab, setActiveTab] = useState("listings");
   const [isLoadingAddresses, setIsLoadingAddresses] = useState(false);
   const [isShareDialogOpen, setIsShareDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [userAddresses, setUserAddresses] = useState({
     pickup_address: null,
     shipping_address: null,
@@ -101,11 +102,15 @@ const Profile = () => {
   };
 
   const handleEditProfile = () => {
-    toast.info('Edit profile functionality coming soon');
+    setIsEditDialogOpen(true);
   };
 
   const handleShareProfile = () => {
     setIsShareDialogOpen(true);
+  };
+
+  const handleUpdateAddresses = () => {
+    setActiveTab('addresses');
   };
 
   if (!user || !profile) {
@@ -167,7 +172,7 @@ const Profile = () => {
           </div>
           
           <div className="p-6">
-            <Tabs defaultValue={activeTab} onValueChange={setActiveTab}>
+            <Tabs value={activeTab} onValueChange={setActiveTab}>
               <TabsList className="w-full mb-6">
                 <TabsTrigger value="listings">My Listings</TabsTrigger>
                 <TabsTrigger value="addresses">Addresses</TabsTrigger>
@@ -351,7 +356,7 @@ const Profile = () => {
                         </div>
                         <Button 
                           variant="outline" 
-                          onClick={() => setActiveTab('addresses')}
+                          onClick={handleUpdateAddresses}
                           className="border-book-600 text-book-600 hover:bg-book-50 rounded-xl px-4 py-2 text-sm"
                         >
                           <Edit className="mr-2 h-4 w-4" />
@@ -368,13 +373,20 @@ const Profile = () => {
       </div>
 
       {user && (
-        <ShareProfileDialog
-          isOpen={isShareDialogOpen}
-          onClose={() => setIsShareDialogOpen(false)}
-          userId={user.id}
-          userName={profile?.name || 'User'}
-          isOwnProfile={true}
-        />
+        <>
+          <ShareProfileDialog
+            isOpen={isShareDialogOpen}
+            onClose={() => setIsShareDialogOpen(false)}
+            userId={user.id}
+            userName={profile?.name || 'User'}
+            isOwnProfile={true}
+          />
+          
+          <ProfileEditDialog
+            isOpen={isEditDialogOpen}
+            onClose={() => setIsEditDialogOpen(false)}
+          />
+        </>
       )}
     </Layout>
   );
