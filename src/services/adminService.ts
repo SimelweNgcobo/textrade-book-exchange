@@ -1,3 +1,4 @@
+
 import { supabase } from '@/integrations/supabase/client';
 
 export interface AdminStats {
@@ -120,7 +121,7 @@ export const getAllUsers = async (): Promise<AdminUser[]> => {
           name: profile.name || 'Unknown',
           email: profile.email || '',
           joinDate: profile.created_at,
-          status: 'active' as const, // Since status field doesn't exist in profiles table
+          status: (profile.status as 'active' | 'suspended') || 'active',
           listingsCount: count || 0
         };
       })
@@ -176,9 +177,12 @@ export const getAllListings = async (): Promise<AdminListing[]> => {
 
 export const updateUserStatus = async (userId: string, status: 'active' | 'suspended'): Promise<void> => {
   try {
-    // Note: Since status field doesn't exist in profiles table, we'll just log this action
-    // In a real implementation, you would add a status field to the profiles table
-    console.log(`Would update user ${userId} status to ${status}`);
+    const { error } = await supabase
+      .from('profiles')
+      .update({ status })
+      .eq('id', userId);
+
+    if (error) throw error;
     
     await logAdminAction({
       action: status === 'suspended' ? 'User Suspended' : 'User Reactivated',
@@ -227,13 +231,19 @@ export const updateBookStatus = async (bookId: string, status: 'active' | 'pendi
 
 export const logAdminAction = async (action: Omit<AdminAction, 'id' | 'timestamp'>): Promise<void> => {
   try {
-    // Note: You would need to create an admin_actions table
-    // For now, we'll just log to console
-    console.log('Admin action logged:', {
+    const newAction = {
       ...action,
       id: Date.now().toString(),
       timestamp: new Date().toISOString()
-    });
+    };
+    
+    // Store in localStorage for now
+    const stored = localStorage.getItem('admin_actions');
+    const actions = stored ? JSON.parse(stored) : [];
+    actions.unshift(newAction);
+    localStorage.setItem('admin_actions', JSON.stringify(actions.slice(0, 100))); // Keep last 100 actions
+    
+    console.log('Admin action logged:', newAction);
   } catch (error) {
     console.error('Error logging admin action:', error);
     throw error;
@@ -245,57 +255,60 @@ export const sendBroadcastMessage = async (message: string): Promise<void> => {
     // Get all users to send notifications to
     const { data: profiles } = await supabase
       .from('profiles')
-      .select('id');
+      .select('id, email');
 
     if (profiles) {
-      // Add broadcast notification to each user
-      for (const profile of profiles) {
-        await addBroadcastNotification(profile.id, message);
-      }
-    }
-    
-    await logAdminAction({
-      action: 'Broadcast Message Sent',
-      target: 'All Users',
-      admin: 'Current Admin',
-      details: `Message: ${message.substring(0, 50)}...`
-    });
-
-    // Trigger real-time notification for active users
-    await supabase
-      .channel('broadcast-messages')
-      .send({
-        type: 'broadcast',
-        event: 'new_message',
-        payload: { message }
+      // Create a unique message ID for this broadcast
+      const messageId = `broadcast_${Date.now()}`;
+      
+      // Store broadcast in localStorage for all users to see
+      const broadcastData = {
+        id: messageId,
+        message,
+        timestamp: new Date().toISOString(),
+        recipients: profiles.map(p => p.id)
+      };
+      
+      // Store in broadcast queue
+      const queue = JSON.parse(localStorage.getItem('broadcastQueue') || '[]');
+      queue.push(broadcastData);
+      localStorage.setItem('broadcastQueue', JSON.stringify(queue));
+      
+      // Add to notifications for each user
+      profiles.forEach(profile => {
+        addBroadcastNotification(profile.id, message);
       });
-
+      
+      // Trigger notification update event
+      window.dispatchEvent(new CustomEvent('notificationUpdate'));
+      
+      // Log the action
+      await logAdminAction({
+        action: 'Broadcast Message Sent',
+        target: 'All Users',
+        admin: 'Current Admin',
+        details: `Message sent to ${profiles.length} users: ${message.substring(0, 50)}...`
+      });
+    }
   } catch (error) {
     console.error('Error sending broadcast message:', error);
     throw error;
   }
 };
 
-const addBroadcastNotification = async (userId: string, message: string): Promise<void> => {
-  // This would add to notifications - using the existing notification service pattern
+const addBroadcastNotification = (userId: string, message: string): void => {
   const notification = {
     userId,
     title: 'Message from Rebooked Solutions Team',
     message,
     type: 'info' as const,
-    read: false
-  };
-
-  // Store in localStorage for now (in real app, this would be in database)
-  const stored = localStorage.getItem('rebooked_notifications');
-  const allNotifications = stored ? JSON.parse(stored) : [];
-  
-  const newNotification = {
-    ...notification,
+    read: false,
     id: `broadcast_${Date.now()}_${Math.random()}`,
     createdAt: new Date().toISOString()
   };
-  
-  allNotifications.push(newNotification);
+
+  const stored = localStorage.getItem('rebooked_notifications');
+  const allNotifications = stored ? JSON.parse(stored) : [];
+  allNotifications.unshift(notification);
   localStorage.setItem('rebooked_notifications', JSON.stringify(allNotifications));
 };

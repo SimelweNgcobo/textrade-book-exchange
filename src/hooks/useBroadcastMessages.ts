@@ -6,6 +6,7 @@ import { useAuth } from '@/contexts/AuthContext';
 interface BroadcastMessage {
   message: string;
   timestamp: string;
+  id: string;
 }
 
 export const useBroadcastMessages = () => {
@@ -19,62 +20,46 @@ export const useBroadcastMessages = () => {
     // Check for unseen broadcast messages on login/page load
     checkForUnseenBroadcasts();
 
-    // Subscribe to real-time broadcast messages
-    const channel = supabase
-      .channel('broadcast-messages')
-      .on('broadcast', { event: 'new_message' }, (payload) => {
-        const { message } = payload.payload;
-        
-        // If user is active, show popup immediately
-        setPendingMessage(message);
-        setShowPopup(true);
-        
-        // Also add to notifications for later viewing
-        addToNotifications(message);
-      })
-      .subscribe();
+    // Listen for new broadcasts from localStorage changes
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'broadcastQueue') {
+        checkForUnseenBroadcasts();
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    
+    // Also listen for custom notification update events
+    const handleNotificationUpdate = () => {
+      checkForUnseenBroadcasts();
+    };
+    
+    window.addEventListener('notificationUpdate', handleNotificationUpdate);
 
     return () => {
-      supabase.removeChannel(channel);
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('notificationUpdate', handleNotificationUpdate);
     };
   }, [user]);
 
   const checkForUnseenBroadcasts = () => {
+    if (!user) return;
+    
     // Check localStorage for any broadcast messages that haven't been seen as popups
     const broadcastQueue = JSON.parse(localStorage.getItem('broadcastQueue') || '[]');
     const seenBroadcasts = JSON.parse(localStorage.getItem('seenBroadcasts') || '[]');
     
-    const unseenMessage = broadcastQueue.find((msg: BroadcastMessage) => {
-      const messageHash = btoa(msg.message).substring(0, 10);
-      return !seenBroadcasts.includes(messageHash);
+    // Find broadcasts for this user that haven't been shown as popups
+    const unseenBroadcast = broadcastQueue.find((broadcast: any) => {
+      const messageHash = btoa(broadcast.message).substring(0, 10);
+      const isForThisUser = broadcast.recipients?.includes(user.id) || true; // Show to all users if no recipients specified
+      return isForThisUser && !seenBroadcasts.includes(messageHash);
     });
 
-    if (unseenMessage) {
-      setPendingMessage(unseenMessage.message);
+    if (unseenBroadcast) {
+      setPendingMessage(unseenBroadcast.message);
       setShowPopup(true);
     }
-  };
-
-  const addToNotifications = (message: string) => {
-    if (!user) return;
-
-    const notification = {
-      userId: user.id,
-      title: 'Broadcast Message',
-      message,
-      type: 'info' as const,
-      read: false,
-      id: `broadcast_${Date.now()}_${Math.random()}`,
-      createdAt: new Date().toISOString()
-    };
-
-    const stored = localStorage.getItem('rebooked_notifications');
-    const allNotifications = stored ? JSON.parse(stored) : [];
-    allNotifications.push(notification);
-    localStorage.setItem('rebooked_notifications', JSON.stringify(allNotifications));
-
-    // Trigger notification count update
-    window.dispatchEvent(new CustomEvent('notificationUpdate'));
   };
 
   const closePopup = () => {
