@@ -23,7 +23,7 @@ export const getBooks = async (filters?: {
       .from('books')
       .select(`
         *,
-        seller:profiles!books_seller_id_fkey (
+        profiles!seller_id (
           id,
           name,
           email
@@ -72,9 +72,9 @@ export const getBooks = async (filters?: {
       sold: book.sold,
       createdAt: book.created_at,
       seller: {
-        id: book.seller?.id || '',
-        name: book.seller?.name || 'Anonymous',
-        email: book.seller?.email || ''
+        id: book.profiles?.id || '',
+        name: book.profiles?.name || 'Anonymous',
+        email: book.profiles?.email || ''
       }
     })) || [];
   } catch (error) {
@@ -89,7 +89,7 @@ export const getBookById = async (id: string): Promise<Book | null> => {
       .from('books')
       .select(`
         *,
-        seller:profiles!books_seller_id_fkey (
+        profiles!seller_id (
           id,
           name,
           email
@@ -117,9 +117,9 @@ export const getBookById = async (id: string): Promise<Book | null> => {
       sold: data.sold,
       createdAt: data.created_at,
       seller: {
-        id: data.seller?.id || '',
-        name: data.seller?.name || 'Anonymous',
-        email: data.seller?.email || ''
+        id: data.profiles?.id || '',
+        name: data.profiles?.name || 'Anonymous',
+        email: data.profiles?.email || ''
       }
     };
   } catch (error) {
@@ -146,11 +146,13 @@ export const createBook = async (bookData: Omit<Book, 'id' | 'createdAt' | 'sell
         category: bookData.category,
         condition: bookData.condition,
         image_url: bookData.imageUrl,
+        grade: bookData.grade || null,
+        university_year: bookData.universityYear || null,
         seller_id: user.id
       })
       .select(`
         *,
-        seller:profiles!books_seller_id_fkey (
+        profiles!seller_id (
           id,
           name,
           email
@@ -175,9 +177,9 @@ export const createBook = async (bookData: Omit<Book, 'id' | 'createdAt' | 'sell
       sold: data.sold,
       createdAt: data.created_at,
       seller: {
-        id: data.seller?.id || '',
-        name: data.seller?.name || 'Anonymous',
-        email: data.seller?.email || ''
+        id: data.profiles?.id || '',
+        name: data.profiles?.name || 'Anonymous',
+        email: data.profiles?.email || ''
       }
     };
   } catch (error) {
@@ -192,7 +194,7 @@ export const getAllBooks = async (includeSold: boolean = true): Promise<Book[]> 
       .from('books')
       .select(`
         *,
-        seller:profiles!books_seller_id_fkey (
+        profiles!seller_id (
           id,
           name,
           email
@@ -224,9 +226,9 @@ export const getAllBooks = async (includeSold: boolean = true): Promise<Book[]> 
       sold: book.sold,
       createdAt: book.created_at,
       seller: {
-        id: book.seller?.id || '',
-        name: book.seller?.name || 'Anonymous',
-        email: book.seller?.email || ''
+        id: book.profiles?.id || '',
+        name: book.profiles?.name || 'Anonymous',
+        email: book.profiles?.email || ''
       }
     })) || [];
   } catch (error) {
@@ -278,7 +280,7 @@ export const getTransactions = async () => {
       .from('transactions')
       .select(`
         *,
-        seller:profiles!transactions_seller_id_fkey (
+        profiles!seller_id (
           name
         )
       `)
@@ -292,7 +294,7 @@ export const getTransactions = async () => {
     return data?.map(transaction => ({
       id: transaction.id,
       bookTitle: transaction.book_title,
-      sellerName: transaction.seller?.name || 'Unknown',
+      sellerName: transaction.profiles?.name || 'Unknown',
       price: transaction.price,
       commission: transaction.commission,
       date: transaction.created_at
@@ -328,7 +330,7 @@ export const getUserBooks = async (userId: string): Promise<Book[]> => {
       .from('books')
       .select(`
         *,
-        seller:profiles!books_seller_id_fkey (
+        profiles!seller_id (
           id,
           name,
           email
@@ -354,9 +356,9 @@ export const getUserBooks = async (userId: string): Promise<Book[]> => {
       sold: book.sold,
       createdAt: book.created_at,
       seller: {
-        id: book.seller?.id || '',
-        name: book.seller?.name || 'Anonymous',
-        email: book.seller?.email || ''
+        id: book.profiles?.id || '',
+        name: book.profiles?.name || 'Anonymous',
+        email: book.profiles?.email || ''
       }
     })) || [];
   } catch (error) {
