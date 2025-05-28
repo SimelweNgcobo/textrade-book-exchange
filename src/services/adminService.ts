@@ -280,7 +280,7 @@ const addBroadcastNotification = async (userId: string, message: string): Promis
   // This would add to notifications - using the existing notification service pattern
   const notification = {
     userId,
-    title: 'Broadcast Message',
+    title: 'Message from Rebooked Solutions Team',
     message,
     type: 'info' as const,
     read: false

@@ -34,10 +34,10 @@ const BroadcastPopup = ({ message, onClose, isOpen }: BroadcastPopupProps) => {
         <DialogHeader>
           <DialogTitle className="flex items-center">
             <MessageSquare className="h-5 w-5 mr-2 text-blue-600" />
-            Message from Admin
+            Message from Rebooked Solutions Team
           </DialogTitle>
           <DialogDescription>
-            You have received a new broadcast message
+            You have received a new message from the Rebooked Solutions Team
           </DialogDescription>
         </DialogHeader>
         <div className="py-4">

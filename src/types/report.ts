@@ -8,6 +8,7 @@ export interface Report {
   type: ReportType;
   entityId: string;
   entityName: string;
+  entityEmail?: string; // Added optional email field for user reports
   reportedBy: string;
   reporterName: string;
   reason: string;

@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
@@ -82,6 +81,7 @@ const AdminReports = () => {
           type: 'user' as ReportType,
           entityId: 'user-456',
           entityName: 'John Doe',
+          entityEmail: 'john.doe@university.edu',
           reportedBy: 'user-789',
           reporterName: 'Alice Johnson',
           reason: 'User did not show up for book exchange',
@@ -106,6 +106,7 @@ const AdminReports = () => {
           type: 'user' as ReportType,
           entityId: 'user-321',
           entityName: 'Bob Williams',
+          entityEmail: 'bob.williams@university.edu',
           reportedBy: 'user-123',
           reporterName: 'Jane Smith',
           reason: 'Harassing messages after transaction',
@@ -113,12 +114,12 @@ const AdminReports = () => {
           severity: 'high' as ReportSeverity,
           status: 'dismissed' as ReportStatus
         },
-        // Add more user reports to show warning levels
         {
           id: 5,
           type: 'user' as ReportType,
           entityId: 'user-555',
           entityName: 'David Smith',
+          entityEmail: 'david.smith@university.edu',
           reportedBy: 'user-123',
           reporterName: 'Jane Smith',
           reason: 'Sent threatening messages',
@@ -131,6 +132,7 @@ const AdminReports = () => {
           type: 'user' as ReportType,
           entityId: 'user-555',
           entityName: 'David Smith',
+          entityEmail: 'david.smith@university.edu',
           reportedBy: 'user-456',
           reporterName: 'John Doe',
           reason: 'Tried to scam me with fake book',
@@ -143,6 +145,7 @@ const AdminReports = () => {
           type: 'user' as ReportType,
           entityId: 'user-666',
           entityName: 'Mary Johnson',
+          entityEmail: 'mary.johnson@university.edu',
           reportedBy: 'user-123',
           reporterName: 'Jane Smith',
           reason: 'Didn\'t deliver book as promised',
@@ -333,6 +336,7 @@ const AdminReports = () => {
                       <TableRow>
                         <TableHead>Type</TableHead>
                         <TableHead>Reported Entity</TableHead>
+                        <TableHead>Email</TableHead>
                         <TableHead>Warning Level</TableHead>
                         <TableHead>Reported By</TableHead>
                         <TableHead>Date</TableHead>
@@ -354,6 +358,13 @@ const AdminReports = () => {
                             </div>
                           </TableCell>
                           <TableCell>{report.entityName}</TableCell>
+                          <TableCell>
+                            {report.type === 'user' && report.entityEmail ? (
+                              <span className="text-sm text-gray-600">{report.entityEmail}</span>
+                            ) : (
+                              <span className="text-sm text-gray-400">N/A</span>
+                            )}
+                          </TableCell>
                           <TableCell>
                             {report.type === 'user' && getUserWarningBadge(report.entityId)}
                           </TableCell>
@@ -440,6 +451,14 @@ const AdminReports = () => {
                   <p className="text-sm text-gray-500 mb-1">Reported Entity</p>
                   <p className="font-medium">{selectedReport.entityName}</p>
                 </div>
+                
+                {selectedReport.type === 'user' && selectedReport.entityEmail && (
+                  <div>
+                    <p className="text-sm text-gray-500 mb-1">Email</p>
+                    <p className="font-medium">{selectedReport.entityEmail}</p>
+                  </div>
+                )}
+                
                 <div>
                   <p className="text-sm text-gray-500 mb-1">Reported By</p>
                   <p className="font-medium">{selectedReport.reporterName}</p>
