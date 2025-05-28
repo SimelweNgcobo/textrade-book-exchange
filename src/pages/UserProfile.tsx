@@ -468,7 +468,7 @@ const UserProfile = () => {
               )}
             </Button>
           </DialogFooter>
-        </div>
+        </DialogContent>
       </Dialog>
     </Layout>
   );
