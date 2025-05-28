@@ -20,6 +20,7 @@ import { toast } from 'sonner';
 import ShareProfileDialog from '@/components/ShareProfileDialog';
 import BookNotSellingHelp from '@/components/BookNotSellingHelp';
 import ProfileHeader from '@/components/ProfileHeader';
+import { getUserBooks } from '@/services/bookService';
 import { 
   Dialog, 
   DialogContent, 
@@ -35,6 +36,7 @@ const UserProfile = () => {
   const navigate = useNavigate();
   
   const [userData, setUserData] = useState<any>(null);
+  const [userBooks, setUserBooks] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState("listings");
   const [isLoading, setIsLoading] = useState(true);
   const [isShareDialogOpen, setIsShareDialogOpen] = useState(false);
@@ -45,61 +47,57 @@ const UserProfile = () => {
   const [isSubmittingRating, setIsSubmittingRating] = useState(false);
 
   useEffect(() => {
-    // Check if user is authenticated and if this is their own profile
-    const isAuthenticated = !!user;
-    const isOwn = isAuthenticated && (userId === user?.id || !userId);
-    setIsOwnProfile(isOwn);
-    
-    setTimeout(() => {
-      const mockUser = {
-        id: userId || user?.id,
-        name: isOwn ? profile?.name || 'Current User' : 'Jane Smith',
-        email: isOwn ? profile?.email : 'jane.smith@example.com',
-        joinDate: '2024-11-15T00:00:00',
-        isVerified: isOwn ? profile?.isVerified : true,
-        rating: 4.8,
-        successfulDeliveries: 12,
-        listings: [
-          {
-            id: 'book-1',
-            title: 'Introduction to Psychology',
-            price: 450,
-            imageUrl: 'https://source.unsplash.com/random/300x400/?textbook-1',
-            condition: 'Good',
-            createdAt: '2025-04-10T10:30:00',
-            sold: false
-          },
-          {
-            id: 'book-2',
-            title: 'Calculus Made Easy',
-            price: 350,
-            imageUrl: 'https://source.unsplash.com/random/300x400/?textbook-2',
-            condition: 'New',
-            createdAt: '2025-03-15T14:20:00',
-            sold: true
-          }
-        ],
-        reviews: [
-          {
-            id: 1,
-            from: 'Bob Smith',
-            rating: 5,
-            comment: 'Great seller! Book was exactly as described and delivery was prompt.',
-            date: '2025-04-25T09:15:00'
-          },
-          {
-            id: 2,
-            from: 'Alice Johnson',
-            rating: 4,
-            comment: 'Good experience overall. Would buy from again.',
-            date: '2025-03-20T16:45:00'
-          }
-        ]
-      };
+    const loadUserData = async () => {
+      // Check if user is authenticated and if this is their own profile
+      const isAuthenticated = !!user;
+      const isOwn = isAuthenticated && (userId === user?.id || !userId);
+      setIsOwnProfile(isOwn);
       
-      setUserData(mockUser);
-      setIsLoading(false);
-    }, 1000);
+      try {
+        // Load real user books
+        const targetUserId = userId || user?.id;
+        if (targetUserId) {
+          const books = await getUserBooks(targetUserId);
+          setUserBooks(books);
+        }
+
+        // Set user data
+        const mockUser = {
+          id: userId || user?.id,
+          name: isOwn ? profile?.name || 'Current User' : 'Jane Smith',
+          email: isOwn ? profile?.email : 'jane.smith@example.com',
+          joinDate: '2024-11-15T00:00:00',
+          isVerified: isOwn ? profile?.isVerified : true,
+          rating: 4.8,
+          successfulDeliveries: 12,
+          reviews: [
+            {
+              id: 1,
+              from: 'Bob Smith',
+              rating: 5,
+              comment: 'Great seller! Book was exactly as described and delivery was prompt.',
+              date: '2025-04-25T09:15:00'
+            },
+            {
+              id: 2,
+              from: 'Alice Johnson',
+              rating: 4,
+              comment: 'Good experience overall. Would buy from again.',
+              date: '2025-03-20T16:45:00'
+            }
+          ]
+        };
+        
+        setUserData(mockUser);
+      } catch (error) {
+        console.error('Error loading user data:', error);
+        toast.error('Failed to load user data');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadUserData();
   }, [userId, user, profile]);
 
   const handleShareProfile = () => {
@@ -200,7 +198,7 @@ const UserProfile = () => {
           <ArrowLeft className="mr-2 h-4 w-4" /> Back
         </Button>
 
-        {/* New Profile Header */}
+        {/* Profile Header */}
         <ProfileHeader 
           userData={userData}
           isOwnProfile={isOwnProfile}
@@ -221,7 +219,7 @@ const UserProfile = () => {
             </TabsList>
             
             <TabsContent value="listings">
-              {userData.listings.length > 0 ? (
+              {userBooks.length > 0 ? (
                 <div className="space-y-4">
                   {isOwnProfile && (
                     <div className="flex justify-end mb-4">
@@ -230,7 +228,7 @@ const UserProfile = () => {
                   )}
                   
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {userData.listings.map((listing: any) => (
+                    {userBooks.map((listing: any) => (
                       <div 
                         key={listing.id}
                         className="border border-book-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow bg-white"
@@ -470,7 +468,7 @@ const UserProfile = () => {
               )}
             </Button>
           </DialogFooter>
-        </DialogContent>
+        </div>
       </Dialog>
     </Layout>
   );

@@ -48,19 +48,37 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
       const previewObjectUrl = URL.createObjectURL(file);
       setPreviewUrl(previewObjectUrl);
 
-      // For now, use a placeholder URL since storage isn't set up
-      const placeholderUrl = `https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=400&h=300&fit=crop&auto=format&q=80`;
+      // Upload to Supabase Storage
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${user.id}/${Date.now()}.${fileExt}`;
       
+      const { data, error } = await supabase.storage
+        .from('book-images')
+        .upload(fileName, file);
+
+      if (error) {
+        throw error;
+      }
+
+      // Get the public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('book-images')
+        .getPublicUrl(data.path);
+
       // Clean up the object URL
       URL.revokeObjectURL(previewObjectUrl);
       
-      setPreviewUrl(placeholderUrl);
-      onImageChange(placeholderUrl);
+      setPreviewUrl(publicUrl);
+      onImageChange(publicUrl);
       toast.success('Image uploaded successfully');
     } catch (error) {
       console.error('Upload error:', error);
       toast.error('Failed to upload image');
       setImageError(true);
+      // Reset to original preview if upload failed
+      if (currentImageUrl) {
+        setPreviewUrl(currentImageUrl);
+      }
     } finally {
       setIsUploading(false);
     }
@@ -69,7 +87,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
   const handleRemoveImage = () => {
     setPreviewUrl(null);
     setImageError(false);
-    onImageChange('https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=400&h=300&fit=crop&auto=format&q=80');
+    onImageChange('');
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }

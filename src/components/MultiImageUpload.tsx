@@ -3,6 +3,8 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Upload, X, Image as ImageIcon } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 
 interface MultiImageUploadProps {
@@ -12,6 +14,7 @@ interface MultiImageUploadProps {
 }
 
 const MultiImageUpload = ({ onImagesChange, currentImages, disabled }: MultiImageUploadProps) => {
+  const { user } = useAuth();
   const [images, setImages] = useState({
     frontCover: currentImages?.frontCover || '',
     backCover: currentImages?.backCover || '',
@@ -25,7 +28,7 @@ const MultiImageUpload = ({ onImagesChange, currentImages, disabled }: MultiImag
   });
 
   const handleImageUpload = async (file: File, type: 'frontCover' | 'backCover' | 'insidePages') => {
-    if (!file) return;
+    if (!file || !user) return;
 
     if (file.size > 5 * 1024 * 1024) {
       toast.error('Image must be less than 5MB');
@@ -40,26 +43,54 @@ const MultiImageUpload = ({ onImagesChange, currentImages, disabled }: MultiImag
     setUploading(prev => ({ ...prev, [type]: true }));
 
     try {
-      // In a real app, upload to a storage service
-      // For now, create a mock URL
-      const mockUrl = `https://source.unsplash.com/random/400x600/?book-${type}-${Date.now()}`;
+      // Upload to Supabase Storage
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${user.id}/${type}-${Date.now()}.${fileExt}`;
       
-      // Simulate upload delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const { data, error } = await supabase.storage
+        .from('book-images')
+        .upload(fileName, file);
+
+      if (error) {
+        throw error;
+      }
+
+      // Get the public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('book-images')
+        .getPublicUrl(data.path);
       
-      const newImages = { ...images, [type]: mockUrl };
+      const newImages = { ...images, [type]: publicUrl };
       setImages(newImages);
       onImagesChange(newImages);
       
       toast.success(`${getTypeLabel(type)} uploaded successfully`);
     } catch (error) {
+      console.error('Upload error:', error);
       toast.error('Failed to upload image');
     } finally {
       setUploading(prev => ({ ...prev, [type]: false }));
     }
   };
 
-  const removeImage = (type: 'frontCover' | 'backCover' | 'insidePages') => {
+  const removeImage = async (type: 'frontCover' | 'backCover' | 'insidePages') => {
+    const currentImageUrl = images[type];
+    
+    // If there's an image URL, try to delete it from storage
+    if (currentImageUrl && currentImageUrl.includes('book-images')) {
+      try {
+        // Extract the file path from the URL
+        const urlParts = currentImageUrl.split('/');
+        const filePath = urlParts.slice(-2).join('/'); // Get user_id/filename
+        
+        await supabase.storage
+          .from('book-images')
+          .remove([filePath]);
+      } catch (error) {
+        console.error('Error deleting image from storage:', error);
+      }
+    }
+    
     const newImages = { ...images, [type]: '' };
     setImages(newImages);
     onImagesChange(newImages);
@@ -87,6 +118,9 @@ const MultiImageUpload = ({ onImagesChange, currentImages, disabled }: MultiImag
             src={images[type]}
             alt={getTypeLabel(type)}
             className="w-full h-40 object-cover rounded-md border"
+            onError={(e) => {
+              console.error(`Failed to load ${type} image:`, images[type]);
+            }}
           />
           <Button
             type="button"
