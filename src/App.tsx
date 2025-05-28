@@ -1,10 +1,10 @@
+
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Toaster } from 'sonner';
 import { AuthProvider } from './contexts/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import AdminProtectedRoute from './components/AdminProtectedRoute';
 import ScrollToTop from './components/ScrollToTop';
-import QueryClient from './QueryClient';
 
 // Pages
 import Index from './pages/Index';
@@ -33,54 +33,52 @@ import './App.css';
 
 function App() {
   return (
-    <QueryClient>
-      <AuthProvider>
-        <Router>
-          <ScrollToTop />
-          <div className="min-h-screen bg-gray-50">
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/books" element={<BookListing />} />
-              <Route path="/books/:id" element={<BookDetails />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/register" element={<Register />} />
-              <Route path="/confirm" element={<Confirm />} />
-              <Route path="/faq" element={<FAQ />} />
-              <Route path="/terms" element={<Terms />} />
-              <Route path="/privacy" element={<Privacy />} />
-              <Route path="/contact" element={<ContactUs />} />
-              
-              {/* Public user profiles - no authentication required */}
-              <Route path="/user/:id" element={<UserProfile />} />
-              
-              {/* Protected Routes */}
-              <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
-              <Route path="/create-listing" element={<ProtectedRoute><CreateListing /></ProtectedRoute>} />
-              <Route path="/checkout/:id" element={<ProtectedRoute><Checkout /></ProtectedRoute>} />
-              <Route path="/activity" element={<ProtectedRoute><ActivityLog /></ProtectedRoute>} />
-              <Route path="/report" element={<ProtectedRoute><ReportForm /></ProtectedRoute>} />
-              <Route path="/notifications" element={<ProtectedRoute><Notifications /></ProtectedRoute>} />
-              
-              {/* Admin Routes */}
-              <Route path="/admin" element={<AdminProtectedRoute><Admin /></AdminProtectedRoute>} />
-              <Route path="/admin/reports" element={<AdminProtectedRoute><AdminReports /></AdminProtectedRoute>} />
-              
-              <Route 
-                path="/edit-book/:id" 
-                element={
-                  <ProtectedRoute>
-                    <EditBook />
-                  </ProtectedRoute>
-                } 
-              />
-              
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </div>
-          <Toaster />
-        </Router>
-      </AuthProvider>
-    </QueryClient>
+    <AuthProvider>
+      <Router>
+        <ScrollToTop />
+        <div className="min-h-screen bg-gray-50">
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/books" element={<BookListing />} />
+            <Route path="/books/:id" element={<BookDetails />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/confirm" element={<Confirm />} />
+            <Route path="/faq" element={<FAQ />} />
+            <Route path="/terms" element={<Terms />} />
+            <Route path="/privacy" element={<Privacy />} />
+            <Route path="/contact" element={<ContactUs />} />
+            
+            {/* Public user profiles - no authentication required */}
+            <Route path="/user/:id" element={<UserProfile />} />
+            
+            {/* Protected Routes */}
+            <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+            <Route path="/create-listing" element={<ProtectedRoute><CreateListing /></ProtectedRoute>} />
+            <Route path="/checkout/:id" element={<ProtectedRoute><Checkout /></ProtectedRoute>} />
+            <Route path="/activity" element={<ProtectedRoute><ActivityLog /></ProtectedRoute>} />
+            <Route path="/report" element={<ProtectedRoute><ReportForm /></ProtectedRoute>} />
+            <Route path="/notifications" element={<ProtectedRoute><Notifications /></ProtectedRoute>} />
+            
+            {/* Admin Routes */}
+            <Route path="/admin" element={<AdminProtectedRoute><Admin /></AdminProtectedRoute>} />
+            <Route path="/admin/reports" element={<AdminProtectedRoute><AdminReports /></AdminProtectedRoute>} />
+            
+            <Route 
+              path="/edit-book/:id" 
+              element={
+                <ProtectedRoute>
+                  <EditBook />
+                </ProtectedRoute>
+              } 
+            />
+            
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </div>
+        <Toaster />
+      </Router>
+    </AuthProvider>
   );
 }
 

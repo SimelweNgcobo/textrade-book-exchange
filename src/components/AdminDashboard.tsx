@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -44,7 +45,7 @@ import {
   getAllListings, 
   updateUserStatus,
   deleteBookListing,
-  sendBroadcastMessage,
+  sendBroadcastMessage as sendBroadcastMessageService,
   AdminStats as AdminStatsType
 } from '@/services/adminService';
 
@@ -65,7 +66,7 @@ interface BookListing {
   author: string;
   category: string;
   price: number;
-  status: 'active' | 'pending' | 'sold' | 'rejected';
+  status: 'active' | 'sold' | 'pending';
   user: string;
   createdAt: string;
   images: string[];
@@ -95,16 +96,8 @@ const AdminDashboard = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [listings, setListings] = useState<BookListing[]>([]);
   const [adminActions, setAdminActions] = useState<AdminAction[]>([]);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedUser, setSelectedUser] = useState<User | null>(null);
-  const [selectedListing, setSelectedListing] = useState<BookListing | null>(null);
-  const [isUserDialogOpen, setIsUserDialogOpen] = useState(false);
-  const [isListingDialogOpen, setIsListingDialogOpen] = useState(false);
-  const [isImageViewerOpen, setIsImageViewerOpen] = useState(false);
-  const [selectedImages, setSelectedImages] = useState<string[]>([]);
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [broadcastMessage, setBroadcastMessage] = useState('');
   const [isLoading, setIsLoading] = useState(true);
+  const [broadcastMessage, setBroadcastMessage] = useState('');
 
   useEffect(() => {
     loadDashboardData();
@@ -149,102 +142,46 @@ const AdminDashboard = () => {
     }
   };
 
-  const handleUserAction = async (userId: string, action: 'suspend' | 'reactivate' | 'reset-password') => {
+  const handleUserAction = async (userId: string, action: 'suspend' | 'activate') => {
     try {
-      const user = users.find(u => u.id === userId);
-      if (!user) return;
-
-      let message = '';
-      switch (action) {
-        case 'suspend':
-          user.status = 'suspended';
-          message = `User ${user.name} has been suspended`;
-          break;
-        case 'reactivate':
-          user.status = 'active';
-          message = `User ${user.name} has been reactivated`;
-          break;
-        case 'reset-password':
-          message = `Password reset email sent to ${user.email}`;
-          break;
-      }
-
-      setUsers([...users]);
-      toast.success(message);
+      const status = action === 'suspend' ? 'suspended' : 'active';
+      await updateUserStatus(userId, status);
       
-      // Log admin action
-      const newAction: AdminAction = {
-        id: Date.now().toString(),
-        action: action === 'reset-password' ? 'Password Reset' : action === 'suspend' ? 'User Suspended' : 'User Reactivated',
-        target: user.email,
-        admin: 'Current Admin',
-        timestamp: new Date().toISOString(),
-        details: message
-      };
-      setAdminActions([newAction, ...adminActions]);
+      // Update local state
+      setUsers(users.map(user => 
+        user.id === userId ? { ...user, status } : user
+      ));
+      
+      toast.success(`User ${action}d successfully`);
+      loadDashboardData(); // Reload to update admin actions
     } catch (error) {
-      console.error('Error performing user action:', error);
-      toast.error('Failed to perform action');
+      console.error(`Error ${action}ing user:`, error);
+      toast.error(`Failed to ${action} user`);
     }
   };
 
-  const handleListingAction = async (listingId: string, action: 'approve' | 'reject' | 'delete') => {
+  const handleListingAction = async (listingId: string, action: 'delete') => {
     try {
-      const listing = listings.find(l => l.id === listingId);
-      if (!listing) return;
-
-      let message = '';
-      switch (action) {
-        case 'approve':
-          listing.status = 'active';
-          message = `Listing "${listing.title}" has been approved`;
-          break;
-        case 'reject':
-          listing.status = 'rejected';
-          message = `Listing "${listing.title}" has been rejected`;
-          break;
-        case 'delete':
-          setListings(listings.filter(l => l.id !== listingId));
-          message = `Listing "${listing.title}" has been deleted`;
-          break;
+      if (action === 'delete') {
+        await deleteBookListing(listingId);
+        setListings(listings.filter(listing => listing.id !== listingId));
+        toast.success('Listing deleted successfully');
       }
-
-      if (action !== 'delete') {
-        setListings([...listings]);
-      }
-      
-      toast.success(message);
-      
-      // Log admin action
-      const newAction: AdminAction = {
-        id: Date.now().toString(),
-        action: `Listing ${action === 'delete' ? 'Deleted' : action === 'approve' ? 'Approved' : 'Rejected'}`,
-        target: listing.title,
-        admin: 'Current Admin',
-        timestamp: new Date().toISOString(),
-        details: message
-      };
-      setAdminActions([newAction, ...adminActions]);
+      loadDashboardData(); // Reload to update admin actions
     } catch (error) {
-      console.error('Error performing listing action:', error);
-      toast.error('Failed to perform action');
+      console.error(`Error ${action}ing listing:`, error);
+      toast.error(`Failed to ${action} listing`);
     }
   };
 
-  const handleViewImages = (images: string[], startIndex: number = 0) => {
-    setSelectedImages(images);
-    setCurrentImageIndex(startIndex);
-    setIsImageViewerOpen(true);
-  };
-
-  const sendBroadcastMessage = async () => {
+  const handleSendBroadcast = async () => {
     if (!broadcastMessage.trim()) {
       toast.error('Please enter a message');
       return;
     }
 
     try {
-      await sendBroadcastMessage(broadcastMessage);
+      await sendBroadcastMessageService(broadcastMessage);
       toast.success(`Broadcast message sent to all ${stats.totalUsers} users`);
       setBroadcastMessage('');
       
@@ -255,28 +192,6 @@ const AdminDashboard = () => {
       toast.error('Failed to send broadcast message');
     }
   };
-
-  const getStatusBadge = (status: string) => {
-    const variants: Record<string, "default" | "secondary" | "destructive" | "outline"> = {
-      active: "default",
-      pending: "secondary",
-      suspended: "destructive",
-      rejected: "destructive",
-      sold: "outline"
-    };
-    return <Badge variant={variants[status] || "default"}>{status}</Badge>;
-  };
-
-  const filteredUsers = users.filter(user =>
-    user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.email.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  const filteredListings = listings.filter(listing =>
-    listing.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    listing.author.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    listing.user.toLowerCase().includes(searchTerm.toLowerCase())
-  );
 
   if (isLoading) {
     return (
@@ -377,174 +292,15 @@ const AdminDashboard = () => {
       </div>
 
       {/* Main Admin Tabs */}
-      <Tabs defaultValue="users" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-6">
-          <TabsTrigger value="users">User Management</TabsTrigger>
-          <TabsTrigger value="listings">Book Listings</TabsTrigger>
+      <Tabs defaultValue="earnings" className="space-y-4">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="earnings">Earnings</TabsTrigger>
-          <TabsTrigger value="reports">Reports</TabsTrigger>
-          <TabsTrigger value="analytics">Analytics</TabsTrigger>
-          <TabsTrigger value="settings">Site Settings</TabsTrigger>
+          <TabsTrigger value="users">Users</TabsTrigger>
+          <TabsTrigger value="listings">Listings</TabsTrigger>
+          <TabsTrigger value="settings">Settings</TabsTrigger>
         </TabsList>
 
-        {/* User Management Tab */}
-        <TabsContent value="users" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>User Management</CardTitle>
-              <CardDescription>Manage all registered users</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center space-x-2 mb-4">
-                <Search className="h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Search users by name or email..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="max-w-sm"
-                />
-              </div>
-
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>User</TableHead>
-                    <TableHead>Email</TableHead>
-                    <TableHead>Join Date</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Listings</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredUsers.map((user) => (
-                    <TableRow key={user.id}>
-                      <TableCell className="font-medium">{user.name}</TableCell>
-                      <TableCell>{user.email}</TableCell>
-                      <TableCell>{new Date(user.joinDate).toLocaleDateString()}</TableCell>
-                      <TableCell>{getStatusBadge(user.status)}</TableCell>
-                      <TableCell>{user.listingsCount}</TableCell>
-                      <TableCell className="text-right space-x-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => {
-                            setSelectedUser(user);
-                            setIsUserDialogOpen(true);
-                          }}
-                        >
-                          <Eye className="h-4 w-4" />
-                        </Button>
-                        {user.status === 'active' ? (
-                          <Button
-                            variant="destructive"
-                            size="sm"
-                            onClick={() => handleUserAction(user.id, 'suspend')}
-                          >
-                            <UserX className="h-4 w-4" />
-                          </Button>
-                        ) : (
-                          <Button
-                            variant="default"
-                            size="sm"
-                            onClick={() => handleUserAction(user.id, 'reactivate')}
-                          >
-                            <CheckCircle className="h-4 w-4" />
-                          </Button>
-                        )}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        {/* Book Listings Tab */}
-        <TabsContent value="listings" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Book Listings Management</CardTitle>
-              <CardDescription>All listings are auto-approved and go live immediately</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center space-x-2 mb-4">
-                <Search className="h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Search listings by title, author, or user..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="max-w-sm"
-                />
-              </div>
-
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Book</TableHead>
-                    <TableHead>Author</TableHead>
-                    <TableHead>Category</TableHead>
-                    <TableHead>Price</TableHead>
-                    <TableHead>User</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Created</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredListings.map((listing) => (
-                    <TableRow key={listing.id}>
-                      <TableCell className="font-medium">{listing.title}</TableCell>
-                      <TableCell>{listing.author}</TableCell>
-                      <TableCell>{listing.category}</TableCell>
-                      <TableCell>R{listing.price}</TableCell>
-                      <TableCell>{listing.user}</TableCell>
-                      <TableCell>{getStatusBadge(listing.status)}</TableCell>
-                      <TableCell>{new Date(listing.createdAt).toLocaleDateString()}</TableCell>
-                      <TableCell className="text-right space-x-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleViewImages(listing.images)}
-                        >
-                          <Eye className="h-4 w-4" />
-                        </Button>
-                        {listing.status === 'pending' && (
-                          <>
-                            <Button
-                              variant="default"
-                              size="sm"
-                              onClick={() => handleListingAction(listing.id, 'approve')}
-                            >
-                              <CheckCircle className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              variant="secondary"
-                              size="sm"
-                              onClick={() => handleListingAction(listing.id, 'reject')}
-                            >
-                              <XCircle className="h-4 w-4" />
-                            </Button>
-                          </>
-                        )}
-                        <Button
-                          variant="destructive"
-                          size="sm"
-                          onClick={() => handleListingAction(listing.id, 'delete')}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        {/* New Earnings Tab */}
+        {/* Earnings Tab */}
         <TabsContent value="earnings" className="space-y-4">
           <Card>
             <CardHeader>
@@ -585,66 +341,115 @@ const AdminDashboard = () => {
           </Card>
         </TabsContent>
 
-        {/* Reports Tab */}
-        <TabsContent value="reports" className="space-y-4">
+        {/* Users Tab */}
+        <TabsContent value="users" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Reported Issues</CardTitle>
-              <CardDescription>Review and manage reported content</CardDescription>
+              <CardTitle>User Management</CardTitle>
+              <CardDescription>Manage registered users and their accounts</CardDescription>
             </CardHeader>
             <CardContent>
-              <p className="text-muted-foreground">
-                You can access detailed reports in the{' '}
-                <Button
-                  variant="link"
-                  className="p-0 h-auto"
-                  onClick={() => window.location.href = '/admin/reports'}
-                >
-                  Admin Reports section
-                </Button>
-              </p>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        {/* Analytics Tab */}
-        <TabsContent value="analytics" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Analytics & Logs</CardTitle>
-              <CardDescription>View site trends and admin activity</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <h4 className="text-sm font-medium">Recent Admin Actions</h4>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Action</TableHead>
-                      <TableHead>Target</TableHead>
-                      <TableHead>Admin</TableHead>
-                      <TableHead>Timestamp</TableHead>
-                      <TableHead>Details</TableHead>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Name</TableHead>
+                    <TableHead>Email</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Listings</TableHead>
+                    <TableHead>Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {users.map((user) => (
+                    <TableRow key={user.id}>
+                      <TableCell>{user.name}</TableCell>
+                      <TableCell>{user.email}</TableCell>
+                      <TableCell>
+                        <Badge variant={user.status === 'active' ? 'default' : 'destructive'}>
+                          {user.status}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>{user.listingsCount}</TableCell>
+                      <TableCell>
+                        <div className="flex space-x-2">
+                          {user.status === 'active' ? (
+                            <Button
+                              size="sm"
+                              variant="destructive"
+                              onClick={() => handleUserAction(user.id, 'suspend')}
+                            >
+                              <UserX className="h-4 w-4" />
+                            </Button>
+                          ) : (
+                            <Button
+                              size="sm"
+                              variant="default"
+                              onClick={() => handleUserAction(user.id, 'activate')}
+                            >
+                              <CheckCircle className="h-4 w-4" />
+                            </Button>
+                          )}
+                        </div>
+                      </TableCell>
                     </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {adminActions.map((action) => (
-                      <TableRow key={action.id}>
-                        <TableCell className="font-medium">{action.action}</TableCell>
-                        <TableCell>{action.target}</TableCell>
-                        <TableCell>{action.admin}</TableCell>
-                        <TableCell>{new Date(action.timestamp).toLocaleString()}</TableCell>
-                        <TableCell>{action.details}</TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
+                  ))}
+                </TableBody>
+              </Table>
             </CardContent>
           </Card>
         </TabsContent>
 
-        {/* Site Settings Tab */}
+        {/* Listings Tab */}
+        <TabsContent value="listings" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Book Listings Management</CardTitle>
+              <CardDescription>All listings are auto-approved and go live immediately</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Title</TableHead>
+                    <TableHead>Author</TableHead>
+                    <TableHead>Price</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Seller</TableHead>
+                    <TableHead>Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {listings.map((listing) => (
+                    <TableRow key={listing.id}>
+                      <TableCell>{listing.title}</TableCell>
+                      <TableCell>{listing.author}</TableCell>
+                      <TableCell>R{listing.price}</TableCell>
+                      <TableCell>
+                        <Badge variant={listing.status === 'active' ? 'default' : 'secondary'}>
+                          {listing.status}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>{listing.user}</TableCell>
+                      <TableCell>
+                        <div className="flex space-x-2">
+                          <Button
+                            size="sm"
+                            variant="destructive"
+                            onClick={() => handleListingAction(listing.id, 'delete')}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Settings Tab */}
         <TabsContent value="settings" className="space-y-4">
           <Card>
             <CardHeader>
@@ -664,7 +469,7 @@ const AdminDashboard = () => {
                     onChange={(e) => setBroadcastMessage(e.target.value)}
                     className="flex-1"
                   />
-                  <Button onClick={sendBroadcastMessage}>
+                  <Button onClick={handleSendBroadcast}>
                     <MessageSquare className="h-4 w-4 mr-2" />
                     Send
                   </Button>
@@ -696,78 +501,6 @@ const AdminDashboard = () => {
           </Card>
         </TabsContent>
       </Tabs>
-
-      {/* Image Viewer Dialog */}
-      <Dialog open={isImageViewerOpen} onOpenChange={setIsImageViewerOpen}>
-        <DialogContent className="max-w-4xl">
-          <DialogHeader>
-            <DialogTitle>Listing Images</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            {selectedImages.length > 0 && (
-              <div className="text-center">
-                <img
-                  src={selectedImages[currentImageIndex]}
-                  alt={`Image ${currentImageIndex + 1}`}
-                  className="max-w-full max-h-[60vh] mx-auto rounded-lg"
-                />
-                <div className="mt-4 flex justify-center space-x-2">
-                  {selectedImages.map((_, index) => (
-                    <Button
-                      key={index}
-                      variant={index === currentImageIndex ? "default" : "outline"}
-                      size="sm"
-                      onClick={() => setCurrentImageIndex(index)}
-                    >
-                      {index + 1}
-                    </Button>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      {/* User Details Dialog */}
-      <Dialog open={isUserDialogOpen} onOpenChange={setIsUserDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>User Details</DialogTitle>
-          </DialogHeader>
-          {selectedUser && (
-            <div className="space-y-4">
-              <div>
-                <strong>Name:</strong> {selectedUser.name}
-              </div>
-              <div>
-                <strong>Email:</strong> {selectedUser.email}
-              </div>
-              <div>
-                <strong>Join Date:</strong> {new Date(selectedUser.joinDate).toLocaleDateString()}
-              </div>
-              <div>
-                <strong>Status:</strong> {getStatusBadge(selectedUser.status)}
-              </div>
-              <div>
-                <strong>Total Listings:</strong> {selectedUser.listingsCount}
-              </div>
-            </div>
-          )}
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsUserDialogOpen(false)}>
-              Close
-            </Button>
-            {selectedUser && (
-              <Button
-                onClick={() => handleUserAction(selectedUser.id, 'reset-password')}
-              >
-                Reset Password
-              </Button>
-            )}
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 };
