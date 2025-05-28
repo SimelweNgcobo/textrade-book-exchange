@@ -1,18 +1,35 @@
 
-import React from 'react';
+import { ReactNode } from 'react';
 import Navbar from './Navbar';
 import Footer from './Footer';
+import { Toaster } from '@/components/ui/sonner';
+import BroadcastPopup from './BroadcastPopup';
+import { useBroadcastMessages } from '@/hooks/useBroadcastMessages';
 
 interface LayoutProps {
-  children: React.ReactNode;
+  children: ReactNode;
 }
 
-const Layout: React.FC<LayoutProps> = ({ children }) => {
+const Layout = ({ children }: LayoutProps) => {
+  const { pendingMessage, showPopup, closePopup } = useBroadcastMessages();
+
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="min-h-screen flex flex-col">
       <Navbar />
-      <main className="flex-grow">{children}</main>
+      <main className="flex-1">
+        {children}
+      </main>
       <Footer />
+      <Toaster />
+      
+      {/* Broadcast Message Popup */}
+      {pendingMessage && (
+        <BroadcastPopup
+          message={pendingMessage}
+          isOpen={showPopup}
+          onClose={closePopup}
+        />
+      )}
     </div>
   );
 };

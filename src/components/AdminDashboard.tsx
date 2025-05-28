@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -19,7 +18,8 @@ import {
   UserX,
   CheckCircle,
   XCircle,
-  Search
+  Search,
+  DollarSign
 } from 'lucide-react';
 import { 
   Table, 
@@ -38,15 +38,17 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { toast } from 'sonner';
+import { 
+  getAdminStats, 
+  getAllUsers, 
+  getAllListings, 
+  updateUserStatus,
+  deleteBookListing,
+  sendBroadcastMessage,
+  AdminStats as AdminStatsType
+} from '@/services/adminService';
 
-interface DashboardStats {
-  totalUsers: number;
-  activeListings: number;
-  booksSold: number;
-  reportedIssues: number;
-  newUsersThisWeek: number;
-  salesThisMonth: number;
-}
+interface DashboardStats extends AdminStatsType {}
 
 interface User {
   id: string;
@@ -85,7 +87,9 @@ const AdminDashboard = () => {
     booksSold: 0,
     reportedIssues: 0,
     newUsersThisWeek: 0,
-    salesThisMonth: 0
+    salesThisMonth: 0,
+    weeklyCommission: 0,
+    monthlyCommission: 0
   });
 
   const [users, setUsers] = useState<User[]>([]);
@@ -109,60 +113,16 @@ const AdminDashboard = () => {
   const loadDashboardData = async () => {
     setIsLoading(true);
     try {
-      // Mock data - in real implementation, fetch from API
-      setStats({
-        totalUsers: 1247,
-        activeListings: 342,
-        booksSold: 128,
-        reportedIssues: 7,
-        newUsersThisWeek: 23,
-        salesThisMonth: 45
-      });
+      const adminStats = await getAdminStats();
+      setStats(adminStats);
 
-      setUsers([
-        {
-          id: '1',
-          name: 'John Doe',
-          email: 'john@example.com',
-          joinDate: '2025-01-15',
-          status: 'active',
-          listingsCount: 5
-        },
-        {
-          id: '2',
-          name: 'Jane Smith',
-          email: 'jane@example.com',
-          joinDate: '2025-01-10',
-          status: 'suspended',
-          listingsCount: 2
-        }
-      ]);
+      const users = await getAllUsers();
+      setUsers(users);
 
-      setListings([
-        {
-          id: '1',
-          title: 'Calculus Textbook',
-          author: 'James Stewart',
-          category: 'Mathematics',
-          price: 120,
-          status: 'active',
-          user: 'John Doe',
-          createdAt: '2025-01-20',
-          images: ['image1.jpg', 'image2.jpg', 'image3.jpg']
-        },
-        {
-          id: '2',
-          title: 'Physics 101',
-          author: 'Halliday',
-          category: 'Science',
-          price: 85,
-          status: 'pending',
-          user: 'Jane Smith',
-          createdAt: '2025-01-18',
-          images: ['image4.jpg', 'image5.jpg']
-        }
-      ]);
+      const listings = await getAllListings();
+      setListings(listings);
 
+      // Mock admin actions
       setAdminActions([
         {
           id: '1',
@@ -174,11 +134,11 @@ const AdminDashboard = () => {
         },
         {
           id: '2',
-          action: 'Listing Deleted',
+          action: 'Listing Auto-Approved',
           target: 'Physics Textbook',
-          admin: 'Admin User',
+          admin: 'System',
           timestamp: '2025-01-19T15:45:00Z',
-          details: 'Deleted inappropriate listing'
+          details: 'Listing automatically approved upon upload'
         }
       ]);
     } catch (error) {
@@ -191,7 +151,6 @@ const AdminDashboard = () => {
 
   const handleUserAction = async (userId: string, action: 'suspend' | 'reactivate' | 'reset-password') => {
     try {
-      // In real implementation, call API
       const user = users.find(u => u.id === userId);
       if (!user) return;
 
@@ -285,20 +244,12 @@ const AdminDashboard = () => {
     }
 
     try {
-      // In real implementation, call API to send broadcast
+      await sendBroadcastMessage(broadcastMessage);
       toast.success(`Broadcast message sent to all ${stats.totalUsers} users`);
       setBroadcastMessage('');
       
-      // Log admin action
-      const newAction: AdminAction = {
-        id: Date.now().toString(),
-        action: 'Broadcast Message Sent',
-        target: 'All Users',
-        admin: 'Current Admin',
-        timestamp: new Date().toISOString(),
-        details: `Message: ${broadcastMessage.substring(0, 50)}...`
-      };
-      setAdminActions([newAction, ...adminActions]);
+      // Reload admin actions to show the broadcast
+      loadDashboardData();
     } catch (error) {
       console.error('Error sending broadcast:', error);
       toast.error('Failed to send broadcast message');
@@ -360,7 +311,7 @@ const AdminDashboard = () => {
           <CardContent>
             <div className="text-2xl font-bold">{stats.activeListings}</div>
             <p className="text-xs text-muted-foreground">
-              Books available for sale
+              Auto-approved instantly
             </p>
           </CardContent>
         </Card>
@@ -392,11 +343,45 @@ const AdminDashboard = () => {
         </Card>
       </div>
 
+      {/* Commission Earnings Section */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Weekly Commission</CardTitle>
+            <DollarSign className="h-4 w-4 text-green-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-green-600">
+              R{stats.weeklyCommission.toFixed(2)}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Last 7 days
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Monthly Commission</CardTitle>
+            <DollarSign className="h-4 w-4 text-green-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-green-600">
+              R{stats.monthlyCommission.toFixed(2)}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Last 30 days
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+
       {/* Main Admin Tabs */}
       <Tabs defaultValue="users" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="grid w-full grid-cols-6">
           <TabsTrigger value="users">User Management</TabsTrigger>
           <TabsTrigger value="listings">Book Listings</TabsTrigger>
+          <TabsTrigger value="earnings">Earnings</TabsTrigger>
           <TabsTrigger value="reports">Reports</TabsTrigger>
           <TabsTrigger value="analytics">Analytics</TabsTrigger>
           <TabsTrigger value="settings">Site Settings</TabsTrigger>
@@ -481,7 +466,7 @@ const AdminDashboard = () => {
           <Card>
             <CardHeader>
               <CardTitle>Book Listings Management</CardTitle>
-              <CardDescription>View and manage all book listings</CardDescription>
+              <CardDescription>All listings are auto-approved and go live immediately</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="flex items-center space-x-2 mb-4">
@@ -559,6 +544,47 @@ const AdminDashboard = () => {
           </Card>
         </TabsContent>
 
+        {/* New Earnings Tab */}
+        <TabsContent value="earnings" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Commission Earnings</CardTitle>
+              <CardDescription>Track your earnings from book sales</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-4">
+                  <h4 className="text-lg font-semibold">Weekly Summary</h4>
+                  <div className="bg-green-50 p-4 rounded-lg">
+                    <div className="text-3xl font-bold text-green-600">
+                      R{stats.weeklyCommission.toFixed(2)}
+                    </div>
+                    <p className="text-sm text-gray-600">Commission earned this week</p>
+                  </div>
+                </div>
+                
+                <div className="space-y-4">
+                  <h4 className="text-lg font-semibold">Monthly Summary</h4>
+                  <div className="bg-blue-50 p-4 rounded-lg">
+                    <div className="text-3xl font-bold text-blue-600">
+                      R{stats.monthlyCommission.toFixed(2)}
+                    </div>
+                    <p className="text-sm text-gray-600">Commission earned this month</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="mt-6 p-4 bg-gray-50 rounded-lg">
+                <h5 className="font-medium mb-2">Commission Rate</h5>
+                <p className="text-sm text-gray-600">
+                  You earn a commission on every book sold through the platform. 
+                  Commission rates may vary based on book category and price.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
         {/* Reports Tab */}
         <TabsContent value="reports" className="space-y-4">
           <Card>
@@ -628,6 +654,9 @@ const AdminDashboard = () => {
             <CardContent className="space-y-6">
               <div>
                 <h4 className="text-sm font-medium mb-2">Broadcast Message</h4>
+                <p className="text-xs text-gray-500 mb-2">
+                  Messages will appear as pop-ups for offline users and notifications for active users
+                </p>
                 <div className="flex space-x-2">
                   <Input
                     placeholder="Enter message to send to all users..."
@@ -643,13 +672,11 @@ const AdminDashboard = () => {
               </div>
 
               <div>
-                <h4 className="text-sm font-medium mb-2">Feature Controls</h4>
+                <h4 className="text-sm font-medium mb-2">Listing Settings</h4>
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <span>Allow new listings</span>
-                    <Button variant="outline" size="sm">
-                      <Settings className="h-4 w-4" />
-                    </Button>
+                    <span>Auto-approve new listings</span>
+                    <Badge variant="default">Enabled</Badge>
                   </div>
                   <div className="flex items-center justify-between">
                     <span>User registration</span>

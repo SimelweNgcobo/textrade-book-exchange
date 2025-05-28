@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 
 export interface AdminStats {
@@ -8,6 +7,8 @@ export interface AdminStats {
   reportedIssues: number;
   newUsersThisWeek: number;
   salesThisMonth: number;
+  weeklyCommission: number;
+  monthlyCommission: number;
 }
 
 export interface AdminUser {
@@ -59,15 +60,37 @@ export const getAdminStats = async (): Promise<AdminStats> => {
       .select('*', { count: 'exact', head: true })
       .eq('sold', true);
 
-    // For now, using mock data for some metrics
-    // In a real implementation, you would have proper tables for these
+    // Calculate weekly commission (last 7 days)
+    const weekAgo = new Date();
+    weekAgo.setDate(weekAgo.getDate() - 7);
+    
+    const { data: weeklyTransactions } = await supabase
+      .from('transactions')
+      .select('commission')
+      .gte('created_at', weekAgo.toISOString());
+
+    const weeklyCommission = weeklyTransactions?.reduce((sum, t) => sum + Number(t.commission), 0) || 0;
+
+    // Calculate monthly commission (last 30 days)
+    const monthAgo = new Date();
+    monthAgo.setDate(monthAgo.getDate() - 30);
+    
+    const { data: monthlyTransactions } = await supabase
+      .from('transactions')
+      .select('commission')
+      .gte('created_at', monthAgo.toISOString());
+
+    const monthlyCommission = monthlyTransactions?.reduce((sum, t) => sum + Number(t.commission), 0) || 0;
+
     return {
       totalUsers: totalUsers || 0,
       activeListings: activeListings || 0,
       booksSold: booksSold || 0,
       reportedIssues: 7, // Mock data
       newUsersThisWeek: 23, // Mock data
-      salesThisMonth: 45 // Mock data
+      salesThisMonth: 45, // Mock data
+      weeklyCommission,
+      monthlyCommission
     };
   } catch (error) {
     console.error('Error fetching admin stats:', error);
@@ -135,6 +158,7 @@ export const getAllListings = async (): Promise<AdminListing[]> => {
           author: book.author,
           category: book.category,
           price: book.price,
+          // Auto-approve: all listings are active unless sold
           status: book.sold ? 'sold' as const : 'active' as const,
           user: profile?.name || 'Unknown',
           createdAt: book.created_at,
@@ -218,9 +242,17 @@ export const logAdminAction = async (action: Omit<AdminAction, 'id' | 'timestamp
 
 export const sendBroadcastMessage = async (message: string): Promise<void> => {
   try {
-    // Note: You would implement email/notification service here
-    // For now, we'll just log the action
-    console.log('Broadcast message sent:', message);
+    // Get all users to send notifications to
+    const { data: profiles } = await supabase
+      .from('profiles')
+      .select('id');
+
+    if (profiles) {
+      // Add broadcast notification to each user
+      for (const profile of profiles) {
+        await addBroadcastNotification(profile.id, message);
+      }
+    }
     
     await logAdminAction({
       action: 'Broadcast Message Sent',
@@ -228,8 +260,42 @@ export const sendBroadcastMessage = async (message: string): Promise<void> => {
       admin: 'Current Admin',
       details: `Message: ${message.substring(0, 50)}...`
     });
+
+    // Trigger real-time notification for active users
+    await supabase
+      .channel('broadcast-messages')
+      .send({
+        type: 'broadcast',
+        event: 'new_message',
+        payload: { message }
+      });
+
   } catch (error) {
     console.error('Error sending broadcast message:', error);
     throw error;
   }
+};
+
+const addBroadcastNotification = async (userId: string, message: string): Promise<void> => {
+  // This would add to notifications - using the existing notification service pattern
+  const notification = {
+    userId,
+    title: 'Broadcast Message',
+    message,
+    type: 'info' as const,
+    read: false
+  };
+
+  // Store in localStorage for now (in real app, this would be in database)
+  const stored = localStorage.getItem('rebooked_notifications');
+  const allNotifications = stored ? JSON.parse(stored) : [];
+  
+  const newNotification = {
+    ...notification,
+    id: `broadcast_${Date.now()}_${Math.random()}`,
+    createdAt: new Date().toISOString()
+  };
+  
+  allNotifications.push(newNotification);
+  localStorage.setItem('rebooked_notifications', JSON.stringify(allNotifications));
 };

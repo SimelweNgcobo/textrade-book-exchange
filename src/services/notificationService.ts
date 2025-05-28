@@ -10,6 +10,7 @@ interface Notification {
 }
 
 const NOTIFICATIONS_KEY = 'rebooked_notifications';
+const BROADCAST_QUEUE_KEY = 'broadcastQueue';
 
 export const getNotifications = (userId: string): Notification[] => {
   const stored = localStorage.getItem(NOTIFICATIONS_KEY);
@@ -50,4 +51,24 @@ export const sendBookRemovalNotification = (userId: string, bookTitle: string): 
     type: 'warning',
     read: false
   });
+};
+
+// New function to queue broadcast messages for offline users
+export const queueBroadcastMessage = (message: string): void => {
+  const queue = JSON.parse(localStorage.getItem(BROADCAST_QUEUE_KEY) || '[]');
+  queue.push({
+    message,
+    timestamp: new Date().toISOString()
+  });
+  localStorage.setItem(BROADCAST_QUEUE_KEY, JSON.stringify(queue));
+};
+
+// Function to clear old broadcast messages from queue (after they've been shown as popups)
+export const clearOldBroadcastMessages = (): void => {
+  const oneDayAgo = new Date();
+  oneDayAgo.setDate(oneDayAgo.getDate() - 1);
+  
+  const queue = JSON.parse(localStorage.getItem(BROADCAST_QUEUE_KEY) || '[]');
+  const filtered = queue.filter((msg: any) => new Date(msg.timestamp) > oneDayAgo);
+  localStorage.setItem(BROADCAST_QUEUE_KEY, JSON.stringify(filtered));
 };
