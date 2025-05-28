@@ -5,18 +5,19 @@ export interface Book {
   author: string;
   description: string;
   price: number;
-  condition: 'New' | 'Good' | 'Better' | 'Average' | 'Below Average';
   category: string;
-  grade?: string; // For school books
-  universityYear?: '1st Year' | '2nd Year' | '3rd Year' | '4th Year' | 'Masters' | 'Doctorate' | null; // For university books
+  condition: "New" | "Good" | "Better" | "Average" | "Below Average";
   imageUrl: string;
+  frontCover?: string;
+  backCover?: string;
+  insidePages?: string;
+  sold: boolean;
+  createdAt: string;
+  grade?: string;
+  universityYear?: string;
   seller: {
     id: string;
     name: string;
     email: string;
   };
-  createdAt: string;
-  sold: boolean;
 }
-
-export type BookFormData = Omit<Book, 'id' | 'seller' | 'createdAt' | 'sold'>;

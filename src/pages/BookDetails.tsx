@@ -8,13 +8,13 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/contexts/AuthContext';
 import { ArrowLeft, BookOpen, Check, Calendar, User } from 'lucide-react';
+import BookImageCarousel from '@/components/BookImageCarousel';
 
 const BookDetails = () => {
   const { id } = useParams<{ id: string }>();
   const [book, setBook] = useState<Book | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
-  const [imageError, setImageError] = useState(false);
   const navigate = useNavigate();
   const { user, isAuthenticated } = useAuth();
 
@@ -53,10 +53,6 @@ const BookDetails = () => {
     }
   };
 
-  const handleImageError = () => {
-    setImageError(true);
-  };
-
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('en-US', {
@@ -64,13 +60,6 @@ const BookDetails = () => {
       month: 'long',
       day: 'numeric'
     });
-  };
-
-  const getImageSrc = () => {
-    if (imageError || !book?.imageUrl) {
-      return `https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=500&h=600&fit=crop`;
-    }
-    return book.imageUrl;
   };
 
   if (isLoading) {
@@ -114,13 +103,15 @@ const BookDetails = () => {
 
         <div className="bg-white rounded-lg shadow-md overflow-hidden">
           <div className="md:flex">
-            {/* Book Image */}
-            <div className="md:w-1/2 lg:w-2/5 p-6 flex justify-center">
-              <img
-                src={getImageSrc()}
-                alt={book.title}
-                className="rounded-lg shadow-md object-cover max-h-[500px] w-auto"
-                onError={handleImageError}
+            {/* Book Image Carousel */}
+            <div className="md:w-1/2 lg:w-2/5 p-6">
+              <BookImageCarousel
+                images={{
+                  frontCover: book.frontCover,
+                  backCover: book.backCover,
+                  insidePages: book.insidePages
+                }}
+                bookTitle={book.title}
               />
             </div>
 

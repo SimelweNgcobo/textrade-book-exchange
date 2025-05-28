@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
@@ -110,6 +109,10 @@ const Profile = () => {
 
   const handleUpdateAddresses = () => {
     setActiveTab('addresses');
+  };
+
+  const handleEditBook = (bookId: string) => {
+    navigate(`/edit-book/${bookId}`);
   };
 
   if (!user || !profile) {
@@ -248,6 +251,7 @@ const Profile = () => {
                                       variant="link" 
                                       size="sm"
                                       className="p-0 h-auto text-book-600"
+                                      onClick={() => handleEditBook(book.id)}
                                     >
                                       <Edit className="h-3 w-3 mr-1" />
                                       Edit
