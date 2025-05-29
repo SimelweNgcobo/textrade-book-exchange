@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import Layout from '@/components/Layout';
@@ -34,7 +33,7 @@ const Profile = () => {
   // Convert profile to userData format expected by ProfileHeader
   const userData = {
     name: profile.name || 'Anonymous User',
-    joinDate: profile.created_at || new Date().toISOString(),
+    joinDate: new Date().toISOString(), // Use current date as fallback since created_at doesn't exist on Profile
     rating: 4.5,
     isVerified: false,
     successfulDeliveries: 0
