@@ -9,6 +9,23 @@ interface BroadcastMessage {
   id: string;
 }
 
+// Unicode-safe hash function
+const createMessageHash = (message: string): string => {
+  try {
+    // Use encodeURIComponent to handle Unicode characters, then btoa
+    return btoa(encodeURIComponent(message)).substring(0, 10);
+  } catch (error) {
+    // Fallback: create a simple hash from character codes
+    let hash = 0;
+    for (let i = 0; i < message.length; i++) {
+      const char = message.charCodeAt(i);
+      hash = ((hash << 5) - hash) + char;
+      hash = hash & hash; // Convert to 32-bit integer
+    }
+    return Math.abs(hash).toString(36).substring(0, 10);
+  }
+};
+
 export const useBroadcastMessages = () => {
   const [pendingMessage, setPendingMessage] = useState<string | null>(null);
   const [showPopup, setShowPopup] = useState(false);
@@ -51,7 +68,7 @@ export const useBroadcastMessages = () => {
     
     // Find broadcasts for this user that haven't been shown as popups
     const unseenBroadcast = broadcastQueue.find((broadcast: any) => {
-      const messageHash = btoa(broadcast.message).substring(0, 10);
+      const messageHash = createMessageHash(broadcast.message);
       const isForThisUser = broadcast.recipients?.includes(user.id) || true; // Show to all users if no recipients specified
       return isForThisUser && !seenBroadcasts.includes(messageHash);
     });

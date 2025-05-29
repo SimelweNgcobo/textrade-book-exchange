@@ -17,11 +17,28 @@ interface BroadcastPopupProps {
   isOpen: boolean;
 }
 
+// Unicode-safe hash function
+const createMessageHash = (message: string): string => {
+  try {
+    // Use encodeURIComponent to handle Unicode characters, then btoa
+    return btoa(encodeURIComponent(message)).substring(0, 10);
+  } catch (error) {
+    // Fallback: create a simple hash from character codes
+    let hash = 0;
+    for (let i = 0; i < message.length; i++) {
+      const char = message.charCodeAt(i);
+      hash = ((hash << 5) - hash) + char;
+      hash = hash & hash; // Convert to 32-bit integer
+    }
+    return Math.abs(hash).toString(36).substring(0, 10);
+  }
+};
+
 const BroadcastPopup = ({ message, onClose, isOpen }: BroadcastPopupProps) => {
   const handleClose = () => {
     // Mark this broadcast as seen
     const seenBroadcasts = JSON.parse(localStorage.getItem('seenBroadcasts') || '[]');
-    const messageHash = btoa(message).substring(0, 10); // Create a simple hash
+    const messageHash = createMessageHash(message);
     seenBroadcasts.push(messageHash);
     localStorage.setItem('seenBroadcasts', JSON.stringify(seenBroadcasts));
     
