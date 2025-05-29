@@ -1,8 +1,10 @@
+
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { 
   Users, 
@@ -430,16 +432,17 @@ const AdminDashboard = () => {
               <div>
                 <h4 className="text-sm font-medium mb-2">Broadcast Message</h4>
                 <p className="text-xs text-gray-500 mb-2">
-                  Messages will appear as pop-ups for offline users and notifications for active users
+                  Messages will appear as pop-ups for offline users and notifications for active users. Press Enter for line breaks.
                 </p>
-                <div className="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2">
-                  <Input
-                    placeholder="Enter message to send to all users..."
+                <div className="flex flex-col space-y-2">
+                  <Textarea
+                    placeholder="Enter message to send to all users... Press Enter for line breaks."
                     value={broadcastMessage}
                     onChange={(e) => setBroadcastMessage(e.target.value)}
-                    className="flex-1 text-sm"
+                    className="min-h-[100px] text-sm resize-vertical"
+                    rows={4}
                   />
-                  <Button onClick={handleSendBroadcast} className="w-full md:w-auto">
+                  <Button onClick={handleSendBroadcast} className="w-full md:w-auto md:self-start">
                     <MessageSquare className="h-4 w-4 mr-2" />
                     Send
                   </Button>
