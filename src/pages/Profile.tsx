@@ -27,12 +27,27 @@ const Profile = () => {
     );
   }
 
+  const handleShareProfile = () => {
+    // Implement share functionality
+    console.log('Share profile clicked');
+  };
+
+  // Convert profile to userData format expected by ProfileHeader
+  const userData = {
+    name: profile.name || 'Anonymous User',
+    joinDate: profile.created_at,
+    rating: 4.5, // Default rating - you might want to add this to your profile table
+    isVerified: false, // Default - you might want to add this to your profile table
+    successfulDeliveries: 0 // Default - you might want to add this to your profile table
+  };
+
   return (
     <Layout>
       <div className="container mx-auto px-4 py-8 max-w-4xl">
         <ProfileHeader 
-          profile={profile} 
+          userData={userData}
           isOwnProfile={true}
+          onShareProfile={handleShareProfile}
         />
         
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-8">
@@ -112,9 +127,8 @@ const Profile = () => {
 
         {/* Edit Profile Dialog */}
         <ProfileEditDialog
-          open={isEditDialogOpen}
-          onOpenChange={setIsEditDialogOpen}
-          profile={profile}
+          isOpen={isEditDialogOpen}
+          onClose={() => setIsEditDialogOpen(false)}
         />
 
         {/* Change Password Dialog */}
