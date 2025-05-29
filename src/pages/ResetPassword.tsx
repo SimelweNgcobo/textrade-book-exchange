@@ -15,29 +15,61 @@ const ResetPassword = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [isValidSession, setIsValidSession] = useState(false);
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Check if we have the necessary tokens from the URL
-    const accessToken = searchParams.get('access_token');
-    const refreshToken = searchParams.get('refresh_token');
-    
-    if (!accessToken || !refreshToken) {
-      toast.error('Invalid or expired reset link');
-      navigate('/forgot-password');
-      return;
-    }
+    const verifySession = async () => {
+      try {
+        // Check for URL parameters from email link
+        const accessToken = searchParams.get('access_token');
+        const refreshToken = searchParams.get('refresh_token');
+        const type = searchParams.get('type');
+        
+        if (accessToken && refreshToken && type === 'recovery') {
+          // Set the session with tokens from URL
+          const { data, error } = await supabase.auth.setSession({
+            access_token: accessToken,
+            refresh_token: refreshToken,
+          });
+          
+          if (error) {
+            console.error('Session error:', error);
+            toast.error('Invalid or expired reset link');
+            navigate('/forgot-password');
+            return;
+          }
+          
+          setIsValidSession(true);
+        } else {
+          // Check if user has valid session already
+          const { data: { session } } = await supabase.auth.getSession();
+          if (session) {
+            setIsValidSession(true);
+          } else {
+            toast.error('Invalid or expired reset link');
+            navigate('/forgot-password');
+          }
+        }
+      } catch (error) {
+        console.error('Error verifying session:', error);
+        toast.error('Something went wrong. Please try again.');
+        navigate('/forgot-password');
+      }
+    };
 
-    // Set the session with the tokens from the URL
-    supabase.auth.setSession({
-      access_token: accessToken,
-      refresh_token: refreshToken,
-    });
+    verifySession();
   }, [searchParams, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!isValidSession) {
+      toast.error('Invalid session. Please request a new reset link.');
+      return;
+    }
+    
     setIsLoading(true);
 
     try {
@@ -69,6 +101,26 @@ const ResetPassword = () => {
       setIsLoading(false);
     }
   };
+
+  if (!isValidSession) {
+    return (
+      <Layout>
+        <div className="min-h-[80vh] flex items-center justify-center px-4">
+          <div className="w-full max-w-md">
+            <div className="bg-white rounded-lg shadow-lg p-8 text-center">
+              <Loader2 className="h-12 w-12 text-book-600 mx-auto mb-4 animate-spin" />
+              <h2 className="text-2xl font-semibold mb-2 text-gray-800">
+                Verifying reset link...
+              </h2>
+              <p className="text-gray-600">
+                Please wait while we verify your password reset link.
+              </p>
+            </div>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
 
   return (
     <Layout>
