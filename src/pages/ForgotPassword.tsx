@@ -57,7 +57,7 @@ const ForgotPassword = () => {
                   We've sent a password reset link to <strong>{email}</strong>
                 </p>
                 <p className="text-sm text-gray-500 mb-6">
-                  Didn't receive the email? Check your spam folder or try again.
+                  Click the link in your email to reset your password. The link will take you to a secure page where you can enter your new password.
                 </p>
                 <div className="space-y-3">
                   <Button
