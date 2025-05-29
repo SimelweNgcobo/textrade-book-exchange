@@ -8,18 +8,20 @@ import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import { getNotifications, markNotificationAsRead } from '@/services/notificationService';
 
-interface Notification {
+// Use the notification interface from the service to avoid conflicts
+interface NotificationItem {
   id: string;
-  type: 'info' | 'warning' | 'success' | 'error';
+  userId: string;
   title: string;
   message: string;
-  timestamp: string;
+  type: 'info' | 'warning' | 'success' | 'error';
   read: boolean;
+  createdAt: string;
 }
 
 const Notifications = () => {
   const { user } = useAuth();
-  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [notifications, setNotifications] = useState<NotificationItem[]>([]);
 
   useEffect(() => {
     if (user) {
@@ -157,7 +159,7 @@ const Notifications = () => {
                           {notification.title}
                         </CardTitle>
                         <p className="text-xs sm:text-sm text-gray-500 mt-1">
-                          {formatTimestamp(notification.timestamp)}
+                          {formatTimestamp(notification.createdAt)}
                         </p>
                       </div>
                     </div>
