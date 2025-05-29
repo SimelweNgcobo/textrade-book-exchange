@@ -12,6 +12,8 @@ import BookListing from './pages/BookListing';
 import BookDetails from './pages/BookDetails';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
 import Profile from './pages/Profile';
 import UserProfile from './pages/UserProfile';
 import NotFound from './pages/NotFound';
@@ -43,6 +45,8 @@ function App() {
             <Route path="/books/:id" element={<BookDetails />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/confirm" element={<Confirm />} />
             <Route path="/faq" element={<FAQ />} />
             <Route path="/terms" element={<Terms />} />
