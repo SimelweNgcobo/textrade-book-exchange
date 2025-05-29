@@ -97,59 +97,87 @@ const Notifications = () => {
 
   return (
     <Layout>
-      <div className="container mx-auto px-4 py-8">
-        <div className="flex justify-between items-center mb-6">
-          <div className="flex items-center">
-            <Bell className="h-6 w-6 text-book-600 mr-2" />
-            <h1 className="text-3xl font-bold text-book-800">Notifications</h1>
+      <div className="container mx-auto px-4 py-4 sm:py-8 max-w-4xl">
+        {/* Header Section - Mobile Optimized */}
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
+          <div className="flex items-center flex-wrap">
+            <Bell className="h-6 w-6 text-book-600 mr-2 flex-shrink-0" />
+            <h1 className="text-2xl sm:text-3xl font-bold text-book-800">Notifications</h1>
             {unreadCount > 0 && (
-              <span className="ml-2 bg-red-500 text-white text-xs px-2 py-1 rounded-full">
+              <span className="ml-2 bg-red-500 text-white text-xs px-2 py-1 rounded-full flex-shrink-0">
                 {unreadCount}
               </span>
             )}
           </div>
-          <div className="flex gap-2">
-            {notifications.length > 0 && (
-              <>
-                <Button variant="outline" onClick={markAllAsRead} disabled={unreadCount === 0}>
-                  Mark All Read
-                </Button>
-                <Button variant="outline" onClick={clearAll}>
-                  Clear All
-                </Button>
-              </>
-            )}
-          </div>
+          
+          {/* Action Buttons - Mobile Responsive */}
+          {notifications.length > 0 && (
+            <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+              <Button 
+                variant="outline" 
+                onClick={markAllAsRead} 
+                disabled={unreadCount === 0}
+                className="w-full sm:w-auto text-sm"
+                size="sm"
+              >
+                Mark All Read
+              </Button>
+              <Button 
+                variant="outline" 
+                onClick={clearAll}
+                className="w-full sm:w-auto text-sm"
+                size="sm"
+              >
+                Clear All
+              </Button>
+            </div>
+          )}
         </div>
 
+        {/* Empty State */}
         {notifications.length === 0 ? (
           <Card>
-            <CardContent className="text-center py-16">
+            <CardContent className="text-center py-12 sm:py-16">
               <Bell className="mx-auto h-12 w-12 text-gray-300 mb-4" />
               <h3 className="text-xl font-semibold mb-2">No notifications</h3>
-              <p className="text-gray-500">You're all caught up! We'll notify you when something new happens.</p>
+              <p className="text-gray-500 text-sm sm:text-base px-4">
+                You're all caught up! We'll notify you when something new happens.
+              </p>
             </CardContent>
           </Card>
         ) : (
-          <div className="space-y-4">
+          /* Notifications List - Mobile Optimized */
+          <div className="space-y-3 sm:space-y-4">
             {notifications.map((notification) => (
-              <Card key={notification.id} className={`transition-all ${!notification.read ? 'bg-blue-50 border-blue-200' : ''}`}>
-                <CardHeader className="pb-3">
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-center space-x-3">
-                      {getIcon(notification.type)}
-                      <div>
-                        <CardTitle className="text-lg">{notification.title}</CardTitle>
-                        <p className="text-sm text-gray-500">{formatTimestamp(notification.timestamp)}</p>
+              <Card 
+                key={notification.id} 
+                className={`transition-all ${!notification.read ? 'bg-blue-50 border-blue-200' : ''}`}
+              >
+                <CardHeader className="pb-3 p-4 sm:p-6">
+                  <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+                    {/* Notification Content */}
+                    <div className="flex items-start space-x-3 flex-1 min-w-0">
+                      <div className="flex-shrink-0 mt-0.5">
+                        {getIcon(notification.type)}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <CardTitle className="text-base sm:text-lg leading-tight pr-2">
+                          {notification.title}
+                        </CardTitle>
+                        <p className="text-xs sm:text-sm text-gray-500 mt-1">
+                          {formatTimestamp(notification.timestamp)}
+                        </p>
                       </div>
                     </div>
-                    <div className="flex items-center space-x-2">
+                    
+                    {/* Action Buttons */}
+                    <div className="flex items-center justify-end gap-2 flex-shrink-0">
                       {!notification.read && (
                         <Button
                           variant="ghost"
                           size="sm"
                           onClick={() => markAsRead(notification.id)}
-                          className="text-blue-600 hover:text-blue-700"
+                          className="text-blue-600 hover:text-blue-700 text-xs sm:text-sm px-2 sm:px-3"
                         >
                           Mark Read
                         </Button>
@@ -158,15 +186,17 @@ const Notifications = () => {
                         variant="ghost"
                         size="sm"
                         onClick={() => deleteNotification(notification.id)}
-                        className="text-red-600 hover:text-red-700"
+                        className="text-red-600 hover:text-red-700 p-1 sm:p-2"
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>
                     </div>
                   </div>
                 </CardHeader>
-                <CardContent className="pt-0">
-                  <p className="text-gray-700">{notification.message}</p>
+                <CardContent className="pt-0 p-4 sm:p-6 sm:pt-0">
+                  <p className="text-gray-700 text-sm sm:text-base leading-relaxed break-words">
+                    {notification.message}
+                  </p>
                 </CardContent>
               </Card>
             ))}

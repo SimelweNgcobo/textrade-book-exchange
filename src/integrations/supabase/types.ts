@@ -149,7 +149,7 @@ export type Database = {
       get_user_profile: {
         Args: { user_id: string }
         Returns: {
-          id: number
+          id: string
           name: string
           email: string
         }[]
@@ -161,7 +161,7 @@ export type Database = {
       list_all_profiles: {
         Args: Record<PropertyKey, never>
         Returns: {
-          id: number
+          id: string
           username: string
           email: string
           created_at: string
