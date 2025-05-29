@@ -6,7 +6,7 @@ import ProfileHeader from '@/components/ProfileHeader';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { Lock, User, Mail, MapPin } from 'lucide-react';
+import { Lock, User, Mail } from 'lucide-react';
 import ProfileEditDialog from '@/components/ProfileEditDialog';
 import ChangePasswordDialog from '@/components/ChangePasswordDialog';
 
@@ -28,17 +28,16 @@ const Profile = () => {
   }
 
   const handleShareProfile = () => {
-    // Implement share functionality
     console.log('Share profile clicked');
   };
 
   // Convert profile to userData format expected by ProfileHeader
   const userData = {
     name: profile.name || 'Anonymous User',
-    joinDate: profile.created_at,
-    rating: 4.5, // Default rating - you might want to add this to your profile table
-    isVerified: false, // Default - you might want to add this to your profile table
-    successfulDeliveries: 0 // Default - you might want to add this to your profile table
+    joinDate: profile.created_at || new Date().toISOString(),
+    rating: 4.5,
+    isVerified: false,
+    successfulDeliveries: 0
   };
 
   return (
@@ -125,13 +124,11 @@ const Profile = () => {
           </div>
         </div>
 
-        {/* Edit Profile Dialog */}
         <ProfileEditDialog
           isOpen={isEditDialogOpen}
           onClose={() => setIsEditDialogOpen(false)}
         />
 
-        {/* Change Password Dialog */}
         <ChangePasswordDialog
           open={isChangePasswordDialogOpen}
           onOpenChange={setIsChangePasswordDialogOpen}

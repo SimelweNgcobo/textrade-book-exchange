@@ -5,6 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Bell, Trash2, AlertCircle, CheckCircle, Info } from 'lucide-react';
 import { toast } from 'sonner';
+import { useAuth } from '@/contexts/AuthContext';
+import { getNotifications, markNotificationAsRead } from '@/services/notificationService';
 
 interface Notification {
   id: string;
@@ -16,24 +18,15 @@ interface Notification {
 }
 
 const Notifications = () => {
-  const [notifications, setNotifications] = useState<Notification[]>([
-    {
-      id: '1',
-      type: 'warning',
-      title: 'Book Listing Removed',
-      message: 'Your book listing for "Introduction to Psychology" was removed because it did not have a clear image or enough detail. Try uploading it again with a better image or description 😉',
-      timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-      read: false
-    },
-    {
-      id: '2',
-      type: 'success',
-      title: 'Welcome to ReBooked!',
-      message: 'Your account has been successfully created. Start selling your textbooks today!',
-      timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
-      read: false
+  const { user } = useAuth();
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+
+  useEffect(() => {
+    if (user) {
+      const userNotifications = getNotifications(user.id);
+      setNotifications(userNotifications);
     }
-  ]);
+  }, [user]);
 
   const getIcon = (type: string) => {
     switch (type) {
@@ -62,6 +55,7 @@ const Notifications = () => {
   };
 
   const markAsRead = (id: string) => {
+    markNotificationAsRead(id);
     setNotifications(prev => 
       prev.map(notif => 
         notif.id === id ? { ...notif, read: true } : notif
@@ -75,6 +69,11 @@ const Notifications = () => {
   };
 
   const markAllAsRead = () => {
+    notifications.forEach(notif => {
+      if (!notif.read) {
+        markNotificationAsRead(notif.id);
+      }
+    });
     setNotifications(prev => 
       prev.map(notif => ({ ...notif, read: true }))
     );
@@ -88,17 +87,14 @@ const Notifications = () => {
 
   const unreadCount = notifications.filter(n => !n.read).length;
 
-  // Update the global notification count in localStorage
   useEffect(() => {
     localStorage.setItem('notificationCount', unreadCount.toString());
-    // Dispatch a custom event to update the navbar
     window.dispatchEvent(new CustomEvent('notificationUpdate', { detail: unreadCount }));
   }, [unreadCount]);
 
   return (
     <Layout>
       <div className="container mx-auto px-4 py-4 sm:py-8 max-w-4xl">
-        {/* Header Section - Mobile Optimized */}
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
           <div className="flex items-center flex-wrap">
             <Bell className="h-6 w-6 text-book-600 mr-2 flex-shrink-0" />
@@ -110,7 +106,6 @@ const Notifications = () => {
             )}
           </div>
           
-          {/* Action Buttons - Mobile Responsive */}
           {notifications.length > 0 && (
             <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
               <Button 
@@ -134,7 +129,6 @@ const Notifications = () => {
           )}
         </div>
 
-        {/* Empty State */}
         {notifications.length === 0 ? (
           <Card>
             <CardContent className="text-center py-12 sm:py-16">
@@ -146,7 +140,6 @@ const Notifications = () => {
             </CardContent>
           </Card>
         ) : (
-          /* Notifications List - Mobile Optimized */
           <div className="space-y-3 sm:space-y-4">
             {notifications.map((notification) => (
               <Card 
@@ -155,7 +148,6 @@ const Notifications = () => {
               >
                 <CardHeader className="pb-3 p-4 sm:p-6">
                   <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
-                    {/* Notification Content */}
                     <div className="flex items-start space-x-3 flex-1 min-w-0">
                       <div className="flex-shrink-0 mt-0.5">
                         {getIcon(notification.type)}
@@ -170,7 +162,6 @@ const Notifications = () => {
                       </div>
                     </div>
                     
-                    {/* Action Buttons */}
                     <div className="flex items-center justify-end gap-2 flex-shrink-0">
                       {!notification.read && (
                         <Button

@@ -16,6 +16,7 @@ interface BookImageCarouselProps {
 
 const BookImageCarousel = ({ images, bookTitle }: BookImageCarouselProps) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   
   // Filter out empty images and create array with labels
   const imageList = [
@@ -43,13 +44,19 @@ const BookImageCarousel = ({ images, bookTitle }: BookImageCarouselProps) => {
     );
   };
 
+  const handleThumbnailClick = (index: number) => {
+    setCurrentImageIndex(index);
+  };
+
+  const currentImage = imageList[currentImageIndex];
+
   return (
     <div className="relative">
       <Carousel className="w-full">
         <CarouselContent>
           {imageList.map((image, index) => (
             <CarouselItem key={index}>
-              <Dialog>
+              <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                 <DialogTrigger asChild>
                   <div className="relative cursor-pointer group">
                     <img
@@ -75,8 +82,8 @@ const BookImageCarousel = ({ images, bookTitle }: BookImageCarouselProps) => {
                 <DialogContent className="max-w-4xl w-full p-0">
                   <div className="relative">
                     <img
-                      src={image.url}
-                      alt={`${bookTitle} - ${image.label}`}
+                      src={currentImage.url}
+                      alt={`${bookTitle} - ${currentImage.label}`}
                       className="w-full h-auto max-h-[80vh] object-contain"
                       onError={(e) => {
                         (e.target as HTMLImageElement).src = fallbackImage;
@@ -84,7 +91,7 @@ const BookImageCarousel = ({ images, bookTitle }: BookImageCarouselProps) => {
                     />
                     <div className="absolute bottom-4 left-4">
                       <Badge className="bg-black/70 text-white">
-                        {image.label}
+                        {currentImage.label}
                       </Badge>
                     </div>
                     
@@ -121,14 +128,23 @@ const BookImageCarousel = ({ images, bookTitle }: BookImageCarouselProps) => {
       
       {imageList.length > 1 && (
         <div className="flex justify-center mt-4 space-x-2">
-          {imageList.map((_, index) => (
+          {imageList.map((image, index) => (
             <button
               key={index}
-              onClick={() => setCurrentImageIndex(index)}
-              className={`w-3 h-3 rounded-full transition-colors ${
-                index === currentImageIndex ? 'bg-book-600' : 'bg-gray-300'
+              onClick={() => handleThumbnailClick(index)}
+              className={`w-16 h-16 rounded-md overflow-hidden border-2 transition-all ${
+                index === currentImageIndex ? 'border-book-600 ring-2 ring-book-200' : 'border-gray-300'
               }`}
-            />
+            >
+              <img
+                src={image.url}
+                alt={`${bookTitle} - ${image.label} thumbnail`}
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = fallbackImage;
+                }}
+              />
+            </button>
           ))}
         </div>
       )}

@@ -1,5 +1,6 @@
 
 import { supabase } from '@/integrations/supabase/client';
+import { addNotification } from '@/services/notificationService';
 
 export interface AdminStats {
   totalUsers: number;
@@ -83,13 +84,26 @@ export const getAdminStats = async (): Promise<AdminStats> => {
 
     const monthlyCommission = monthlyTransactions?.reduce((sum, t) => sum + Number(t.commission), 0) || 0;
 
+    // Get new users this week
+    const { count: newUsersThisWeek } = await supabase
+      .from('profiles')
+      .select('*', { count: 'exact', head: true })
+      .gte('created_at', weekAgo.toISOString());
+
+    // Get sales this month
+    const { count: salesThisMonth } = await supabase
+      .from('books')
+      .select('*', { count: 'exact', head: true })
+      .eq('sold', true)
+      .gte('created_at', monthAgo.toISOString());
+
     return {
       totalUsers: totalUsers || 0,
       activeListings: activeListings || 0,
       booksSold: booksSold || 0,
-      reportedIssues: 7, // Mock data
-      newUsersThisWeek: 23, // Mock data
-      salesThisMonth: 45, // Mock data
+      reportedIssues: 0, // No real reports yet
+      newUsersThisWeek: newUsersThisWeek || 0,
+      salesThisMonth: salesThisMonth || 0,
       weeklyCommission,
       monthlyCommission
     };
@@ -136,7 +150,6 @@ export const getAllUsers = async (): Promise<AdminUser[]> => {
 
 export const getAllListings = async (): Promise<AdminListing[]> => {
   try {
-    // First get all books
     const { data: books, error: booksError } = await supabase
       .from('books')
       .select('*')
@@ -159,7 +172,6 @@ export const getAllListings = async (): Promise<AdminListing[]> => {
           author: book.author,
           category: book.category,
           price: book.price,
-          // Auto-approve: all listings are active unless sold
           status: book.sold ? 'sold' as const : 'active' as const,
           user: profile?.name || 'Unknown',
           createdAt: book.created_at,
@@ -210,25 +222,6 @@ export const deleteBookListing = async (bookId: string): Promise<void> => {
   }
 };
 
-export const updateBookStatus = async (bookId: string, status: 'active' | 'pending' | 'rejected'): Promise<void> => {
-  try {
-    // Note: You would need to add a status field to the books table
-    // For now, we can use the sold field as a workaround
-    const { error } = await supabase
-      .from('books')
-      .update({ 
-        // sold: status === 'sold'
-        // You would implement proper status handling here
-      })
-      .eq('id', bookId);
-
-    if (error) throw error;
-  } catch (error) {
-    console.error('Error updating book status:', error);
-    throw error;
-  }
-};
-
 export const logAdminAction = async (action: Omit<AdminAction, 'id' | 'timestamp'>): Promise<void> => {
   try {
     const newAction = {
@@ -237,11 +230,10 @@ export const logAdminAction = async (action: Omit<AdminAction, 'id' | 'timestamp
       timestamp: new Date().toISOString()
     };
     
-    // Store in localStorage for now
     const stored = localStorage.getItem('admin_actions');
     const actions = stored ? JSON.parse(stored) : [];
     actions.unshift(newAction);
-    localStorage.setItem('admin_actions', JSON.stringify(actions.slice(0, 100))); // Keep last 100 actions
+    localStorage.setItem('admin_actions', JSON.stringify(actions.slice(0, 100)));
     
     console.log('Admin action logged:', newAction);
   } catch (error) {
@@ -252,42 +244,40 @@ export const logAdminAction = async (action: Omit<AdminAction, 'id' | 'timestamp
 
 export const sendBroadcastMessage = async (message: string): Promise<void> => {
   try {
-    // Create a unique message ID for this broadcast
-    const messageId = `broadcast_${Date.now()}`;
+    // Get all user IDs from profiles
+    const { data: profiles } = await supabase
+      .from('profiles')
+      .select('id');
+
+    if (profiles) {
+      // Add notification to each user
+      profiles.forEach(profile => {
+        addNotification({
+          userId: profile.id,
+          title: 'Message from Rebooked Solutions Team',
+          message,
+          type: 'info',
+          read: false
+        });
+      });
+      
+      // Trigger notification update event for logged-in users
+      window.dispatchEvent(new CustomEvent('notificationUpdate'));
+    }
     
-    // Store broadcast in localStorage with a global key that all users can access
+    // Also queue for offline users
     const broadcastData = {
-      id: messageId,
+      id: `broadcast_${Date.now()}`,
       message,
       timestamp: new Date().toISOString(),
-      // Mark as global broadcast for all users
       isGlobal: true
     };
     
-    // Store in a global broadcast queue that applies to all users
     const globalQueue = JSON.parse(localStorage.getItem('globalBroadcastQueue') || '[]');
     globalQueue.push(broadcastData);
     localStorage.setItem('globalBroadcastQueue', JSON.stringify(globalQueue));
     
-    // For logged-in users, also add to their notifications
-    try {
-      const { data: profiles } = await supabase
-        .from('profiles')
-        .select('id, email');
-
-      if (profiles) {
-        profiles.forEach(profile => {
-          addBroadcastNotification(profile.id, message);
-        });
-        
-        // Trigger notification update event for logged-in users
-        window.dispatchEvent(new CustomEvent('notificationUpdate'));
-      }
-    } catch (error) {
-      console.log('Could not add to user notifications (users might not be logged in):', error);
-    }
-    
-    // Trigger global broadcast event for all users
+    // Trigger global broadcast event
     window.dispatchEvent(new CustomEvent('globalBroadcastUpdate'));
     
     // Log the action
@@ -301,21 +291,4 @@ export const sendBroadcastMessage = async (message: string): Promise<void> => {
     console.error('Error sending broadcast message:', error);
     throw error;
   }
-};
-
-const addBroadcastNotification = (userId: string, message: string): void => {
-  const notification = {
-    userId,
-    title: 'Message from Rebooked Solutions Team',
-    message,
-    type: 'info' as const,
-    read: false,
-    id: `broadcast_${Date.now()}_${Math.random()}`,
-    createdAt: new Date().toISOString()
-  };
-
-  const stored = localStorage.getItem('rebooked_notifications');
-  const allNotifications = stored ? JSON.parse(stored) : [];
-  allNotifications.unshift(notification);
-  localStorage.setItem('rebooked_notifications', JSON.stringify(allNotifications));
 };
