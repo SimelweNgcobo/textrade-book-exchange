@@ -244,15 +244,15 @@ const Index = () => {
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button 
               size="lg" 
-              variant="outline" 
-              className="border-white text-white hover:bg-white hover:text-book-600"
+              className="bg-white text-book-600 hover:bg-gray-100 border-2 border-white"
               onClick={() => navigate('/register')}
             >
               Sign Up Now
             </Button>
             <Button 
               size="lg" 
-              className="bg-white text-book-600 hover:bg-gray-100"
+              variant="outline"
+              className="bg-transparent border-2 border-white text-white hover:bg-white hover:text-book-600"
               onClick={() => navigate('/books')}
             >
               Browse Books
