@@ -1,12 +1,12 @@
 
 import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 
 interface BroadcastMessage {
   message: string;
   timestamp: string;
   id: string;
+  isGlobal?: boolean;
 }
 
 // Unicode-safe hash function
@@ -32,21 +32,25 @@ export const useBroadcastMessages = () => {
   const { user } = useAuth();
 
   useEffect(() => {
-    if (!user) return;
-
-    // Check for unseen broadcast messages on login/page load
+    // Check for unseen broadcast messages on page load/refresh for ALL users
     checkForUnseenBroadcasts();
 
-    // Listen for new broadcasts from localStorage changes
+    // Listen for global broadcast updates
+    const handleGlobalBroadcastUpdate = () => {
+      checkForUnseenBroadcasts();
+    };
+
+    // Listen for storage changes (from other tabs)
     const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === 'broadcastQueue') {
+      if (e.key === 'globalBroadcastQueue') {
         checkForUnseenBroadcasts();
       }
     };
 
+    window.addEventListener('globalBroadcastUpdate', handleGlobalBroadcastUpdate);
     window.addEventListener('storage', handleStorageChange);
     
-    // Also listen for custom notification update events
+    // Also listen for notification updates (for logged-in users)
     const handleNotificationUpdate = () => {
       checkForUnseenBroadcasts();
     };
@@ -54,24 +58,41 @@ export const useBroadcastMessages = () => {
     window.addEventListener('notificationUpdate', handleNotificationUpdate);
 
     return () => {
+      window.removeEventListener('globalBroadcastUpdate', handleGlobalBroadcastUpdate);
       window.removeEventListener('storage', handleStorageChange);
       window.removeEventListener('notificationUpdate', handleNotificationUpdate);
     };
-  }, [user]);
+  }, []); // Remove user dependency to work for all users
 
   const checkForUnseenBroadcasts = () => {
-    if (!user) return;
-    
-    // Check localStorage for any broadcast messages that haven't been seen as popups
-    const broadcastQueue = JSON.parse(localStorage.getItem('broadcastQueue') || '[]');
+    // Check for global broadcasts that apply to all users
+    const globalBroadcastQueue = JSON.parse(localStorage.getItem('globalBroadcastQueue') || '[]');
     const seenBroadcasts = JSON.parse(localStorage.getItem('seenBroadcasts') || '[]');
     
-    // Find broadcasts for this user that haven't been shown as popups
-    const unseenBroadcast = broadcastQueue.find((broadcast: any) => {
-      const messageHash = createMessageHash(broadcast.message);
-      const isForThisUser = broadcast.recipients?.includes(user.id) || true; // Show to all users if no recipients specified
-      return isForThisUser && !seenBroadcasts.includes(messageHash);
-    });
+    // Find the most recent unseen global broadcast
+    const unseenBroadcast = globalBroadcastQueue
+      .filter((broadcast: BroadcastMessage) => broadcast.isGlobal)
+      .find((broadcast: BroadcastMessage) => {
+        const messageHash = createMessageHash(broadcast.message);
+        return !seenBroadcasts.includes(messageHash);
+      });
+
+    // If logged-in user, also check user-specific broadcasts
+    if (user) {
+      const broadcastQueue = JSON.parse(localStorage.getItem('broadcastQueue') || '[]');
+      const userSpecificBroadcast = broadcastQueue.find((broadcast: any) => {
+        const messageHash = createMessageHash(broadcast.message);
+        const isForThisUser = broadcast.recipients?.includes(user.id) || false;
+        return isForThisUser && !seenBroadcasts.includes(messageHash);
+      });
+      
+      // Prioritize user-specific broadcasts over global ones
+      if (userSpecificBroadcast) {
+        setPendingMessage(userSpecificBroadcast.message);
+        setShowPopup(true);
+        return;
+      }
+    }
 
     if (unseenBroadcast) {
       setPendingMessage(unseenBroadcast.message);

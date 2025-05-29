@@ -252,44 +252,51 @@ export const logAdminAction = async (action: Omit<AdminAction, 'id' | 'timestamp
 
 export const sendBroadcastMessage = async (message: string): Promise<void> => {
   try {
-    // Get all users to send notifications to
-    const { data: profiles } = await supabase
-      .from('profiles')
-      .select('id, email');
+    // Create a unique message ID for this broadcast
+    const messageId = `broadcast_${Date.now()}`;
+    
+    // Store broadcast in localStorage with a global key that all users can access
+    const broadcastData = {
+      id: messageId,
+      message,
+      timestamp: new Date().toISOString(),
+      // Mark as global broadcast for all users
+      isGlobal: true
+    };
+    
+    // Store in a global broadcast queue that applies to all users
+    const globalQueue = JSON.parse(localStorage.getItem('globalBroadcastQueue') || '[]');
+    globalQueue.push(broadcastData);
+    localStorage.setItem('globalBroadcastQueue', JSON.stringify(globalQueue));
+    
+    // For logged-in users, also add to their notifications
+    try {
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('id, email');
 
-    if (profiles) {
-      // Create a unique message ID for this broadcast
-      const messageId = `broadcast_${Date.now()}`;
-      
-      // Store broadcast in localStorage for all users to see
-      const broadcastData = {
-        id: messageId,
-        message,
-        timestamp: new Date().toISOString(),
-        recipients: profiles.map(p => p.id)
-      };
-      
-      // Store in broadcast queue
-      const queue = JSON.parse(localStorage.getItem('broadcastQueue') || '[]');
-      queue.push(broadcastData);
-      localStorage.setItem('broadcastQueue', JSON.stringify(queue));
-      
-      // Add to notifications for each user
-      profiles.forEach(profile => {
-        addBroadcastNotification(profile.id, message);
-      });
-      
-      // Trigger notification update event
-      window.dispatchEvent(new CustomEvent('notificationUpdate'));
-      
-      // Log the action
-      await logAdminAction({
-        action: 'Broadcast Message Sent',
-        target: 'All Users',
-        admin: 'Current Admin',
-        details: `Message sent to ${profiles.length} users: ${message.substring(0, 50)}...`
-      });
+      if (profiles) {
+        profiles.forEach(profile => {
+          addBroadcastNotification(profile.id, message);
+        });
+        
+        // Trigger notification update event for logged-in users
+        window.dispatchEvent(new CustomEvent('notificationUpdate'));
+      }
+    } catch (error) {
+      console.log('Could not add to user notifications (users might not be logged in):', error);
     }
+    
+    // Trigger global broadcast event for all users
+    window.dispatchEvent(new CustomEvent('globalBroadcastUpdate'));
+    
+    // Log the action
+    await logAdminAction({
+      action: 'Broadcast Message Sent',
+      target: 'All Users',
+      admin: 'Current Admin',
+      details: `Global message sent: ${message.substring(0, 50)}...`
+    });
   } catch (error) {
     console.error('Error sending broadcast message:', error);
     throw error;

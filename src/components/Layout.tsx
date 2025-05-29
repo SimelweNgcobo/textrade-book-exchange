@@ -11,6 +11,7 @@ interface LayoutProps {
 }
 
 const Layout = ({ children }: LayoutProps) => {
+  // This hook now works for all users, not just logged-in ones
   const { pendingMessage, showPopup, closePopup } = useBroadcastMessages();
 
   return (
@@ -22,7 +23,7 @@ const Layout = ({ children }: LayoutProps) => {
       <Footer />
       <Toaster />
       
-      {/* Broadcast Message Popup */}
+      {/* Broadcast Message Popup - now works for all users */}
       {pendingMessage && (
         <BroadcastPopup
           message={pendingMessage}

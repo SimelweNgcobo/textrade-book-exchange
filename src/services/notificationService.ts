@@ -1,4 +1,3 @@
-
 interface Notification {
   id: string;
   userId: string;
@@ -71,4 +70,29 @@ export const clearOldBroadcastMessages = (): void => {
   const queue = JSON.parse(localStorage.getItem(BROADCAST_QUEUE_KEY) || '[]');
   const filtered = queue.filter((msg: any) => new Date(msg.timestamp) > oneDayAgo);
   localStorage.setItem(BROADCAST_QUEUE_KEY, JSON.stringify(filtered));
+};
+
+// New function to queue global broadcast messages for all users (logged in and visitors)
+export const queueGlobalBroadcastMessage = (message: string): void => {
+  const globalQueue = JSON.parse(localStorage.getItem('globalBroadcastQueue') || '[]');
+  globalQueue.push({
+    message,
+    timestamp: new Date().toISOString(),
+    id: `global_broadcast_${Date.now()}`,
+    isGlobal: true
+  });
+  localStorage.setItem('globalBroadcastQueue', JSON.stringify(globalQueue));
+  
+  // Trigger global update event
+  window.dispatchEvent(new CustomEvent('globalBroadcastUpdate'));
+};
+
+// Function to clear old global broadcast messages
+export const clearOldGlobalBroadcastMessages = (): void => {
+  const oneDayAgo = new Date();
+  oneDayAgo.setDate(oneDayAgo.getDate() - 1);
+  
+  const queue = JSON.parse(localStorage.getItem('globalBroadcastQueue') || '[]');
+  const filtered = queue.filter((msg: any) => new Date(msg.timestamp) > oneDayAgo);
+  localStorage.setItem('globalBroadcastQueue', JSON.stringify(filtered));
 };
