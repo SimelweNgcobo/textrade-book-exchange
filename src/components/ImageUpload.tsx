@@ -2,7 +2,7 @@
 import { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { Upload, X, Image } from 'lucide-react';
+import { Upload, X, Image, ImageOff } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
@@ -68,9 +68,23 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
       // Clean up the object URL
       URL.revokeObjectURL(previewObjectUrl);
       
-      setPreviewUrl(publicUrl);
-      onImageChange(publicUrl);
-      toast.success('Image uploaded successfully');
+      // Verify the image is accessible
+      const img = new Image();
+      img.onload = () => {
+        setPreviewUrl(publicUrl);
+        onImageChange(publicUrl);
+        toast.success('Image uploaded successfully');
+      };
+      img.onerror = () => {
+        console.error('Failed to load uploaded image');
+        toast.error('Image upload failed - image not accessible');
+        setImageError(true);
+        if (currentImageUrl) {
+          setPreviewUrl(currentImageUrl);
+        }
+      };
+      img.src = publicUrl;
+      
     } catch (error) {
       console.error('Upload error:', error);
       toast.error('Failed to upload image');
@@ -101,9 +115,13 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
     fileInputRef.current?.click();
   };
 
+  const getFallbackImage = () => {
+    return 'https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=400&h=300&fit=crop&auto=format&q=80';
+  };
+
   const getImageSrc = () => {
     if (imageError || !previewUrl) {
-      return 'https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=400&h=300&fit=crop&auto=format&q=80';
+      return getFallbackImage();
     }
     return previewUrl;
   };
@@ -126,12 +144,21 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
       {previewUrl ? (
         <div className="relative">
           <div className="relative w-full h-48 border-2 border-gray-300 rounded-lg overflow-hidden">
-            <img
-              src={getImageSrc()}
-              alt="Book preview"
-              className="w-full h-full object-cover"
-              onError={handleImageError}
-            />
+            {imageError ? (
+              <div className="w-full h-full bg-gray-100 flex items-center justify-center">
+                <div className="text-center text-gray-500">
+                  <ImageOff className="h-8 w-8 mx-auto mb-2" />
+                  <p className="text-sm">Failed to load image</p>
+                </div>
+              </div>
+            ) : (
+              <img
+                src={getImageSrc()}
+                alt="Book preview"
+                className="w-full h-full object-cover"
+                onError={handleImageError}
+              />
+            )}
             {!disabled && (
               <button
                 type="button"
@@ -143,7 +170,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
             )}
           </div>
           <p className="text-sm text-gray-500 mt-2">
-            Click the X to remove and upload a different image
+            {imageError ? 'Click X to remove and try uploading again' : 'Click the X to remove and upload a different image'}
           </p>
         </div>
       ) : (

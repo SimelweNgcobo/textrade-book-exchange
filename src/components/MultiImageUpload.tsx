@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { Upload, X, Image as ImageIcon } from 'lucide-react';
+import { Upload, X, Image as ImageIcon, ImageOff } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
@@ -26,6 +26,8 @@ const MultiImageUpload = ({ onImagesChange, currentImages, disabled }: MultiImag
     backCover: false,
     insidePages: false
   });
+
+  const [imageErrors, setImageErrors] = useState<Set<string>>(new Set());
 
   const handleImageUpload = async (file: File, type: 'frontCover' | 'backCover' | 'insidePages') => {
     if (!file || !user) return;
@@ -60,11 +62,29 @@ const MultiImageUpload = ({ onImagesChange, currentImages, disabled }: MultiImag
         .from('book-images')
         .getPublicUrl(data.path);
       
-      const newImages = { ...images, [type]: publicUrl };
-      setImages(newImages);
-      onImagesChange(newImages);
+      // Verify the image is accessible
+      const img = new Image();
+      img.onload = () => {
+        const newImages = { ...images, [type]: publicUrl };
+        setImages(newImages);
+        onImagesChange(newImages);
+        
+        // Remove from error set if it was there
+        setImageErrors(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(publicUrl);
+          return newSet;
+        });
+        
+        toast.success(`${getTypeLabel(type)} uploaded successfully`);
+      };
+      img.onerror = () => {
+        console.error('Failed to load uploaded image:', publicUrl);
+        toast.error('Image upload failed - image not accessible');
+        setImageErrors(prev => new Set(prev).add(publicUrl));
+      };
+      img.src = publicUrl;
       
-      toast.success(`${getTypeLabel(type)} uploaded successfully`);
     } catch (error) {
       console.error('Upload error:', error);
       toast.error('Failed to upload image');
@@ -91,9 +111,20 @@ const MultiImageUpload = ({ onImagesChange, currentImages, disabled }: MultiImag
       }
     }
     
+    // Remove from error set
+    setImageErrors(prev => {
+      const newSet = new Set(prev);
+      newSet.delete(currentImageUrl);
+      return newSet;
+    });
+    
     const newImages = { ...images, [type]: '' };
     setImages(newImages);
     onImagesChange(newImages);
+  };
+
+  const handleImageError = (imageUrl: string) => {
+    setImageErrors(prev => new Set(prev).add(imageUrl));
   };
 
   const getTypeLabel = (type: string) => {
@@ -114,14 +145,21 @@ const MultiImageUpload = ({ onImagesChange, currentImages, disabled }: MultiImag
       
       {images[type] ? (
         <div className="relative">
-          <img
-            src={images[type]}
-            alt={getTypeLabel(type)}
-            className="w-full h-40 object-cover rounded-md border"
-            onError={(e) => {
-              console.error(`Failed to load ${type} image:`, images[type]);
-            }}
-          />
+          {imageErrors.has(images[type]) ? (
+            <div className="w-full h-40 bg-gray-100 border border-gray-300 rounded-md flex items-center justify-center">
+              <div className="text-center text-gray-500">
+                <ImageOff className="h-8 w-8 mx-auto mb-2" />
+                <p className="text-sm">Failed to load image</p>
+              </div>
+            </div>
+          ) : (
+            <img
+              src={images[type]}
+              alt={getTypeLabel(type)}
+              className="w-full h-40 object-cover rounded-md border"
+              onError={() => handleImageError(images[type])}
+            />
+          )}
           <Button
             type="button"
             variant="destructive"

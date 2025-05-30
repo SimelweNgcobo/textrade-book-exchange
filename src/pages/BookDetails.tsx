@@ -28,6 +28,7 @@ const BookDetails = () => {
         if (!bookData) {
           setError('Book not found');
         } else {
+          console.log('Loaded book data:', bookData);
           setBook(bookData);
         }
       } catch (error) {
@@ -107,7 +108,7 @@ const BookDetails = () => {
             <div className="md:w-1/2 lg:w-2/5 p-6">
               <BookImageCarousel
                 images={{
-                  frontCover: book.frontCover,
+                  frontCover: book.frontCover || book.imageUrl,
                   backCover: book.backCover,
                   insidePages: book.insidePages
                 }}
