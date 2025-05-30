@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
@@ -20,7 +19,7 @@ import {
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Layout from '@/components/Layout';
 import MultiImageUpload from '@/components/MultiImageUpload';
-import { getBook, updateBook } from '@/services/bookService';
+import { getBookById, updateBook } from '@/services/bookService';
 import { categories } from '@/constants/categories';
 
 const EditBook = () => {
@@ -54,7 +53,7 @@ const EditBook = () => {
 
       try {
         setIsLoading(true);
-        const bookData = await getBook(bookId);
+        const bookData = await getBookById(bookId);
         
         if (bookData) {
           const formattedData = {
