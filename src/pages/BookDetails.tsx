@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/contexts/AuthContext';
 import { ArrowLeft, BookOpen, Check, Calendar, User } from 'lucide-react';
 import BookImageCarousel from '@/components/BookImageCarousel';
+import ReportBookDialog from '@/components/ReportBookDialog';
 
 const BookDetails = () => {
   const { id } = useParams<{ id: string }>();
@@ -153,15 +154,26 @@ const BookDetails = () => {
                 </div>
               </div>
 
-              {!book.sold && !isOwner && (
-                <Button
-                  onClick={handleBuyNow}
-                  size="lg"
-                  className="w-full md:w-auto bg-book-600 hover:bg-book-700"
-                >
-                  Buy Now for R{book.price}
-                </Button>
-              )}
+              <div className="flex flex-col sm:flex-row gap-4 mb-6">
+                {!book.sold && !isOwner && (
+                  <Button
+                    onClick={handleBuyNow}
+                    size="lg"
+                    className="bg-book-600 hover:bg-book-700"
+                  >
+                    Buy Now for R{book.price}
+                  </Button>
+                )}
+                
+                {!isOwner && (
+                  <ReportBookDialog
+                    bookId={book.id}
+                    bookTitle={book.title}
+                    sellerId={book.seller.id}
+                    sellerName={book.seller.name}
+                  />
+                )}
+              </div>
 
               {isOwner && (
                 <div className="mt-4 p-4 bg-book-50 rounded-lg border border-book-200">

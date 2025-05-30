@@ -2,7 +2,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { BookIcon, Calendar, Edit, Trash2 } from 'lucide-react';
+import { BookIcon, Calendar, Edit, Trash2, Eye } from 'lucide-react';
 import { Book } from '@/types/book';
 import { useNavigate } from 'react-router-dom';
 import BookNotSellingHelp from '@/components/BookNotSellingHelp';
@@ -64,12 +64,20 @@ const ListingsSidebar = ({
                     {new Date(book.createdAt).toLocaleDateString()}
                   </div>
                 </div>
-                <div className="flex items-center space-x-1">
+                <div className="flex flex-col space-y-1">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => navigate(`/book/${book.id}`)}
+                    className="text-blue-600 hover:text-blue-700 h-8 w-8 p-0"
+                  >
+                    <Eye className="h-4 w-4" />
+                  </Button>
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={() => onEditBook(book.id)}
-                    className="text-book-600 hover:text-book-700"
+                    className="text-book-600 hover:text-book-700 h-8 w-8 p-0"
                   >
                     <Edit className="h-4 w-4" />
                   </Button>
@@ -77,7 +85,7 @@ const ListingsSidebar = ({
                     variant="ghost"
                     size="sm"
                     onClick={() => onDeleteBook(book.id, book.title)}
-                    className="text-red-600 hover:text-red-700"
+                    className="text-red-600 hover:text-red-700 h-8 w-8 p-0"
                   >
                     <Trash2 className="h-4 w-4" />
                   </Button>

@@ -2,7 +2,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { BookIcon, Calendar, Edit, Trash2 } from 'lucide-react';
+import { BookIcon, Calendar, Edit, Trash2, Eye } from 'lucide-react';
 import { Book } from '@/types/book';
 import { useNavigate } from 'react-router-dom';
 import BookNotSellingHelp from '@/components/BookNotSellingHelp';
@@ -28,7 +28,7 @@ const MobileListingsView = ({
         <CardTitle className="flex items-center justify-between text-lg">
           <span className="flex items-center">
             <BookIcon className="h-5 w-5 mr-2" />
-            My Listings
+            My Active Listings
           </span>
           <Badge variant="secondary">{activeListings.length}</Badge>
         </CardTitle>
@@ -66,6 +66,14 @@ const MobileListingsView = ({
                   </div>
                 </div>
                 <div className="flex flex-col space-y-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => navigate(`/book/${book.id}`)}
+                    className="text-blue-600 hover:text-blue-700"
+                  >
+                    <Eye className="h-4 w-4" />
+                  </Button>
                   <Button
                     variant="outline"
                     size="sm"

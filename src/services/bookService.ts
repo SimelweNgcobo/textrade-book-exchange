@@ -1,96 +1,48 @@
 import { supabase } from '@/integrations/supabase/client';
-import { Book } from '@/types/book';
+import { Book, BookFormData } from '@/types/book';
 
-// Add the missing calculation functions
-export const calculateCommission = (price: number): number => {
-  return price * 0.1; // 10% commission
-};
-
-export const calculateSellerReceives = (price: number): number => {
-  return price * 0.9; // 90% after commission
-};
-
-export const getBooks = async (filters?: {
-  category?: string;
-  search?: string;
-  minPrice?: number;
-  maxPrice?: number;
-  condition?: string;
-}): Promise<Book[]> => {
+export const getBooks = async (): Promise<Book[]> => {
   try {
-    let query = supabase
+    const { data, error } = await supabase
       .from('books')
-      .select('*')
-      .eq('sold', false);
+      .select(`
+        *,
+        profiles!books_seller_id_fkey(id, name, email)
+      `);
 
-    if (filters?.category) {
-      query = query.eq('category', filters.category);
-    }
-
-    if (filters?.search) {
-      query = query.or(`title.ilike.%${filters.search}%,author.ilike.%${filters.search}%,description.ilike.%${filters.search}%`);
-    }
-
-    if (filters?.minPrice !== undefined) {
-      query = query.gte('price', filters.minPrice);
-    }
-
-    if (filters?.maxPrice !== undefined) {
-      query = query.lte('price', filters.maxPrice);
-    }
-
-    if (filters?.condition) {
-      query = query.eq('condition', filters.condition);
-    }
-
-    query = query.order('created_at', { ascending: false });
-
-    const { data: books, error } = await query;
-    
     if (error) {
       console.error('Error fetching books:', error);
-      throw error;
+      return [];
     }
 
-    if (!books) return [];
+    const books: Book[] = data.map((book) => ({
+      id: book.id,
+      title: book.title,
+      author: book.author,
+      description: book.description,
+      price: book.price,
+      category: book.category,
+      condition: book.condition as "New" | "Good" | "Better" | "Average" | "Below Average",
+      imageUrl: book.image_url || 'https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=400&h=300&fit=crop&auto=format&q=80',
+      frontCover: book.front_cover,
+      backCover: book.back_cover,
+      insidePages: book.inside_pages,
+      sold: book.sold,
+      createdAt: book.created_at,
+      grade: book.grade,
+      universityYear: book.university_year,
+      seller: {
+        id: (book.profiles as any)?.id || '',
+        name: (book.profiles as any)?.name || 'Anonymous',
+        email: (book.profiles as any)?.email || ''
+      }
+    }));
 
-    // Fetch seller profiles separately
-    const sellerIds = books.map(book => book.seller_id);
-    const { data: profiles } = await supabase
-      .from('profiles')
-      .select('id, name, email')
-      .in('id', sellerIds);
-
-    const profileMap = new Map(profiles?.map(p => [p.id, p]) || []);
-
-    return books.map(book => {
-      const seller = profileMap.get(book.seller_id);
-      return {
-        id: book.id,
-        title: book.title,
-        author: book.author,
-        description: book.description,
-        price: book.price,
-        category: book.category,
-        condition: book.condition as "New" | "Good" | "Better" | "Average" | "Below Average",
-        imageUrl: book.image_url || 'https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=400&h=300&fit=crop&auto=format&q=80',
-        sold: book.sold,
-        createdAt: book.created_at,
-        seller: {
-          id: seller?.id || '',
-          name: seller?.name || 'Anonymous',
-          email: seller?.email || ''
-        }
-      };
-    });
+    return books;
   } catch (error) {
     console.error('Error in getBooks:', error);
     return [];
   }
-};
-
-export const getBook = async (id: string): Promise<Book | null> => {
-  return getBookById(id);
 };
 
 export const getBookById = async (id: string): Promise<Book | null> => {
@@ -99,26 +51,17 @@ export const getBookById = async (id: string): Promise<Book | null> => {
       .from('books')
       .select(`
         *,
-        front_cover,
-        back_cover,
-        inside_pages
+        profiles!books_seller_id_fkey(id, name, email)
       `)
       .eq('id', id)
       .single();
 
     if (error) {
-      console.error('Error fetching book by ID:', error);
+      console.error('Error fetching book:', error);
       return null;
     }
 
     if (!book) return null;
-
-    // Fetch seller profile separately
-    const { data: seller } = await supabase
-      .from('profiles')
-      .select('id, name, email')
-      .eq('id', book.seller_id)
-      .single();
 
     return {
       id: book.id,
@@ -134,10 +77,12 @@ export const getBookById = async (id: string): Promise<Book | null> => {
       insidePages: book.inside_pages,
       sold: book.sold,
       createdAt: book.created_at,
+      grade: book.grade,
+      universityYear: book.university_year,
       seller: {
-        id: seller?.id || '',
-        name: seller?.name || 'Anonymous',
-        email: seller?.email || ''
+        id: (book.profiles as any)?.id || '',
+        name: (book.profiles as any)?.name || 'Anonymous',
+        email: (book.profiles as any)?.email || ''
       }
     };
   } catch (error) {
@@ -146,7 +91,119 @@ export const getBookById = async (id: string): Promise<Book | null> => {
   }
 };
 
-export const updateBook = async (bookId: string, bookData: any): Promise<Book | null> => {
+export const getBook = async (id: string): Promise<Book | null> => {
+  try {
+    const { data: book, error } = await supabase
+      .from('books')
+      .select(`
+        *,
+        profiles!books_seller_id_fkey(id, name, email)
+      `)
+      .eq('id', id)
+      .single();
+
+    if (error) {
+      console.error('Error fetching book:', error);
+      return null;
+    }
+
+    if (!book) return null;
+
+    return {
+      id: book.id,
+      title: book.title,
+      author: book.author,
+      description: book.description,
+      price: book.price,
+      category: book.category,
+      condition: book.condition as "New" | "Good" | "Better" | "Average" | "Below Average",
+      imageUrl: book.image_url || 'https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=400&h=300&fit=crop&auto=format&q=80',
+      frontCover: book.front_cover,
+      backCover: book.back_cover,
+      insidePages: book.inside_pages,
+      sold: book.sold,
+      createdAt: book.created_at,
+      grade: book.grade,
+      universityYear: book.university_year,
+      seller: {
+        id: (book.profiles as any)?.id || '',
+        name: (book.profiles as any)?.name || 'Anonymous',
+        email: (book.profiles as any)?.email || ''
+      }
+    };
+  } catch (error) {
+    console.error('Error in getBook:', error);
+    return null;
+  }
+};
+
+export const createBook = async (bookData: BookFormData): Promise<Book | null> => {
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user) {
+      throw new Error('User not authenticated');
+    }
+
+    const { data: book, error } = await supabase
+      .from('books')
+      .insert([
+        {
+          seller_id: user.id,
+          title: bookData.title,
+          author: bookData.author,
+          description: bookData.description,
+          price: bookData.price,
+          category: bookData.categoryId,
+          condition: bookData.condition,
+          image_url: bookData.imageUrl,
+          front_cover: bookData.frontCover,
+          back_cover: bookData.backCover,
+          inside_pages: bookData.insidePages,
+          grade: bookData.grade,
+          university_year: bookData.universityYear
+        }
+      ])
+      .select(`
+        *,
+        profiles!books_seller_id_fkey(id, name, email)
+      `)
+      .single();
+
+    if (error) {
+      console.error('Error creating book:', error);
+      throw error;
+    }
+
+    return {
+      id: book.id,
+      title: book.title,
+      author: book.author,
+      description: book.description,
+      price: book.price,
+      category: book.category,
+      condition: book.condition as "New" | "Good" | "Better" | "Average" | "Below Average",
+      imageUrl: book.image_url || 'https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=400&h=300&fit=crop&auto=format&q=80',
+      frontCover: book.front_cover,
+      backCover: book.back_cover,
+      insidePages: book.inside_pages,
+      sold: book.sold,
+      createdAt: book.created_at,
+      grade: book.grade,
+      universityYear: book.university_year,
+      seller: {
+        id: (book.profiles as any)?.id || '',
+        name: (book.profiles as any)?.name || 'Anonymous',
+        email: (book.profiles as any)?.email || ''
+      }
+    };
+  } catch (error) {
+    console.error('Error in createBook:', error);
+    throw error;
+  }
+};
+
+export const updateBook = async (bookId: string, bookData: Partial<BookFormData>): Promise<Book | null> => {
   try {
     const { data: { user } } = await supabase.auth.getUser();
     
@@ -176,13 +233,9 @@ export const updateBook = async (bookId: string, bookData: any): Promise<Book | 
     if (bookData.description !== undefined) updateData.description = bookData.description;
     if (bookData.price !== undefined) updateData.price = bookData.price;
     if (bookData.categoryId !== undefined) updateData.category = bookData.categoryId;
-    if (bookData.condition !== undefined) updateData.condition = bookData.condition;
-    if (bookData.imageUrl !== undefined) updateData.image_url = bookData.imageUrl;
     if (bookData.frontCover !== undefined) updateData.front_cover = bookData.frontCover;
     if (bookData.backCover !== undefined) updateData.back_cover = bookData.backCover;
     if (bookData.insidePages !== undefined) updateData.inside_pages = bookData.insidePages;
-    if (bookData.grade !== undefined) updateData.grade = bookData.grade;
-    if (bookData.universityYear !== undefined) updateData.university_year = bookData.universityYear;
 
     const { data: book, error } = await supabase
       .from('books')
@@ -190,9 +243,7 @@ export const updateBook = async (bookId: string, bookData: any): Promise<Book | 
       .eq('id', bookId)
       .select(`
         *,
-        front_cover,
-        back_cover,
-        inside_pages
+        profiles!books_seller_id_fkey(id, name, email)
       `)
       .single();
 
@@ -200,13 +251,6 @@ export const updateBook = async (bookId: string, bookData: any): Promise<Book | 
       console.error('Error updating book:', error);
       throw error;
     }
-
-    // Fetch seller profile separately
-    const { data: seller } = await supabase
-      .from('profiles')
-      .select('id, name, email')
-      .eq('id', book.seller_id)
-      .single();
 
     return {
       id: book.id,
@@ -225,9 +269,9 @@ export const updateBook = async (bookId: string, bookData: any): Promise<Book | 
       grade: book.grade,
       universityYear: book.university_year,
       seller: {
-        id: seller?.id || '',
-        name: seller?.name || 'Anonymous',
-        email: seller?.email || ''
+        id: (book.profiles as any)?.id || '',
+        name: (book.profiles as any)?.name || 'Anonymous',
+        email: (book.profiles as any)?.email || ''
       }
     };
   } catch (error) {
@@ -236,278 +280,22 @@ export const updateBook = async (bookId: string, bookData: any): Promise<Book | 
   }
 };
 
-export const createBook = async (bookData: Omit<Book, 'id' | 'createdAt' | 'seller' | 'sold'>): Promise<Book> => {
-  try {
-    const { data: { user } } = await supabase.auth.getUser();
-    
-    if (!user) {
-      throw new Error('User not authenticated');
-    }
-
-    const { data: book, error } = await supabase
-      .from('books')
-      .insert({
-        title: bookData.title,
-        author: bookData.author,
-        description: bookData.description,
-        price: bookData.price,
-        category: bookData.category,
-        condition: bookData.condition,
-        image_url: bookData.imageUrl,
-        grade: bookData.grade || null,
-        university_year: bookData.universityYear || null,
-        seller_id: user.id
-      })
-      .select('*')
-      .single();
-
-    if (error) {
-      console.error('Error creating book:', error);
-      throw error;
-    }
-
-    // Fetch seller profile separately
-    const { data: seller } = await supabase
-      .from('profiles')
-      .select('id, name, email')
-      .eq('id', user.id)
-      .single();
-
-    return {
-      id: book.id,
-      title: book.title,
-      author: book.author,
-      description: book.description,
-      price: book.price,
-      category: book.category,
-      condition: book.condition as "New" | "Good" | "Better" | "Average" | "Below Average",
-      imageUrl: book.image_url || 'https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=400&h=300&fit=crop&auto=format&q=80',
-      sold: book.sold,
-      createdAt: book.created_at,
-      seller: {
-        id: seller?.id || '',
-        name: seller?.name || 'Anonymous',
-        email: seller?.email || ''
-      }
-    };
-  } catch (error) {
-    console.error('Error in createBook:', error);
-    throw error;
-  }
-};
-
-export const getAllBooks = async (includeSold: boolean = true): Promise<Book[]> => {
-  try {
-    let query = supabase
-      .from('books')
-      .select(`
-        *,
-        front_cover,
-        back_cover,
-        inside_pages
-      `);
-
-    if (!includeSold) {
-      query = query.eq('sold', false);
-    }
-
-    query = query.order('created_at', { ascending: false });
-
-    const { data: books, error } = await query;
-    
-    if (error) {
-      console.error('Error fetching all books:', error);
-      throw error;
-    }
-
-    if (!books) return [];
-
-    // Fetch seller profiles separately
-    const sellerIds = books.map(book => book.seller_id);
-    const { data: profiles } = await supabase
-      .from('profiles')
-      .select('id, name, email')
-      .in('id', sellerIds);
-
-    const profileMap = new Map(profiles?.map(p => [p.id, p]) || []);
-
-    return books.map(book => {
-      const seller = profileMap.get(book.seller_id);
-      return {
-        id: book.id,
-        title: book.title,
-        author: book.author,
-        description: book.description,
-        price: book.price,
-        category: book.category,
-        condition: book.condition as "New" | "Good" | "Better" | "Average" | "Below Average",
-        imageUrl: book.image_url || 'https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=400&h=300&fit=crop&auto=format&q=80',
-        frontCover: book.front_cover,
-        backCover: book.back_cover,
-        insidePages: book.inside_pages,
-        sold: book.sold,
-        createdAt: book.created_at,
-        seller: {
-          id: seller?.id || '',
-          name: seller?.name || 'Anonymous',
-          email: seller?.email || ''
-        }
-      };
-    });
-  } catch (error) {
-    console.error('Error in getAllBooks:', error);
-    return [];
-  }
-};
-
-export const removeBook = async (bookId: string): Promise<{ success: boolean; message: string }> => {
-  try {
-    const { data: { user } } = await supabase.auth.getUser();
-    
-    if (!user) {
-      return { success: false, message: 'User not authenticated' };
-    }
-
-    // Check if user is admin
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('is_admin')
-      .eq('id', user.id)
-      .single();
-
-    if (!profile?.is_admin) {
-      return { success: false, message: 'Unauthorized: Admin access required' };
-    }
-
-    // Get book details before deletion for notification
-    const { data: book } = await supabase
-      .from('books')
-      .select('title, seller_id')
-      .eq('id', bookId)
-      .single();
-
-    // Delete the book
-    const { error } = await supabase
-      .from('books')
-      .delete()
-      .eq('id', bookId);
-
-    if (error) {
-      console.error('Error removing book:', error);
-      return { success: false, message: 'Failed to remove book from database' };
-    }
-
-    // Send notification to seller if book was found
-    if (book) {
-      try {
-        const { addNotification } = await import('@/services/notificationService');
-        await addNotification({
-          userId: book.seller_id,
-          title: 'Book Listing Removed',
-          message: `Your book listing for "${book.title}" was removed by an administrator. If you believe this was done in error, please contact support.`,
-          type: 'warning',
-          read: false
-        });
-      } catch (notificationError) {
-        console.error('Error sending notification:', notificationError);
-        // Don't fail the entire operation if notification fails
-      }
-    }
-
-    return { success: true, message: 'Book removed successfully' };
-  } catch (error) {
-    console.error('Error in removeBook:', error);
-    return { success: false, message: 'An unexpected error occurred' };
-  }
-};
-
-export const getTransactions = async () => {
-  try {
-    const { data: transactions, error } = await supabase
-      .from('transactions')
-      .select('*')
-      .order('created_at', { ascending: false });
-
-    if (error) {
-      console.error('Error fetching transactions:', error);
-      throw error;
-    }
-
-    if (!transactions) return [];
-
-    // Fetch seller profiles separately
-    const sellerIds = transactions.map(t => t.seller_id);
-    const { data: profiles } = await supabase
-      .from('profiles')
-      .select('id, name')
-      .in('id', sellerIds);
-
-    const profileMap = new Map(profiles?.map(p => [p.id, p]) || []);
-
-    return transactions.map(transaction => {
-      const seller = profileMap.get(transaction.seller_id);
-      return {
-        id: transaction.id,
-        bookTitle: transaction.book_title,
-        sellerName: seller?.name || 'Unknown',
-        price: transaction.price,
-        commission: transaction.commission,
-        date: transaction.created_at
-      };
-    });
-  } catch (error) {
-    console.error('Error in getTransactions:', error);
-    return [];
-  }
-};
-
-export const getTotalCommission = async (): Promise<number> => {
-  try {
-    const { data, error } = await supabase
-      .from('transactions')
-      .select('commission');
-
-    if (error) {
-      console.error('Error fetching total commission:', error);
-      throw error;
-    }
-
-    const total = data?.reduce((sum, transaction) => sum + (transaction.commission || 0), 0) || 0;
-    return Math.round(total * 100) / 100; // Round to 2 decimal places
-  } catch (error) {
-    console.error('Error in getTotalCommission:', error);
-    return 0;
-  }
-};
-
 export const getUserBooks = async (userId: string): Promise<Book[]> => {
   try {
-    const { data: books, error } = await supabase
+    const { data, error } = await supabase
       .from('books')
       .select(`
         *,
-        front_cover,
-        back_cover,
-        inside_pages
+        profiles!books_seller_id_fkey(id, name, email)
       `)
-      .eq('seller_id', userId)
-      .order('created_at', { ascending: false });
+      .eq('seller_id', userId);
 
     if (error) {
       console.error('Error fetching user books:', error);
-      throw error;
+      return [];
     }
 
-    if (!books) return [];
-
-    // Fetch seller profile separately
-    const { data: seller } = await supabase
-      .from('profiles')
-      .select('id, name, email')
-      .eq('id', userId)
-      .single();
-
-    return books.map(book => ({
+    const books: Book[] = data.map((book) => ({
       id: book.id,
       title: book.title,
       author: book.author,
@@ -521,12 +309,16 @@ export const getUserBooks = async (userId: string): Promise<Book[]> => {
       insidePages: book.inside_pages,
       sold: book.sold,
       createdAt: book.created_at,
+      grade: book.grade,
+      universityYear: book.university_year,
       seller: {
-        id: seller?.id || '',
-        name: seller?.name || 'Anonymous',
-        email: seller?.email || ''
+        id: (book.profiles as any)?.id || '',
+        name: (book.profiles as any)?.name || 'Anonymous',
+        email: (book.profiles as any)?.email || ''
       }
     }));
+
+    return books;
   } catch (error) {
     console.error('Error in getUserBooks:', error);
     return [];
