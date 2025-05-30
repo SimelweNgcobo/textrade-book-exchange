@@ -1,17 +1,16 @@
+
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/router';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { BookSchema, BookInput } from '@/schemas/bookSchema';
 import { toast } from 'sonner';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -24,8 +23,8 @@ import { getBook, updateBook } from '@/services/bookService';
 import { categories } from '@/constants/categories';
 
 const EditBook = () => {
-  const router = useRouter();
-  const { bookId } = router.query;
+  const navigate = useNavigate();
+  const { bookId } = useParams<{ bookId: string }>();
   const [formData, setFormData] = useState<BookInput>({
     title: '',
     author: '',
@@ -46,7 +45,7 @@ const EditBook = () => {
 
   useEffect(() => {
     if (bookId) {
-      loadBookData(bookId as string);
+      loadBookData(bookId);
     }
   }, [bookId]);
 
@@ -55,16 +54,26 @@ const EditBook = () => {
     try {
       const bookData = await getBook(id);
       if (bookData) {
-        setFormData(bookData);
-        form.reset(bookData);
+        const formattedData = {
+          title: bookData.title,
+          author: bookData.author,
+          description: bookData.description,
+          price: bookData.price,
+          categoryId: bookData.category,
+          frontCover: bookData.frontCover || '',
+          backCover: bookData.backCover || '',
+          insidePages: bookData.insidePages || ''
+        };
+        setFormData(formattedData);
+        form.reset(formattedData);
       } else {
         toast.error('Book not found');
-        router.push('/admin/books');
+        navigate('/admin/books');
       }
     } catch (error) {
       console.error('Error loading book data:', error);
       toast.error('Failed to load book data');
-      router.push('/admin/books');
+      navigate('/admin/books');
     } finally {
       setIsLoading(false);
     }
@@ -76,9 +85,9 @@ const EditBook = () => {
         toast.error('Book ID is missing');
         return;
       }
-      await updateBook(bookId as string, values);
+      await updateBook(bookId, values);
       toast.success('Book updated successfully!');
-      router.push('/admin/books');
+      navigate('/admin/books');
     } catch (error) {
       console.error('Error updating book:', error);
       toast.error('Failed to update book');
@@ -158,6 +167,7 @@ const EditBook = () => {
                       type="number"
                       placeholder="Book price"
                       {...field}
+                      onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
                     />
                   </FormControl>
                   <FormMessage />
@@ -170,7 +180,7 @@ const EditBook = () => {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Category</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="Select a category" />
@@ -200,6 +210,15 @@ const EditBook = () => {
                       backCover: images.backCover || '',
                       insidePages: images.insidePages || ''
                     }));
+                    // Update form values as well
+                    form.setValue('frontCover', images.frontCover || '');
+                    form.setValue('backCover', images.backCover || '');
+                    form.setValue('insidePages', images.insidePages || '');
+                  }}
+                  currentImages={{
+                    frontCover: formData.frontCover,
+                    backCover: formData.backCover,
+                    insidePages: formData.insidePages
                   }}
                 />
                 {(formData.frontCover || formData.backCover || formData.insidePages) && (
