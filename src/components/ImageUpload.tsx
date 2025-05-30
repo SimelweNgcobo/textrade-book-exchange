@@ -69,7 +69,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
       URL.revokeObjectURL(previewObjectUrl);
       
       // Verify the image is accessible
-      const img = new Image();
+      const img = document.createElement('img');
       img.onload = () => {
         setPreviewUrl(publicUrl);
         onImageChange(publicUrl);
