@@ -187,61 +187,62 @@ const EditBook = () => {
               )}
             />
 
-        <div className="space-y-6">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Book Images
-            </label>
-            <MultiImageUpload
-              onImagesChange={(images) => {
-                setFormData(prev => ({
-                  ...prev,
-                  frontCover: images.frontCover || '',
-                  backCover: images.backCover || '',
-                  insidePages: images.insidePages || ''
-                }));
-              }}
-            />
-            {(formData.frontCover || formData.backCover || formData.insidePages) && (
-              <div className="mt-4">
-                <p className="text-sm text-gray-600 mb-2">Current images:</p>
-                <div className="flex gap-2 flex-wrap">
-                  {formData.frontCover && (
-                    <div className="relative">
-                      <img 
-                        src={formData.frontCover} 
-                        alt="Front Cover" 
-                        className="w-20 h-20 object-cover rounded border"
-                      />
-                      <p className="text-xs text-center mt-1">Front</p>
+            <div className="space-y-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Book Images
+                </label>
+                <MultiImageUpload
+                  onImagesChange={(images) => {
+                    setFormData(prev => ({
+                      ...prev,
+                      frontCover: images.frontCover || '',
+                      backCover: images.backCover || '',
+                      insidePages: images.insidePages || ''
+                    }));
+                  }}
+                />
+                {(formData.frontCover || formData.backCover || formData.insidePages) && (
+                  <div className="mt-4">
+                    <p className="text-sm text-gray-600 mb-2">Current images:</p>
+                    <div className="flex gap-2 flex-wrap">
+                      {formData.frontCover && (
+                        <div className="relative">
+                          <img 
+                            src={formData.frontCover} 
+                            alt="Front Cover" 
+                            className="w-20 h-20 object-cover rounded border"
+                          />
+                          <p className="text-xs text-center mt-1">Front</p>
+                        </div>
+                      )}
+                      {formData.backCover && (
+                        <div className="relative">
+                          <img 
+                            src={formData.backCover} 
+                            alt="Back Cover" 
+                            className="w-20 h-20 object-cover rounded border"
+                          />
+                          <p className="text-xs text-center mt-1">Back</p>
+                        </div>
+                      )}
+                      {formData.insidePages && (
+                        <div className="relative">
+                          <img 
+                            src={formData.insidePages} 
+                            alt="Inside Pages" 
+                            className="w-20 h-20 object-cover rounded border"
+                          />
+                          <p className="text-xs text-center mt-1">Inside</p>
+                        </div>
+                      )}
                     </div>
-                  )}
-                  {formData.backCover && (
-                    <div className="relative">
-                      <img 
-                        src={formData.backCover} 
-                        alt="Back Cover" 
-                        className="w-20 h-20 object-cover rounded border"
-                      />
-                      <p className="text-xs text-center mt-1">Back</p>
-                    </div>
-                  )}
-                  {formData.insidePages && (
-                    <div className="relative">
-                      <img 
-                        src={formData.insidePages} 
-                        alt="Inside Pages" 
-                        className="w-20 h-20 object-cover rounded border"
-                      />
-                      <p className="text-xs text-center mt-1">Inside</p>
-                    </div>
-                  )}
-                </div>
+                  </div>
+                )}
               </div>
-            )}
-          </div>
 
-            <Button type="submit">Update Book</Button>
+              <Button type="submit">Update Book</Button>
+            </div>
           </form>
         </Form>
       </div>
