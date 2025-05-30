@@ -1,9 +1,9 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { AdminStats as AdminStatsType } from '@/services/adminService';
+import { AdminStats } from '@/services/adminService';
 
 interface AdminEarningsTabProps {
-  stats: AdminStatsType;
+  stats: AdminStats;
 }
 
 const AdminEarningsTab = ({ stats }: AdminEarningsTabProps) => {

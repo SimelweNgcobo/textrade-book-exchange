@@ -18,6 +18,17 @@ export interface AdminListing {
   user: string;
 }
 
+export interface AdminStats {
+  totalUsers: number;
+  activeListings: number;
+  booksSold: number;
+  reportedIssues: number;
+  newUsersThisWeek: number;
+  salesThisMonth: number;
+  weeklyCommission: number;
+  monthlyCommission: number;
+}
+
 export const getAdminUsers = async (): Promise<AdminUser[]> => {
   try {
     const { data: profiles, error: profilesError } = await supabase
@@ -42,7 +53,7 @@ export const getAdminUsers = async (): Promise<AdminUser[]> => {
           id: profile.id,
           name: profile.name || 'Anonymous',
           email: profile.email || '',
-          status: profile.status === 'suspended' ? 'suspended' : 'active',
+          status: (profile.status === 'suspended' ? 'suspended' : 'active') as 'active' | 'suspended',
           listingsCount: count || 0
         };
       })
@@ -53,6 +64,10 @@ export const getAdminUsers = async (): Promise<AdminUser[]> => {
     console.error('Error in getAdminUsers:', error);
     return [];
   }
+};
+
+export const getAllUsers = async (): Promise<AdminUser[]> => {
+  return getAdminUsers();
 };
 
 export const getAdminListings = async (): Promise<AdminListing[]> => {
@@ -82,6 +97,10 @@ export const getAdminListings = async (): Promise<AdminListing[]> => {
     console.error('Error in getAdminListings:', error);
     return [];
   }
+};
+
+export const getAllListings = async (): Promise<AdminListing[]> => {
+  return getAdminListings();
 };
 
 export const suspendUser = async (userId: string): Promise<void> => {
@@ -115,6 +134,14 @@ export const activateUser = async (userId: string): Promise<void> => {
   } catch (error) {
     console.error('Error in activateUser:', error);
     throw error;
+  }
+};
+
+export const updateUserStatus = async (userId: string, status: 'active' | 'suspended'): Promise<void> => {
+  if (status === 'suspended') {
+    return suspendUser(userId);
+  } else {
+    return activateUser(userId);
   }
 };
 
@@ -158,6 +185,10 @@ export const removeBook = async (bookId: string): Promise<void> => {
   }
 };
 
+export const deleteBookListing = async (bookId: string): Promise<void> => {
+  return removeBook(bookId);
+};
+
 export const getTotalUsers = async (): Promise<number> => {
   try {
     const { count, error } = await supabase
@@ -173,5 +204,126 @@ export const getTotalUsers = async (): Promise<number> => {
   } catch (error) {
     console.error('Error in getTotalUsers:', error);
     return 0;
+  }
+};
+
+export const getTotalCommission = async (): Promise<number> => {
+  try {
+    const { data, error } = await supabase
+      .from('transactions')
+      .select('commission');
+
+    if (error) {
+      console.error('Error getting total commission:', error);
+      return 0;
+    }
+
+    return (data || []).reduce((total, transaction) => total + (transaction.commission || 0), 0);
+  } catch (error) {
+    console.error('Error in getTotalCommission:', error);
+    return 0;
+  }
+};
+
+export const getAdminStats = async (): Promise<AdminStats> => {
+  try {
+    const [totalUsers, totalCommission] = await Promise.all([
+      getTotalUsers(),
+      getTotalCommission()
+    ]);
+
+    const { count: activeListings } = await supabase
+      .from('books')
+      .select('*', { count: 'exact', head: true })
+      .eq('sold', false);
+
+    const { count: booksSold } = await supabase
+      .from('books')
+      .select('*', { count: 'exact', head: true })
+      .eq('sold', true);
+
+    // Get new users this week
+    const weekAgo = new Date();
+    weekAgo.setDate(weekAgo.getDate() - 7);
+    const { count: newUsersThisWeek } = await supabase
+      .from('profiles')
+      .select('*', { count: 'exact', head: true })
+      .gte('created_at', weekAgo.toISOString());
+
+    // Get sales this month
+    const monthAgo = new Date();
+    monthAgo.setMonth(monthAgo.getMonth() - 1);
+    const { count: salesThisMonth } = await supabase
+      .from('transactions')
+      .select('*', { count: 'exact', head: true })
+      .gte('created_at', monthAgo.toISOString());
+
+    // Get weekly commission
+    const { data: weeklyTransactions } = await supabase
+      .from('transactions')
+      .select('commission')
+      .gte('created_at', weekAgo.toISOString());
+
+    const weeklyCommission = (weeklyTransactions || []).reduce((total, t) => total + (t.commission || 0), 0);
+
+    // Get monthly commission
+    const { data: monthlyTransactions } = await supabase
+      .from('transactions')
+      .select('commission')
+      .gte('created_at', monthAgo.toISOString());
+
+    const monthlyCommission = (monthlyTransactions || []).reduce((total, t) => total + (t.commission || 0), 0);
+
+    return {
+      totalUsers,
+      activeListings: activeListings || 0,
+      booksSold: booksSold || 0,
+      reportedIssues: 0, // TODO: Implement when reports system is added
+      newUsersThisWeek: newUsersThisWeek || 0,
+      salesThisMonth: salesThisMonth || 0,
+      weeklyCommission,
+      monthlyCommission
+    };
+  } catch (error) {
+    console.error('Error in getAdminStats:', error);
+    return {
+      totalUsers: 0,
+      activeListings: 0,
+      booksSold: 0,
+      reportedIssues: 0,
+      newUsersThisWeek: 0,
+      salesThisMonth: 0,
+      weeklyCommission: 0,
+      monthlyCommission: 0
+    };
+  }
+};
+
+export const sendBroadcastMessage = async (message: string): Promise<void> => {
+  try {
+    // Get all user IDs
+    const { data: profiles, error } = await supabase
+      .from('profiles')
+      .select('id');
+
+    if (error) {
+      throw error;
+    }
+
+    // Send notification to all users
+    const { addNotification } = await import('@/services/notificationService');
+    
+    for (const profile of profiles || []) {
+      await addNotification({
+        userId: profile.id,
+        title: 'Admin Announcement',
+        message: message,
+        type: 'info',
+        read: false
+      });
+    }
+  } catch (error) {
+    console.error('Error sending broadcast message:', error);
+    throw error;
   }
 };

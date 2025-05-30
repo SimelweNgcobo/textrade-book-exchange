@@ -11,7 +11,12 @@ import {
 } from '@/components/ui/dialog';
 import { HelpCircle, Share2, DollarSign, Camera, Star } from 'lucide-react';
 
-const BookNotSellingHelp = () => {
+interface BookNotSellingHelpProps {
+  bookId?: string;
+  bookTitle?: string;
+}
+
+const BookNotSellingHelp = ({ bookId, bookTitle }: BookNotSellingHelpProps) => {
   const [isOpen, setIsOpen] = useState(false);
 
   const tips = [

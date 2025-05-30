@@ -1,7 +1,7 @@
 
 import { supabase } from '@/integrations/supabase/client';
 
-interface Notification {
+export interface Notification {
   id: string;
   userId: string;
   title: string;
@@ -9,6 +9,14 @@ interface Notification {
   type: 'info' | 'warning' | 'success' | 'error';
   read: boolean;
   createdAt: string;
+}
+
+export interface NotificationInput {
+  userId: string;
+  title: string;
+  message: string;
+  type: 'info' | 'warning' | 'success' | 'error';
+  read: boolean;
 }
 
 export const getNotifications = async (userId: string): Promise<Notification[]> => {
@@ -24,38 +32,40 @@ export const getNotifications = async (userId: string): Promise<Notification[]> 
       return [];
     }
 
-    return data?.map(notification => ({
+    return (data || []).map(notification => ({
       id: notification.id,
       userId: notification.user_id,
       title: notification.title,
       message: notification.message,
-      type: notification.type,
+      type: notification.type as 'info' | 'warning' | 'success' | 'error',
       read: notification.read,
       createdAt: notification.created_at
-    })) || [];
+    }));
   } catch (error) {
     console.error('Error in getNotifications:', error);
     return [];
   }
 };
 
-export const addNotification = async (notification: Omit<Notification, 'id' | 'createdAt'>): Promise<void> => {
+export const addNotification = async (notification: NotificationInput): Promise<void> => {
   try {
     const { error } = await supabase
       .from('notifications')
-      .insert({
+      .insert([{
         user_id: notification.userId,
         title: notification.title,
         message: notification.message,
         type: notification.type,
         read: notification.read
-      });
+      }]);
 
     if (error) {
       console.error('Error adding notification:', error);
+      throw error;
     }
   } catch (error) {
     console.error('Error in addNotification:', error);
+    throw error;
   }
 };
 
@@ -68,13 +78,15 @@ export const markNotificationAsRead = async (notificationId: string): Promise<vo
 
     if (error) {
       console.error('Error marking notification as read:', error);
+      throw error;
     }
   } catch (error) {
     console.error('Error in markNotificationAsRead:', error);
+    throw error;
   }
 };
 
-export const deleteNotification = async (notificationId: string): Promise<void> => {
+export const clearNotification = async (notificationId: string): Promise<void> => {
   try {
     const { error } = await supabase
       .from('notifications')
@@ -82,60 +94,11 @@ export const deleteNotification = async (notificationId: string): Promise<void> 
       .eq('id', notificationId);
 
     if (error) {
-      console.error('Error deleting notification:', error);
+      console.error('Error clearing notification:', error);
+      throw error;
     }
   } catch (error) {
-    console.error('Error in deleteNotification:', error);
+    console.error('Error in clearNotification:', error);
+    throw error;
   }
-};
-
-export const sendBookRemovalNotification = async (userId: string, bookTitle: string): Promise<void> => {
-  await addNotification({
-    userId,
-    title: 'Book Listing Removed',
-    message: `Your book listing for "${bookTitle}" was removed because it did not have a clear image or enough detail. Try uploading it again with a better image or description 😉`,
-    type: 'warning',
-    read: false
-  });
-};
-
-// Legacy functions for backward compatibility
-export const queueBroadcastMessage = (message: string): void => {
-  const queue = JSON.parse(localStorage.getItem('broadcastQueue') || '[]');
-  queue.push({
-    message,
-    timestamp: new Date().toISOString()
-  });
-  localStorage.setItem('broadcastQueue', JSON.stringify(queue));
-};
-
-export const clearOldBroadcastMessages = (): void => {
-  const oneDayAgo = new Date();
-  oneDayAgo.setDate(oneDayAgo.getDate() - 1);
-  
-  const queue = JSON.parse(localStorage.getItem('broadcastQueue') || '[]');
-  const filtered = queue.filter((msg: any) => new Date(msg.timestamp) > oneDayAgo);
-  localStorage.setItem('broadcastQueue', JSON.stringify(filtered));
-};
-
-export const queueGlobalBroadcastMessage = (message: string): void => {
-  const globalQueue = JSON.parse(localStorage.getItem('globalBroadcastQueue') || '[]');
-  globalQueue.push({
-    message,
-    timestamp: new Date().toISOString(),
-    id: `global_broadcast_${Date.now()}`,
-    isGlobal: true
-  });
-  localStorage.setItem('globalBroadcastQueue', JSON.stringify(globalQueue));
-  
-  window.dispatchEvent(new CustomEvent('globalBroadcastUpdate'));
-};
-
-export const clearOldGlobalBroadcastMessages = (): void => {
-  const oneDayAgo = new Date();
-  oneDayAgo.setDate(oneDayAgo.getDate() - 1);
-  
-  const queue = JSON.parse(localStorage.getItem('globalBroadcastQueue') || '[]');
-  const filtered = queue.filter((msg: any) => new Date(msg.timestamp) > oneDayAgo);
-  localStorage.setItem('globalBroadcastQueue', JSON.stringify(filtered));
 };
