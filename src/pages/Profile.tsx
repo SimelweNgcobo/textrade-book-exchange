@@ -1,18 +1,81 @@
-import { useState } from 'react';
+
+import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import Layout from '@/components/Layout';
 import ProfileHeader from '@/components/ProfileHeader';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { Lock, User, Mail } from 'lucide-react';
+import { Lock, User, Mail, MapPin, BookIcon, Calendar } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 import ProfileEditDialog from '@/components/ProfileEditDialog';
 import ChangePasswordDialog from '@/components/ChangePasswordDialog';
+import AddressForm from '@/components/AddressForm';
+import { saveUserAddresses, getUserAddresses } from '@/services/addressService';
+import { getUserBooks } from '@/services/bookService';
+import { Book } from '@/types/book';
+import { toast } from 'sonner';
+import { useNavigate } from 'react-router-dom';
 
 const Profile = () => {
   const { profile, user } = useAuth();
+  const navigate = useNavigate();
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isChangePasswordDialogOpen, setIsChangePasswordDialogOpen] = useState(false);
+  const [addressData, setAddressData] = useState<any>(null);
+  const [activeListings, setActiveListings] = useState<Book[]>([]);
+  const [isLoadingAddress, setIsLoadingAddress] = useState(false);
+  const [isLoadingListings, setIsLoadingListings] = useState(true);
+
+  useEffect(() => {
+    if (user?.id) {
+      loadUserAddresses();
+      loadActiveListings();
+    }
+  }, [user?.id]);
+
+  const loadUserAddresses = async () => {
+    if (!user?.id) return;
+    
+    try {
+      const data = await getUserAddresses(user.id);
+      setAddressData(data);
+    } catch (error) {
+      console.error('Error loading addresses:', error);
+    }
+  };
+
+  const loadActiveListings = async () => {
+    if (!user?.id) return;
+    
+    try {
+      setIsLoadingListings(true);
+      const books = await getUserBooks(user.id);
+      // Filter for only active (not sold) listings
+      const activeBooks = books.filter(book => !book.sold);
+      setActiveListings(activeBooks);
+    } catch (error) {
+      console.error('Error loading active listings:', error);
+      toast.error('Failed to load active listings');
+    } finally {
+      setIsLoadingListings(false);
+    }
+  };
+
+  const handleSaveAddresses = async (pickup: any, shipping: any, same: boolean) => {
+    if (!user?.id) return;
+    
+    setIsLoadingAddress(true);
+    try {
+      await saveUserAddresses(user.id, pickup, shipping, same);
+      await loadUserAddresses();
+    } catch (error) {
+      console.error('Error saving addresses:', error);
+      throw error;
+    } finally {
+      setIsLoadingAddress(false);
+    }
+  };
 
   if (!profile || !user) {
     return (
@@ -30,18 +93,16 @@ const Profile = () => {
     console.log('Share profile clicked');
   };
 
-  // Convert profile to userData format expected by ProfileHeader
+  // Convert profile to userData format expected by ProfileHeader (without rating and deliveries)
   const userData = {
     name: profile.name || 'Anonymous User',
-    joinDate: new Date().toISOString(), // Use current date as fallback since created_at doesn't exist on Profile
-    rating: 4.5,
-    isVerified: false,
-    successfulDeliveries: 0
+    joinDate: new Date().toISOString(),
+    isVerified: false
   };
 
   return (
     <Layout>
-      <div className="container mx-auto px-4 py-8 max-w-4xl">
+      <div className="container mx-auto px-4 py-8 max-w-6xl">
         <ProfileHeader 
           userData={userData}
           isOwnProfile={true}
@@ -90,10 +151,31 @@ const Profile = () => {
                 </div>
               </CardContent>
             </Card>
+
+            {/* Address Section */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <MapPin className="h-5 w-5 mr-2" />
+                  Address Information
+                </CardTitle>
+                <p className="text-sm text-gray-600">Manage your pickup and shipping addresses</p>
+              </CardHeader>
+              <CardContent>
+                <AddressForm
+                  pickupAddress={addressData?.pickup_address}
+                  shippingAddress={addressData?.shipping_address}
+                  addressesSame={addressData?.addresses_same}
+                  onSave={handleSaveAddresses}
+                  isLoading={isLoadingAddress}
+                />
+              </CardContent>
+            </Card>
           </div>
 
-          {/* Security Settings */}
+          {/* Sidebar */}
           <div className="space-y-6">
+            {/* Security Settings */}
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center">
@@ -118,6 +200,83 @@ const Profile = () => {
                     </Button>
                   </div>
                 </div>
+              </CardContent>
+            </Card>
+
+            {/* Active Listings */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center justify-between">
+                  <span className="flex items-center">
+                    <BookIcon className="h-5 w-5 mr-2" />
+                    Active Listings
+                  </span>
+                  <Badge variant="secondary">{activeListings.length}</Badge>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {isLoadingListings ? (
+                  <div className="text-center py-4">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-book-600 mx-auto"></div>
+                  </div>
+                ) : activeListings.length > 0 ? (
+                  <div className="space-y-3">
+                    {activeListings.slice(0, 3).map((book) => (
+                      <div 
+                        key={book.id}
+                        className="flex items-center space-x-3 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors"
+                        onClick={() => navigate(`/books/${book.id}`)}
+                      >
+                        <img 
+                          src={book.imageUrl} 
+                          alt={book.title}
+                          className="w-12 h-12 object-cover rounded"
+                        />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-gray-900 truncate">
+                            {book.title}
+                          </p>
+                          <p className="text-sm text-gray-500">R{book.price}</p>
+                          <div className="flex items-center text-xs text-gray-400">
+                            <Calendar className="h-3 w-3 mr-1" />
+                            {new Date(book.createdAt).toLocaleDateString()}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                    
+                    {activeListings.length > 3 && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => navigate('/user-profile')}
+                        className="w-full mt-3"
+                      >
+                        View All ({activeListings.length})
+                      </Button>
+                    )}
+                    
+                    <Button
+                      onClick={() => navigate('/create-listing')}
+                      className="w-full bg-book-600 hover:bg-book-700 text-white"
+                      size="sm"
+                    >
+                      Create New Listing
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="text-center py-6">
+                    <BookIcon className="h-8 w-8 text-gray-300 mx-auto mb-2" />
+                    <p className="text-sm text-gray-500 mb-3">No active listings</p>
+                    <Button
+                      onClick={() => navigate('/create-listing')}
+                      className="bg-book-600 hover:bg-book-700 text-white"
+                      size="sm"
+                    >
+                      Create Your First Listing
+                    </Button>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </div>
