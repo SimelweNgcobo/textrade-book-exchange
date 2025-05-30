@@ -12,6 +12,7 @@ import {
   CheckCircle,
   User
 } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface UserData {
   id?: string;
@@ -39,6 +40,8 @@ const ProfileHeader = ({
   onMessageUser,
   onReportUser
 }: ProfileHeaderProps) => {
+  const { profile } = useAuth();
+  
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('en-US', { 
@@ -53,8 +56,16 @@ const ProfileHeader = ({
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
           {/* Profile Info */}
           <div className="flex items-center space-x-4">
-            <div className="w-16 h-16 bg-book-100 rounded-full flex items-center justify-center">
-              <User className="h-8 w-8 text-book-600" />
+            <div className="w-16 h-16 bg-book-100 rounded-full flex items-center justify-center overflow-hidden">
+              {isOwnProfile && profile?.profile_picture_url ? (
+                <img 
+                  src={profile.profile_picture_url} 
+                  alt="Profile" 
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <User className="h-8 w-8 text-book-600" />
+              )}
             </div>
             
             <div className="space-y-1">

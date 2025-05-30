@@ -99,36 +99,42 @@ export type Database = {
       profiles: {
         Row: {
           addresses_same: boolean | null
+          bio: string | null
           created_at: string
           email: string | null
           id: string
           is_admin: boolean | null
           name: string | null
           pickup_address: Json | null
+          profile_picture_url: string | null
           shipping_address: Json | null
           status: string | null
           updated_at: string
         }
         Insert: {
           addresses_same?: boolean | null
+          bio?: string | null
           created_at?: string
           email?: string | null
           id: string
           is_admin?: boolean | null
           name?: string | null
           pickup_address?: Json | null
+          profile_picture_url?: string | null
           shipping_address?: Json | null
           status?: string | null
           updated_at?: string
         }
         Update: {
           addresses_same?: boolean | null
+          bio?: string | null
           created_at?: string
           email?: string | null
           id?: string
           is_admin?: boolean | null
           name?: string | null
           pickup_address?: Json | null
+          profile_picture_url?: string | null
           shipping_address?: Json | null
           status?: string | null
           updated_at?: string
@@ -192,6 +198,10 @@ export type Database = {
           name: string
           email: string
         }[]
+      }
+      has_role: {
+        Args: { user_id: string; role_name: string }
+        Returns: boolean
       }
       is_admin: {
         Args: { user_id: string }

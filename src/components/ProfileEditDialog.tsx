@@ -49,7 +49,6 @@ const ProfileEditDialog = ({ isOpen, onClose }: ProfileEditDialogProps) => {
     setIsLoading(true);
     
     try {
-      // Update the profile in Supabase
       const { error } = await supabase
         .from('profiles')
         .update({
@@ -68,7 +67,6 @@ const ProfileEditDialog = ({ isOpen, onClose }: ProfileEditDialogProps) => {
       toast.success('Profile updated successfully');
       onClose();
       
-      // Refresh the page to update the context
       window.location.reload();
     } catch (error) {
       console.error('Failed to update profile:', error);
@@ -81,7 +79,6 @@ const ProfileEditDialog = ({ isOpen, onClose }: ProfileEditDialogProps) => {
   const handleClose = () => {
     if (!isLoading) {
       onClose();
-      // Reset form when closing
       setName(profile?.name || '');
       setEmail(profile?.email || user?.email || '');
     }
