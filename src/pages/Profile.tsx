@@ -19,7 +19,6 @@ import { deleteBook } from '@/services/bookEditService';
 import { Book } from '@/types/book';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
 
 const Profile = () => {
   const { profile, user } = useAuth();
@@ -101,58 +100,6 @@ const Profile = () => {
     }
   };
 
-  const handleUpdateProfilePicture = async (imageUrl: string) => {
-    if (!user?.id) return;
-
-    try {
-      const { error } = await supabase
-        .from('profiles')
-        .update({ 
-          profile_picture_url: imageUrl,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', user.id);
-
-      if (error) {
-        console.error('Error updating profile picture:', error);
-        toast.error('Failed to update profile picture');
-        return;
-      }
-
-      toast.success('Profile picture updated successfully');
-      window.location.reload();
-    } catch (error) {
-      console.error('Error updating profile picture:', error);
-      toast.error('Failed to update profile picture');
-    }
-  };
-
-  const handleUpdateBio = async (bio: string) => {
-    if (!user?.id) return;
-
-    try {
-      const { error } = await supabase
-        .from('profiles')
-        .update({ 
-          bio: bio,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', user.id);
-
-      if (error) {
-        console.error('Error updating bio:', error);
-        toast.error('Failed to update bio');
-        return;
-      }
-
-      toast.success('Bio updated successfully');
-      window.location.reload();
-    } catch (error) {
-      console.error('Error updating bio:', error);
-      toast.error('Failed to update bio');
-    }
-  };
-
   if (!profile || !user) {
     return (
       <Layout>
@@ -196,8 +143,6 @@ const Profile = () => {
             <AccountInformation 
               profile={profile}
               onEditProfile={() => setIsEditDialogOpen(true)}
-              onUpdateProfilePicture={handleUpdateProfilePicture}
-              onUpdateBio={handleUpdateBio}
             />
 
             {/* Address Section */}
