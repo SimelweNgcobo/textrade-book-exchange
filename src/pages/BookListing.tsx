@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import Layout from '@/components/Layout';
@@ -49,7 +48,7 @@ const BookListing = () => {
       const grade = searchParams.get('grade') || '';
       const universityYear = searchParams.get('universityYear') || '';
       
-      // Create a filters object based on current search params
+      // Create a filters object based on current search params and state
       const filters: {
         search?: string;
         category?: string;
@@ -385,7 +384,7 @@ const BookListing = () => {
                   >
                     <div className="relative h-48 overflow-hidden">
                       <img 
-                        src={book.imageUrl} 
+                        src={book.frontCover || book.imageUrl} 
                         alt={book.title}
                         className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
                       />
