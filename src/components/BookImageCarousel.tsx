@@ -18,14 +18,14 @@ const BookImageCarousel = ({ images, bookTitle }: BookImageCarouselProps) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   
-  // Filter out empty images and create array with labels
+  // Filter out empty images and create array with labels - only use seller's actual images
   const imageList = [
     { url: images.frontCover, label: 'Front Cover' },
     { url: images.backCover, label: 'Back Cover' },
     { url: images.insidePages, label: 'Inside Pages' }
-  ].filter(img => img.url && img.url.trim() !== '');
+  ].filter(img => img.url && img.url.trim() !== '' && img.url !== 'https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=500&h=600&fit=crop');
 
-  // Fallback image if no images available
+  // Only use fallback if no seller images are available at all
   const fallbackImage = 'https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=500&h=600&fit=crop';
   
   if (imageList.length === 0) {
@@ -64,7 +64,10 @@ const BookImageCarousel = ({ images, bookTitle }: BookImageCarouselProps) => {
                       alt={`${bookTitle} - ${image.label}`}
                       className="rounded-lg shadow-md object-cover w-full h-[500px] transition-transform group-hover:scale-105"
                       onError={(e) => {
-                        (e.target as HTMLImageElement).src = fallbackImage;
+                        // Only use fallback if the original image fails to load
+                        if ((e.target as HTMLImageElement).src !== fallbackImage) {
+                          (e.target as HTMLImageElement).src = fallbackImage;
+                        }
                       }}
                     />
                     <div className="absolute bottom-2 left-2">
@@ -86,7 +89,9 @@ const BookImageCarousel = ({ images, bookTitle }: BookImageCarouselProps) => {
                       alt={`${bookTitle} - ${currentImage.label}`}
                       className="w-full h-auto max-h-[80vh] object-contain"
                       onError={(e) => {
-                        (e.target as HTMLImageElement).src = fallbackImage;
+                        if ((e.target as HTMLImageElement).src !== fallbackImage) {
+                          (e.target as HTMLImageElement).src = fallbackImage;
+                        }
                       }}
                     />
                     <div className="absolute bottom-4 left-4">
@@ -127,12 +132,12 @@ const BookImageCarousel = ({ images, bookTitle }: BookImageCarouselProps) => {
       </Carousel>
       
       {imageList.length > 1 && (
-        <div className="flex justify-center mt-4 space-x-2">
+        <div className="flex justify-center mt-4 space-x-2 overflow-x-auto pb-2">
           {imageList.map((image, index) => (
             <button
               key={index}
               onClick={() => handleThumbnailClick(index)}
-              className={`w-16 h-16 rounded-md overflow-hidden border-2 transition-all ${
+              className={`w-16 h-16 rounded-md overflow-hidden border-2 transition-all flex-shrink-0 ${
                 index === currentImageIndex ? 'border-book-600 ring-2 ring-book-200' : 'border-gray-300'
               }`}
             >
@@ -141,7 +146,9 @@ const BookImageCarousel = ({ images, bookTitle }: BookImageCarouselProps) => {
                 alt={`${bookTitle} - ${image.label} thumbnail`}
                 className="w-full h-full object-cover"
                 onError={(e) => {
-                  (e.target as HTMLImageElement).src = fallbackImage;
+                  if ((e.target as HTMLImageElement).src !== fallbackImage) {
+                    (e.target as HTMLImageElement).src = fallbackImage;
+                  }
                 }}
               />
             </button>

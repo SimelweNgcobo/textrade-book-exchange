@@ -6,9 +6,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Bell, Trash2, AlertCircle, CheckCircle, Info } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
-import { getNotifications, markNotificationAsRead } from '@/services/notificationService';
+import { getNotifications, markNotificationAsRead, deleteNotification } from '@/services/notificationService';
 
-// Use the notification interface from the service to avoid conflicts
 interface NotificationItem {
   id: string;
   userId: string;
@@ -22,13 +21,28 @@ interface NotificationItem {
 const Notifications = () => {
   const { user } = useAuth();
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     if (user) {
-      const userNotifications = getNotifications(user.id);
-      setNotifications(userNotifications);
+      loadNotifications();
     }
   }, [user]);
+
+  const loadNotifications = async () => {
+    if (!user) return;
+    
+    setIsLoading(true);
+    try {
+      const userNotifications = await getNotifications(user.id);
+      setNotifications(userNotifications);
+    } catch (error) {
+      console.error('Error loading notifications:', error);
+      toast.error('Failed to load notifications');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const getIcon = (type: string) => {
     switch (type) {
@@ -56,43 +70,71 @@ const Notifications = () => {
     }
   };
 
-  const markAsRead = (id: string) => {
-    markNotificationAsRead(id);
-    setNotifications(prev => 
-      prev.map(notif => 
-        notif.id === id ? { ...notif, read: true } : notif
-      )
-    );
+  const markAsRead = async (id: string) => {
+    try {
+      await markNotificationAsRead(id);
+      setNotifications(prev => 
+        prev.map(notif => 
+          notif.id === id ? { ...notif, read: true } : notif
+        )
+      );
+    } catch (error) {
+      console.error('Error marking notification as read:', error);
+      toast.error('Failed to mark notification as read');
+    }
   };
 
-  const deleteNotification = (id: string) => {
-    setNotifications(prev => prev.filter(notif => notif.id !== id));
-    toast.success('Notification deleted');
+  const handleDeleteNotification = async (id: string) => {
+    try {
+      await deleteNotification(id);
+      setNotifications(prev => prev.filter(notif => notif.id !== id));
+      toast.success('Notification deleted');
+    } catch (error) {
+      console.error('Error deleting notification:', error);
+      toast.error('Failed to delete notification');
+    }
   };
 
-  const markAllAsRead = () => {
-    notifications.forEach(notif => {
-      if (!notif.read) {
-        markNotificationAsRead(notif.id);
-      }
-    });
-    setNotifications(prev => 
-      prev.map(notif => ({ ...notif, read: true }))
-    );
-    toast.success('All notifications marked as read');
+  const markAllAsRead = async () => {
+    try {
+      const unreadNotifications = notifications.filter(n => !n.read);
+      await Promise.all(
+        unreadNotifications.map(notif => markNotificationAsRead(notif.id))
+      );
+      setNotifications(prev => 
+        prev.map(notif => ({ ...notif, read: true }))
+      );
+      toast.success('All notifications marked as read');
+    } catch (error) {
+      console.error('Error marking all as read:', error);
+      toast.error('Failed to mark all as read');
+    }
   };
 
-  const clearAll = () => {
-    setNotifications([]);
-    toast.success('All notifications cleared');
+  const clearAll = async () => {
+    try {
+      await Promise.all(
+        notifications.map(notif => deleteNotification(notif.id))
+      );
+      setNotifications([]);
+      toast.success('All notifications cleared');
+    } catch (error) {
+      console.error('Error clearing all notifications:', error);
+      toast.error('Failed to clear all notifications');
+    }
   };
 
   const unreadCount = notifications.filter(n => !n.read).length;
 
-  useEffect(() => {
-    localStorage.setItem('notificationCount', unreadCount.toString());
-    window.dispatchEvent(new CustomEvent('notificationUpdate', { detail: unreadCount }));
-  }, [unreadCount]);
+  if (isLoading) {
+    return (
+      <Layout>
+        <div className="container mx-auto px-4 py-8 flex justify-center items-center min-h-[60vh]">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-book-600"></div>
+        </div>
+      </Layout>
+    );
+  }
 
   return (
     <Layout>
@@ -178,7 +220,7 @@ const Notifications = () => {
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => deleteNotification(notification.id)}
+                        onClick={() => handleDeleteNotification(notification.id)}
                         className="text-red-600 hover:text-red-700 p-1 sm:p-2"
                       >
                         <Trash2 className="h-4 w-4" />

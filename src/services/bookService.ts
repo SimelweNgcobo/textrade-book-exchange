@@ -94,7 +94,12 @@ export const getBookById = async (id: string): Promise<Book | null> => {
   try {
     const { data: book, error } = await supabase
       .from('books')
-      .select('*')
+      .select(`
+        *,
+        front_cover,
+        back_cover,
+        inside_pages
+      `)
       .eq('id', id)
       .single();
 
@@ -121,6 +126,9 @@ export const getBookById = async (id: string): Promise<Book | null> => {
       category: book.category,
       condition: book.condition as "New" | "Good" | "Better" | "Average" | "Below Average",
       imageUrl: book.image_url || 'https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=400&h=300&fit=crop&auto=format&q=80',
+      frontCover: book.front_cover,
+      backCover: book.back_cover,
+      insidePages: book.inside_pages,
       sold: book.sold,
       createdAt: book.created_at,
       seller: {
@@ -199,7 +207,12 @@ export const getAllBooks = async (includeSold: boolean = true): Promise<Book[]> 
   try {
     let query = supabase
       .from('books')
-      .select('*');
+      .select(`
+        *,
+        front_cover,
+        back_cover,
+        inside_pages
+      `);
 
     if (!includeSold) {
       query = query.eq('sold', false);
@@ -236,6 +249,9 @@ export const getAllBooks = async (includeSold: boolean = true): Promise<Book[]> 
         category: book.category,
         condition: book.condition as "New" | "Good" | "Better" | "Average" | "Below Average",
         imageUrl: book.image_url || 'https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=400&h=300&fit=crop&auto=format&q=80',
+        frontCover: book.front_cover,
+        backCover: book.back_cover,
+        insidePages: book.inside_pages,
         sold: book.sold,
         createdAt: book.created_at,
         seller: {
@@ -270,6 +286,13 @@ export const removeBook = async (bookId: string): Promise<{ success: boolean; me
       return { success: false, message: 'Unauthorized: Admin access required' };
     }
 
+    // Get book details before deletion for notification
+    const { data: book } = await supabase
+      .from('books')
+      .select('title, seller_id')
+      .eq('id', bookId)
+      .single();
+
     // Delete the book
     const { error } = await supabase
       .from('books')
@@ -279,6 +302,23 @@ export const removeBook = async (bookId: string): Promise<{ success: boolean; me
     if (error) {
       console.error('Error removing book:', error);
       return { success: false, message: 'Failed to remove book from database' };
+    }
+
+    // Send notification to seller if book was found
+    if (book) {
+      try {
+        const { addNotification } = await import('@/services/notificationService');
+        await addNotification({
+          userId: book.seller_id,
+          title: 'Book Listing Removed',
+          message: `Your book listing for "${book.title}" was removed by an administrator. If you believe this was done in error, please contact support.`,
+          type: 'warning',
+          read: false
+        });
+      } catch (notificationError) {
+        console.error('Error sending notification:', notificationError);
+        // Don't fail the entire operation if notification fails
+      }
     }
 
     return { success: true, message: 'Book removed successfully' };
@@ -351,7 +391,12 @@ export const getUserBooks = async (userId: string): Promise<Book[]> => {
   try {
     const { data: books, error } = await supabase
       .from('books')
-      .select('*')
+      .select(`
+        *,
+        front_cover,
+        back_cover,
+        inside_pages
+      `)
       .eq('seller_id', userId)
       .order('created_at', { ascending: false });
 
@@ -378,6 +423,9 @@ export const getUserBooks = async (userId: string): Promise<Book[]> => {
       category: book.category,
       condition: book.condition as "New" | "Good" | "Better" | "Average" | "Below Average",
       imageUrl: book.image_url || 'https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=400&h=300&fit=crop&auto=format&q=80',
+      frontCover: book.front_cover,
+      backCover: book.back_cover,
+      insidePages: book.inside_pages,
       sold: book.sold,
       createdAt: book.created_at,
       seller: {

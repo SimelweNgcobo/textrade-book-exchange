@@ -6,13 +6,15 @@ import ProfileHeader from '@/components/ProfileHeader';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { Lock, User, Mail, MapPin, BookIcon, Calendar } from 'lucide-react';
+import { Lock, User, Mail, MapPin, BookIcon, Calendar, Edit, Trash2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import ProfileEditDialog from '@/components/ProfileEditDialog';
 import ChangePasswordDialog from '@/components/ChangePasswordDialog';
 import AddressForm from '@/components/AddressForm';
+import BookNotSellingHelp from '@/components/BookNotSellingHelp';
 import { saveUserAddresses, getUserAddresses } from '@/services/addressService';
 import { getUserBooks } from '@/services/bookService';
+import { deleteBook } from '@/services/bookEditService';
 import { Book } from '@/types/book';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
@@ -74,6 +76,25 @@ const Profile = () => {
       throw error;
     } finally {
       setIsLoadingAddress(false);
+    }
+  };
+
+  const handleEditBook = (bookId: string) => {
+    navigate(`/edit-book/${bookId}`);
+  };
+
+  const handleDeleteBook = async (bookId: string, bookTitle: string) => {
+    if (!confirm(`Are you sure you want to delete "${bookTitle}"? This action cannot be undone.`)) {
+      return;
+    }
+
+    try {
+      await deleteBook(bookId);
+      toast.success('Book deleted successfully');
+      await loadActiveListings(); // Reload listings
+    } catch (error) {
+      console.error('Error deleting book:', error);
+      toast.error('Failed to delete book');
     }
   };
 
@@ -221,14 +242,18 @@ const Profile = () => {
                   </div>
                 ) : activeListings.length > 0 ? (
                   <div className="space-y-3">
+                    {/* Book Not Selling Help Button */}
+                    <div className="mb-4">
+                      <BookNotSellingHelp />
+                    </div>
+                    
                     {activeListings.slice(0, 3).map((book) => (
                       <div 
                         key={book.id}
-                        className="flex items-center space-x-3 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors"
-                        onClick={() => navigate(`/books/${book.id}`)}
+                        className="flex items-center space-x-3 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
                       >
                         <img 
-                          src={book.imageUrl} 
+                          src={book.frontCover || book.imageUrl} 
                           alt={book.title}
                           className="w-12 h-12 object-cover rounded"
                         />
@@ -241,6 +266,24 @@ const Profile = () => {
                             <Calendar className="h-3 w-3 mr-1" />
                             {new Date(book.createdAt).toLocaleDateString()}
                           </div>
+                        </div>
+                        <div className="flex items-center space-x-1">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleEditBook(book.id)}
+                            className="text-book-600 hover:text-book-700"
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleDeleteBook(book.id, book.title)}
+                            className="text-red-600 hover:text-red-700"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
                         </div>
                       </div>
                     ))}
