@@ -1,114 +1,87 @@
-
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
+import { useRouter } from 'next/router';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { BookSchema, BookInput } from '@/schemas/bookSchema';
+import { toast } from 'sonner';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { toast } from 'sonner';
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Layout from '@/components/Layout';
 import MultiImageUpload from '@/components/MultiImageUpload';
-import { ArrowLeft } from 'lucide-react';
-import { getBookById } from '@/services/bookService';
-import { updateBook } from '@/services/bookEditService';
-import { Book, BookFormData } from '@/types/book';
+import { getBook, updateBook } from '@/services/bookService';
+import { categories } from '@/constants/categories';
 
 const EditBook = () => {
-  const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
-  
-  const [book, setBook] = useState<Book | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  
-  const [formData, setFormData] = useState<BookFormData>({
+  const router = useRouter();
+  const { bookId } = router.query;
+  const [formData, setFormData] = useState<BookInput>({
     title: '',
     author: '',
     description: '',
     price: 0,
-    category: '',
-    condition: 'Good',
-    imageUrl: '',
+    categoryId: '',
     frontCover: '',
     backCover: '',
-    insidePages: '',
-    grade: '',
-    universityYear: ''
+    insidePages: ''
+  });
+  const [isLoading, setIsLoading] = useState(true);
+
+  const form = useForm<BookInput>({
+    resolver: zodResolver(BookSchema),
+    defaultValues: formData,
+    mode: "onChange"
   });
 
   useEffect(() => {
-    const loadBook = async () => {
-      if (!id) return;
-      
-      try {
-        const bookData = await getBookById(id);
-        if (bookData) {
-          setBook(bookData);
-          setFormData({
-            title: bookData.title,
-            author: bookData.author,
-            description: bookData.description,
-            price: bookData.price,
-            category: bookData.category,
-            condition: bookData.condition,
-            imageUrl: bookData.imageUrl,
-            frontCover: bookData.frontCover || '',
-            backCover: bookData.backCover || '',
-            insidePages: bookData.insidePages || '',
-            grade: bookData.grade || '',
-            universityYear: bookData.universityYear || ''
-          });
-        } else {
-          toast.error('Book not found');
-          navigate('/profile');
-        }
-      } catch (error) {
-        console.error('Error loading book:', error);
-        toast.error('Failed to load book details');
-        navigate('/profile');
-      } finally {
-        setIsLoading(false);
-      }
-    };
+    if (bookId) {
+      loadBookData(bookId as string);
+    }
+  }, [bookId]);
 
-    loadBook();
-  }, [id, navigate]);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!id) return;
-
-    setIsSubmitting(true);
+  const loadBookData = async (id: string) => {
+    setIsLoading(true);
     try {
-      await updateBook(id, formData);
-      toast.success('Book updated successfully!');
-      navigate('/profile');
+      const bookData = await getBook(id);
+      if (bookData) {
+        setFormData(bookData);
+        form.reset(bookData);
+      } else {
+        toast.error('Book not found');
+        router.push('/admin/books');
+      }
     } catch (error) {
-      console.error('Error updating book:', error);
-      toast.error('Failed to update book');
+      console.error('Error loading book data:', error);
+      toast.error('Failed to load book data');
+      router.push('/admin/books');
     } finally {
-      setIsSubmitting(false);
+      setIsLoading(false);
     }
   };
 
-  const handleImageUpdate = (images: { frontCover?: string; backCover?: string; insidePages?: string }) => {
-    setFormData(prev => ({
-      ...prev,
-      ...images
-    }));
-  };
-
-  const handleConditionChange = (value: string) => {
-    const validConditions = ["New", "Good", "Better", "Average", "Below Average"] as const;
-    if (validConditions.includes(value as any)) {
-      setFormData({ ...formData, condition: value as typeof validConditions[number] });
+  const onSubmit = async (values: BookInput) => {
+    try {
+      if (!bookId) {
+        toast.error('Book ID is missing');
+        return;
+      }
+      await updateBook(bookId as string, values);
+      toast.success('Book updated successfully!');
+      router.push('/admin/books');
+    } catch (error) {
+      console.error('Error updating book:', error);
+      toast.error('Failed to update book');
     }
   };
 
@@ -116,143 +89,161 @@ const EditBook = () => {
     return (
       <Layout>
         <div className="container mx-auto px-4 py-8">
-          <div className="flex items-center justify-center min-h-[400px]">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+          <h1 className="text-2xl font-bold mb-4">Edit Book</h1>
+          <div className="flex justify-center items-center min-h-[200px]">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-gray-900"></div>
           </div>
         </div>
       </Layout>
     );
   }
 
-  if (!book) {
-    return null;
-  }
-
   return (
     <Layout>
-      <div className="container mx-auto px-4 py-8 max-w-2xl">
-        <Button 
-          variant="ghost" 
-          onClick={() => navigate('/profile')} 
-          className="mb-6 text-book-600"
-        >
-          <ArrowLeft className="mr-2 h-4 w-4" /> Back to Profile
-        </Button>
+      <div className="container mx-auto px-4 py-8">
+        <h1 className="text-2xl font-bold mb-4">Edit Book</h1>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <FormField
+              control={form.control}
+              name="title"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Title</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Book title" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="author"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Author</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Book author" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="description"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Description</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder="Book description"
+                      className="resize-none"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="price"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Price</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      placeholder="Book price"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="categoryId"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Category</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a category" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {categories.map((category) => (
+                        <SelectItem key={category.id} value={category.id}>{category.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <h1 className="text-2xl font-bold text-book-800 mb-6">Edit Book Listing</h1>
-          
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div>
-              <Label htmlFor="title">Title</Label>
-              <Input
-                id="title"
-                value={formData.title}
-                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                required
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="author">Author</Label>
-              <Input
-                id="author"
-                value={formData.author}
-                onChange={(e) => setFormData({ ...formData, author: e.target.value })}
-                required
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="description">Description</Label>
-              <Textarea
-                id="description"
-                value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                rows={4}
-                required
-              />
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="price">Price (R)</Label>
-                <Input
-                  id="price"
-                  type="number"
-                  min="0"
-                  step="0.01"
-                  value={formData.price}
-                  onChange={(e) => setFormData({ ...formData, price: parseFloat(e.target.value) || 0 })}
-                  required
-                />
+        <div className="space-y-6">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Book Images
+            </label>
+            <MultiImageUpload
+              onImagesChange={(images) => {
+                setFormData(prev => ({
+                  ...prev,
+                  frontCover: images.frontCover || '',
+                  backCover: images.backCover || '',
+                  insidePages: images.insidePages || ''
+                }));
+              }}
+            />
+            {(formData.frontCover || formData.backCover || formData.insidePages) && (
+              <div className="mt-4">
+                <p className="text-sm text-gray-600 mb-2">Current images:</p>
+                <div className="flex gap-2 flex-wrap">
+                  {formData.frontCover && (
+                    <div className="relative">
+                      <img 
+                        src={formData.frontCover} 
+                        alt="Front Cover" 
+                        className="w-20 h-20 object-cover rounded border"
+                      />
+                      <p className="text-xs text-center mt-1">Front</p>
+                    </div>
+                  )}
+                  {formData.backCover && (
+                    <div className="relative">
+                      <img 
+                        src={formData.backCover} 
+                        alt="Back Cover" 
+                        className="w-20 h-20 object-cover rounded border"
+                      />
+                      <p className="text-xs text-center mt-1">Back</p>
+                    </div>
+                  )}
+                  {formData.insidePages && (
+                    <div className="relative">
+                      <img 
+                        src={formData.insidePages} 
+                        alt="Inside Pages" 
+                        className="w-20 h-20 object-cover rounded border"
+                      />
+                      <p className="text-xs text-center mt-1">Inside</p>
+                    </div>
+                  )}
+                </div>
               </div>
+            )}
+          </div>
 
-              <div>
-                <Label htmlFor="condition">Condition</Label>
-                <Select value={formData.condition} onValueChange={handleConditionChange}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="New">New</SelectItem>
-                    <SelectItem value="Good">Good</SelectItem>
-                    <SelectItem value="Better">Better</SelectItem>
-                    <SelectItem value="Average">Average</SelectItem>
-                    <SelectItem value="Below Average">Below Average</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="category">Category</Label>
-                <Input
-                  id="category"
-                  value={formData.category}
-                  onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                  required
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="grade">Grade (optional)</Label>
-                <Input
-                  id="grade"
-                  value={formData.grade}
-                  onChange={(e) => setFormData({ ...formData, grade: e.target.value })}
-                />
-              </div>
-            </div>
-
-            <div>
-              <Label htmlFor="universityYear">University Year (optional)</Label>
-              <Input
-                id="universityYear"
-                value={formData.universityYear}
-                onChange={(e) => setFormData({ ...formData, universityYear: e.target.value })}
-                placeholder="e.g., 1st Year, 2nd Year"
-              />
-            </div>
-
-            <div>
-              <Label>Book Images</Label>
-              <MultiImageUpload
-                onImagesChange={handleImageUpdate}
-                existingImages={{
-                  frontCover: formData.frontCover,
-                  backCover: formData.backCover,
-                  insidePages: formData.insidePages
-                }}
-              />
-            </div>
-
-            <Button type="submit" disabled={isSubmitting} className="w-full">
-              {isSubmitting ? 'Updating...' : 'Update Book'}
-            </Button>
+            <Button type="submit">Update Book</Button>
           </form>
-        </div>
+        </Form>
       </div>
     </Layout>
   );

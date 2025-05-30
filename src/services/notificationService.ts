@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 
 export interface Notification {
@@ -86,7 +85,7 @@ export const markNotificationAsRead = async (notificationId: string): Promise<vo
   }
 };
 
-export const clearNotification = async (notificationId: string): Promise<void> => {
+export const deleteNotification = async (notificationId: string): Promise<void> => {
   try {
     const { error } = await supabase
       .from('notifications')
@@ -94,11 +93,14 @@ export const clearNotification = async (notificationId: string): Promise<void> =
       .eq('id', notificationId);
 
     if (error) {
-      console.error('Error clearing notification:', error);
+      console.error('Error deleting notification:', error);
       throw error;
     }
   } catch (error) {
-    console.error('Error in clearNotification:', error);
+    console.error('Error in deleteNotification:', error);
     throw error;
   }
 };
+
+// Keep the old export name for backward compatibility
+export const clearNotification = deleteNotification;
