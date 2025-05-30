@@ -12,13 +12,16 @@ export type Database = {
       books: {
         Row: {
           author: string
+          back_cover: string | null
           category: string
           condition: string
           created_at: string
           description: string
+          front_cover: string | null
           grade: string | null
           id: string
           image_url: string
+          inside_pages: string | null
           price: number
           seller_id: string
           sold: boolean
@@ -27,13 +30,16 @@ export type Database = {
         }
         Insert: {
           author: string
+          back_cover?: string | null
           category: string
           condition: string
           created_at?: string
           description: string
+          front_cover?: string | null
           grade?: string | null
           id?: string
           image_url: string
+          inside_pages?: string | null
           price: number
           seller_id: string
           sold?: boolean
@@ -42,18 +48,51 @@ export type Database = {
         }
         Update: {
           author?: string
+          back_cover?: string | null
           category?: string
           condition?: string
           created_at?: string
           description?: string
+          front_cover?: string | null
           grade?: string | null
           id?: string
           image_url?: string
+          inside_pages?: string | null
           price?: number
           seller_id?: string
           sold?: boolean
           title?: string
           university_year?: string | null
+        }
+        Relationships: []
+      }
+      notifications: {
+        Row: {
+          created_at: string
+          id: string
+          message: string
+          read: boolean
+          title: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          message: string
+          read?: boolean
+          title: string
+          type: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          message?: string
+          read?: boolean
+          title?: string
+          type?: string
+          user_id?: string
         }
         Relationships: []
       }
