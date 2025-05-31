@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -47,7 +46,13 @@ const ModerationDashboard = () => {
         return;
       }
 
-      setReports(data || []);
+      // Fix: Properly type the status field
+      const typedReports: Report[] = (data || []).map(report => ({
+        ...report,
+        status: report.status as 'pending' | 'resolved' | 'dismissed'
+      }));
+
+      setReports(typedReports);
     } catch (error) {
       console.error('Error in loadReports:', error);
       toast.error('Failed to load reports');
