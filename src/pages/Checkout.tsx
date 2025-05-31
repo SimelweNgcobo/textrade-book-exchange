@@ -143,13 +143,9 @@ const Checkout = () => {
 
   const calculateTotal = () => {
     if (isCartCheckout) {
-      return cartData.reduce((total: number, item: any) => total + (item.price * item.quantity), 0);
+      return cartData.reduce((total: number, item: any) => total + item.price, 0);
     }
     return book?.price || 0;
-  };
-
-  const calculateCommission = () => {
-    return calculateTotal() * 0.1;
   };
 
   const handlePayment = async () => {
@@ -163,7 +159,6 @@ const Checkout = () => {
     }
 
     try {
-      // Here you would integrate with your payment system
       toast.success('Payment successful! Your order has been placed.');
       
       if (isCartCheckout) {
@@ -188,23 +183,22 @@ const Checkout = () => {
   }
 
   const totalAmount = calculateTotal();
-  const commission = calculateCommission();
 
   return (
     <Layout>
-      <div className="container mx-auto px-4 py-8 max-w-4xl">
+      <div className="container mx-auto px-4 py-4 md:py-8 max-w-6xl">
         <Button variant="ghost" onClick={() => navigate(-1)} className="mb-6 text-book-600">
           <ArrowLeft className="mr-2 h-4 w-4" /> Back
         </Button>
 
-        <h1 className="text-3xl font-bold mb-8">Checkout</h1>
+        <h1 className="text-2xl md:text-3xl font-bold mb-6 md:mb-8">Checkout</h1>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
           {/* Shipping Information */}
           <div className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>Shipping Information</CardTitle>
+                <CardTitle className="text-lg md:text-xl">Shipping Information</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 {savedAddresses && (savedAddresses.pickup_address || savedAddresses.shipping_address) && (
@@ -227,7 +221,7 @@ const Checkout = () => {
                   </div>
                 )}
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="complex">Complex/Building</Label>
                     <Input
@@ -235,6 +229,7 @@ const Checkout = () => {
                       value={shippingAddress.complex}
                       onChange={(e) => setShippingAddress(prev => ({ ...prev, complex: e.target.value }))}
                       placeholder="Optional"
+                      className="w-full"
                     />
                   </div>
                   <div>
@@ -244,6 +239,7 @@ const Checkout = () => {
                       value={shippingAddress.unitNumber}
                       onChange={(e) => setShippingAddress(prev => ({ ...prev, unitNumber: e.target.value }))}
                       placeholder="Optional"
+                      className="w-full"
                     />
                   </div>
                 </div>
@@ -256,10 +252,11 @@ const Checkout = () => {
                     onChange={(e) => setShippingAddress(prev => ({ ...prev, streetAddress: e.target.value }))}
                     placeholder="123 Main Street"
                     required
+                    className="w-full"
                   />
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="suburb">Suburb *</Label>
                     <Input
@@ -268,6 +265,7 @@ const Checkout = () => {
                       onChange={(e) => setShippingAddress(prev => ({ ...prev, suburb: e.target.value }))}
                       placeholder="Suburb"
                       required
+                      className="w-full"
                     />
                   </div>
                   <div>
@@ -278,15 +276,16 @@ const Checkout = () => {
                       onChange={(e) => setShippingAddress(prev => ({ ...prev, city: e.target.value }))}
                       placeholder="City"
                       required
+                      className="w-full"
                     />
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="province">Province *</Label>
                     <Select value={shippingAddress.province} onValueChange={(value) => setShippingAddress(prev => ({ ...prev, province: value }))}>
-                      <SelectTrigger>
+                      <SelectTrigger className="w-full">
                         <SelectValue placeholder="Select province" />
                       </SelectTrigger>
                       <SelectContent>
@@ -310,6 +309,7 @@ const Checkout = () => {
                       onChange={(e) => setShippingAddress(prev => ({ ...prev, postalCode: e.target.value }))}
                       placeholder="1234"
                       required
+                      className="w-full"
                     />
                   </div>
                 </div>
@@ -321,57 +321,57 @@ const Checkout = () => {
           <div className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>Order Summary</CardTitle>
+                <CardTitle className="text-lg md:text-xl">Order Summary</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                {isCartCheckout ? (
-                  cartData.map((item: any) => (
-                    <div key={item.id} className="flex items-center gap-4">
-                      <img src={item.imageUrl} alt={item.title} className="w-16 h-20 object-cover rounded" />
-                      <div className="flex-1">
-                        <h4 className="font-semibold">{item.title}</h4>
-                        <p className="text-sm text-gray-600">by {item.author}</p>
-                        <p className="text-sm text-gray-600">Qty: {item.quantity}</p>
+                <div className="space-y-4 max-h-96 overflow-y-auto">
+                  {isCartCheckout ? (
+                    cartData.map((item: any) => (
+                      <div key={item.id} className="flex items-center gap-3 p-3 border rounded-lg">
+                        <img 
+                          src={item.imageUrl} 
+                          alt={item.title} 
+                          className="w-12 h-16 md:w-16 md:h-20 object-cover rounded flex-shrink-0" 
+                        />
+                        <div className="flex-1 min-w-0">
+                          <h4 className="font-semibold text-sm md:text-base truncate">{item.title}</h4>
+                          <p className="text-xs md:text-sm text-gray-600 truncate">by {item.author}</p>
+                        </div>
+                        <div className="text-right flex-shrink-0">
+                          <p className="font-semibold text-sm md:text-base">R{item.price.toFixed(2)}</p>
+                        </div>
                       </div>
-                      <div className="text-right">
-                        <p className="font-semibold">R{(item.price * item.quantity).toFixed(2)}</p>
+                    ))
+                  ) : book ? (
+                    <div className="flex items-center gap-3 p-3 border rounded-lg">
+                      <img 
+                        src={book.frontCover || book.imageUrl} 
+                        alt={book.title} 
+                        className="w-12 h-16 md:w-16 md:h-20 object-cover rounded flex-shrink-0" 
+                      />
+                      <div className="flex-1 min-w-0">
+                        <h4 className="font-semibold text-sm md:text-base truncate">{book.title}</h4>
+                        <p className="text-xs md:text-sm text-gray-600 truncate">by {book.author}</p>
+                      </div>
+                      <div className="text-right flex-shrink-0">
+                        <p className="font-semibold text-sm md:text-base">R{book.price}</p>
                       </div>
                     </div>
-                  ))
-                ) : book ? (
-                  <div className="flex items-center gap-4">
-                    <img src={book.frontCover || book.imageUrl} alt={book.title} className="w-16 h-20 object-cover rounded" />
-                    <div className="flex-1">
-                      <h4 className="font-semibold">{book.title}</h4>
-                      <p className="text-sm text-gray-600">by {book.author}</p>
-                    </div>
-                    <div className="text-right">
-                      <p className="font-semibold">R{book.price}</p>
-                    </div>
-                  </div>
-                ) : null}
+                  ) : null}
+                </div>
 
                 <Separator />
 
                 <div className="space-y-2">
-                  <div className="flex justify-between">
-                    <span>Subtotal</span>
-                    <span>R{totalAmount.toFixed(2)}</span>
-                  </div>
-                  <div className="flex justify-between text-sm text-gray-600">
-                    <span>Platform fee (10%)</span>
-                    <span>R{commission.toFixed(2)}</span>
-                  </div>
-                  <Separator />
-                  <div className="flex justify-between font-bold text-lg">
-                    <span>Total</span>
-                    <span>R{totalAmount.toFixed(2)}</span>
+                  <div className="flex justify-between items-center">
+                    <span className="text-base md:text-lg font-bold">Total</span>
+                    <span className="text-base md:text-lg font-bold">R{totalAmount.toFixed(2)}</span>
                   </div>
                 </div>
 
                 <Button
                   onClick={handlePayment}
-                  className="w-full bg-book-600 hover:bg-book-700"
+                  className="w-full bg-book-600 hover:bg-book-700 text-sm md:text-base py-2 md:py-3"
                   size="lg"
                 >
                   <CreditCard className="mr-2 h-4 w-4" />

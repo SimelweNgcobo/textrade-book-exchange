@@ -22,13 +22,11 @@ const ResetPassword = () => {
   useEffect(() => {
     const verifySession = async () => {
       try {
-        // Check for URL parameters from email link
         const accessToken = searchParams.get('access_token');
         const refreshToken = searchParams.get('refresh_token');
         const type = searchParams.get('type');
         
         if (accessToken && refreshToken && type === 'recovery') {
-          // Set the session with tokens from URL
           const { data, error } = await supabase.auth.setSession({
             access_token: accessToken,
             refresh_token: refreshToken,
@@ -43,7 +41,6 @@ const ResetPassword = () => {
           
           setIsValidSession(true);
         } else {
-          // Check if user has valid session already
           const { data: { session } } = await supabase.auth.getSession();
           if (session) {
             setIsValidSession(true);
@@ -105,14 +102,14 @@ const ResetPassword = () => {
   if (!isValidSession) {
     return (
       <Layout>
-        <div className="min-h-[80vh] flex items-center justify-center px-4">
+        <div className="min-h-[70vh] flex items-center justify-center px-4">
           <div className="w-full max-w-md">
-            <div className="bg-white rounded-lg shadow-lg p-8 text-center">
+            <div className="bg-white rounded-lg shadow-lg p-6 md:p-8 text-center">
               <Loader2 className="h-12 w-12 text-book-600 mx-auto mb-4 animate-spin" />
-              <h2 className="text-2xl font-semibold mb-2 text-gray-800">
+              <h2 className="text-xl md:text-2xl font-semibold mb-2 text-gray-800">
                 Verifying reset link...
               </h2>
-              <p className="text-gray-600">
+              <p className="text-gray-600 text-sm md:text-base">
                 Please wait while we verify your password reset link.
               </p>
             </div>
@@ -124,11 +121,11 @@ const ResetPassword = () => {
 
   return (
     <Layout>
-      <div className="min-h-[80vh] flex items-center justify-center px-4">
+      <div className="min-h-[70vh] flex items-center justify-center px-4">
         <div className="w-full max-w-md">
           <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-            <div className="p-6 sm:p-8">
-              <h1 className="text-2xl font-bold text-center text-gray-800 mb-6">
+            <div className="p-6 md:p-8">
+              <h1 className="text-xl md:text-2xl font-bold text-center text-gray-800 mb-6">
                 Set New Password
               </h1>
 

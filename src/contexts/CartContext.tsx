@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { CartItem, CartContextType } from '@/types/cart';
 import { toast } from 'sonner';
@@ -63,16 +62,12 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const updateQuantity = (bookId: string, quantity: number) => {
+    // Quantity is always 1 for books, but keeping for interface compatibility
     if (quantity <= 0) {
       removeFromCart(bookId);
       return;
     }
-
-    setItems(prev => 
-      prev.map(item => 
-        item.bookId === bookId ? { ...item, quantity } : item
-      )
-    );
+    // Don't allow quantity changes since each book is unique
   };
 
   const clearCart = () => {
@@ -81,18 +76,18 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const getTotalPrice = () => {
-    return items.reduce((total, item) => total + (item.price * item.quantity), 0);
+    return items.reduce((total, item) => total + item.price, 0);
   };
 
   const getTotalItems = () => {
-    return items.reduce((total, item) => total + item.quantity, 0);
+    return items.length; // Each book is quantity 1
   };
 
   const getSellerTotals = () => {
     const sellerTotals: { [sellerId: string]: { total: number; commission: number; sellerReceives: number; sellerName: string } } = {};
     
     items.forEach(item => {
-      const itemTotal = item.price * item.quantity;
+      const itemTotal = item.price;
       const commission = itemTotal * 0.1; // 10% commission
       const sellerReceives = itemTotal - commission;
       

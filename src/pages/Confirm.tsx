@@ -14,7 +14,6 @@ const Confirm = () => {
   useEffect(() => {
     const handleConfirm = async () => {
       try {
-        // Get the current URL
         const url = new URL(window.location.href);
         const token_hash = url.searchParams.get('token_hash');
         const type = url.searchParams.get('type');
@@ -28,36 +27,33 @@ const Confirm = () => {
           if (error) {
             console.error('Email confirmation error:', error);
             setStatus('error');
-            setMessage(error.message || 'Email confirmation failed');
-            toast.error('Email confirmation failed: ' + error.message);
+            setMessage('Email confirmation failed. The link may have expired.');
+            toast.error('Email confirmation failed');
           } else {
             setStatus('success');
-            setMessage('Email confirmed! You are now logged in.');
+            setMessage('Email confirmed successfully! You are now logged in.');
             toast.success('Email confirmed successfully!');
-            // Redirect to home page after a short delay
-            setTimeout(() => navigate('/'), 2000);
+            setTimeout(() => navigate('/'), 3000);
           }
         } else {
-          // Fallback for older confirmation links
           const { error } = await supabase.auth.exchangeCodeForSession(window.location.href);
           
           if (error) {
             console.error('Email confirmation error:', error);
             setStatus('error');
-            setMessage(error.message || 'Email confirmation failed');
-            toast.error('Email confirmation failed: ' + error.message);
+            setMessage('Email confirmation failed. The link may have expired.');
+            toast.error('Email confirmation failed');
           } else {
             setStatus('success');
-            setMessage('Email confirmed! You are now logged in.');
+            setMessage('Email confirmed successfully! You are now logged in.');
             toast.success('Email confirmed successfully!');
-            // Redirect to home page after a short delay
-            setTimeout(() => navigate('/'), 2000);
+            setTimeout(() => navigate('/'), 3000);
           }
         }
       } catch (error: any) {
         console.error('Unexpected error during confirmation:', error);
         setStatus('error');
-        setMessage('An unexpected error occurred');
+        setMessage('An unexpected error occurred. Please try again.');
         toast.error('An unexpected error occurred');
       }
     };
@@ -67,16 +63,16 @@ const Confirm = () => {
 
   return (
     <Layout>
-      <div className="min-h-[60vh] flex items-center justify-center px-4">
+      <div className="min-h-[70vh] flex items-center justify-center px-4">
         <div className="w-full max-w-md">
-          <div className="bg-white rounded-lg shadow-lg p-8 text-center">
+          <div className="bg-white rounded-lg shadow-lg p-6 md:p-8 text-center">
             {status === 'loading' && (
               <>
                 <Loader2 className="h-12 w-12 text-book-600 mx-auto mb-4 animate-spin" />
-                <h2 className="text-2xl font-semibold mb-2 text-gray-800">
+                <h2 className="text-xl md:text-2xl font-semibold mb-2 text-gray-800">
                   Confirming your email...
                 </h2>
-                <p className="text-gray-600">
+                <p className="text-gray-600 text-sm md:text-base">
                   Please wait while we confirm your email address.
                 </p>
               </>
@@ -85,16 +81,16 @@ const Confirm = () => {
             {status === 'success' && (
               <>
                 <CheckCircle className="h-12 w-12 text-green-500 mx-auto mb-4" />
-                <h2 className="text-2xl font-semibold mb-2 text-gray-800">
+                <h2 className="text-xl md:text-2xl font-semibold mb-2 text-gray-800">
                   Email Confirmed!
                 </h2>
-                <p className="text-gray-600 mb-4">
+                <p className="text-gray-600 mb-4 text-sm md:text-base">
                   {message}
                 </p>
-                <p className="text-sm text-gray-500 mb-4">
+                <p className="text-xs md:text-sm text-gray-500 mb-4">
                   Welcome to ReBooked Solutions - Pre-Loved Pages, New Adventures
                 </p>
-                <p className="text-sm text-gray-500">
+                <p className="text-xs md:text-sm text-gray-500">
                   Redirecting you to the home page...
                 </p>
               </>
@@ -103,15 +99,15 @@ const Confirm = () => {
             {status === 'error' && (
               <>
                 <XCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
-                <h2 className="text-2xl font-semibold mb-2 text-gray-800">
+                <h2 className="text-xl md:text-2xl font-semibold mb-2 text-gray-800">
                   Confirmation Failed
                 </h2>
-                <p className="text-gray-600 mb-4">
+                <p className="text-gray-600 mb-4 text-sm md:text-base">
                   {message}
                 </p>
                 <button
                   onClick={() => navigate('/login')}
-                  className="bg-book-600 hover:bg-book-700 text-white px-6 py-2 rounded-lg transition-colors"
+                  className="bg-book-600 hover:bg-book-700 text-white px-4 md:px-6 py-2 rounded-lg transition-colors text-sm md:text-base"
                 >
                   Go to Login
                 </button>
