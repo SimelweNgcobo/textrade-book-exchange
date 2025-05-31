@@ -141,6 +141,53 @@ export type Database = {
         }
         Relationships: []
       }
+      reports: {
+        Row: {
+          book_id: string | null
+          book_title: string
+          created_at: string
+          id: string
+          reason: string
+          reported_user_id: string
+          reporter_user_id: string
+          seller_name: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          book_id?: string | null
+          book_title: string
+          created_at?: string
+          id?: string
+          reason: string
+          reported_user_id: string
+          reporter_user_id: string
+          seller_name: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          book_id?: string | null
+          book_title?: string
+          created_at?: string
+          id?: string
+          reason?: string
+          reported_user_id?: string
+          reporter_user_id?: string
+          seller_name?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reports_book_id_fkey"
+            columns: ["book_id"]
+            isOneToOne: false
+            referencedRelation: "books"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       transactions: {
         Row: {
           book_id: string

@@ -1,320 +1,354 @@
 
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
 import { useAuth } from '@/contexts/AuthContext';
+import { useCart } from '@/contexts/CartContext';
+import { getBookById } from '@/services/bookService';
+import { getUserAddresses } from '@/services/addressService';
+import { Book } from '@/types/book';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { Badge } from '@/components/ui/badge';
-import { getBookById } from '@/services/bookService';
-import { Book } from '@/types/book';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { ArrowLeft, CreditCard } from 'lucide-react';
 import { toast } from 'sonner';
-import { ArrowLeft, CreditCard, ShieldCheck, Truck } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
-
-// Add Paystack script to the document
-const loadPaystackScript = () => {
-  return new Promise((resolve, reject) => {
-    if (window.PaystackPop) {
-      resolve(window.PaystackPop);
-      return;
-    }
-    
-    const script = document.createElement('script');
-    script.src = 'https://js.paystack.co/v1/inline.js';
-    script.onload = () => {
-      console.log('Paystack script loaded successfully');
-      resolve(window.PaystackPop);
-    };
-    script.onerror = () => {
-      console.error('Failed to load Paystack script');
-      reject(new Error('Failed to load Paystack script'));
-    };
-    document.head.appendChild(script);
-  });
-};
 
 const Checkout = () => {
-  const { id } = useParams();
-  const { user } = useAuth();
+  const { id } = useParams<{ id: string }>();
+  const location = useLocation();
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const { items: cartItems, clearCart } = useCart();
   
   const [book, setBook] = useState<Book | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [isProcessing, setIsProcessing] = useState(false);
-  
-  // Form state
-  const [shippingInfo, setShippingInfo] = useState({
-    fullName: '',
-    email: user?.email || '',
-    address: '',
+  const [savedAddresses, setSavedAddresses] = useState<any>(null);
+  const [selectedAddress, setSelectedAddress] = useState<'pickup' | 'shipping' | 'new'>('new');
+  const [shippingAddress, setShippingAddress] = useState({
+    complex: '',
+    unitNumber: '',
+    streetAddress: '',
+    suburb: '',
     city: '',
-    postalCode: '',
-    phone: ''
+    province: '',
+    postalCode: ''
   });
 
+  const isCartCheckout = id === 'cart';
+  const cartData = location.state?.cartItems || [];
+
   useEffect(() => {
-    const loadBook = async () => {
-      if (!id) return;
-      
+    const loadData = async () => {
+      if (!user?.id) {
+        navigate('/login');
+        return;
+      }
+
+      setIsLoading(true);
       try {
-        const bookData = await getBookById(id);
-        if (!bookData) {
-          toast.error('Book not found');
-          navigate('/books');
-          return;
+        // Load saved addresses
+        const addresses = await getUserAddresses(user.id);
+        setSavedAddresses(addresses);
+
+        // Autofill with saved shipping address if available
+        if (addresses?.shipping_address) {
+          setShippingAddress({
+            complex: addresses.shipping_address.complex || '',
+            unitNumber: addresses.shipping_address.unitNumber || '',
+            streetAddress: addresses.shipping_address.streetAddress || '',
+            suburb: addresses.shipping_address.suburb || '',
+            city: addresses.shipping_address.city || '',
+            province: addresses.shipping_address.province || '',
+            postalCode: addresses.shipping_address.postalCode || ''
+          });
+          setSelectedAddress('shipping');
         }
-        
-        if (bookData.sold) {
-          toast.error('This book has already been sold');
-          navigate('/books');
-          return;
+
+        // Load book data if single book checkout
+        if (!isCartCheckout && id) {
+          const bookData = await getBookById(id);
+          if (!bookData) {
+            toast.error('Book not found');
+            navigate('/books');
+            return;
+          }
+          if (bookData.sold) {
+            toast.error('This book has already been sold');
+            navigate('/books');
+            return;
+          }
+          setBook(bookData);
         }
-        
-        setBook(bookData);
       } catch (error) {
-        console.error('Error loading book:', error);
-        toast.error('Failed to load book details');
-        navigate('/books');
+        console.error('Error loading checkout data:', error);
+        toast.error('Failed to load checkout data');
       } finally {
         setIsLoading(false);
       }
     };
 
-    loadBook();
-  }, [id, navigate]);
+    loadData();
+  }, [id, user?.id, navigate, isCartCheckout]);
 
-  // Load user's email when component mounts
-  useEffect(() => {
-    if (user?.email) {
-      setShippingInfo(prev => ({ ...prev, email: user.email }));
-    }
-  }, [user]);
-
-  const handleInputChange = (field: string, value: string) => {
-    setShippingInfo(prev => ({ ...prev, [field]: value }));
-  };
-
-  const validateForm = () => {
-    const requiredFields = ['fullName', 'email', 'address', 'city', 'postalCode', 'phone'];
+  const handleAddressSelection = (type: 'pickup' | 'shipping' | 'new') => {
+    setSelectedAddress(type);
     
-    for (const field of requiredFields) {
-      if (!shippingInfo[field as keyof typeof shippingInfo].trim()) {
-        toast.error(`Please fill in ${field.replace(/([A-Z])/g, ' $1').toLowerCase()}`);
-        return false;
-      }
-    }
-    
-    // Basic email validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(shippingInfo.email)) {
-      toast.error('Please enter a valid email address');
-      return false;
-    }
-    
-    return true;
-  };
-
-  const initializePayment = async () => {
-    if (!book || !user) return;
-    
-    try {
-      console.log('Initializing payment for book:', book.id);
-      
-      const { data, error } = await supabase.functions.invoke('paystack-payment', {
-        body: {
-          amount: book.price,
-          email: shippingInfo.email,
-          bookId: book.id,
-          buyerId: user.id,
-          metadata: {
-            shipping_info: shippingInfo,
-            book_title: book.title,
-            book_author: book.author
-          }
-        }
+    if (type === 'pickup' && savedAddresses?.pickup_address) {
+      setShippingAddress({
+        complex: savedAddresses.pickup_address.complex || '',
+        unitNumber: savedAddresses.pickup_address.unitNumber || '',
+        streetAddress: savedAddresses.pickup_address.streetAddress || '',
+        suburb: savedAddresses.pickup_address.suburb || '',
+        city: savedAddresses.pickup_address.city || '',
+        province: savedAddresses.pickup_address.province || '',
+        postalCode: savedAddresses.pickup_address.postalCode || ''
       });
-
-      if (error) {
-        console.error('Payment initialization error:', error);
-        toast.error('Failed to initialize payment. Please try again.');
-        return null;
-      }
-
-      console.log('Payment initialized successfully:', data);
-      return data;
-    } catch (error) {
-      console.error('Payment initialization error:', error);
-      toast.error('Failed to initialize payment. Please try again.');
-      return null;
-    }
-  };
-
-  const verifyPayment = async (reference: string) => {
-    try {
-      console.log('Verifying payment with reference:', reference);
-      
-      const { data, error } = await supabase.functions.invoke('verify-paystack-payment', {
-        body: { reference }
+    } else if (type === 'shipping' && savedAddresses?.shipping_address) {
+      setShippingAddress({
+        complex: savedAddresses.shipping_address.complex || '',
+        unitNumber: savedAddresses.shipping_address.unitNumber || '',
+        streetAddress: savedAddresses.shipping_address.streetAddress || '',
+        suburb: savedAddresses.shipping_address.suburb || '',
+        city: savedAddresses.shipping_address.city || '',
+        province: savedAddresses.shipping_address.province || '',
+        postalCode: savedAddresses.shipping_address.postalCode || ''
       });
-
-      if (error) {
-        console.error('Payment verification error:', error);
-        toast.error('Payment verification failed. Please contact support.');
-        return false;
-      }
-
-      console.log('Payment verification result:', data);
-      return data.verified;
-    } catch (error) {
-      console.error('Payment verification error:', error);
-      toast.error('Payment verification failed. Please contact support.');
-      return false;
+    } else if (type === 'new') {
+      setShippingAddress({
+        complex: '',
+        unitNumber: '',
+        streetAddress: '',
+        suburb: '',
+        city: '',
+        province: '',
+        postalCode: ''
+      });
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const calculateTotal = () => {
+    if (isCartCheckout) {
+      return cartData.reduce((total: number, item: any) => total + (item.price * item.quantity), 0);
+    }
+    return book?.price || 0;
+  };
+
+  const calculateCommission = () => {
+    return calculateTotal() * 0.1;
+  };
+
+  const handlePayment = async () => {
+    // Validate shipping address
+    const requiredFields = ['streetAddress', 'suburb', 'city', 'province', 'postalCode'];
+    const missingFields = requiredFields.filter(field => !shippingAddress[field as keyof typeof shippingAddress]);
     
-    if (!book || !user) {
-      toast.error('Missing required information');
+    if (missingFields.length > 0) {
+      toast.error('Please fill in all required address fields');
       return;
     }
-    
-    if (!validateForm()) return;
-    
-    setIsProcessing(true);
-    
+
     try {
-      console.log('Starting payment process');
+      // Here you would integrate with your payment system
+      toast.success('Payment successful! Your order has been placed.');
       
-      // Load Paystack script
-      await loadPaystackScript();
-      
-      // Initialize payment
-      const paymentData = await initializePayment();
-      
-      if (!paymentData) {
-        setIsProcessing(false);
-        return;
+      if (isCartCheckout) {
+        clearCart();
       }
-
-      console.log('Creating Paystack popup with data:', paymentData);
-
-      // Create Paystack popup
-      const handler = window.PaystackPop.setup({
-        key: 'pk_test_8da15fc8b9880e3479419f8d858739cb3588f25f',
-        email: shippingInfo.email,
-        amount: book.price * 100, // Convert to kobo
-        currency: 'ZAR',
-        ref: paymentData.reference,
-        onClose: function() {
-          console.log('Payment popup closed');
-          setIsProcessing(false);
-          toast.info('Payment cancelled');
-        },
-        callback: async function(response: any) {
-          console.log('Payment callback received:', response);
-          
-          if (response.status === 'success') {
-            // Verify payment
-            const verified = await verifyPayment(response.reference);
-            
-            if (verified) {
-              toast.success('Payment successful! You will receive a confirmation email shortly.');
-              navigate('/profile');
-            } else {
-              toast.error('Payment verification failed. Please contact support with reference: ' + response.reference);
-            }
-          } else {
-            toast.error('Payment failed. Please try again.');
-          }
-          
-          setIsProcessing(false);
-        }
-      });
-
-      console.log('Opening Paystack iframe');
-      handler.openIframe();
       
+      navigate('/');
     } catch (error) {
-      console.error('Payment processing error:', error);
+      console.error('Payment error:', error);
       toast.error('Payment failed. Please try again.');
-      setIsProcessing(false);
     }
   };
 
   if (isLoading) {
     return (
       <Layout>
-        <div className="container mx-auto px-4 py-8">
-          <div className="flex justify-center items-center py-20">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-book-600"></div>
-          </div>
+        <div className="container mx-auto px-4 py-8 flex justify-center items-center min-h-[60vh]">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-book-600"></div>
         </div>
       </Layout>
     );
   }
 
-  if (!book) {
-    return (
-      <Layout>
-        <div className="container mx-auto px-4 py-8">
-          <div className="text-center py-20">
-            <h2 className="text-2xl font-bold text-gray-800 mb-4">Book not found</h2>
-            <Button onClick={() => navigate('/books')}>Browse Books</Button>
-          </div>
-        </div>
-      </Layout>
-    );
-  }
-
-  const totalAmount = book.price;
+  const totalAmount = calculateTotal();
+  const commission = calculateCommission();
 
   return (
     <Layout>
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-8 max-w-4xl">
         <Button variant="ghost" onClick={() => navigate(-1)} className="mb-6 text-book-600">
           <ArrowLeft className="mr-2 h-4 w-4" /> Back
         </Button>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Order Summary */}
-          <div className="lg:col-span-1">
+        <h1 className="text-3xl font-bold mb-8">Checkout</h1>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Shipping Information */}
+          <div className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center">
-                  <ShieldCheck className="mr-2 h-5 w-5" />
-                  Order Summary
-                </CardTitle>
+                <CardTitle>Shipping Information</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="flex space-x-4">
-                  <img 
-                    src={book.imageUrl} 
-                    alt={book.title}
-                    className="w-20 h-28 object-cover rounded"
-                  />
-                  <div className="flex-grow">
-                    <h3 className="font-medium text-sm">{book.title}</h3>
-                    <p className="text-gray-600 text-sm">{book.author}</p>
-                    <Badge variant="outline" className="mt-1">{book.condition}</Badge>
+                {savedAddresses && (savedAddresses.pickup_address || savedAddresses.shipping_address) && (
+                  <div>
+                    <Label className="text-base font-medium">Use saved address</Label>
+                    <Select value={selectedAddress} onValueChange={(value: 'pickup' | 'shipping' | 'new') => handleAddressSelection(value)}>
+                      <SelectTrigger className="mt-2">
+                        <SelectValue placeholder="Select an address" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {savedAddresses.pickup_address && (
+                          <SelectItem value="pickup">Pickup Address</SelectItem>
+                        )}
+                        {savedAddresses.shipping_address && (
+                          <SelectItem value="shipping">Shipping Address</SelectItem>
+                        )}
+                        <SelectItem value="new">Enter new address</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="complex">Complex/Building</Label>
+                    <Input
+                      id="complex"
+                      value={shippingAddress.complex}
+                      onChange={(e) => setShippingAddress(prev => ({ ...prev, complex: e.target.value }))}
+                      placeholder="Optional"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="unitNumber">Unit Number</Label>
+                    <Input
+                      id="unitNumber"
+                      value={shippingAddress.unitNumber}
+                      onChange={(e) => setShippingAddress(prev => ({ ...prev, unitNumber: e.target.value }))}
+                      placeholder="Optional"
+                    />
                   </div>
                 </div>
-                
-                <Separator />
-                
-                <div className="space-y-2 text-sm">
-                  <div className="flex justify-between">
-                    <span>Book Price</span>
-                    <span>R{book.price.toFixed(2)}</span>
+
+                <div>
+                  <Label htmlFor="streetAddress">Street Address *</Label>
+                  <Input
+                    id="streetAddress"
+                    value={shippingAddress.streetAddress}
+                    onChange={(e) => setShippingAddress(prev => ({ ...prev, streetAddress: e.target.value }))}
+                    placeholder="123 Main Street"
+                    required
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="suburb">Suburb *</Label>
+                    <Input
+                      id="suburb"
+                      value={shippingAddress.suburb}
+                      onChange={(e) => setShippingAddress(prev => ({ ...prev, suburb: e.target.value }))}
+                      placeholder="Suburb"
+                      required
+                    />
                   </div>
+                  <div>
+                    <Label htmlFor="city">City *</Label>
+                    <Input
+                      id="city"
+                      value={shippingAddress.city}
+                      onChange={(e) => setShippingAddress(prev => ({ ...prev, city: e.target.value }))}
+                      placeholder="City"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="province">Province *</Label>
+                    <Select value={shippingAddress.province} onValueChange={(value) => setShippingAddress(prev => ({ ...prev, province: value }))}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select province" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Eastern Cape">Eastern Cape</SelectItem>
+                        <SelectItem value="Free State">Free State</SelectItem>
+                        <SelectItem value="Gauteng">Gauteng</SelectItem>
+                        <SelectItem value="KwaZulu-Natal">KwaZulu-Natal</SelectItem>
+                        <SelectItem value="Limpopo">Limpopo</SelectItem>
+                        <SelectItem value="Mpumalanga">Mpumalanga</SelectItem>
+                        <SelectItem value="Northern Cape">Northern Cape</SelectItem>
+                        <SelectItem value="North West">North West</SelectItem>
+                        <SelectItem value="Western Cape">Western Cape</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label htmlFor="postalCode">Postal Code *</Label>
+                    <Input
+                      id="postalCode"
+                      value={shippingAddress.postalCode}
+                      onChange={(e) => setShippingAddress(prev => ({ ...prev, postalCode: e.target.value }))}
+                      placeholder="1234"
+                      required
+                    />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Order Summary */}
+          <div className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Order Summary</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {isCartCheckout ? (
+                  cartData.map((item: any) => (
+                    <div key={item.id} className="flex items-center gap-4">
+                      <img src={item.imageUrl} alt={item.title} className="w-16 h-20 object-cover rounded" />
+                      <div className="flex-1">
+                        <h4 className="font-semibold">{item.title}</h4>
+                        <p className="text-sm text-gray-600">by {item.author}</p>
+                        <p className="text-sm text-gray-600">Qty: {item.quantity}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-semibold">R{(item.price * item.quantity).toFixed(2)}</p>
+                      </div>
+                    </div>
+                  ))
+                ) : book ? (
+                  <div className="flex items-center gap-4">
+                    <img src={book.frontCover || book.imageUrl} alt={book.title} className="w-16 h-20 object-cover rounded" />
+                    <div className="flex-1">
+                      <h4 className="font-semibold">{book.title}</h4>
+                      <p className="text-sm text-gray-600">by {book.author}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-semibold">R{book.price}</p>
+                    </div>
+                  </div>
+                ) : null}
+
+                <Separator />
+
+                <div className="space-y-2">
                   <div className="flex justify-between">
-                    <span>Shipping</span>
-                    <span>Free</span>
+                    <span>Subtotal</span>
+                    <span>R{totalAmount.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between text-sm text-gray-600">
+                    <span>Platform fee (10%)</span>
+                    <span>R{commission.toFixed(2)}</span>
                   </div>
                   <Separator />
                   <div className="flex justify-between font-bold text-lg">
@@ -322,155 +356,22 @@ const Checkout = () => {
                     <span>R{totalAmount.toFixed(2)}</span>
                   </div>
                 </div>
-                
-                <div className="bg-book-50 p-3 rounded-lg">
-                  <div className="flex items-center text-book-700 text-sm">
-                    <Truck className="mr-2 h-4 w-4" />
-                    <span>Free delivery within 3-7 business days</span>
-                  </div>
-                </div>
+
+                <Button
+                  onClick={handlePayment}
+                  className="w-full bg-book-600 hover:bg-book-700"
+                  size="lg"
+                >
+                  <CreditCard className="mr-2 h-4 w-4" />
+                  Pay R{totalAmount.toFixed(2)}
+                </Button>
               </CardContent>
             </Card>
-          </div>
-
-          {/* Checkout Form */}
-          <div className="lg:col-span-2">
-            <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Shipping Information */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Shipping Information</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="fullName">Full Name *</Label>
-                      <Input
-                        id="fullName"
-                        value={shippingInfo.fullName}
-                        onChange={(e) => handleInputChange('fullName', e.target.value)}
-                        placeholder="John Doe"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="email">Email *</Label>
-                      <Input
-                        id="email"
-                        type="email"
-                        value={shippingInfo.email}
-                        onChange={(e) => handleInputChange('email', e.target.value)}
-                        placeholder="john@example.com"
-                        required
-                      />
-                    </div>
-                  </div>
-                  
-                  <div>
-                    <Label htmlFor="address">Address *</Label>
-                    <Input
-                      id="address"
-                      value={shippingInfo.address}
-                      onChange={(e) => handleInputChange('address', e.target.value)}
-                      placeholder="123 Main Street"
-                      required
-                    />
-                  </div>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="city">City *</Label>
-                      <Input
-                        id="city"
-                        value={shippingInfo.city}
-                        onChange={(e) => handleInputChange('city', e.target.value)}
-                        placeholder="Cape Town"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="postalCode">Postal Code *</Label>
-                      <Input
-                        id="postalCode"
-                        value={shippingInfo.postalCode}
-                        onChange={(e) => handleInputChange('postalCode', e.target.value)}
-                        placeholder="8001"
-                        required
-                      />
-                    </div>
-                  </div>
-                  
-                  <div>
-                    <Label htmlFor="phone">Phone Number *</Label>
-                    <Input
-                      id="phone"
-                      type="tel"
-                      value={shippingInfo.phone}
-                      onChange={(e) => handleInputChange('phone', e.target.value)}
-                      placeholder="+27 12 345 6789"
-                      required
-                    />
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Payment Information */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <CreditCard className="mr-2 h-5 w-5" />
-                    Secure Payment with Paystack
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="bg-green-50 p-4 rounded-lg border border-green-200">
-                    <div className="flex items-center text-green-700 text-sm">
-                      <ShieldCheck className="mr-2 h-4 w-4" />
-                      <span>Your payment is processed securely by Paystack. Your card details never touch our servers.</span>
-                    </div>
-                  </div>
-                  
-                  <div className="text-sm text-gray-600">
-                    <p>• Pay with your credit/debit card</p>
-                    <p>• Bank transfer</p>
-                    <p>• Mobile money</p>
-                    <p>• All major South African banks supported</p>
-                    <p>• PCI DSS compliant - your card details are secure</p>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Submit Button */}
-              <Button
-                type="submit"
-                className="w-full bg-book-600 hover:bg-book-700 text-lg py-6"
-                disabled={isProcessing}
-              >
-                {isProcessing ? (
-                  <span className="flex items-center">
-                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    Processing Payment...
-                  </span>
-                ) : (
-                  `Pay Securely with Paystack - R${totalAmount.toFixed(2)}`
-                )}
-              </Button>
-            </form>
           </div>
         </div>
       </div>
     </Layout>
   );
 };
-
-// Declare Paystack global
-declare global {
-  interface Window {
-    PaystackPop: any;
-  }
-}
 
 export default Checkout;

@@ -52,7 +52,7 @@ const ReportBookDialog = ({ bookId, bookTitle, sellerId, sellerName }: ReportBoo
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm" className="text-red-600 hover:text-red-700 border-red-200">
+        <Button variant="outline" size="lg" className="text-red-600 hover:text-red-700 border-red-200">
           <Flag className="h-4 w-4 mr-2" />
           Report
         </Button>

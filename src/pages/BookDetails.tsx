@@ -7,7 +7,8 @@ import { Book } from '@/types/book';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/contexts/AuthContext';
-import { ArrowLeft, BookOpen, Check, Calendar, User } from 'lucide-react';
+import { useCart } from '@/contexts/CartContext';
+import { ArrowLeft, BookOpen, Check, Calendar, User, ShoppingCart } from 'lucide-react';
 import BookImageCarousel from '@/components/BookImageCarousel';
 import ReportBookDialog from '@/components/ReportBookDialog';
 
@@ -18,6 +19,7 @@ const BookDetails = () => {
   const [error, setError] = useState('');
   const navigate = useNavigate();
   const { user, isAuthenticated } = useAuth();
+  const { addToCart } = useCart();
 
   useEffect(() => {
     const loadBook = async () => {
@@ -52,6 +54,22 @@ const BookDetails = () => {
       navigate('/login');
     } else if (book) {
       navigate(`/checkout/${book.id}`);
+    }
+  };
+
+  const handleAddToCart = () => {
+    if (!isAuthenticated) {
+      navigate('/login');
+      return;
+    }
+    if (book) {
+      addToCart(book);
+    }
+  };
+
+  const handleViewSellerProfile = () => {
+    if (book) {
+      navigate(`/user/${book.seller.id}`);
     }
   };
 
@@ -154,15 +172,40 @@ const BookDetails = () => {
                 </div>
               </div>
 
+              {/* Seller Profile Link */}
+              {!isOwner && (
+                <div className="mb-6 p-4 bg-book-50 rounded-lg border border-book-200">
+                  <p className="text-sm text-book-700 mb-2">Like what you see?</p>
+                  <Button
+                    variant="outline"
+                    onClick={handleViewSellerProfile}
+                    className="text-book-600 border-book-300 hover:bg-book-100"
+                  >
+                    Check their profile for more books like this
+                  </Button>
+                </div>
+              )}
+
               <div className="flex flex-col sm:flex-row gap-4 mb-6">
                 {!book.sold && !isOwner && (
-                  <Button
-                    onClick={handleBuyNow}
-                    size="lg"
-                    className="bg-book-600 hover:bg-book-700"
-                  >
-                    Buy Now for R{book.price}
-                  </Button>
+                  <>
+                    <Button
+                      onClick={handleBuyNow}
+                      size="lg"
+                      className="bg-book-600 hover:bg-book-700"
+                    >
+                      Buy Now for R{book.price}
+                    </Button>
+                    <Button
+                      onClick={handleAddToCart}
+                      size="lg"
+                      variant="outline"
+                      className="border-book-600 text-book-600 hover:bg-book-50"
+                    >
+                      <ShoppingCart className="mr-2 h-4 w-4" />
+                      Add to Cart
+                    </Button>
+                  </>
                 )}
                 
                 {!isOwner && (

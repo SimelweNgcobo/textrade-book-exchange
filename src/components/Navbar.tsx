@@ -4,6 +4,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { BookOpen, Menu, X, Plus, User, LogOut, Bell, UserPlus } from 'lucide-react';
 import AdminAccess from './AdminAccess';
+import CartButton from './CartButton';
 
 const Navbar = () => {
   const { user, logout, isAuthenticated } = useAuth();
@@ -58,6 +59,7 @@ const Navbar = () => {
                   <Bell className="h-4 w-4 mr-1" />
                   Notifications
                 </Link>
+                <CartButton />
                 <Link
                   to="/profile"
                   className="flex items-center text-gray-700 hover:text-book-600 px-3 py-2 transition-colors"
@@ -135,6 +137,9 @@ const Navbar = () => {
                     <Bell className="h-4 w-4 mr-1" />
                     Notifications
                   </Link>
+                  <div className="px-3 py-2">
+                    <CartButton />
+                  </div>
                   <Link
                     to="/profile"
                     className="flex items-center text-gray-700 hover:text-book-600 px-3 py-2 transition-colors"

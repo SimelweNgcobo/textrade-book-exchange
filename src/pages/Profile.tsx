@@ -5,14 +5,11 @@ import Layout from '@/components/Layout';
 import ProfileHeader from '@/components/ProfileHeader';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Lock, MapPin } from 'lucide-react';
+import { Lock } from 'lucide-react';
 import ProfileEditDialog from '@/components/ProfileEditDialog';
 import ChangePasswordDialog from '@/components/ChangePasswordDialog';
 import AddressForm from '@/components/AddressForm';
-import AccountInformation from '@/components/profile/AccountInformation';
-import SecuritySettings from '@/components/profile/SecuritySettings';
-import ListingsSidebar from '@/components/profile/ListingsSidebar';
-import MobileListingsView from '@/components/profile/MobileListingsView';
+import UserProfileTabs from '@/components/profile/UserProfileTabs';
 import { saveUserAddresses, getUserAddresses } from '@/services/addressService';
 import { getUserBooks } from '@/services/bookService';
 import { deleteBook } from '@/services/bookEditService';
@@ -135,61 +132,18 @@ const Profile = () => {
           />
         </div>
         
-        {/* Mobile-First Layout */}
-        <div className="space-y-6 lg:grid lg:grid-cols-3 lg:gap-6 lg:space-y-0">
-          {/* Main Content - Full width on mobile, 2/3 on desktop */}
-          <div className="lg:col-span-2 space-y-6">
-            {/* Account Information Card */}
-            <AccountInformation 
-              profile={profile}
-              onEditProfile={() => setIsEditDialogOpen(true)}
-            />
-
-            {/* Address Section */}
-            <Card>
-              <CardHeader className="pb-4">
-                <CardTitle className="flex items-center text-lg">
-                  <MapPin className="h-5 w-5 mr-2" />
-                  Address Information
-                </CardTitle>
-                <p className="text-sm text-gray-600">Manage your pickup and shipping addresses</p>
-              </CardHeader>
-              <CardContent>
-                <AddressForm
-                  pickupAddress={addressData?.pickup_address}
-                  shippingAddress={addressData?.shipping_address}
-                  addressesSame={addressData?.addresses_same}
-                  onSave={handleSaveAddresses}
-                  isLoading={isLoadingAddress}
-                />
-              </CardContent>
-            </Card>
-
-            {/* Mobile Listings View */}
-            <MobileListingsView
-              activeListings={activeListings}
-              isLoading={isLoadingListings}
-              onEditBook={handleEditBook}
-              onDeleteBook={handleDeleteBook}
-            />
-          </div>
-
-          {/* Sidebar - Hidden on mobile, shown on desktop */}
-          <div className="hidden lg:block space-y-6">
-            {/* Security Settings */}
-            <SecuritySettings 
-              onChangePassword={() => setIsChangePasswordDialogOpen(true)}
-            />
-
-            {/* Active Listings - Desktop Sidebar */}
-            <ListingsSidebar
-              activeListings={activeListings}
-              isLoading={isLoadingListings}
-              onEditBook={handleEditBook}
-              onDeleteBook={handleDeleteBook}
-            />
-          </div>
-        </div>
+        {/* Profile Tabs */}
+        <UserProfileTabs
+          activeListings={activeListings}
+          isLoading={isLoadingListings}
+          onEditBook={handleEditBook}
+          onDeleteBook={handleDeleteBook}
+          profile={profile}
+          addressData={addressData}
+          isOwnProfile={true}
+          userId={user.id}
+          userName={profile.name || 'Anonymous User'}
+        />
 
         {/* Mobile Action Buttons - Fixed at bottom on mobile */}
         <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 space-y-3">
