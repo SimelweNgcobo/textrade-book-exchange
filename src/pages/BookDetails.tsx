@@ -123,7 +123,6 @@ const BookDetails = () => {
     );
   }
 
-  // Fix: Create proper object structure for BookImageCarousel
   const bookImages = {
     frontCover: book.frontCover || book.imageUrl,
     backCover: book.backCover,
@@ -154,6 +153,41 @@ const BookDetails = () => {
                 {book.sold && <Badge variant="destructive">Sold</Badge>}
               </div>
             </div>
+
+            {/* Book Details - Moved above price */}
+            <Card>
+              <CardContent className="p-4 space-y-3">
+                <h3 className="font-semibold text-lg">Book Details</h3>
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <span className="font-medium">Category:</span>
+                    <p className="text-gray-600">{book.category}</p>
+                  </div>
+                  <div>
+                    <span className="font-medium">Condition:</span>
+                    <p className="text-gray-600">{book.condition}</p>
+                  </div>
+                  {book.universityYear && (
+                    <div>
+                      <span className="font-medium">University Year:</span>
+                      <p className="text-gray-600">{book.universityYear}</p>
+                    </div>
+                  )}
+                  {book.grade && (
+                    <div>
+                      <span className="font-medium">Grade:</span>
+                      <p className="text-gray-600">{book.grade}</p>
+                    </div>
+                  )}
+                </div>
+                {book.description && (
+                  <div>
+                    <span className="font-medium">Description:</span>
+                    <p className="text-gray-600 mt-1">{book.description}</p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
 
             {/* Price */}
             <div className="bg-book-50 p-4 rounded-lg">
@@ -237,41 +271,6 @@ const BookDetails = () => {
                 />
               </div>
             </div>
-
-            {/* Book Details */}
-            <Card>
-              <CardContent className="p-4 space-y-3">
-                <h3 className="font-semibold text-lg">Book Details</h3>
-                <div className="grid grid-cols-2 gap-4 text-sm">
-                  <div>
-                    <span className="font-medium">Category:</span>
-                    <p className="text-gray-600">{book.category}</p>
-                  </div>
-                  <div>
-                    <span className="font-medium">Condition:</span>
-                    <p className="text-gray-600">{book.condition}</p>
-                  </div>
-                  {book.universityYear && (
-                    <div>
-                      <span className="font-medium">University Year:</span>
-                      <p className="text-gray-600">{book.universityYear}</p>
-                    </div>
-                  )}
-                  {book.grade && (
-                    <div>
-                      <span className="font-medium">Grade:</span>
-                      <p className="text-gray-600">{book.grade}</p>
-                    </div>
-                  )}
-                </div>
-                {book.description && (
-                  <div>
-                    <span className="font-medium">Description:</span>
-                    <p className="text-gray-600 mt-1">{book.description}</p>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
           </div>
         </div>
       </div>

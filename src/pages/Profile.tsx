@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import Layout from '@/components/Layout';
 import ProfileHeader from '@/components/ProfileHeader';
+import ShareProfileDialog from '@/components/ShareProfileDialog';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Lock } from 'lucide-react';
@@ -22,6 +23,7 @@ const Profile = () => {
   const navigate = useNavigate();
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isChangePasswordDialogOpen, setIsChangePasswordDialogOpen] = useState(false);
+  const [isShareDialogOpen, setIsShareDialogOpen] = useState(false);
   const [addressData, setAddressData] = useState<any>(null);
   const [activeListings, setActiveListings] = useState<Book[]>([]);
   const [isLoadingAddress, setIsLoadingAddress] = useState(false);
@@ -97,6 +99,10 @@ const Profile = () => {
     }
   };
 
+  const handleShareProfile = () => {
+    setIsShareDialogOpen(true);
+  };
+
   if (!profile || !user) {
     return (
       <Layout>
@@ -110,11 +116,8 @@ const Profile = () => {
     );
   }
 
-  const handleShareProfile = () => {
-    console.log('Share profile clicked');
-  };
-
   const userData = {
+    id: user.id,
     name: profile.name || 'Anonymous User',
     joinDate: new Date().toISOString(),
     isVerified: false
@@ -143,6 +146,8 @@ const Profile = () => {
           isOwnProfile={true}
           userId={user.id}
           userName={profile.name || 'Anonymous User'}
+          onSaveAddresses={handleSaveAddresses}
+          isLoadingAddress={isLoadingAddress}
         />
 
         {/* Mobile Action Buttons - Fixed at bottom on mobile */}
@@ -170,6 +175,14 @@ const Profile = () => {
         <ChangePasswordDialog
           open={isChangePasswordDialogOpen}
           onOpenChange={setIsChangePasswordDialogOpen}
+        />
+
+        <ShareProfileDialog
+          isOpen={isShareDialogOpen}
+          onClose={() => setIsShareDialogOpen(false)}
+          userId={user.id}
+          userName={profile.name || 'Anonymous User'}
+          isOwnProfile={true}
         />
       </div>
     </Layout>

@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import Layout from '@/components/Layout';
 import ProfileHeader from '@/components/ProfileHeader';
+import ShareProfileDialog from '@/components/ShareProfileDialog';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
@@ -25,6 +26,7 @@ const UserProfile = () => {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [userBooks, setUserBooks] = useState<Book[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isShareDialogOpen, setIsShareDialogOpen] = useState(false);
 
   useEffect(() => {
     if (userId) {
@@ -76,6 +78,10 @@ const UserProfile = () => {
     navigate(`/books/${bookId}`);
   };
 
+  const handleShareProfile = () => {
+    setIsShareDialogOpen(true);
+  };
+
   if (!profile && !isLoading) {
     return (
       <Layout>
@@ -106,6 +112,7 @@ const UserProfile = () => {
   }
 
   const userData = {
+    id: profile?.id || '',
     name: profile?.name || 'Anonymous User',
     joinDate: profile?.created_at || new Date().toISOString(),
     isVerified: false
@@ -123,7 +130,7 @@ const UserProfile = () => {
           <ProfileHeader 
             userData={userData}
             isOwnProfile={false}
-            onShareProfile={() => {}}
+            onShareProfile={handleShareProfile}
           />
         </div>
         
@@ -164,6 +171,14 @@ const UserProfile = () => {
             )}
           </CardContent>
         </Card>
+
+        <ShareProfileDialog
+          isOpen={isShareDialogOpen}
+          onClose={() => setIsShareDialogOpen(false)}
+          userId={profile?.id || ''}
+          userName={profile?.name || 'Anonymous User'}
+          isOwnProfile={false}
+        />
       </div>
     </Layout>
   );
