@@ -227,20 +227,18 @@ export const getTotalCommission = async (): Promise<number> => {
 
 export const getAdminStats = async (): Promise<AdminStats> => {
   try {
-    const [totalUsers, totalCommission] = await Promise.all([
-      getTotalUsers(),
-      getTotalCommission()
+    // Get all statistics in parallel for better performance
+    const [
+      { count: totalUsers },
+      { count: activeListings },
+      { count: booksSold },
+      { count: totalReports }
+    ] = await Promise.all([
+      supabase.from('profiles').select('*', { count: 'exact', head: true }),
+      supabase.from('books').select('*', { count: 'exact', head: true }).eq('sold', false),
+      supabase.from('books').select('*', { count: 'exact', head: true }).eq('sold', true),
+      supabase.from('reports').select('*', { count: 'exact', head: true })
     ]);
-
-    const { count: activeListings } = await supabase
-      .from('books')
-      .select('*', { count: 'exact', head: true })
-      .eq('sold', false);
-
-    const { count: booksSold } = await supabase
-      .from('books')
-      .select('*', { count: 'exact', head: true })
-      .eq('sold', true);
 
     // Get new users this week
     const weekAgo = new Date();
@@ -275,10 +273,10 @@ export const getAdminStats = async (): Promise<AdminStats> => {
     const monthlyCommission = (monthlyTransactions || []).reduce((total, t) => total + (t.commission || 0), 0);
 
     return {
-      totalUsers,
+      totalUsers: totalUsers || 0,
       activeListings: activeListings || 0,
       booksSold: booksSold || 0,
-      reportedIssues: 0, // TODO: Implement when reports system is added
+      reportedIssues: totalReports || 0,
       newUsersThisWeek: newUsersThisWeek || 0,
       salesThisMonth: salesThisMonth || 0,
       weeklyCommission,

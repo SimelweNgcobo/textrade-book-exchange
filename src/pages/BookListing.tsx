@@ -70,6 +70,7 @@ const BookListing = () => {
       if (priceRange[1] < 1000) filters.maxPrice = priceRange[1];
       
       const loadedBooks = await getBooks(filters);
+      console.log('Loaded books:', loadedBooks.length);
       setBooks(loadedBooks);
     } catch (error) {
       console.error('Error loading books:', error);
@@ -388,8 +389,9 @@ const BookListing = () => {
                         alt={book.title}
                         className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
                       />
+                      {/* Fix: Show price only once in the top right corner */}
                       <div className="absolute top-2 right-2 bg-white px-2 py-1 rounded-full text-sm font-semibold text-book-800">
-                        R{book.price}
+                        R{book.price.toLocaleString()}
                       </div>
                     </div>
                     <div className="p-4 flex-grow flex flex-col">

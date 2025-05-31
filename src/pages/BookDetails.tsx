@@ -5,6 +5,7 @@ import BookImageCarousel from '@/components/BookImageCarousel';
 import BookInfo from '@/components/book-details/BookInfo';
 import BookActions from '@/components/book-details/BookActions';
 import SellerInfo from '@/components/book-details/SellerInfo';
+import ReportBookDialog from '@/components/ReportBookDialog';
 import { useBookDetails } from '@/hooks/useBookDetails';
 
 const BookDetails = () => {
@@ -44,20 +45,21 @@ const BookDetails = () => {
     );
   }
 
+  // Fix: Create proper image array with filter to remove null/undefined values
+  const bookImages = [
+    book.frontCover,
+    book.imageUrl,
+    book.backCover,
+    book.insidePages
+  ].filter(Boolean);
+
   return (
     <Layout>
       <div className="container mx-auto px-4 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Left Column - Images */}
           <div className="lg:col-span-1">
-            <BookImageCarousel 
-              images={[
-                book.imageUrl,
-                book.frontCover,
-                book.backCover,
-                ...(book.insidePages ? [book.insidePages] : [])
-              ].filter(Boolean)}
-            />
+            <BookImageCarousel images={bookImages} />
           </div>
 
           {/* Middle Column - Book Details */}
@@ -78,6 +80,18 @@ const BookDetails = () => {
               book={book}
               onViewSellerProfile={handleViewSellerProfile}
             />
+            
+            {/* Add Report Button */}
+            {user && user.id !== book.seller?.id && (
+              <div className="mt-4">
+                <ReportBookDialog
+                  bookId={book.id}
+                  bookTitle={book.title}
+                  sellerId={book.seller?.id || ''}
+                  sellerName={book.seller?.name || 'Unknown'}
+                />
+              </div>
+            )}
           </div>
         </div>
       </div>

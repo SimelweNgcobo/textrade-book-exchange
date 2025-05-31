@@ -8,6 +8,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Flag } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 
 interface ReportBookDialogProps {
   bookId: string;
@@ -36,8 +37,25 @@ const ReportBookDialog = ({ bookId, bookTitle, sellerId, sellerName }: ReportBoo
 
     setIsSubmitting(true);
     try {
-      // For now, just show success message - actual reporting will be implemented with database
-      toast.success('Report submitted successfully');
+      const { error } = await supabase
+        .from('reports')
+        .insert({
+          reporter_user_id: user.id,
+          reported_user_id: sellerId,
+          book_id: reportType === 'listing' ? bookId : null,
+          book_title: bookTitle,
+          seller_name: sellerName,
+          reason: reason.trim(),
+          status: 'pending'
+        });
+
+      if (error) {
+        console.error('Error submitting report:', error);
+        toast.error('Failed to submit report');
+        return;
+      }
+
+      toast.success('Report submitted successfully. We will review it shortly.');
       setOpen(false);
       setReason('');
       setReportType('listing');
@@ -52,7 +70,7 @@ const ReportBookDialog = ({ bookId, bookTitle, sellerId, sellerName }: ReportBoo
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" size="lg" className="text-red-600 hover:text-red-700 border-red-200">
+        <Button variant="outline" size="lg" className="text-red-600 hover:text-red-700 border-red-200 w-full">
           <Flag className="h-4 w-4 mr-2" />
           Report
         </Button>
@@ -80,7 +98,7 @@ const ReportBookDialog = ({ bookId, bookTitle, sellerId, sellerName }: ReportBoo
             <Label htmlFor="reason">Reason for report</Label>
             <Textarea
               id="reason"
-              placeholder="Please describe the issue..."
+              placeholder="Please describe the issue (inappropriate content, fake listing, fraud, etc.)..."
               value={reason}
               onChange={(e) => setReason(e.target.value)}
               className="mt-1 min-h-[100px]"

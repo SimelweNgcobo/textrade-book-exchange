@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { Book, BookFormData } from '@/types/book';
 
@@ -25,7 +24,14 @@ export const getBooks = async (filters?: BookFilters): Promise<Book[]> => {
   try {
     let query = supabase
       .from('books')
-      .select('*')
+      .select(`
+        *,
+        profiles!books_seller_id_fkey (
+          id,
+          name,
+          email
+        )
+      `)
       .eq('sold', false)
       .order('created_at', { ascending: false });
 
@@ -63,17 +69,6 @@ export const getBooks = async (filters?: BookFilters): Promise<Book[]> => {
 
     if (!data) return [];
 
-    // Get unique seller IDs
-    const sellerIds = [...new Set(data.map(book => book.seller_id))];
-    
-    // Fetch seller profiles separately
-    const { data: profiles } = await supabase
-      .from('profiles')
-      .select('id, name, email')
-      .in('id', sellerIds);
-
-    const profileMap = new Map(profiles?.map(p => [p.id, p]) || []);
-
     const books: Book[] = data.map((book) => ({
       id: book.id,
       title: book.title,
@@ -92,8 +87,8 @@ export const getBooks = async (filters?: BookFilters): Promise<Book[]> => {
       universityYear: book.university_year,
       seller: {
         id: book.seller_id,
-        name: profileMap.get(book.seller_id)?.name || 'Anonymous',
-        email: profileMap.get(book.seller_id)?.email || ''
+        name: (book.profiles as any)?.name || 'Anonymous',
+        email: (book.profiles as any)?.email || ''
       }
     }));
 
@@ -108,7 +103,14 @@ export const getBookById = async (id: string): Promise<Book | null> => {
   try {
     const { data: book, error } = await supabase
       .from('books')
-      .select('*')
+      .select(`
+        *,
+        profiles!books_seller_id_fkey (
+          id,
+          name,
+          email
+        )
+      `)
       .eq('id', id)
       .single();
 
@@ -118,13 +120,6 @@ export const getBookById = async (id: string): Promise<Book | null> => {
     }
 
     if (!book) return null;
-
-    // Fetch seller profile separately
-    const { data: seller } = await supabase
-      .from('profiles')
-      .select('id, name, email')
-      .eq('id', book.seller_id)
-      .single();
 
     return {
       id: book.id,
@@ -143,9 +138,9 @@ export const getBookById = async (id: string): Promise<Book | null> => {
       grade: book.grade,
       universityYear: book.university_year,
       seller: {
-        id: seller?.id || '',
-        name: seller?.name || 'Anonymous',
-        email: seller?.email || ''
+        id: book.seller_id,
+        name: (book.profiles as any)?.name || 'Anonymous',
+        email: (book.profiles as any)?.email || ''
       }
     };
   } catch (error) {
