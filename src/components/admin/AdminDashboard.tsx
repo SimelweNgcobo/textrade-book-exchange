@@ -19,6 +19,7 @@ import AdminEarningsTab from '@/components/admin/AdminEarningsTab';
 import AdminUsersTab from '@/components/admin/AdminUsersTab';
 import AdminListingsTab from '@/components/admin/AdminListingsTab';
 import AdminSettingsTab from '@/components/admin/AdminSettingsTab';
+import AdminContactTab from '@/components/admin/AdminContactTab';
 
 const AdminDashboard = () => {
   const isMobile = useIsMobile();
@@ -124,7 +125,7 @@ const AdminDashboard = () => {
       <AdminStats stats={stats} />
 
       <Tabs defaultValue="earnings" className="space-y-4">
-        <TabsList className={`${isMobile ? 'grid grid-cols-2 h-auto' : 'grid grid-cols-4'} w-full`}>
+        <TabsList className={`${isMobile ? 'grid grid-cols-3 h-auto' : 'grid grid-cols-5'} w-full`}>
           <TabsTrigger value="earnings" className={isMobile ? 'text-xs px-2 py-2' : ''}>
             {isMobile ? 'Earnings' : 'Earnings'}
           </TabsTrigger>
@@ -133,6 +134,9 @@ const AdminDashboard = () => {
           </TabsTrigger>
           <TabsTrigger value="listings" className={isMobile ? 'text-xs px-2 py-2' : ''}>
             {isMobile ? 'Listings' : 'Listings'}
+          </TabsTrigger>
+          <TabsTrigger value="contact" className={isMobile ? 'text-xs px-2 py-2' : ''}>
+            {isMobile ? 'Contact' : 'Contact Messages'}
           </TabsTrigger>
           <TabsTrigger value="settings" className={isMobile ? 'text-xs px-2 py-2' : ''}>
             {isMobile ? 'Settings' : 'Settings'}
@@ -149,6 +153,10 @@ const AdminDashboard = () => {
 
         <TabsContent value="listings" className="space-y-4">
           <AdminListingsTab listings={listings} onListingAction={handleListingAction} />
+        </TabsContent>
+
+        <TabsContent value="contact" className="space-y-4">
+          <AdminContactTab />
         </TabsContent>
 
         <TabsContent value="settings" className="space-y-4">

@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
 import { ArrowLeft, Mail, Send } from 'lucide-react';
+import { submitContactMessage } from '@/services/contactService';
 
 const ContactUs = () => {
   const { user, profile } = useAuth();
@@ -25,14 +26,18 @@ const ContactUs = () => {
     setIsSubmitting(true);
 
     try {
-      // In a real app, this would send an email to rebooked.co.za@gmail.com
-      // For demo purposes, we'll just show a toast
-      await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate network request
+      await submitContactMessage({
+        name,
+        email,
+        subject,
+        message
+      });
       
       toast.success('Your message has been sent! We\'ll get back to you soon.');
       setSubject('');
       setMessage('');
     } catch (error) {
+      console.error('Failed to send message:', error);
       toast.error('Failed to send message. Please try again later.');
     } finally {
       setIsSubmitting(false);

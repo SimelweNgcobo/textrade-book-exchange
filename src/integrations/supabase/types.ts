@@ -66,6 +66,24 @@ export type Database = {
         }
         Relationships: []
       }
+      email_notifications: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
           created_at: string
@@ -247,7 +265,9 @@ export type Database = {
         }[]
       }
       has_role: {
-        Args: { user_id: string; role_name: string }
+        Args:
+          | { user_id: number; role_name: string }
+          | { user_id: string; role_name: string }
         Returns: boolean
       }
       is_admin: {

@@ -85,11 +85,24 @@ export const useBookDetails = (bookId: string | undefined) => {
 
   const handleViewSellerProfile = () => {
     if (book?.seller?.id) {
-      navigate(`/profile/${book.seller.id}`);
+      navigate(`/user/${book.seller.id}`);
+    } else {
+      toast.error('Seller profile not available');
     }
   };
 
   const handleEditBook = () => {
+    if (!isAuthenticated) {
+      toast.error('Please log in to edit books');
+      navigate('/login');
+      return;
+    }
+
+    if (user?.id !== book?.seller?.id) {
+      toast.error('You can only edit your own books');
+      return;
+    }
+
     navigate(`/edit-book/${bookId}`);
   };
 
