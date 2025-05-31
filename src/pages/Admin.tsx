@@ -13,7 +13,7 @@ const Admin = () => {
   const isMobile = useIsMobile();
 
   // Redirect if not admin
-  if (!user || !profile?.is_admin) {
+  if (!user || !profile?.isAdmin) {
     return (
       <Layout>
         <div className="container mx-auto px-4 py-8">
@@ -34,12 +34,12 @@ const Admin = () => {
             <Button 
               variant="ghost" 
               onClick={() => navigate('/')}
-              className="text-green-600"
+              className="text-book-600"
               size={isMobile ? "sm" : "default"}
             >
               <ArrowLeft className="mr-2 h-4 w-4" /> Back to Home
             </Button>
-            <h1 className="text-xl md:text-3xl font-bold text-gray-800">Admin Dashboard</h1>
+            <h1 className="text-xl md:text-3xl font-bold text-book-800">Admin Dashboard</h1>
           </div>
           
           <Button 

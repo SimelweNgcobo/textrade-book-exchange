@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -25,9 +24,8 @@ const createMessageHash = (message: string): string => {
 };
 
 export const useBroadcastMessages = () => {
-  const [currentMessage, setCurrentMessage] = useState<string | null>(null);
+  const [pendingMessage, setPendingMessage] = useState<string | null>(null);
   const [showPopup, setShowPopup] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   const { user } = useAuth();
 
   const checkForUnseenBroadcasts = useCallback(() => {
@@ -50,14 +48,14 @@ export const useBroadcastMessages = () => {
       });
 
       if (userBroadcast) {
-        setCurrentMessage(userBroadcast.message);
+        setPendingMessage(userBroadcast.message);
         setShowPopup(true);
         return;
       }
     }
 
     if (unseenGlobal) {
-      setCurrentMessage(unseenGlobal.message);
+      setPendingMessage(unseenGlobal.message);
       setShowPopup(true);
     }
 
@@ -66,40 +64,28 @@ export const useBroadcastMessages = () => {
   useEffect(() => {
     checkForUnseenBroadcasts();
 
-    const handleGlobalUpdate = () => checkForUnseenBroadcasts();
-    const handleNotificationUpdate = () => checkForUnseenBroadcasts();
-    const handleStorageUpdate = (e: StorageEvent) => {
-      if (e.key === 'globalBroadcastQueue' || e.key === 'broadcastQueue') {
-        checkForUnseenBroadcasts();
-      }
-    };
+    const listeners = [
+      ['globalBroadcastUpdate', checkForUnseenBroadcasts],
+      ['notificationUpdate', checkForUnseenBroadcasts],
+      ['storage', (e: StorageEvent) => {
+        if (e.key === 'globalBroadcastQueue' || e.key === 'broadcastQueue') {
+          checkForUnseenBroadcasts();
+        }
+      }]
+    ];
 
-    window.addEventListener('globalBroadcastUpdate', handleGlobalUpdate);
-    window.addEventListener('notificationUpdate', handleNotificationUpdate);
-    window.addEventListener('storage', handleStorageUpdate);
+    listeners.forEach(([event, handler]) => window.addEventListener(event, handler as any));
 
     return () => {
-      window.removeEventListener('globalBroadcastUpdate', handleGlobalUpdate);
-      window.removeEventListener('notificationUpdate', handleNotificationUpdate);
-      window.removeEventListener('storage', handleStorageUpdate);
+      listeners.forEach(([event, handler]) => window.removeEventListener(event, handler as any));
     };
   }, [checkForUnseenBroadcasts]);
 
-  const handleClosePopup = () => {
-    setShowPopup(false);
-    setCurrentMessage(null);
-  };
-
   const closePopup = () => {
-    handleClosePopup();
+    setShowPopup(false);
+    setPendingMessage(null);
   };
 
-  return { 
-    currentMessage, 
-    showPopup, 
-    isLoading, 
-    handleClosePopup,
-    pendingMessage: currentMessage,
-    closePopup
-  };
+  return { pendingMessage, showPopup, closePopup };
 };
+

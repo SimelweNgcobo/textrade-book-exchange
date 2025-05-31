@@ -1,27 +1,32 @@
 
-import { createContext, useContext, useState, useEffect } from 'react';
-import {
-  Session,
-  User as SupabaseUser,
-  AuthError
-} from '@supabase/supabase-js';
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
-import { Profile } from '@/types/profile';
+import { toast } from 'sonner';
+
+interface Profile {
+  id: string;
+  name: string;
+  email: string;
+  isAdmin: boolean;
+  isVerified?: boolean;
+  successfulDeliveries?: number;
+  isBanned?: boolean;
+  banReason?: string;
+  rating?: number;
+}
 
 interface AuthContextType {
-  user: SupabaseUser | null;
+  user: User | null;
   profile: Profile | null;
   session: Session | null;
   isAuthenticated: boolean;
   isAdmin: boolean;
-  loading: boolean;
   isLoading: boolean;
-  signIn: (email: string, password: string) => Promise<{ error: AuthError | null }>;
-  signUp: (email: string, password: string, name: string) => Promise<{ error: AuthError | null }>;
-  signOut: () => Promise<void>;
-  updateProfile: (updates: Partial<Profile>) => Promise<void>;
   login: (email: string, password: string) => Promise<void>;
-  register: (email: string, password: string, name: string) => Promise<void>;
+  register: (name: string, email: string, password: string, enable2FA?: boolean) => Promise<void>;
+  logout: () => Promise<void>;
+  updateProfile: (updates: Partial<Profile>) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -34,196 +39,233 @@ export const useAuth = () => {
   return context;
 };
 
-export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const [user, setUser] = useState<SupabaseUser | null>(null);
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [session, setSession] = useState<Session | null>(null);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const loadSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-
-      setUser(session?.user || null);
-      setSession(session || null);
-      setIsAuthenticated(!!session);
-
-      if (session?.user) {
-        await fetchProfile(session.user.id);
+    // Set up auth state listener FIRST
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, currentSession) => {
+        console.log('Auth state changed:', event, currentSession?.user?.email);
+        setSession(currentSession);
+        setUser(currentSession?.user ?? null);
+        
+        // Defer profile fetching to avoid Supabase deadlock
+        if (currentSession?.user) {
+          setTimeout(() => {
+            fetchUserProfile(currentSession.user.id);
+          }, 0);
+        } else {
+          setProfile(null);
+        }
       }
+    );
 
-      setLoading(false);
-    };
-
-    loadSession();
-
-    supabase.auth.onAuthStateChange(async (event, session) => {
-      setUser(session?.user || null);
-      setSession(session || null);
-      setIsAuthenticated(!!session);
-
-      if (session?.user) {
-        await fetchProfile(session.user.id);
-      } else {
-        setProfile(null);
-        setIsAdmin(false);
+    // THEN check for existing session
+    supabase.auth.getSession().then(({ data: { session: currentSession } }) => {
+      console.log('Existing session check:', currentSession?.user?.email);
+      setSession(currentSession);
+      setUser(currentSession?.user ?? null);
+      
+      if (currentSession?.user) {
+        fetchUserProfile(currentSession.user.id);
       }
     });
+
+    setIsLoading(false);
+    
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
 
-  const fetchProfile = async (userId: string) => {
+  const fetchUserProfile = async (userId: string) => {
     try {
-      const { data: profileData, error } = await supabase
+      console.log('Fetching profile for user:', userId);
+      const { data, error } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', userId)
         .single();
 
       if (error) {
-        console.error('Error fetching profile:', error);
-        setIsAdmin(false);
-      } else {
-        setProfile(profileData);
-        setIsAdmin(profileData?.is_admin || false);
+        console.error('Error fetching user profile:', error);
+        return;
+      }
+
+      if (data) {
+        console.log('Profile data retrieved:', data);
+        // Check if this is the admin email and ensure admin status
+        const isAdminEmail = data.email === 'AdminSimnLi@gmail.com';
+        
+        setProfile({
+          id: data.id,
+          name: data.name || '',
+          email: data.email || '',
+          isAdmin: isAdminEmail || !!data.is_admin, // Force admin status for admin email
+          isVerified: false,
+          successfulDeliveries: 0,
+          isBanned: false,
+          banReason: '',
+          rating: 0
+        });
+
+        // Update admin status in database if needed for the specific admin email
+        if (isAdminEmail && !data.is_admin) {
+          await supabase
+            .from('profiles')
+            .update({ is_admin: true })
+            .eq('id', userId);
+        }
       }
     } catch (error) {
       console.error('Error fetching profile:', error);
-      setIsAdmin(false);
-    }
-  };
-
-  const signIn = async (email: string, password: string) => {
-    try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-
-      if (error) {
-        console.error('Sign-in error:', error);
-        return { error };
-      }
-
-      setUser(data.user);
-      setSession(data.session);
-      setIsAuthenticated(true);
-      await fetchProfile(data.user?.id as string);
-
-      return { error: null };
-    } catch (error) {
-      console.error('Sign-in error:', error);
-      return { error: error as AuthError };
     }
   };
 
   const login = async (email: string, password: string) => {
-    const { error } = await signIn(email, password);
-    if (error) {
+    try {
+      console.log('Attempting login with email:', email);
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: email.trim(),
+        password
+      });
+
+      if (error) {
+        console.error('Login error:', error.message);
+        // Provide more specific error messages
+        if (error.message.includes('Invalid login credentials')) {
+          throw new Error('Invalid email or password. Please check your credentials and try again.');
+        }
+        throw error;
+      }
+
+      console.log('Login successful:', data.user?.email);
+      toast.success('Logged in successfully');
+    } catch (error: any) {
+      console.error('Login error caught:', error.message);
+      toast.error(error.message || 'Failed to login');
       throw error;
     }
   };
 
-  const signUp = async (email: string, password: string, name: string) => {
+  const register = async (name: string, email: string, password: string, enable2FA = false) => {
     try {
+      console.log('Attempting registration with email:', email);
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
           data: {
             name,
+            enable_2fa: enable2FA
           },
-        },
+          emailRedirectTo: `${window.location.origin}/confirm`
+        }
       });
 
       if (error) {
-        console.error('Sign-up error:', error);
-        return { error };
+        console.error('Registration error:', error.message);
+        throw error;
       }
 
-      setUser(data.user);
-      setSession(data.session);
-      setIsAuthenticated(true);
-
-      // Create user profile
+      console.log('Registration successful');
+      
+      // Create profile record if user was created
       if (data.user) {
-        await supabase
+        // Check if this is the admin email
+        const isAdminEmail = email === 'AdminSimnLi@gmail.com';
+        
+        const { error: profileError } = await supabase
           .from('profiles')
-          .insert([{ id: data.user.id, email: data.user.email, name }]);
+          .insert({
+            id: data.user.id,
+            name: name,
+            email: email,
+            is_admin: isAdminEmail // Set admin status for admin email
+          });
+          
+        if (profileError) {
+          console.error('Profile creation error:', profileError);
+        }
+        
+        toast.success('Registration successful! Please check your email to confirm your account.');
       }
-
-      await fetchProfile(data.user?.id as string);
-
-      return { error: null };
-    } catch (error) {
-      console.error('Sign-up error:', error);
-      return { error: error as AuthError };
-    }
-  };
-
-  const register = async (email: string, password: string, name: string) => {
-    const { error } = await signUp(email, password, name);
-    if (error) {
+    } catch (error: any) {
+      console.error('Registration error caught:', error.message);
+      toast.error(error.message || 'Failed to register');
       throw error;
-    }
-  };
-
-  const signOut = async () => {
-    try {
-      await supabase.auth.signOut();
-      setUser(null);
-      setProfile(null);
-      setSession(null);
-      setIsAuthenticated(false);
-      setIsAdmin(false);
-    } catch (error) {
-      console.error('Sign-out error:', error);
     }
   };
 
   const updateProfile = async (updates: Partial<Profile>) => {
     try {
-      if (!user) {
-        console.error('No user to update profile for.');
+      if (!user) throw new Error('User not authenticated');
+      
+      // Map our Profile interface fields to the database fields
+      const dbUpdates: any = {};
+      if (updates.name !== undefined) dbUpdates.name = updates.name;
+      if (updates.email !== undefined) dbUpdates.email = updates.email;
+      
+      // Only proceed if we have updates to make
+      if (Object.keys(dbUpdates).length === 0) {
         return;
       }
-
-      const { data, error } = await supabase
+      
+      const { error } = await supabase
         .from('profiles')
-        .update(updates)
-        .eq('id', user.id)
-        .select()
-        .single();
-
-      if (error) {
-        console.error('Error updating profile:', error);
-      } else {
-        setProfile(data);
+        .update(dbUpdates)
+        .eq('id', user.id);
+      
+      if (error) throw error;
+      
+      // Update local state
+      if (profile) {
+        setProfile({ ...profile, ...updates });
       }
-    } catch (error) {
-      console.error('Error updating profile:', error);
+      
+      toast.success('Profile updated successfully');
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to update profile');
+      throw error;
     }
   };
 
-  const value: AuthContextType = {
-    user,
-    profile,
-    session,
-    isAuthenticated,
-    isAdmin,
-    loading,
-    isLoading: loading,
-    signIn,
-    signUp,
-    signOut,
-    updateProfile,
-    login,
-    register,
+  const logout = async () => {
+    try {
+      const { error } = await supabase.auth.signOut();
+      
+      if (error) {
+        throw error;
+      }
+      
+      setUser(null);
+      setProfile(null);
+      setSession(null);
+      toast.success('Logged out successfully');
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to logout');
+    }
   };
 
   return (
-    <AuthContext.Provider value={value}>
+    <AuthContext.Provider
+      value={{
+        user,
+        profile,
+        session,
+        isAuthenticated: !!session,
+        isAdmin: !!profile?.isAdmin,
+        isLoading,
+        login,
+        register,
+        logout,
+        updateProfile
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
