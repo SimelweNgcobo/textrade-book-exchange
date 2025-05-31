@@ -8,22 +8,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { AlertTriangle, Search, Eye, CheckCircle, XCircle } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-
-interface Report {
-  id: string;
-  book_id: string;
-  book_title: string;
-  reporter_user_id: string;
-  reported_user_id: string;
-  seller_name: string;
-  reason: string;
-  status: 'pending' | 'resolved' | 'dismissed';
-  created_at: string;
-}
+import { ReportRow } from '@/types/supabase-reports';
 
 const ModerationDashboard = () => {
-  const [reports, setReports] = useState<Report[]>([]);
-  const [filteredReports, setFilteredReports] = useState<Report[]>([]);
+  const [reports, setReports] = useState<ReportRow[]>([]);
+  const [filteredReports, setFilteredReports] = useState<ReportRow[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [activeTab, setActiveTab] = useState('pending');
   const [isLoading, setIsLoading] = useState(true);
@@ -40,7 +29,7 @@ const ModerationDashboard = () => {
     try {
       setIsLoading(true);
       const { data, error } = await supabase
-        .from('reports')
+        .from('reports' as any)
         .select('*')
         .order('created_at', { ascending: false });
 
@@ -76,7 +65,7 @@ const ModerationDashboard = () => {
   const updateReportStatus = async (reportId: string, status: 'resolved' | 'dismissed') => {
     try {
       const { error } = await supabase
-        .from('reports')
+        .from('reports' as any)
         .update({ status })
         .eq('id', reportId);
 

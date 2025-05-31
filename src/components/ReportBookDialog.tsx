@@ -16,6 +16,7 @@ import { AlertTriangle } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { ReportInsert } from '@/types/supabase-reports';
 
 interface ReportBookDialogProps {
   bookId: string;
@@ -43,17 +44,19 @@ const ReportBookDialog = ({ bookId, bookTitle, sellerId, sellerName }: ReportBoo
 
     setIsSubmitting(true);
     try {
+      const reportData: ReportInsert = {
+        book_id: bookId,
+        reporter_user_id: user.id,
+        reported_user_id: sellerId,
+        reason: reason.trim(),
+        book_title: bookTitle,
+        seller_name: sellerName,
+        status: 'pending'
+      };
+
       const { error } = await supabase
-        .from('reports')
-        .insert({
-          book_id: bookId,
-          reporter_user_id: user.id,
-          reported_user_id: sellerId,
-          reason: reason.trim(),
-          book_title: bookTitle,
-          seller_name: sellerName,
-          status: 'pending'
-        });
+        .from('reports' as any)
+        .insert(reportData);
 
       if (error) {
         console.error('Error submitting report:', error);
