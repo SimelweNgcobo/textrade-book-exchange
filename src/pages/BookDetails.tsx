@@ -21,7 +21,6 @@ const BookDetails = () => {
   const { addToCart } = useCart();
   const [book, setBook] = useState<Book | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [showReportDialog, setShowReportDialog] = useState(false);
 
   useEffect(() => {
     if (id) {
@@ -98,15 +97,6 @@ const BookDetails = () => {
     }
   };
 
-  const handleReport = () => {
-    if (!isAuthenticated) {
-      toast.error('Please log in to report books');
-      navigate('/login');
-      return;
-    }
-    setShowReportDialog(true);
-  };
-
   if (isLoading) {
     return (
       <Layout>
@@ -133,11 +123,12 @@ const BookDetails = () => {
     );
   }
 
-  const images = [
-    book.frontCover || book.imageUrl,
-    book.backCover,
-    book.insidePages
-  ].filter(Boolean);
+  // Fix: Create proper object structure for BookImageCarousel
+  const bookImages = {
+    frontCover: book.frontCover || book.imageUrl,
+    backCover: book.backCover,
+    insidePages: book.insidePages
+  };
 
   return (
     <Layout>
@@ -149,7 +140,7 @@ const BookDetails = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
           {/* Book Images */}
           <div className="space-y-4">
-            <BookImageCarousel images={images} />
+            <BookImageCarousel images={bookImages} />
           </div>
 
           {/* Book Details */}
@@ -238,15 +229,12 @@ const BookDetails = () => {
               )}
 
               <div className="flex gap-3">
-                <Button
-                  onClick={handleReport}
-                  variant="outline"
-                  className="flex-1 py-3"
-                  size="lg"
-                >
-                  <Flag className="mr-2 h-4 w-4" />
-                  Report
-                </Button>
+                <ReportBookDialog
+                  bookId={book.id}
+                  bookTitle={book.title}
+                  sellerId={book.seller?.id || ''}
+                  sellerName={book.seller?.name || 'Unknown'}
+                />
               </div>
             </div>
 
@@ -286,12 +274,6 @@ const BookDetails = () => {
             </Card>
           </div>
         </div>
-
-        <ReportBookDialog
-          open={showReportDialog}
-          onOpenChange={setShowReportDialog}
-          book={book}
-        />
       </div>
     </Layout>
   );
