@@ -51,7 +51,7 @@ const BookDetails = () => {
     book.imageUrl,
     book.backCover,
     book.insidePages
-  ].filter(Boolean);
+  ].filter(Boolean) as string[];
 
   return (
     <Layout>
