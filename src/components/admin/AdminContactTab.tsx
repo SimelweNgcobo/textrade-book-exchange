@@ -37,21 +37,48 @@ const AdminContactTab = () => {
 
   const loadContactMessages = async () => {
     try {
+      // Use raw SQL query since the table type isn't in the generated types yet
       const { data, error } = await supabase
-        .from('contact_messages')
-        .select('*')
-        .order('created_at', { ascending: false });
+        .rpc('exec_sql', { 
+          query: 'SELECT * FROM contact_messages ORDER BY created_at DESC' 
+        });
 
       if (error) {
         console.error('Error loading contact messages:', error);
-        toast.error('Failed to load contact messages');
+        // Fallback: try direct query with type assertion
+        const { data: fallbackData, error: fallbackError } = await (supabase as any)
+          .from('contact_messages')
+          .select('*')
+          .order('created_at', { ascending: false });
+        
+        if (fallbackError) {
+          toast.error('Failed to load contact messages');
+          return;
+        }
+        
+        setMessages(fallbackData || []);
         return;
       }
 
       setMessages(data || []);
     } catch (error) {
       console.error('Error in loadContactMessages:', error);
-      toast.error('Failed to load contact messages');
+      // Final fallback: try direct query with type assertion
+      try {
+        const { data, error } = await (supabase as any)
+          .from('contact_messages')
+          .select('*')
+          .order('created_at', { ascending: false });
+        
+        if (error) {
+          toast.error('Failed to load contact messages');
+          return;
+        }
+        
+        setMessages(data || []);
+      } catch (finalError) {
+        toast.error('Failed to load contact messages');
+      }
     } finally {
       setIsLoading(false);
     }
@@ -59,7 +86,7 @@ const AdminContactTab = () => {
 
   const markAsRead = async (messageId: string) => {
     try {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('contact_messages')
         .update({ status: 'read' })
         .eq('id', messageId);

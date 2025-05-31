@@ -13,7 +13,7 @@ export interface ContactMessage {
 
 export const submitContactMessage = async (contactData: Omit<ContactMessage, 'id' | 'created_at' | 'status'>): Promise<void> => {
   try {
-    const { error } = await supabase
+    const { error } = await (supabase as any)
       .from('contact_messages')
       .insert({
         name: contactData.name,
@@ -35,7 +35,7 @@ export const submitContactMessage = async (contactData: Omit<ContactMessage, 'id
 
 export const getContactMessages = async (): Promise<ContactMessage[]> => {
   try {
-    const { data, error } = await supabase
+    const { data, error } = await (supabase as any)
       .from('contact_messages')
       .select('*')
       .order('created_at', { ascending: false });

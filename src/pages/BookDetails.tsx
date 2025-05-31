@@ -1,12 +1,10 @@
 
 import { useParams } from 'react-router-dom';
 import Layout from '@/components/Layout';
-import { Button } from '@/components/ui/button';
-import { ArrowLeft } from 'lucide-react';
 import BookImageCarousel from '@/components/BookImageCarousel';
 import BookInfo from '@/components/book-details/BookInfo';
-import SellerInfo from '@/components/book-details/SellerInfo';
 import BookActions from '@/components/book-details/BookActions';
+import SellerInfo from '@/components/book-details/SellerInfo';
 import { useBookDetails } from '@/hooks/useBookDetails';
 
 const BookDetails = () => {
@@ -18,15 +16,16 @@ const BookDetails = () => {
     handleBuyNow,
     handleAddToCart,
     handleViewSellerProfile,
-    handleEditBook,
-    navigate
+    handleEditBook
   } = useBookDetails(id);
 
   if (isLoading) {
     return (
       <Layout>
-        <div className="container mx-auto px-4 py-8 flex justify-center items-center min-h-[60vh]">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-book-600"></div>
+        <div className="container mx-auto px-4 py-8">
+          <div className="flex items-center justify-center min-h-[400px]">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+          </div>
         </div>
       </Layout>
     );
@@ -37,51 +36,40 @@ const BookDetails = () => {
       <Layout>
         <div className="container mx-auto px-4 py-8">
           <div className="text-center">
-            <h2 className="text-2xl font-semibold mb-4">Book not found</h2>
-            <p className="text-gray-600 mb-6">The book you're looking for doesn't exist.</p>
-            <Button onClick={() => navigate('/books')} className="bg-book-600 hover:bg-book-700">
-              Browse Books
-            </Button>
+            <h1 className="text-2xl font-bold text-gray-800 mb-4">Book Not Found</h1>
+            <p className="text-gray-600">The book you're looking for doesn't exist or has been removed.</p>
           </div>
         </div>
       </Layout>
     );
   }
 
-  const bookImages = {
-    frontCover: book.frontCover || book.imageUrl,
-    backCover: book.backCover,
-    insidePages: book.insidePages
-  };
-
   return (
     <Layout>
-      <div className="container mx-auto px-4 py-4 md:py-8 max-w-6xl">
-        <Button variant="ghost" onClick={() => navigate('/books')} className="mb-6 text-book-600">
-          <ArrowLeft className="mr-2 h-4 w-4" /> Back to Books
-        </Button>
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
-          {/* Book Images */}
-          <div className="space-y-4">
-            <BookImageCarousel images={bookImages} bookTitle={book.title} />
+      <div className="container mx-auto px-4 py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Left Column - Images */}
+          <div className="lg:col-span-1">
+            <BookImageCarousel book={book} />
           </div>
 
-          {/* Book Details */}
-          <div className="space-y-6">
+          {/* Middle Column - Book Details */}
+          <div className="lg:col-span-1">
             <BookInfo book={book} />
-            
-            <SellerInfo 
-              book={book} 
-              onViewSellerProfile={handleViewSellerProfile} 
-            />
+          </div>
 
+          {/* Right Column - Actions & Seller */}
+          <div className="lg:col-span-1 space-y-6">
             <BookActions
               book={book}
-              currentUserId={user?.id}
+              user={user}
               onBuyNow={handleBuyNow}
               onAddToCart={handleAddToCart}
               onEditBook={handleEditBook}
+            />
+            <SellerInfo
+              book={book}
+              onViewSellerProfile={handleViewSellerProfile}
             />
           </div>
         </div>
