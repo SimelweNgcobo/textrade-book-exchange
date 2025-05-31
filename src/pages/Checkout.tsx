@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
@@ -15,6 +14,16 @@ import { Separator } from '@/components/ui/separator';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ArrowLeft, CreditCard } from 'lucide-react';
 import { toast } from 'sonner';
+
+interface AddressData {
+  complex?: string;
+  unitNumber?: string;
+  streetAddress?: string;
+  suburb?: string;
+  city?: string;
+  province?: string;
+  postalCode?: string;
+}
 
 const Checkout = () => {
   const { id } = useParams<{ id: string }>();
@@ -55,14 +64,15 @@ const Checkout = () => {
 
         // Autofill with saved shipping address if available
         if (addresses?.shipping_address) {
+          const shippingAddr = addresses.shipping_address as AddressData;
           setShippingAddress({
-            complex: addresses.shipping_address.complex || '',
-            unitNumber: addresses.shipping_address.unitNumber || '',
-            streetAddress: addresses.shipping_address.streetAddress || '',
-            suburb: addresses.shipping_address.suburb || '',
-            city: addresses.shipping_address.city || '',
-            province: addresses.shipping_address.province || '',
-            postalCode: addresses.shipping_address.postalCode || ''
+            complex: shippingAddr.complex || '',
+            unitNumber: shippingAddr.unitNumber || '',
+            streetAddress: shippingAddr.streetAddress || '',
+            suburb: shippingAddr.suburb || '',
+            city: shippingAddr.city || '',
+            province: shippingAddr.province || '',
+            postalCode: shippingAddr.postalCode || ''
           });
           setSelectedAddress('shipping');
         }
@@ -97,24 +107,26 @@ const Checkout = () => {
     setSelectedAddress(type);
     
     if (type === 'pickup' && savedAddresses?.pickup_address) {
+      const pickupAddr = savedAddresses.pickup_address as AddressData;
       setShippingAddress({
-        complex: savedAddresses.pickup_address.complex || '',
-        unitNumber: savedAddresses.pickup_address.unitNumber || '',
-        streetAddress: savedAddresses.pickup_address.streetAddress || '',
-        suburb: savedAddresses.pickup_address.suburb || '',
-        city: savedAddresses.pickup_address.city || '',
-        province: savedAddresses.pickup_address.province || '',
-        postalCode: savedAddresses.pickup_address.postalCode || ''
+        complex: pickupAddr.complex || '',
+        unitNumber: pickupAddr.unitNumber || '',
+        streetAddress: pickupAddr.streetAddress || '',
+        suburb: pickupAddr.suburb || '',
+        city: pickupAddr.city || '',
+        province: pickupAddr.province || '',
+        postalCode: pickupAddr.postalCode || ''
       });
     } else if (type === 'shipping' && savedAddresses?.shipping_address) {
+      const shippingAddr = savedAddresses.shipping_address as AddressData;
       setShippingAddress({
-        complex: savedAddresses.shipping_address.complex || '',
-        unitNumber: savedAddresses.shipping_address.unitNumber || '',
-        streetAddress: savedAddresses.shipping_address.streetAddress || '',
-        suburb: savedAddresses.shipping_address.suburb || '',
-        city: savedAddresses.shipping_address.city || '',
-        province: savedAddresses.shipping_address.province || '',
-        postalCode: savedAddresses.shipping_address.postalCode || ''
+        complex: shippingAddr.complex || '',
+        unitNumber: shippingAddr.unitNumber || '',
+        streetAddress: shippingAddr.streetAddress || '',
+        suburb: shippingAddr.suburb || '',
+        city: shippingAddr.city || '',
+        province: shippingAddr.province || '',
+        postalCode: shippingAddr.postalCode || ''
       });
     } else if (type === 'new') {
       setShippingAddress({

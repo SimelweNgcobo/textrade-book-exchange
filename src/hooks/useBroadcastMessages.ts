@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -64,20 +65,21 @@ export const useBroadcastMessages = () => {
   useEffect(() => {
     checkForUnseenBroadcasts();
 
-    const listeners = [
-      ['globalBroadcastUpdate', checkForUnseenBroadcasts],
-      ['notificationUpdate', checkForUnseenBroadcasts],
-      ['storage', (e: StorageEvent) => {
-        if (e.key === 'globalBroadcastQueue' || e.key === 'broadcastQueue') {
-          checkForUnseenBroadcasts();
-        }
-      }]
-    ];
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'globalBroadcastQueue' || e.key === 'broadcastQueue') {
+        checkForUnseenBroadcasts();
+      }
+    };
 
-    listeners.forEach(([event, handler]) => window.addEventListener(event, handler as any));
+    // Add event listeners properly
+    window.addEventListener('globalBroadcastUpdate', checkForUnseenBroadcasts);
+    window.addEventListener('notificationUpdate', checkForUnseenBroadcasts);
+    window.addEventListener('storage', handleStorageChange);
 
     return () => {
-      listeners.forEach(([event, handler]) => window.removeEventListener(event, handler as any));
+      window.removeEventListener('globalBroadcastUpdate', checkForUnseenBroadcasts);
+      window.removeEventListener('notificationUpdate', checkForUnseenBroadcasts);
+      window.removeEventListener('storage', handleStorageChange);
     };
   }, [checkForUnseenBroadcasts]);
 
@@ -88,4 +90,3 @@ export const useBroadcastMessages = () => {
 
   return { pendingMessage, showPopup, closePopup };
 };
-
