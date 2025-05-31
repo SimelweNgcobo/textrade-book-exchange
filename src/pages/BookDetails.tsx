@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
@@ -83,7 +84,7 @@ const BookDetails = () => {
     return (
       <Layout>
         <div className="container mx-auto px-4 py-8 flex justify-center items-center min-h-[60vh]">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-book-600"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green-600"></div>
         </div>
       </Layout>
     );
@@ -93,14 +94,14 @@ const BookDetails = () => {
     return (
       <Layout>
         <div className="container mx-auto px-4 py-8">
-          <Button variant="ghost" onClick={handleBack} className="mb-6 text-book-600">
+          <Button variant="ghost" onClick={handleBack} className="mb-6 text-green-600">
             <ArrowLeft className="mr-2 h-4 w-4" /> Back
           </Button>
           <div className="bg-white rounded-lg shadow-md p-8 text-center">
-            <BookOpen className="mx-auto h-12 w-12 text-book-300 mb-4" />
+            <BookOpen className="mx-auto h-12 w-12 text-gray-300 mb-4" />
             <h3 className="text-xl font-semibold mb-2">Book not found</h3>
             <p className="text-gray-500 mb-6">{error || 'The book you are looking for does not exist'}</p>
-            <Button onClick={() => navigate('/books')} className="bg-book-600 hover:bg-book-700">
+            <Button onClick={() => navigate('/books')} className="bg-green-600 hover:bg-green-700">
               Browse other books
             </Button>
           </div>
@@ -114,7 +115,7 @@ const BookDetails = () => {
   return (
     <Layout>
       <div className="container mx-auto px-4 py-8">
-        <Button variant="ghost" onClick={handleBack} className="mb-6 text-book-600">
+        <Button variant="ghost" onClick={handleBack} className="mb-6 text-green-600">
           <ArrowLeft className="mr-2 h-4 w-4" /> Back to listings
         </Button>
 
@@ -135,14 +136,14 @@ const BookDetails = () => {
             {/* Book Details */}
             <div className="md:w-1/2 lg:w-3/5 p-6">
               <div className="flex flex-wrap items-start justify-between mb-4">
-                <h1 className="text-3xl font-bold text-book-800 mb-2 flex-grow">{book.title}</h1>
-                <div className="text-2xl font-bold text-book-600">R{book.price}</div>
+                <h1 className="text-3xl font-bold text-gray-800 mb-2 flex-grow">{book.title}</h1>
+                <div className="text-2xl font-bold text-green-600">R{book.price}</div>
               </div>
 
               <p className="text-lg text-gray-600 mb-4">By {book.author}</p>
 
               <div className="flex flex-wrap gap-2 mb-6">
-                <Badge className="bg-book-100 text-book-800 hover:bg-book-200">{book.category}</Badge>
+                <Badge className="bg-green-100 text-green-800 hover:bg-green-200">{book.category}</Badge>
                 <Badge className="bg-gray-100 text-gray-800 hover:bg-gray-200">Condition: {book.condition}</Badge>
                 {book.sold ? (
                   <Badge variant="destructive">Sold</Badge>
@@ -154,7 +155,7 @@ const BookDetails = () => {
               </div>
 
               <div className="mb-6">
-                <h2 className="text-xl font-semibold mb-2 text-book-800">Description</h2>
+                <h2 className="text-xl font-semibold mb-2 text-gray-800">Description</h2>
                 <p className="text-gray-700 whitespace-pre-line">{book.description}</p>
               </div>
 
@@ -175,7 +176,7 @@ const BookDetails = () => {
                     <Button
                       onClick={handleBuyNow}
                       size="lg"
-                      className="bg-book-600 hover:bg-book-700 h-12"
+                      className="bg-green-600 hover:bg-green-700 h-12"
                     >
                       Buy Now for R{book.price}
                     </Button>
@@ -214,8 +215,8 @@ const BookDetails = () => {
               </div>
 
               {isOwner && (
-                <div className="mt-4 p-4 bg-book-50 rounded-lg border border-book-200">
-                  <p className="text-book-800 font-medium">
+                <div className="mt-4 p-4 bg-green-50 rounded-lg border border-green-200">
+                  <p className="text-green-800 font-medium">
                     This is your listing. You can manage it from your profile.
                   </p>
                 </div>

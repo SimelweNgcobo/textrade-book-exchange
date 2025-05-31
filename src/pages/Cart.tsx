@@ -29,7 +29,7 @@ const Cart = () => {
     return (
       <Layout>
         <div className="container mx-auto px-4 py-8">
-          <Button variant="ghost" onClick={() => navigate('/books')} className="mb-6 text-book-600">
+          <Button variant="ghost" onClick={() => navigate('/books')} className="mb-6 text-green-600">
             <ArrowLeft className="mr-2 h-4 w-4" /> Continue Shopping
           </Button>
           
@@ -37,7 +37,7 @@ const Cart = () => {
             <ShoppingBag className="mx-auto h-16 w-16 text-gray-300 mb-4" />
             <h2 className="text-2xl font-bold text-gray-800 mb-4">Your cart is empty</h2>
             <p className="text-gray-600 mb-6">Start browsing books to add them to your cart</p>
-            <Button onClick={() => navigate('/books')} className="bg-book-600 hover:bg-book-700">
+            <Button onClick={() => navigate('/books')} className="bg-green-600 hover:bg-green-700">
               Browse Books
             </Button>
           </div>
@@ -49,7 +49,7 @@ const Cart = () => {
   return (
     <Layout>
       <div className="container mx-auto px-4 py-8">
-        <Button variant="ghost" onClick={() => navigate('/books')} className="mb-6 text-book-600">
+        <Button variant="ghost" onClick={() => navigate('/books')} className="mb-6 text-green-600">
           <ArrowLeft className="mr-2 h-4 w-4" /> Continue Shopping
         </Button>
 
@@ -80,7 +80,7 @@ const Cart = () => {
                       <h3 className="font-medium">{item.title}</h3>
                       <p className="text-gray-600 text-sm">{item.author}</p>
                       <p className="text-gray-600 text-sm">Seller: {item.seller.name}</p>
-                      <p className="text-lg font-bold text-book-600 mt-2">R{item.price.toFixed(2)}</p>
+                      <p className="text-lg font-bold text-green-600 mt-2">R{item.price.toFixed(2)}</p>
                     </div>
                     <Button
                       variant="outline"
@@ -125,7 +125,7 @@ const Cart = () => {
 
                 <Button
                   onClick={handleCheckout}
-                  className="w-full bg-book-600 hover:bg-book-700 text-lg py-6"
+                  className="w-full bg-green-600 hover:bg-green-700 text-lg py-6"
                 >
                   Proceed to Checkout
                 </Button>
