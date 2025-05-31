@@ -1,3 +1,4 @@
+
 import { createContext, useContext, useState, useEffect } from 'react';
 import {
   Session,
@@ -14,10 +15,13 @@ interface AuthContextType {
   isAuthenticated: boolean;
   isAdmin: boolean;
   loading: boolean;
+  isLoading: boolean;
   signIn: (email: string, password: string) => Promise<{ error: AuthError | null }>;
   signUp: (email: string, password: string, name: string) => Promise<{ error: AuthError | null }>;
   signOut: () => Promise<void>;
   updateProfile: (updates: Partial<Profile>) => Promise<void>;
+  login: (email: string, password: string) => Promise<void>;
+  register: (email: string, password: string, name: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -82,7 +86,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setIsAdmin(false);
       } else {
         setProfile(profileData);
-        setIsAdmin(profileData?.isAdmin || false);
+        setIsAdmin(profileData?.is_admin || false);
       }
     } catch (error) {
       console.error('Error fetching profile:', error);
@@ -111,6 +115,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     } catch (error) {
       console.error('Sign-in error:', error);
       return { error: error as AuthError };
+    }
+  };
+
+  const login = async (email: string, password: string) => {
+    const { error } = await signIn(email, password);
+    if (error) {
+      throw error;
     }
   };
 
@@ -148,6 +159,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     } catch (error) {
       console.error('Sign-up error:', error);
       return { error: error as AuthError };
+    }
+  };
+
+  const register = async (email: string, password: string, name: string) => {
+    const { error } = await signUp(email, password, name);
+    if (error) {
+      throw error;
     }
   };
 
@@ -195,10 +213,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     isAuthenticated,
     isAdmin,
     loading,
+    isLoading: loading,
     signIn,
     signUp,
     signOut,
     updateProfile,
+    login,
+    register,
   };
 
   return (

@@ -99,12 +99,19 @@ const Checkout = () => {
         
         // Auto-fill shipping info if addresses exist
         if (addresses?.shipping_address) {
-          const shipping = addresses.shipping_address;
+          const shipping = addresses.shipping_address as {
+            unitNumber?: string;
+            complex?: string;
+            streetAddress?: string;
+            city?: string;
+            postalCode?: string;
+          };
+          
           setShippingInfo(prev => ({
             ...prev,
-            address: `${shipping.unitNumber ? shipping.unitNumber + ' ' : ''}${shipping.complex ? shipping.complex + ', ' : ''}${shipping.streetAddress}`,
-            city: shipping.city,
-            postalCode: shipping.postalCode,
+            address: `${shipping.unitNumber ? shipping.unitNumber + ' ' : ''}${shipping.complex ? shipping.complex + ', ' : ''}${shipping.streetAddress || ''}`,
+            city: shipping.city || '',
+            postalCode: shipping.postalCode || '',
           }));
         }
       } catch (error) {

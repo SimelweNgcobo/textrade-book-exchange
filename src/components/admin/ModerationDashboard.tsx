@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -29,7 +28,7 @@ const ModerationDashboard = () => {
     try {
       setIsLoading(true);
       const { data, error } = await supabase
-        .from('reports' as any)
+        .from('reports')
         .select('*')
         .order('created_at', { ascending: false });
 
@@ -39,7 +38,9 @@ const ModerationDashboard = () => {
         return;
       }
 
-      setReports(data || []);
+      if (data) {
+        setReports(data as ReportRow[]);
+      }
     } catch (error) {
       console.error('Error loading reports:', error);
       toast.error('Failed to load reports');
@@ -65,7 +66,7 @@ const ModerationDashboard = () => {
   const updateReportStatus = async (reportId: string, status: 'resolved' | 'dismissed') => {
     try {
       const { error } = await supabase
-        .from('reports' as any)
+        .from('reports')
         .update({ status })
         .eq('id', reportId);
 

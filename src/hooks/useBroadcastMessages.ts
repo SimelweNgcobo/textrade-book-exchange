@@ -90,10 +90,16 @@ export const useBroadcastMessages = () => {
     setCurrentMessage(null);
   };
 
+  const closePopup = () => {
+    handleClosePopup();
+  };
+
   return { 
     currentMessage, 
     showPopup, 
     isLoading, 
-    handleClosePopup 
+    handleClosePopup,
+    pendingMessage: currentMessage,
+    closePopup
   };
 };
