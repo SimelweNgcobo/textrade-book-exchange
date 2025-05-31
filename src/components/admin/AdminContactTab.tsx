@@ -13,18 +13,9 @@ import {
 } from '@/components/ui/table';
 import { Mail, Calendar, User } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { getContactMessages, ContactMessage } from '@/services/contactService';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-
-interface ContactMessage {
-  id: string;
-  name: string;
-  email: string;
-  subject: string;
-  message: string;
-  created_at: string;
-  status: 'unread' | 'read';
-}
 
 const AdminContactTab = () => {
   const isMobile = useIsMobile();
@@ -37,48 +28,11 @@ const AdminContactTab = () => {
 
   const loadContactMessages = async () => {
     try {
-      // Use raw SQL query since the table type isn't in the generated types yet
-      const { data, error } = await supabase
-        .rpc('exec_sql', { 
-          query: 'SELECT * FROM contact_messages ORDER BY created_at DESC' 
-        });
-
-      if (error) {
-        console.error('Error loading contact messages:', error);
-        // Fallback: try direct query with type assertion
-        const { data: fallbackData, error: fallbackError } = await (supabase as any)
-          .from('contact_messages')
-          .select('*')
-          .order('created_at', { ascending: false });
-        
-        if (fallbackError) {
-          toast.error('Failed to load contact messages');
-          return;
-        }
-        
-        setMessages(fallbackData || []);
-        return;
-      }
-
-      setMessages(data || []);
+      const data = await getContactMessages();
+      setMessages(data);
     } catch (error) {
-      console.error('Error in loadContactMessages:', error);
-      // Final fallback: try direct query with type assertion
-      try {
-        const { data, error } = await (supabase as any)
-          .from('contact_messages')
-          .select('*')
-          .order('created_at', { ascending: false });
-        
-        if (error) {
-          toast.error('Failed to load contact messages');
-          return;
-        }
-        
-        setMessages(data || []);
-      } catch (finalError) {
-        toast.error('Failed to load contact messages');
-      }
+      console.error('Error loading contact messages:', error);
+      toast.error('Failed to load contact messages');
     } finally {
       setIsLoading(false);
     }
@@ -93,14 +47,17 @@ const AdminContactTab = () => {
 
       if (error) {
         console.error('Error marking message as read:', error);
+        toast.error('Failed to mark message as read');
         return;
       }
 
       setMessages(messages.map(msg => 
         msg.id === messageId ? { ...msg, status: 'read' } : msg
       ));
+      toast.success('Message marked as read');
     } catch (error) {
       console.error('Error in markAsRead:', error);
+      toast.error('Failed to mark message as read');
     }
   };
 
@@ -177,7 +134,7 @@ const AdminContactTab = () => {
                     <TableCell className="text-xs md:text-sm">
                       <div className="flex items-center gap-1">
                         <Calendar className="h-3 w-3" />
-                        {formatDate(message.created_at)}
+                        {formatDate(message.created_at!)}
                       </div>
                     </TableCell>
                     <TableCell className="text-right">
@@ -185,7 +142,7 @@ const AdminContactTab = () => {
                         <Button
                           size="sm"
                           variant="outline"
-                          onClick={() => markAsRead(message.id)}
+                          onClick={() => markAsRead(message.id!)}
                           className="h-6 w-6 p-0 md:h-7 md:w-auto md:px-2"
                         >
                           <span className="sr-only md:not-sr-only">Mark Read</span>

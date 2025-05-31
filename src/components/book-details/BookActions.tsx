@@ -21,7 +21,7 @@ const BookActions = ({ book, user, onBuyNow, onAddToCart, onEditBook }: BookActi
       <CardContent className="p-4">
         <div className="space-y-3">
           <div className="text-center">
-            <span className="text-3xl font-bold text-book-600">₦{book.price?.toLocaleString()}</span>
+            <span className="text-3xl font-bold text-book-600">R{book.price?.toLocaleString()}</span>
           </div>
           
           {isSold ? (

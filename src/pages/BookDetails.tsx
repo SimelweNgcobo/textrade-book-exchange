@@ -50,7 +50,14 @@ const BookDetails = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Left Column - Images */}
           <div className="lg:col-span-1">
-            <BookImageCarousel book={book} />
+            <BookImageCarousel 
+              images={[
+                book.imageUrl,
+                book.frontCover,
+                book.backCover,
+                ...(book.insidePages ? [book.insidePages] : [])
+              ].filter(Boolean)}
+            />
           </div>
 
           {/* Middle Column - Book Details */}

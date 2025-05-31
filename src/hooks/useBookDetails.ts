@@ -80,6 +80,7 @@ export const useBookDetails = (bookId: string | undefined) => {
 
     if (book) {
       addToCart(book);
+      toast.success('Book added to cart');
     }
   };
 
