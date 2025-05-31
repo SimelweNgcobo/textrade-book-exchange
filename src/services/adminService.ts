@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 
 export interface AdminUser {
@@ -191,9 +190,11 @@ export const deleteBookListing = async (bookId: string): Promise<void> => {
 
 export const getTotalUsers = async (): Promise<number> => {
   try {
+    // Count actual profiles, not auth users
     const { count, error } = await supabase
       .from('profiles')
-      .select('*', { count: 'exact', head: true });
+      .select('*', { count: 'exact', head: true })
+      .neq('status', 'deleted'); // Exclude deleted users if any
 
     if (error) {
       console.error('Error getting total users:', error);
@@ -258,6 +259,12 @@ export const getAdminStats = async (): Promise<AdminStats> => {
       .select('*', { count: 'exact', head: true })
       .gte('created_at', monthAgo.toISOString());
 
+    // Get reports count
+    const { count: reportedIssues } = await supabase
+      .from('reports')
+      .select('*', { count: 'exact', head: true })
+      .eq('status', 'pending');
+
     // Get weekly commission
     const { data: weeklyTransactions } = await supabase
       .from('transactions')
@@ -278,7 +285,7 @@ export const getAdminStats = async (): Promise<AdminStats> => {
       totalUsers,
       activeListings: activeListings || 0,
       booksSold: booksSold || 0,
-      reportedIssues: 0, // TODO: Implement when reports system is added
+      reportedIssues: reportedIssues || 0,
       newUsersThisWeek: newUsersThisWeek || 0,
       salesThisMonth: salesThisMonth || 0,
       weeklyCommission,

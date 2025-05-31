@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
@@ -10,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { getBookById } from '@/services/bookService';
+import { getUserAddresses } from '@/services/addressService';
 import { Book } from '@/types/book';
 import { toast } from 'sonner';
 import { ArrowLeft, CreditCard, ShieldCheck, Truck } from 'lucide-react';
@@ -45,6 +45,7 @@ const Checkout = () => {
   const [book, setBook] = useState<Book | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [savedAddresses, setSavedAddresses] = useState<any>(null);
   
   // Form state
   const [shippingInfo, setShippingInfo] = useState({
@@ -86,6 +87,33 @@ const Checkout = () => {
 
     loadBook();
   }, [id, navigate]);
+
+  // Load user's saved addresses
+  useEffect(() => {
+    const loadSavedAddresses = async () => {
+      if (!user?.id) return;
+      
+      try {
+        const addresses = await getUserAddresses(user.id);
+        setSavedAddresses(addresses);
+        
+        // Auto-fill shipping info if addresses exist
+        if (addresses?.shipping_address) {
+          const shipping = addresses.shipping_address;
+          setShippingInfo(prev => ({
+            ...prev,
+            address: `${shipping.unitNumber ? shipping.unitNumber + ' ' : ''}${shipping.complex ? shipping.complex + ', ' : ''}${shipping.streetAddress}`,
+            city: shipping.city,
+            postalCode: shipping.postalCode,
+          }));
+        }
+      } catch (error) {
+        console.error('Error loading saved addresses:', error);
+      }
+    };
+
+    loadSavedAddresses();
+  }, [user?.id]);
 
   // Load user's email when component mounts
   useEffect(() => {
@@ -329,6 +357,15 @@ const Checkout = () => {
                     <span>Free delivery within 3-7 business days</span>
                   </div>
                 </div>
+
+                {savedAddresses && (
+                  <div className="bg-blue-50 p-3 rounded-lg">
+                    <p className="text-blue-700 text-sm font-medium">Using saved shipping address</p>
+                    <p className="text-blue-600 text-xs mt-1">
+                      You can modify the address below if needed
+                    </p>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </div>

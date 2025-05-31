@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
@@ -7,9 +6,10 @@ import { Book } from '@/types/book';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/contexts/AuthContext';
-import { ArrowLeft, BookOpen, Check, Calendar, User } from 'lucide-react';
+import { ArrowLeft, BookOpen, Check, Calendar, User, ShoppingCart } from 'lucide-react';
 import BookImageCarousel from '@/components/BookImageCarousel';
 import ReportBookDialog from '@/components/ReportBookDialog';
+import { useCart } from '@/components/CartProvider';
 
 const BookDetails = () => {
   const { id } = useParams<{ id: string }>();
@@ -18,6 +18,7 @@ const BookDetails = () => {
   const [error, setError] = useState('');
   const navigate = useNavigate();
   const { user, isAuthenticated } = useAuth();
+  const { addToCart } = useCart();
 
   useEffect(() => {
     const loadBook = async () => {
@@ -52,6 +53,20 @@ const BookDetails = () => {
       navigate('/login');
     } else if (book) {
       navigate(`/checkout/${book.id}`);
+    }
+  };
+
+  const handleAddToCart = () => {
+    if (!isAuthenticated) {
+      navigate('/login');
+    } else if (book) {
+      addToCart(book);
+    }
+  };
+
+  const handleViewSellerProfile = () => {
+    if (book) {
+      navigate(`/user/${book.seller.id}`);
     }
   };
 
@@ -154,25 +169,48 @@ const BookDetails = () => {
                 </div>
               </div>
 
-              <div className="flex flex-col sm:flex-row gap-4 mb-6">
+              <div className="flex flex-col gap-4 mb-6">
                 {!book.sold && !isOwner && (
-                  <Button
-                    onClick={handleBuyNow}
-                    size="lg"
-                    className="bg-book-600 hover:bg-book-700"
-                  >
-                    Buy Now for R{book.price}
-                  </Button>
+                  <div className="flex flex-col sm:flex-row gap-4">
+                    <Button
+                      onClick={handleBuyNow}
+                      size="lg"
+                      className="bg-book-600 hover:bg-book-700 h-12"
+                    >
+                      Buy Now for R{book.price}
+                    </Button>
+                    <Button
+                      onClick={handleAddToCart}
+                      variant="outline"
+                      size="lg"
+                      className="h-12"
+                    >
+                      <ShoppingCart className="mr-2 h-4 w-4" />
+                      Add to Cart
+                    </Button>
+                  </div>
                 )}
                 
-                {!isOwner && (
-                  <ReportBookDialog
-                    bookId={book.id}
-                    bookTitle={book.title}
-                    sellerId={book.seller.id}
-                    sellerName={book.seller.name}
-                  />
-                )}
+                <div className="flex flex-col sm:flex-row gap-4">
+                  {!isOwner && (
+                    <>
+                      <Button
+                        onClick={handleViewSellerProfile}
+                        variant="outline"
+                        size="lg"
+                        className="h-12"
+                      >
+                        Like what you see? Check their profile for more books like this
+                      </Button>
+                      <ReportBookDialog
+                        bookId={book.id}
+                        bookTitle={book.title}
+                        sellerId={book.seller.id}
+                        sellerName={book.seller.name}
+                      />
+                    </>
+                  )}
+                </div>
               </div>
 
               {isOwner && (
