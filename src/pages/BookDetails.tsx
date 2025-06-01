@@ -3,8 +3,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, Share2, MessageCircle } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import BookImageSection from '@/components/book-details/BookImageSection';
 import BookPricing from '@/components/book-details/BookPricing';
 import BookDescription from '@/components/book-details/BookDescription';
@@ -74,6 +73,15 @@ const BookDetails = () => {
     navigate('/checkout', { state: { book } });
   };
 
+  const handleAddToCart = () => {
+    if (!user) {
+      toast.error('Please log in to add books to cart');
+      navigate('/login');
+      return;
+    }
+    toast.info('Add to cart feature coming soon!');
+  };
+
   const handleContactSeller = () => {
     if (!user) {
       toast.error('Please log in to contact the seller');
@@ -81,6 +89,10 @@ const BookDetails = () => {
       return;
     }
     toast.info('Contact seller feature coming soon!');
+  };
+
+  const handleEditBook = () => {
+    navigate(`/edit-book/${book?.id}`);
   };
 
   if (isLoading) {
@@ -131,14 +143,7 @@ const BookDetails = () => {
 
           {/* Details Section */}
           <div className="space-y-6">
-            <BookInfo 
-              title={book.title}
-              author={book.author}
-              category={book.category}
-              condition={book.condition}
-              grade={book.grade}
-              universityYear={book.universityYear}
-            />
+            <BookInfo book={book} />
 
             <BookPricing 
               price={book.price}
@@ -149,19 +154,18 @@ const BookDetails = () => {
             <BookDescription description={book.description} />
 
             <SellerInfo 
-              seller={book.seller}
-              createdAt={book.createdAt}
-              onViewProfile={() => navigate(`/user/${book.seller.id}`)}
+              book={book}
+              onViewSellerProfile={() => navigate(`/user/${book.seller.id}`)}
             />
 
             <BookActions
               book={book}
               user={user}
               onBuyNow={handleBuyNow}
-              onContactSeller={handleContactSeller}
+              onAddToCart={handleAddToCart}
+              onEditBook={handleEditBook}
               onShare={handleShare}
-              onEdit={() => navigate(`/edit-book/${book.id}`)}
-              onMarkAsSold={() => toast.info('Mark as sold feature coming soon!')}
+              onContactSeller={handleContactSeller}
             />
 
             {/* Report Button - Always visible for non-owners */}

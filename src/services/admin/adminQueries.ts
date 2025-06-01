@@ -29,6 +29,8 @@ export interface AdminListing {
   author: string;
   price: number;
   condition: string;
+  status: string;
+  user: string;
   seller: {
     name: string;
     email: string;
@@ -36,6 +38,38 @@ export interface AdminListing {
   createdAt: string;
   sold: boolean;
 }
+
+export const getUserProfile = async (userId: string): Promise<AdminUser | null> => {
+  try {
+    const { data: profile, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', userId)
+      .single();
+
+    if (error) {
+      console.error('Error fetching user profile:', error);
+      return null;
+    }
+
+    const { count } = await supabase
+      .from('books')
+      .select('*', { count: 'exact', head: true })
+      .eq('seller_id', userId);
+
+    return {
+      id: profile.id,
+      name: profile.name || 'Anonymous',
+      email: profile.email || '',
+      status: profile.status || 'active',
+      createdAt: profile.created_at,
+      listingsCount: count || 0
+    };
+  } catch (error) {
+    console.error('Error in getUserProfile:', error);
+    return null;
+  }
+};
 
 export const getAdminStats = async (): Promise<AdminStats> => {
   try {
@@ -188,6 +222,8 @@ export const getAdminListings = async (): Promise<AdminListing[]> => {
       author: book.author,
       price: book.price,
       condition: book.condition,
+      status: book.sold ? 'sold' : 'active',
+      user: (book.profiles as any)?.name || 'Anonymous',
       seller: {
         name: (book.profiles as any)?.name || 'Anonymous',
         email: (book.profiles as any)?.email || ''

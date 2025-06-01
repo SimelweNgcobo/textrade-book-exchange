@@ -2,10 +2,15 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { User } from 'lucide-react';
-import { Book } from '@/types/book';
 
 interface SellerInfoProps {
-  book: Book;
+  book: {
+    seller: {
+      id: string;
+      name: string;
+      email: string;
+    };
+  };
   onViewSellerProfile: () => void;
 }
 
