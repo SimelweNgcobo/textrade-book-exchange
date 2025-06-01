@@ -20,7 +20,7 @@ export const getBooks = async (filters?: BookFilters): Promise<Book[]> => {
       .from('books')
       .select(`
         *,
-        profiles!books_seller_id_fkey (
+        profiles (
           id,
           name,
           email
@@ -68,7 +68,7 @@ export const getBooks = async (filters?: BookFilters): Promise<Book[]> => {
 
     console.log('Raw books data:', data);
 
-    const books: Book[] = data.map((book) => ({
+    const books: Book[] = data.map((book: any) => ({
       id: book.id,
       title: book.title,
       author: book.author,
@@ -107,7 +107,7 @@ export const getBookById = async (id: string): Promise<Book | null> => {
       .from('books')
       .select(`
         *,
-        profiles!books_seller_id_fkey (
+        profiles (
           id,
           name,
           email
@@ -164,7 +164,7 @@ export const getUserBooks = async (userId: string): Promise<Book[]> => {
       .from('books')
       .select(`
         *,
-        profiles!books_seller_id_fkey (
+        profiles (
           id,
           name,
           email
@@ -185,7 +185,7 @@ export const getUserBooks = async (userId: string): Promise<Book[]> => {
 
     console.log('User books data:', data);
 
-    return data.map((book) => ({
+    return data.map((book: any) => ({
       id: book.id,
       title: book.title,
       author: book.author,
