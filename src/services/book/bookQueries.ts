@@ -14,11 +14,13 @@ interface BookFilters {
 
 export const getBooks = async (filters?: BookFilters): Promise<Book[]> => {
   try {
+    console.log('Fetching books with filters:', filters);
+    
     let query = supabase
       .from('books')
       .select(`
         *,
-        seller:seller_id (
+        profiles!books_seller_id_fkey (
           id,
           name,
           email
@@ -44,10 +46,10 @@ export const getBooks = async (filters?: BookFilters): Promise<Book[]> => {
       if (filters.universityYear) {
         query = query.eq('university_year', filters.universityYear);
       }
-      if (filters.minPrice) {
+      if (filters.minPrice !== undefined) {
         query = query.gte('price', filters.minPrice);
       }
-      if (filters.maxPrice) {
+      if (filters.maxPrice !== undefined) {
         query = query.lte('price', filters.maxPrice);
       }
     }
@@ -56,10 +58,15 @@ export const getBooks = async (filters?: BookFilters): Promise<Book[]> => {
 
     if (error) {
       console.error('Error fetching books:', error);
+      throw error;
+    }
+
+    if (!data) {
+      console.log('No data returned from books query');
       return [];
     }
 
-    if (!data) return [];
+    console.log('Raw books data:', data);
 
     const books: Book[] = data.map((book) => ({
       id: book.id,
@@ -69,7 +76,7 @@ export const getBooks = async (filters?: BookFilters): Promise<Book[]> => {
       price: book.price,
       category: book.category,
       condition: book.condition as "New" | "Good" | "Better" | "Average" | "Below Average",
-      imageUrl: book.image_url || book.front_cover || 'https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=400&h=300&fit=crop&auto=format&q=80',
+      imageUrl: book.front_cover || book.image_url || 'https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=400&h=300&fit=crop&auto=format&q=80',
       frontCover: book.front_cover,
       backCover: book.back_cover,
       insidePages: book.inside_pages,
@@ -79,11 +86,12 @@ export const getBooks = async (filters?: BookFilters): Promise<Book[]> => {
       universityYear: book.university_year,
       seller: {
         id: book.seller_id,
-        name: (book.seller as any)?.name || 'Anonymous',
-        email: (book.seller as any)?.email || ''
+        name: book.profiles?.name || 'Anonymous',
+        email: book.profiles?.email || ''
       }
     }));
 
+    console.log('Processed books:', books);
     return books;
   } catch (error) {
     console.error('Error in getBooks:', error);
@@ -93,11 +101,13 @@ export const getBooks = async (filters?: BookFilters): Promise<Book[]> => {
 
 export const getBookById = async (id: string): Promise<Book | null> => {
   try {
+    console.log('Fetching book by ID:', id);
+    
     const { data: book, error } = await supabase
       .from('books')
       .select(`
         *,
-        seller:seller_id (
+        profiles!books_seller_id_fkey (
           id,
           name,
           email
@@ -107,11 +117,16 @@ export const getBookById = async (id: string): Promise<Book | null> => {
       .single();
 
     if (error) {
-      console.error('Error fetching book:', error);
+      console.error('Error fetching book by ID:', error);
+      throw error;
+    }
+
+    if (!book) {
+      console.log('No book found with ID:', id);
       return null;
     }
 
-    if (!book) return null;
+    console.log('Found book:', book);
 
     return {
       id: book.id,
@@ -121,7 +136,7 @@ export const getBookById = async (id: string): Promise<Book | null> => {
       price: book.price,
       category: book.category,
       condition: book.condition as "New" | "Good" | "Better" | "Average" | "Below Average",
-      imageUrl: book.image_url || book.front_cover || 'https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=400&h=300&fit=crop&auto=format&q=80',
+      imageUrl: book.front_cover || book.image_url || 'https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=400&h=300&fit=crop&auto=format&q=80',
       frontCover: book.front_cover,
       backCover: book.back_cover,
       insidePages: book.inside_pages,
@@ -131,8 +146,8 @@ export const getBookById = async (id: string): Promise<Book | null> => {
       universityYear: book.university_year,
       seller: {
         id: book.seller_id,
-        name: (book.seller as any)?.name || 'Anonymous',
-        email: (book.seller as any)?.email || ''
+        name: book.profiles?.name || 'Anonymous',
+        email: book.profiles?.email || ''
       }
     };
   } catch (error) {
@@ -143,11 +158,13 @@ export const getBookById = async (id: string): Promise<Book | null> => {
 
 export const getUserBooks = async (userId: string): Promise<Book[]> => {
   try {
+    console.log('Fetching user books for ID:', userId);
+    
     const { data, error } = await supabase
       .from('books')
       .select(`
         *,
-        seller:seller_id (
+        profiles!books_seller_id_fkey (
           id,
           name,
           email
@@ -158,10 +175,15 @@ export const getUserBooks = async (userId: string): Promise<Book[]> => {
 
     if (error) {
       console.error('Error fetching user books:', error);
+      throw error;
+    }
+
+    if (!data) {
+      console.log('No books found for user:', userId);
       return [];
     }
 
-    if (!data) return [];
+    console.log('User books data:', data);
 
     return data.map((book) => ({
       id: book.id,
@@ -171,7 +193,7 @@ export const getUserBooks = async (userId: string): Promise<Book[]> => {
       price: book.price,
       category: book.category,
       condition: book.condition as "New" | "Good" | "Better" | "Average" | "Below Average",
-      imageUrl: book.image_url || book.front_cover || 'https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=400&h=300&fit=crop&auto=format&q=80',
+      imageUrl: book.front_cover || book.image_url || 'https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=400&h=300&fit=crop&auto=format&q=80',
       frontCover: book.front_cover,
       backCover: book.back_cover,
       insidePages: book.inside_pages,
@@ -181,8 +203,8 @@ export const getUserBooks = async (userId: string): Promise<Book[]> => {
       universityYear: book.university_year,
       seller: {
         id: book.seller_id,
-        name: (book.seller as any)?.name || 'Anonymous',
-        email: (book.seller as any)?.email || ''
+        name: book.profiles?.name || 'Anonymous',
+        email: book.profiles?.email || ''
       }
     }));
   } catch (error) {

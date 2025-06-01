@@ -22,6 +22,8 @@ interface BookFilters {
 
 export const getBooks = async (filters?: BookFilters): Promise<Book[]> => {
   try {
+    console.log('BookService.getBooks called with filters:', filters);
+    
     let query = supabase
       .from('books')
       .select(`
@@ -52,10 +54,10 @@ export const getBooks = async (filters?: BookFilters): Promise<Book[]> => {
       if (filters.universityYear) {
         query = query.eq('university_year', filters.universityYear);
       }
-      if (filters.minPrice) {
+      if (filters.minPrice !== undefined) {
         query = query.gte('price', filters.minPrice);
       }
-      if (filters.maxPrice) {
+      if (filters.maxPrice !== undefined) {
         query = query.lte('price', filters.maxPrice);
       }
     }
@@ -64,10 +66,15 @@ export const getBooks = async (filters?: BookFilters): Promise<Book[]> => {
 
     if (error) {
       console.error('Error fetching books:', error);
+      throw error;
+    }
+
+    if (!data) {
+      console.log('No data returned from books query');
       return [];
     }
 
-    if (!data) return [];
+    console.log('BookService.getBooks - Raw data:', data.length, 'books');
 
     const books: Book[] = data.map((book) => ({
       id: book.id,
@@ -77,7 +84,7 @@ export const getBooks = async (filters?: BookFilters): Promise<Book[]> => {
       price: book.price,
       category: book.category,
       condition: book.condition as "New" | "Good" | "Better" | "Average" | "Below Average",
-      imageUrl: book.image_url || book.front_cover || 'https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=400&h=300&fit=crop&auto=format&q=80',
+      imageUrl: book.front_cover || book.image_url || 'https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=400&h=300&fit=crop&auto=format&q=80',
       frontCover: book.front_cover,
       backCover: book.back_cover,
       insidePages: book.inside_pages,
@@ -92,9 +99,10 @@ export const getBooks = async (filters?: BookFilters): Promise<Book[]> => {
       }
     }));
 
+    console.log('BookService.getBooks - Processed books:', books.length);
     return books;
   } catch (error) {
-    console.error('Error in getBooks:', error);
+    console.error('Error in BookService.getBooks:', error);
     return [];
   }
 };

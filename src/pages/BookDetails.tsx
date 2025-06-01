@@ -26,6 +26,7 @@ const BookDetails = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    console.log('BookDetails component mounted with ID:', id);
     const loadBook = async () => {
       if (!id) {
         console.error('Book ID is missing from URL parameters');
@@ -93,6 +94,7 @@ const BookDetails = () => {
       toast.error('Book information not available');
       return;
     }
+    console.log('Navigating to checkout for book:', book.id);
     navigate('/checkout', { state: { book } });
   };
 
@@ -119,6 +121,7 @@ const BookDetails = () => {
       toast.error('Book ID is missing');
       return;
     }
+    console.log('Navigating to edit book:', book.id);
     navigate(`/edit-book/${book.id}`);
   };
 

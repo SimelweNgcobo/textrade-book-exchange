@@ -4,8 +4,9 @@ import { useSearchParams } from 'react-router-dom';
 import Layout from '@/components/Layout';
 import BookFilters from '@/components/book-listing/BookFilters';
 import BookGrid from '@/components/book-listing/BookGrid';
-import { getBooks } from '@/services/bookService';
+import { getBooks } from '@/services/book/bookQueries';
 import { Book } from '@/types/book';
+import { toast } from 'sonner';
 
 const BookListing = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -23,10 +24,17 @@ const BookListing = () => {
   const [bookType, setBookType] = useState<'all' | 'school' | 'university'>('all');
   
   useEffect(() => {
+    console.log('BookListing component mounted');
+    loadBooks();
+  }, []);
+
+  useEffect(() => {
+    console.log('Search params changed:', Object.fromEntries(searchParams));
     loadBooks();
   }, [searchParams]);
   
   const loadBooks = async () => {
+    console.log('Loading books...');
     setIsLoading(true);
     try {
       const searchQuery = searchParams.get('search') || '';
@@ -53,11 +61,18 @@ const BookListing = () => {
       if (priceRange[0] > 0) filters.minPrice = priceRange[0];
       if (priceRange[1] < 1000) filters.maxPrice = priceRange[1];
       
+      console.log('Applied filters:', filters);
+      
       const loadedBooks = await getBooks(filters);
-      console.log('Loaded books:', loadedBooks.length);
+      console.log('Loaded books count:', loadedBooks.length);
       setBooks(loadedBooks);
+      
+      if (loadedBooks.length === 0) {
+        console.log('No books found with current filters');
+      }
     } catch (error) {
       console.error('Error loading books:', error);
+      toast.error('Failed to load books. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -65,10 +80,12 @@ const BookListing = () => {
   
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
+    console.log('Search submitted with query:', searchQuery);
     updateFilters();
   };
   
   const updateFilters = () => {
+    console.log('Updating filters...');
     const params = new URLSearchParams();
     
     if (searchQuery) params.set('search', searchQuery);
@@ -81,6 +98,7 @@ const BookListing = () => {
   };
   
   const clearFilters = () => {
+    console.log('Clearing all filters');
     setSearchQuery('');
     setSelectedCategory('');
     setSelectedCondition('');
@@ -89,6 +107,7 @@ const BookListing = () => {
     setPriceRange([0, 1000]);
     setBookType('all');
     setSearchParams({});
+    loadBooks();
   };
   
   return (

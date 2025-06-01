@@ -3,9 +3,10 @@ import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
 import { Button } from '@/components/ui/button';
-import { getBooks } from '@/services/bookService';
+import { getBooks } from '@/services/book/bookQueries';
 import { Book } from '@/types/book';
 import { BookOpen, Search, Star } from 'lucide-react';
+import { toast } from 'sonner';
 
 const Index = () => {
   const [featuredBooks, setFeaturedBooks] = useState<Book[]>([]);
@@ -14,23 +15,29 @@ const Index = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const loadFeaturedBooks = async () => {
-      try {
-        const allBooks = await getBooks();
-        setFeaturedBooks(allBooks.slice(0, 4)); // Get first 4 books for featured section
-      } catch (error) {
-        console.error('Error loading featured books:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
+    console.log('Index page mounted, loading featured books...');
     loadFeaturedBooks();
   }, []);
+
+  const loadFeaturedBooks = async () => {
+    try {
+      setIsLoading(true);
+      console.log('Fetching books for featured section...');
+      const allBooks = await getBooks();
+      console.log('Books fetched for Index page:', allBooks.length);
+      setFeaturedBooks(allBooks.slice(0, 4)); // Get first 4 books for featured section
+    } catch (error) {
+      console.error('Error loading featured books:', error);
+      toast.error('Failed to load featured books');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
+      console.log('Searching for:', searchQuery.trim());
       navigate(`/books?search=${encodeURIComponent(searchQuery.trim())}`);
     }
   };
@@ -166,15 +173,16 @@ const Index = () => {
                   key={book.id}
                   to={`/books/${book.id}`}
                   className="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-shadow duration-200 book-card-hover"
+                  onClick={() => console.log('Clicking featured book:', book.id)}
                 >
                   <div className="relative h-48 overflow-hidden">
                     <img 
-                      src={book.imageUrl || `https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=400&h=300&fit=crop`} 
+                      src={book.imageUrl} 
                       alt={book.title}
                       className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
                       onError={(e) => {
                         const target = e.target as HTMLImageElement;
-                        target.src = `https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=400&h=300&fit=crop`;
+                        target.src = 'https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=400&h=300&fit=crop&auto=format&q=80';
                       }}
                     />
                     <div className="absolute top-2 right-2 bg-white px-2 py-1 rounded-full text-sm font-semibold text-book-800">
