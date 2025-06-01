@@ -1,8 +1,8 @@
 
-import ModerationDashboard from './ModerationDashboard';
+import EnhancedModerationDashboard from './EnhancedModerationDashboard';
 
 const AdminReportsTab = () => {
-  return <ModerationDashboard />;
+  return <EnhancedModerationDashboard />;
 };
 
 export default AdminReportsTab;
