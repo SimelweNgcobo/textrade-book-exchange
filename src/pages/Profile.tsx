@@ -5,15 +5,13 @@ import Layout from '@/components/Layout';
 import ProfileHeader from '@/components/ProfileHeader';
 import ShareProfileDialog from '@/components/ShareProfileDialog';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Lock } from 'lucide-react';
 import ProfileEditDialog from '@/components/ProfileEditDialog';
 import ChangePasswordDialog from '@/components/ChangePasswordDialog';
-import AddressForm from '@/components/AddressForm';
 import UserProfileTabs from '@/components/profile/UserProfileTabs';
 import { saveUserAddresses, getUserAddresses } from '@/services/addressService';
-import { getUserBooks } from '@/services/bookService';
-import { deleteBook } from '@/services/bookEditService';
+import { getUserBooks } from '@/services/book/bookQueries';
+import { deleteBook } from '@/services/book/bookMutations';
 import { Book } from '@/types/book';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
@@ -52,7 +50,9 @@ const Profile = () => {
     
     try {
       setIsLoadingListings(true);
+      console.log('Loading books for user:', user.id);
       const books = await getUserBooks(user.id);
+      console.log('User books loaded:', books);
       const activeBooks = books.filter(book => !book.sold);
       setActiveListings(activeBooks);
     } catch (error) {
@@ -81,21 +81,32 @@ const Profile = () => {
   };
 
   const handleEditBook = (bookId: string) => {
+    if (!bookId) {
+      toast.error('Book ID is missing');
+      return;
+    }
+    console.log('Navigating to edit book:', bookId);
     navigate(`/edit-book/${bookId}`);
   };
 
   const handleDeleteBook = async (bookId: string, bookTitle: string) => {
+    if (!bookId) {
+      toast.error('Book ID is missing');
+      return;
+    }
+
     if (!confirm(`Are you sure you want to delete "${bookTitle}"? This action cannot be undone.`)) {
       return;
     }
 
     try {
+      console.log('Deleting book:', bookId);
       await deleteBook(bookId);
       toast.success('Book deleted successfully');
-      await loadActiveListings();
-    } catch (error) {
+      await loadActiveListings(); // Refresh the listings
+    } catch (error: any) {
       console.error('Error deleting book:', error);
-      toast.error('Failed to delete book');
+      toast.error(error.message || 'Failed to delete book');
     }
   };
 
@@ -126,7 +137,6 @@ const Profile = () => {
   return (
     <Layout>
       <div className="container mx-auto px-4 py-4 md:py-8 max-w-6xl">
-        {/* Profile Header - Mobile Optimized */}
         <div className="mb-6">
           <ProfileHeader 
             userData={userData}
@@ -135,7 +145,6 @@ const Profile = () => {
           />
         </div>
         
-        {/* Profile Tabs */}
         <UserProfileTabs
           activeListings={activeListings}
           isLoading={isLoadingListings}
@@ -150,7 +159,6 @@ const Profile = () => {
           isLoadingAddress={isLoadingAddress}
         />
 
-        {/* Mobile Action Buttons - Fixed at bottom on mobile */}
         <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 space-y-3">
           <div className="container mx-auto max-w-sm space-y-3">
             <Button
@@ -164,7 +172,6 @@ const Profile = () => {
           </div>
         </div>
 
-        {/* Add bottom padding on mobile to account for fixed buttons */}
         <div className="lg:hidden h-24"></div>
 
         <ProfileEditDialog

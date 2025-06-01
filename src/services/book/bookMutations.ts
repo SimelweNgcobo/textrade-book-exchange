@@ -10,6 +10,8 @@ export const createBook = async (bookData: BookFormData): Promise<Book> => {
       throw new Error('User not authenticated');
     }
 
+    console.log('Creating book with data:', bookData);
+
     const { data: book, error } = await supabase
       .from('books')
       .insert([
@@ -34,8 +36,10 @@ export const createBook = async (bookData: BookFormData): Promise<Book> => {
 
     if (error) {
       console.error('Error creating book:', error);
-      throw error;
+      throw new Error(`Failed to create book: ${error.message}`);
     }
+
+    console.log('Book created successfully:', book);
 
     // Fetch seller profile
     const { data: seller } = await supabase
@@ -52,7 +56,7 @@ export const createBook = async (bookData: BookFormData): Promise<Book> => {
       price: book.price,
       category: book.category,
       condition: book.condition as "New" | "Good" | "Better" | "Average" | "Below Average",
-      imageUrl: book.image_url || 'https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=400&h=300&fit=crop&auto=format&q=80',
+      imageUrl: book.image_url || book.front_cover || 'https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=400&h=300&fit=crop&auto=format&q=80',
       frontCover: book.front_cover,
       backCover: book.back_cover,
       insidePages: book.inside_pages,
@@ -74,11 +78,17 @@ export const createBook = async (bookData: BookFormData): Promise<Book> => {
 
 export const updateBook = async (bookId: string, bookData: Partial<BookFormData>): Promise<Book | null> => {
   try {
+    if (!bookId) {
+      throw new Error('Book ID is required');
+    }
+
     const { data: { user } } = await supabase.auth.getUser();
     
     if (!user) {
       throw new Error('User not authenticated');
     }
+
+    console.log('Updating book:', bookId, 'with data:', bookData);
 
     // First verify the user owns this book
     const { data: existingBook, error: fetchError } = await supabase
@@ -87,12 +97,17 @@ export const updateBook = async (bookId: string, bookData: Partial<BookFormData>
       .eq('id', bookId)
       .single();
 
-    if (fetchError || !existingBook) {
+    if (fetchError) {
+      console.error('Book fetch error:', fetchError);
+      throw new Error('Book not found');
+    }
+
+    if (!existingBook) {
       throw new Error('Book not found');
     }
 
     if (existingBook.seller_id !== user.id) {
-      throw new Error('User not authorized to edit this book');
+      throw new Error('You are not authorized to edit this book');
     }
 
     const updateData: any = {};
@@ -102,9 +117,15 @@ export const updateBook = async (bookId: string, bookData: Partial<BookFormData>
     if (bookData.description !== undefined) updateData.description = bookData.description;
     if (bookData.price !== undefined) updateData.price = bookData.price;
     if (bookData.category !== undefined) updateData.category = bookData.category;
+    if (bookData.condition !== undefined) updateData.condition = bookData.condition;
+    if (bookData.imageUrl !== undefined) updateData.image_url = bookData.imageUrl;
     if (bookData.frontCover !== undefined) updateData.front_cover = bookData.frontCover;
     if (bookData.backCover !== undefined) updateData.back_cover = bookData.backCover;
     if (bookData.insidePages !== undefined) updateData.inside_pages = bookData.insidePages;
+    if (bookData.grade !== undefined) updateData.grade = bookData.grade;
+    if (bookData.universityYear !== undefined) updateData.university_year = bookData.universityYear;
+
+    console.log('Update data:', updateData);
 
     const { data: book, error } = await supabase
       .from('books')
@@ -115,8 +136,10 @@ export const updateBook = async (bookId: string, bookData: Partial<BookFormData>
 
     if (error) {
       console.error('Error updating book:', error);
-      throw error;
+      throw new Error(`Failed to update book: ${error.message}`);
     }
+
+    console.log('Book updated successfully:', book);
 
     // Fetch seller profile
     const { data: seller } = await supabase
@@ -133,7 +156,7 @@ export const updateBook = async (bookId: string, bookData: Partial<BookFormData>
       price: book.price,
       category: book.category,
       condition: book.condition as "New" | "Good" | "Better" | "Average" | "Below Average",
-      imageUrl: book.image_url || 'https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=400&h=300&fit=crop&auto=format&q=80',
+      imageUrl: book.image_url || book.front_cover || 'https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=400&h=300&fit=crop&auto=format&q=80',
       frontCover: book.front_cover,
       backCover: book.back_cover,
       insidePages: book.inside_pages,
@@ -155,11 +178,17 @@ export const updateBook = async (bookId: string, bookData: Partial<BookFormData>
 
 export const deleteBook = async (bookId: string): Promise<void> => {
   try {
+    if (!bookId) {
+      throw new Error('Book ID is required');
+    }
+
     const { data: { user } } = await supabase.auth.getUser();
     
     if (!user) {
       throw new Error('User not authenticated');
     }
+
+    console.log('Deleting book:', bookId);
 
     // First verify the user owns this book or is an admin
     const { data: existingBook, error: fetchError } = await supabase
@@ -168,7 +197,12 @@ export const deleteBook = async (bookId: string): Promise<void> => {
       .eq('id', bookId)
       .single();
 
-    if (fetchError || !existingBook) {
+    if (fetchError) {
+      console.error('Book fetch error:', fetchError);
+      throw new Error('Book not found');
+    }
+
+    if (!existingBook) {
       throw new Error('Book not found');
     }
 
@@ -183,7 +217,7 @@ export const deleteBook = async (bookId: string): Promise<void> => {
     const isOwner = existingBook.seller_id === user.id;
 
     if (!isAdmin && !isOwner) {
-      throw new Error('User not authorized to delete this book');
+      throw new Error('You are not authorized to delete this book');
     }
 
     const { error } = await supabase
@@ -193,8 +227,10 @@ export const deleteBook = async (bookId: string): Promise<void> => {
 
     if (error) {
       console.error('Error deleting book:', error);
-      throw error;
+      throw new Error(`Failed to delete book: ${error.message}`);
     }
+
+    console.log('Book deleted successfully');
   } catch (error) {
     console.error('Error in deleteBook:', error);
     throw error;

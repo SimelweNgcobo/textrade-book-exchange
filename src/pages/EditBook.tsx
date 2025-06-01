@@ -24,12 +24,15 @@ import { getBookById } from '@/services/book/bookQueries';
 import { updateBook } from '@/services/book/bookMutations';
 import { categories } from '@/constants/categories';
 import { ArrowLeft } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
 
 const EditBook = () => {
   const navigate = useNavigate();
-  const { bookId } = useParams<{ bookId: string }>();
+  const { id: bookId } = useParams<{ id: string }>();
+  const { user } = useAuth();
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const form = useForm<BookInput>({
     resolver: zodResolver(BookSchema),
@@ -49,18 +52,36 @@ const EditBook = () => {
   useEffect(() => {
     const loadBookData = async () => {
       if (!bookId) {
-        toast.error('Book ID is missing');
-        navigate('/profile');
+        console.error('Book ID is missing from URL');
+        setError('Book ID is missing from the URL');
+        setIsLoading(false);
+        return;
+      }
+
+      if (!user) {
+        console.error('User not authenticated');
+        setError('You must be logged in to edit books');
+        setIsLoading(false);
         return;
       }
 
       try {
         console.log('Loading book with ID:', bookId);
         setIsLoading(true);
+        setError(null);
+        
         const bookData = await getBookById(bookId);
         
         if (bookData) {
           console.log('Book data loaded:', bookData);
+          
+          // Check if user owns this book
+          if (bookData.seller.id !== user.id) {
+            setError('You are not authorized to edit this book');
+            setIsLoading(false);
+            return;
+          }
+          
           const formattedData = {
             title: bookData.title,
             author: bookData.author,
@@ -74,20 +95,18 @@ const EditBook = () => {
           
           form.reset(formattedData);
         } else {
-          toast.error('Book not found');
-          navigate('/profile');
+          setError('Book not found');
         }
       } catch (error) {
         console.error('Error loading book data:', error);
-        toast.error('Failed to load book data');
-        navigate('/profile');
+        setError('Failed to load book data');
       } finally {
         setIsLoading(false);
       }
     };
 
     loadBookData();
-  }, [bookId, form, navigate]);
+  }, [bookId, form, user]);
 
   const onSubmit = async (values: BookInput) => {
     try {
@@ -107,13 +126,37 @@ const EditBook = () => {
       } else {
         toast.error('Failed to update book');
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error updating book:', error);
-      toast.error('Failed to update book');
+      toast.error(error.message || 'Failed to update book');
     } finally {
       setIsSubmitting(false);
     }
   };
+
+  if (error) {
+    return (
+      <Layout>
+        <div className="container mx-auto px-4 py-8 max-w-2xl">
+          <Button 
+            variant="ghost" 
+            onClick={() => navigate('/profile')} 
+            className="mb-6 text-book-600"
+          >
+            <ArrowLeft className="mr-2 h-4 w-4" /> Back to Profile
+          </Button>
+          <div className="text-center">
+            <h2 className="text-2xl font-semibold mb-4">Cannot Edit Book</h2>
+            <p className="text-gray-600 mb-4">{error}</p>
+            <div className="space-y-2">
+              <Button onClick={() => navigate('/profile')}>Go to Profile</Button>
+              <Button variant="outline" onClick={() => navigate('/books')}>Browse Books</Button>
+            </div>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
 
   if (isLoading) {
     return (
@@ -277,6 +320,7 @@ const EditBook = () => {
                 variant="outline"
                 onClick={() => navigate('/profile')}
                 className="flex-1"
+                disabled={isSubmitting}
               >
                 Cancel
               </Button>

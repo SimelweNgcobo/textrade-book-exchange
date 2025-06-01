@@ -48,16 +48,33 @@ const BookGrid = ({ books, isLoading, onClearFilters }: BookGridProps) => {
             key={book.id}
             to={`/books/${book.id}`}
             className="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-shadow duration-200 book-card-hover flex flex-col"
+            onClick={(e) => {
+              // Ensure the book has a valid ID before navigating
+              if (!book.id) {
+                e.preventDefault();
+                console.error('Book ID is missing for book:', book.title);
+                return;
+              }
+            }}
           >
             <div className="relative h-48 overflow-hidden">
               <img 
                 src={book.frontCover || book.imageUrl} 
                 alt={book.title}
                 className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+                onError={(e) => {
+                  // Fallback image if the book image fails to load
+                  e.currentTarget.src = 'https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=400&h=300&fit=crop&auto=format&q=80';
+                }}
               />
               <div className="absolute top-2 right-2 bg-white px-2 py-1 rounded-full text-sm font-semibold text-book-800">
                 R{book.price.toLocaleString()}
               </div>
+              {book.sold && (
+                <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+                  <span className="bg-red-500 text-white px-3 py-1 rounded-full text-sm font-semibold">SOLD</span>
+                </div>
+              )}
             </div>
             <div className="p-4 flex-grow flex flex-col">
               <h3 className="font-bold text-lg mb-1 text-book-800 line-clamp-1">{book.title}</h3>

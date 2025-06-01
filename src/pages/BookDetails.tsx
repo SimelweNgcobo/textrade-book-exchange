@@ -23,19 +23,22 @@ const BookDetails = () => {
   const { user } = useAuth();
   const [book, setBook] = useState<Book | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const loadBook = async () => {
       if (!id) {
         console.error('Book ID is missing from URL parameters');
-        toast.error('Book ID is missing');
-        navigate('/books');
+        setError('Book ID is missing from the URL');
+        setIsLoading(false);
         return;
       }
 
       try {
         console.log('Loading book with ID:', id);
         setIsLoading(true);
+        setError(null);
+        
         const bookData = await getBookById(id);
         
         if (bookData) {
@@ -43,20 +46,20 @@ const BookDetails = () => {
           setBook(bookData);
         } else {
           console.error('Book not found with ID:', id);
+          setError('Book not found');
           toast.error('Book not found');
-          navigate('/books');
         }
       } catch (error) {
         console.error('Error loading book:', error);
+        setError('Failed to load book details');
         toast.error('Failed to load book details');
-        navigate('/books');
       } finally {
         setIsLoading(false);
       }
     };
 
     loadBook();
-  }, [id, navigate]);
+  }, [id]);
 
   const handleShare = async () => {
     const url = window.location.href;
@@ -84,6 +87,10 @@ const BookDetails = () => {
     if (!user) {
       toast.error('Please log in to purchase books');
       navigate('/login');
+      return;
+    }
+    if (!book) {
+      toast.error('Book information not available');
       return;
     }
     navigate('/checkout', { state: { book } });
@@ -127,14 +134,31 @@ const BookDetails = () => {
     );
   }
 
-  if (!book) {
+  if (error || !book) {
     return (
       <Layout>
         <div className="container mx-auto px-4 py-8">
+          <Button 
+            variant="ghost" 
+            onClick={() => navigate(-1)} 
+            className="mb-6 text-book-600"
+          >
+            <ArrowLeft className="mr-2 h-4 w-4" /> Back
+          </Button>
           <div className="text-center">
-            <h2 className="text-2xl font-semibold mb-4">Book Not Found</h2>
-            <p className="text-gray-600 mb-4">The book you're looking for doesn't exist or has been removed.</p>
-            <Button onClick={() => navigate('/books')}>Browse Books</Button>
+            <h2 className="text-2xl font-semibold mb-4">
+              {error || 'Book Not Found'}
+            </h2>
+            <p className="text-gray-600 mb-4">
+              {error === 'Book ID is missing from the URL' 
+                ? 'The book link appears to be invalid or incomplete.'
+                : 'The book you\'re looking for doesn\'t exist or has been removed.'
+              }
+            </p>
+            <div className="space-y-2">
+              <Button onClick={() => navigate('/books')}>Browse Books</Button>
+              <Button variant="outline" onClick={() => navigate(-1)}>Go Back</Button>
+            </div>
           </div>
         </div>
       </Layout>
@@ -148,7 +172,6 @@ const BookDetails = () => {
   return (
     <Layout>
       <div className="container mx-auto px-4 py-8">
-        {/* Back Button */}
         <Button 
           variant="ghost" 
           onClick={() => navigate(-1)} 
@@ -158,10 +181,8 @@ const BookDetails = () => {
         </Button>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Image Section */}
           <BookImageSection images={images} />
 
-          {/* Details Section */}
           <div className="space-y-6">
             <BookInfo book={book} />
 
@@ -188,7 +209,6 @@ const BookDetails = () => {
               onContactSeller={handleContactSeller}
             />
 
-            {/* Report Button - Always visible for non-owners */}
             {user?.id !== book.seller.id && (
               <div className="pt-4 border-t">
                 <ReportBookDialog

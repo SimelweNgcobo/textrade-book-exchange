@@ -67,19 +67,11 @@ function App() {
               <Route path="/report" element={<ProtectedRoute><ReportForm /></ProtectedRoute>} />
               <Route path="/notifications" element={<ProtectedRoute><Notifications /></ProtectedRoute>} />
               <Route path="/cart" element={<ProtectedRoute><Cart /></ProtectedRoute>} />
+              <Route path="/edit-book/:id" element={<ProtectedRoute><EditBook /></ProtectedRoute>} />
               
               {/* Admin Routes */}
               <Route path="/admin" element={<AdminProtectedRoute><Admin /></AdminProtectedRoute>} />
               <Route path="/admin/reports" element={<AdminProtectedRoute><AdminReports /></AdminProtectedRoute>} />
-              
-              <Route 
-                path="/edit-book/:id" 
-                element={
-                  <ProtectedRoute>
-                    <EditBook />
-                  </ProtectedRoute>
-                } 
-              />
               
               <Route path="*" element={<NotFound />} />
             </Routes>
