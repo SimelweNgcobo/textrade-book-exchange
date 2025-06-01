@@ -22,11 +22,15 @@ const ResetPassword = () => {
   useEffect(() => {
     const verifySession = async () => {
       try {
+        console.log('Verifying reset password session');
         const accessToken = searchParams.get('access_token');
         const refreshToken = searchParams.get('refresh_token');
         const type = searchParams.get('type');
         
+        console.log('Reset password params:', { accessToken: !!accessToken, refreshToken: !!refreshToken, type });
+        
         if (accessToken && refreshToken && type === 'recovery') {
+          console.log('Setting session with recovery tokens');
           const { data, error } = await supabase.auth.setSession({
             access_token: accessToken,
             refresh_token: refreshToken,
@@ -39,12 +43,21 @@ const ResetPassword = () => {
             return;
           }
           
+          console.log('Session set successfully:', data);
           setIsValidSession(true);
         } else {
-          const { data: { session } } = await supabase.auth.getSession();
+          console.log('Checking existing session');
+          const { data: { session }, error } = await supabase.auth.getSession();
+          
+          if (error) {
+            console.error('Session check error:', error);
+          }
+          
           if (session) {
+            console.log('Valid session found');
             setIsValidSession(true);
           } else {
+            console.log('No valid session found');
             toast.error('Invalid or expired reset link');
             navigate('/forgot-password');
           }
@@ -82,17 +95,24 @@ const ResetPassword = () => {
         throw new Error("Password must be at least 6 characters long");
       }
 
+      console.log('Updating user password');
       const { error } = await supabase.auth.updateUser({
         password: password
       });
 
       if (error) {
+        console.error('Password update error:', error);
         throw error;
       }
 
+      console.log('Password updated successfully');
       toast.success('Password updated successfully!');
+      
+      // Sign out and redirect to login
+      await supabase.auth.signOut();
       navigate('/login', { replace: true });
     } catch (error: any) {
+      console.error('Password reset error:', error);
       toast.error(error.message || 'Failed to update password');
     } finally {
       setIsLoading(false);

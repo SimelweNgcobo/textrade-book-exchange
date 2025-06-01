@@ -25,22 +25,38 @@ const BookDetails = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (id) {
-      loadBook(id);
-    }
-  }, [id]);
+    const loadBook = async () => {
+      if (!id) {
+        console.error('Book ID is missing from URL parameters');
+        toast.error('Book ID is missing');
+        navigate('/books');
+        return;
+      }
 
-  const loadBook = async (bookId: string) => {
-    try {
-      const bookData = await getBookById(bookId);
-      setBook(bookData);
-    } catch (error) {
-      console.error('Error loading book:', error);
-      toast.error('Failed to load book details');
-    } finally {
-      setIsLoading(false);
-    }
-  };
+      try {
+        console.log('Loading book with ID:', id);
+        setIsLoading(true);
+        const bookData = await getBookById(id);
+        
+        if (bookData) {
+          console.log('Book data loaded successfully:', bookData);
+          setBook(bookData);
+        } else {
+          console.error('Book not found with ID:', id);
+          toast.error('Book not found');
+          navigate('/books');
+        }
+      } catch (error) {
+        console.error('Error loading book:', error);
+        toast.error('Failed to load book details');
+        navigate('/books');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadBook();
+  }, [id, navigate]);
 
   const handleShare = async () => {
     const url = window.location.href;
@@ -92,7 +108,11 @@ const BookDetails = () => {
   };
 
   const handleEditBook = () => {
-    navigate(`/edit-book/${book?.id}`);
+    if (!book?.id) {
+      toast.error('Book ID is missing');
+      return;
+    }
+    navigate(`/edit-book/${book.id}`);
   };
 
   if (isLoading) {

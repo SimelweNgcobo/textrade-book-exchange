@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
@@ -19,8 +20,10 @@ import {
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Layout from '@/components/Layout';
 import MultiImageUpload from '@/components/MultiImageUpload';
-import { getBookById, updateBook } from '@/services/bookService';
+import { getBookById } from '@/services/book/bookQueries';
+import { updateBook } from '@/services/book/bookMutations';
 import { categories } from '@/constants/categories';
+import { ArrowLeft } from 'lucide-react';
 
 const EditBook = () => {
   const navigate = useNavigate();
@@ -47,15 +50,17 @@ const EditBook = () => {
     const loadBookData = async () => {
       if (!bookId) {
         toast.error('Book ID is missing');
-        navigate('/admin/books');
+        navigate('/profile');
         return;
       }
 
       try {
+        console.log('Loading book with ID:', bookId);
         setIsLoading(true);
         const bookData = await getBookById(bookId);
         
         if (bookData) {
+          console.log('Book data loaded:', bookData);
           const formattedData = {
             title: bookData.title,
             author: bookData.author,
@@ -70,12 +75,12 @@ const EditBook = () => {
           form.reset(formattedData);
         } else {
           toast.error('Book not found');
-          navigate('/admin/books');
+          navigate('/profile');
         }
       } catch (error) {
         console.error('Error loading book data:', error);
         toast.error('Failed to load book data');
-        navigate('/admin/books');
+        navigate('/profile');
       } finally {
         setIsLoading(false);
       }
@@ -91,10 +96,17 @@ const EditBook = () => {
         return;
       }
       
+      console.log('Updating book with values:', values);
       setIsSubmitting(true);
-      await updateBook(bookId, values);
-      toast.success('Book updated successfully!');
-      navigate('/profile');
+      
+      const updatedBook = await updateBook(bookId, values);
+      
+      if (updatedBook) {
+        toast.success('Book updated successfully!');
+        navigate('/profile');
+      } else {
+        toast.error('Failed to update book');
+      }
     } catch (error) {
       console.error('Error updating book:', error);
       toast.error('Failed to update book');
@@ -107,6 +119,13 @@ const EditBook = () => {
     return (
       <Layout>
         <div className="container mx-auto px-4 py-8 max-w-2xl">
+          <Button 
+            variant="ghost" 
+            onClick={() => navigate('/profile')} 
+            className="mb-6 text-book-600"
+          >
+            <ArrowLeft className="mr-2 h-4 w-4" /> Back to Profile
+          </Button>
           <h1 className="text-2xl font-bold mb-6">Edit Book</h1>
           <div className="space-y-6">
             <div className="space-y-2">
@@ -135,6 +154,13 @@ const EditBook = () => {
   return (
     <Layout>
       <div className="container mx-auto px-4 py-8 max-w-2xl">
+        <Button 
+          variant="ghost" 
+          onClick={() => navigate('/profile')} 
+          className="mb-6 text-book-600"
+        >
+          <ArrowLeft className="mr-2 h-4 w-4" /> Back to Profile
+        </Button>
         <h1 className="text-2xl font-bold mb-6">Edit Book</h1>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">

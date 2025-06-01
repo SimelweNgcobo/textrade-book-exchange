@@ -14,11 +14,17 @@ const Confirm = () => {
   useEffect(() => {
     const handleConfirm = async () => {
       try {
+        console.log('Starting email confirmation process');
         const url = new URL(window.location.href);
         const token_hash = url.searchParams.get('token_hash');
         const type = url.searchParams.get('type');
+        const access_token = url.searchParams.get('access_token');
+        const refresh_token = url.searchParams.get('refresh_token');
         
+        console.log('URL params:', { token_hash, type, access_token, refresh_token });
+
         if (token_hash && type) {
+          console.log('Using token hash verification');
           const { error } = await supabase.auth.verifyOtp({
             token_hash,
             type: type as any,
@@ -27,23 +33,45 @@ const Confirm = () => {
           if (error) {
             console.error('Email confirmation error:', error);
             setStatus('error');
+            setMessage('Email confirmation failed. The link may have expired or already been used.');
+            toast.error('Email confirmation failed');
+          } else {
+            console.log('Email confirmed successfully');
+            setStatus('success');
+            setMessage('Email confirmed successfully! You are now logged in.');
+            toast.success('Email confirmed successfully!');
+            setTimeout(() => navigate('/'), 3000);
+          }
+        } else if (access_token && refresh_token) {
+          console.log('Using session tokens');
+          const { error } = await supabase.auth.setSession({
+            access_token,
+            refresh_token,
+          });
+          
+          if (error) {
+            console.error('Session error:', error);
+            setStatus('error');
             setMessage('Email confirmation failed. The link may have expired.');
             toast.error('Email confirmation failed');
           } else {
+            console.log('Session set successfully');
             setStatus('success');
             setMessage('Email confirmed successfully! You are now logged in.');
             toast.success('Email confirmed successfully!');
             setTimeout(() => navigate('/'), 3000);
           }
         } else {
+          console.log('Using code exchange method');
           const { error } = await supabase.auth.exchangeCodeForSession(window.location.href);
           
           if (error) {
-            console.error('Email confirmation error:', error);
+            console.error('Code exchange error:', error);
             setStatus('error');
             setMessage('Email confirmation failed. The link may have expired.');
             toast.error('Email confirmation failed');
           } else {
+            console.log('Code exchange successful');
             setStatus('success');
             setMessage('Email confirmed successfully! You are now logged in.');
             toast.success('Email confirmed successfully!');
@@ -105,12 +133,20 @@ const Confirm = () => {
                 <p className="text-gray-600 mb-4 text-sm md:text-base">
                   {message}
                 </p>
-                <button
-                  onClick={() => navigate('/login')}
-                  className="bg-book-600 hover:bg-book-700 text-white px-4 md:px-6 py-2 rounded-lg transition-colors text-sm md:text-base"
-                >
-                  Go to Login
-                </button>
+                <div className="space-y-2">
+                  <button
+                    onClick={() => navigate('/login')}
+                    className="bg-book-600 hover:bg-book-700 text-white px-4 md:px-6 py-2 rounded-lg transition-colors text-sm md:text-base w-full"
+                  >
+                    Go to Login
+                  </button>
+                  <button
+                    onClick={() => navigate('/register')}
+                    className="bg-gray-500 hover:bg-gray-600 text-white px-4 md:px-6 py-2 rounded-lg transition-colors text-sm md:text-base w-full"
+                  >
+                    Register Again
+                  </button>
+                </div>
               </>
             )}
           </div>

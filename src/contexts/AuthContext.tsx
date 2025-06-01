@@ -140,6 +140,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (error.message.includes('Invalid login credentials')) {
           throw new Error('Invalid email or password. Please check your credentials and try again.');
         }
+        if (error.message.includes('Email not confirmed')) {
+          throw new Error('Please confirm your email address before logging in. Check your inbox for a confirmation link.');
+        }
         throw error;
       }
 
@@ -155,44 +158,60 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const register = async (name: string, email: string, password: string, enable2FA = false) => {
     try {
       console.log('Attempting registration with email:', email);
+      
+      // Create the confirm URL with proper domain
+      const confirmUrl = `${window.location.origin}/confirm`;
+      console.log('Confirm URL:', confirmUrl);
+      
       const { data, error } = await supabase.auth.signUp({
-        email,
+        email: email.trim(),
         password,
         options: {
           data: {
-            name,
+            name: name.trim(),
             enable_2fa: enable2FA
           },
-          emailRedirectTo: `${window.location.origin}/confirm`
+          emailRedirectTo: confirmUrl
         }
       });
 
       if (error) {
         console.error('Registration error:', error.message);
+        if (error.message.includes('User already registered')) {
+          throw new Error('An account with this email already exists. Please try logging in instead.');
+        }
         throw error;
       }
 
-      console.log('Registration successful');
+      console.log('Registration response:', data);
       
       // Create profile record if user was created
-      if (data.user) {
+      if (data.user && !data.user.identities?.length) {
+        console.log('User already exists, profile should exist');
+      } else if (data.user) {
+        console.log('Creating profile for new user');
         // Check if this is the admin email
-        const isAdminEmail = email === 'AdminSimnLi@gmail.com';
+        const isAdminEmail = email.trim() === 'AdminSimnLi@gmail.com';
         
         const { error: profileError } = await supabase
           .from('profiles')
           .insert({
             id: data.user.id,
-            name: name,
-            email: email,
+            name: name.trim(),
+            email: email.trim(),
             is_admin: isAdminEmail // Set admin status for admin email
           });
           
         if (profileError) {
           console.error('Profile creation error:', profileError);
+          // Don't throw here as the user was created successfully
         }
-        
-        toast.success('Registration successful! Please check your email to confirm your account.');
+      }
+      
+      if (data.user && !data.session) {
+        toast.success('Registration successful! Please check your email to confirm your account before logging in.');
+      } else if (data.session) {
+        toast.success('Registration successful! You are now logged in.');
       }
     } catch (error: any) {
       console.error('Registration error caught:', error.message);
