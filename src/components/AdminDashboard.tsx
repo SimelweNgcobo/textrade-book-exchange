@@ -32,7 +32,9 @@ const AdminDashboard = () => {
     newUsersThisWeek: 0,
     salesThisMonth: 0,
     weeklyCommission: 0,
-    monthlyCommission: 0
+    monthlyCommission: 0,
+    pendingReports: 0,
+    unreadMessages: 0
   });
 
   const [users, setUsers] = useState<AdminUser[]>([]);
@@ -131,12 +133,22 @@ const AdminDashboard = () => {
           </TabsTrigger>
           <TabsTrigger value="users" className={isMobile ? 'text-xs px-2 py-2' : ''}>
             {isMobile ? 'Users' : 'Users'}
+            {stats.totalUsers > 0 && (
+              <span className="ml-1 bg-blue-500 text-white text-xs rounded-full px-1">
+                {stats.totalUsers}
+              </span>
+            )}
           </TabsTrigger>
           <TabsTrigger value="listings" className={isMobile ? 'text-xs px-2 py-2' : ''}>
             {isMobile ? 'Listings' : 'Listings'}
           </TabsTrigger>
           <TabsTrigger value="contact" className={isMobile ? 'text-xs px-2 py-2' : ''}>
             {isMobile ? 'Contact' : 'Contact Messages'}
+            {stats.unreadMessages > 0 && (
+              <span className="ml-1 bg-orange-500 text-white text-xs rounded-full px-1">
+                {stats.unreadMessages}
+              </span>
+            )}
           </TabsTrigger>
           <TabsTrigger value="settings" className={isMobile ? 'text-xs px-2 py-2' : ''}>
             {isMobile ? 'Settings' : 'Settings'}

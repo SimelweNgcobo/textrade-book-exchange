@@ -1,64 +1,56 @@
 
 import { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Flag } from 'lucide-react';
-import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
-import { supabase } from '@/integrations/supabase/client';
+import { submitReport } from '@/services/reportService';
+import { toast } from 'sonner';
 
 interface ReportBookDialogProps {
   bookId: string;
   bookTitle: string;
   sellerId: string;
   sellerName: string;
+  children?: React.ReactNode;
 }
 
-const ReportBookDialog = ({ bookId, bookTitle, sellerId, sellerName }: ReportBookDialogProps) => {
-  const [open, setOpen] = useState(false);
-  const [reportType, setReportType] = useState<'listing' | 'user'>('listing');
-  const [reason, setReason] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
+const ReportBookDialog = ({ bookId, bookTitle, sellerId, sellerName, children }: ReportBookDialogProps) => {
   const { user } = useAuth();
+  const [isOpen, setIsOpen] = useState(false);
+  const [reason, setReason] = useState('');
+  const [category, setCategory] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async () => {
-    if (!reason.trim()) {
-      toast.error('Please provide a reason for the report');
+    if (!user) {
+      toast.error('You must be logged in to report a listing');
       return;
     }
 
-    if (!user) {
-      toast.error('You must be logged in to report');
+    if (!category || !reason.trim()) {
+      toast.error('Please select a category and provide a reason');
       return;
     }
 
     setIsSubmitting(true);
     try {
-      const { error } = await supabase
-        .from('reports')
-        .insert({
-          reporter_user_id: user.id,
-          reported_user_id: sellerId,
-          book_id: reportType === 'listing' ? bookId : null,
-          book_title: bookTitle,
-          seller_name: sellerName,
-          reason: reason.trim(),
-          status: 'pending'
-        });
+      await submitReport({
+        reportedUserId: sellerId,
+        reporterUserId: user.id,
+        bookId,
+        bookTitle,
+        sellerName,
+        reason: `${category}: ${reason}`
+      });
 
-      if (error) {
-        console.error('Error submitting report:', error);
-        toast.error('Failed to submit report');
-        return;
-      }
-
-      toast.success('Report submitted successfully. We will review it shortly.');
-      setOpen(false);
+      toast.success('Report submitted successfully');
+      setIsOpen(false);
       setReason('');
-      setReportType('listing');
+      setCategory('');
     } catch (error) {
       console.error('Error submitting report:', error);
       toast.error('Failed to submit report');
@@ -68,56 +60,75 @@ const ReportBookDialog = ({ bookId, bookTitle, sellerId, sellerName }: ReportBoo
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" size="lg" className="text-red-600 hover:text-red-700 border-red-200 w-full">
-          <Flag className="h-4 w-4 mr-2" />
-          Report
-        </Button>
+        {children || (
+          <Button variant="outline" size="sm">
+            <Flag className="h-4 w-4 mr-2" />
+            Report
+          </Button>
+        )}
       </DialogTrigger>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent>
         <DialogHeader>
-          <DialogTitle>Report Issue</DialogTitle>
+          <DialogTitle>Report Book Listing</DialogTitle>
+          <DialogDescription>
+            Help us maintain a safe marketplace by reporting inappropriate content or suspicious activity.
+          </DialogDescription>
         </DialogHeader>
+        
         <div className="space-y-4">
           <div>
-            <Label className="text-base font-medium">What would you like to report?</Label>
-            <RadioGroup value={reportType} onValueChange={(value: 'listing' | 'user') => setReportType(value)} className="mt-2">
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="listing" id="listing" />
-                <Label htmlFor="listing">This listing: "{bookTitle}"</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="user" id="user" />
-                <Label htmlFor="user">User: {sellerName}</Label>
-              </div>
-            </RadioGroup>
+            <Label>Book Title</Label>
+            <p className="text-sm text-gray-600">{bookTitle}</p>
           </div>
           
           <div>
-            <Label htmlFor="reason">Reason for report</Label>
-            <Textarea
-              id="reason"
-              placeholder="Please describe the issue (inappropriate content, fake listing, fraud, etc.)..."
-              value={reason}
-              onChange={(e) => setReason(e.target.value)}
-              className="mt-1 min-h-[100px]"
-            />
+            <Label>Seller</Label>
+            <p className="text-sm text-gray-600">{sellerName}</p>
           </div>
           
-          <div className="flex justify-end space-x-2">
-            <Button variant="outline" onClick={() => setOpen(false)}>
-              Cancel
-            </Button>
-            <Button 
-              onClick={handleSubmit} 
-              disabled={isSubmitting}
-              className="bg-red-600 hover:bg-red-700"
-            >
-              {isSubmitting ? 'Submitting...' : 'Submit Report'}
-            </Button>
+          <div>
+            <Label htmlFor="category">Category</Label>
+            <Select value={category} onValueChange={setCategory}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select a reason category" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="inappropriate-content">Inappropriate Content</SelectItem>
+                <SelectItem value="misleading-info">Misleading Information</SelectItem>
+                <SelectItem value="counterfeit">Counterfeit/Fake Book</SelectItem>
+                <SelectItem value="overpriced">Unreasonably Overpriced</SelectItem>
+                <SelectItem value="duplicate">Duplicate Listing</SelectItem>
+                <SelectItem value="spam">Spam</SelectItem>
+                <SelectItem value="other">Other</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          
+          <div>
+            <Label htmlFor="reason">Additional Details</Label>
+            <Textarea
+              id="reason"
+              placeholder="Please provide specific details about why you're reporting this listing..."
+              value={reason}
+              onChange={(e) => setReason(e.target.value)}
+              className="min-h-[100px]"
+            />
           </div>
         </div>
+        
+        <DialogFooter>
+          <Button variant="outline" onClick={() => setIsOpen(false)}>
+            Cancel
+          </Button>
+          <Button 
+            onClick={handleSubmit} 
+            disabled={!category || !reason.trim() || isSubmitting}
+          >
+            {isSubmitting ? 'Submitting...' : 'Submit Report'}
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

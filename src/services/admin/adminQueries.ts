@@ -5,8 +5,9 @@ export interface AdminUser {
   id: string;
   name: string;
   email: string;
-  status: 'active' | 'suspended';
+  status: 'active' | 'suspended' | 'banned';
   listingsCount: number;
+  createdAt: string;
 }
 
 export interface AdminListing {
@@ -16,6 +17,7 @@ export interface AdminListing {
   price: number;
   status: 'active' | 'sold';
   user: string;
+  createdAt: string;
 }
 
 export interface AdminStats {
@@ -27,6 +29,8 @@ export interface AdminStats {
   salesThisMonth: number;
   weeklyCommission: number;
   monthlyCommission: number;
+  pendingReports: number;
+  unreadMessages: number;
 }
 
 export const getAdminUsers = async (): Promise<AdminUser[]> => {
@@ -53,8 +57,9 @@ export const getAdminUsers = async (): Promise<AdminUser[]> => {
           id: profile.id,
           name: profile.name || 'Anonymous',
           email: profile.email || '',
-          status: (profile.status === 'suspended' ? 'suspended' : 'active') as 'active' | 'suspended',
-          listingsCount: count || 0
+          status: (profile.status || 'active') as 'active' | 'suspended' | 'banned',
+          listingsCount: count || 0,
+          createdAt: profile.created_at
         };
       })
     );
@@ -89,7 +94,8 @@ export const getAdminListings = async (): Promise<AdminListing[]> => {
       author: book.author,
       price: book.price,
       status: book.sold ? 'sold' : 'active',
-      user: (book.seller as any)?.name || 'Anonymous'
+      user: (book.seller as any)?.name || 'Anonymous',
+      createdAt: book.created_at
     }));
   } catch (error) {
     console.error('Error in getAdminListings:', error);
@@ -104,12 +110,16 @@ export const getAdminStats = async (): Promise<AdminStats> => {
       { count: totalUsers },
       { count: activeListings },
       { count: booksSold },
-      { count: totalReports }
+      { count: totalReports },
+      { count: pendingReports },
+      { count: unreadMessages }
     ] = await Promise.all([
       supabase.from('profiles').select('*', { count: 'exact', head: true }),
       supabase.from('books').select('*', { count: 'exact', head: true }).eq('sold', false),
       supabase.from('books').select('*', { count: 'exact', head: true }).eq('sold', true),
-      supabase.from('reports').select('*', { count: 'exact', head: true })
+      supabase.from('reports').select('*', { count: 'exact', head: true }),
+      supabase.from('reports').select('*', { count: 'exact', head: true }).eq('status', 'pending'),
+      supabase.from('contact_messages').select('*', { count: 'exact', head: true }).eq('status', 'unread')
     ]);
 
     // Get new users this week
@@ -152,7 +162,9 @@ export const getAdminStats = async (): Promise<AdminStats> => {
       newUsersThisWeek: newUsersThisWeek || 0,
       salesThisMonth: salesThisMonth || 0,
       weeklyCommission,
-      monthlyCommission
+      monthlyCommission,
+      pendingReports: pendingReports || 0,
+      unreadMessages: unreadMessages || 0
     };
   } catch (error) {
     console.error('Error in getAdminStats:', error);
@@ -164,7 +176,41 @@ export const getAdminStats = async (): Promise<AdminStats> => {
       newUsersThisWeek: 0,
       salesThisMonth: 0,
       weeklyCommission: 0,
-      monthlyCommission: 0
+      monthlyCommission: 0,
+      pendingReports: 0,
+      unreadMessages: 0
     };
+  }
+};
+
+export const getUserProfile = async (userId: string): Promise<AdminUser | null> => {
+  try {
+    const { data: profile, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', userId)
+      .single();
+
+    if (error || !profile) {
+      console.error('Error fetching user profile:', error);
+      return null;
+    }
+
+    const { count } = await supabase
+      .from('books')
+      .select('*', { count: 'exact', head: true })
+      .eq('seller_id', userId);
+
+    return {
+      id: profile.id,
+      name: profile.name || 'Anonymous',
+      email: profile.email || '',
+      status: (profile.status || 'active') as 'active' | 'suspended' | 'banned',
+      listingsCount: count || 0,
+      createdAt: profile.created_at
+    };
+  } catch (error) {
+    console.error('Error in getUserProfile:', error);
+    return null;
   }
 };
