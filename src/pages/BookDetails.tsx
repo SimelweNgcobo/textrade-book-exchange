@@ -3,15 +3,18 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, Heart, Share2, MessageCircle } from 'lucide-react';
-import BookImageCarousel from '@/components/BookImageCarousel';
+import { ArrowLeft, Share2, MessageCircle } from 'lucide-react';
+import BookImageSection from '@/components/book-details/BookImageSection';
+import BookPricing from '@/components/book-details/BookPricing';
+import BookDescription from '@/components/book-details/BookDescription';
+import BookInfo from '@/components/book-details/BookInfo';
+import SellerInfo from '@/components/book-details/SellerInfo';
+import BookActions from '@/components/book-details/BookActions';
 import ReportBookDialog from '@/components/ReportBookDialog';
 import { useAuth } from '@/contexts/AuthContext';
 import { getBookById } from '@/services/book/bookQueries';
 import { Book } from '@/types/book';
-import { useIsMobile } from '@/hooks/use-mobile';
 import { calculateCommission, calculateSellerReceives } from '@/services/bookService';
 import { toast } from 'sonner';
 
@@ -19,7 +22,6 @@ const BookDetails = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const isMobile = useIsMobile();
   const [book, setBook] = useState<Book | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -78,7 +80,6 @@ const BookDetails = () => {
       navigate('/login');
       return;
     }
-    // Implement contact seller functionality
     toast.info('Contact seller feature coming soon!');
   };
 
@@ -126,158 +127,59 @@ const BookDetails = () => {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Image Section */}
-          <div className="space-y-4">
-            <BookImageCarousel images={images} title={book.title} />
-          </div>
+          <BookImageSection images={images} />
 
           {/* Details Section */}
           <div className="space-y-6">
-            <div>
-              <h1 className="text-3xl font-bold text-book-800 mb-2">{book.title}</h1>
-              <p className="text-xl text-book-600 mb-4">by {book.author}</p>
-              
-              <div className="flex flex-wrap gap-2 mb-4">
-                <Badge variant="outline">{book.category}</Badge>
-                <Badge variant="outline">{book.condition}</Badge>
-                {book.grade && <Badge variant="outline">Grade {book.grade}</Badge>}
-                {book.universityYear && <Badge variant="outline">Year {book.universityYear}</Badge>}
-              </div>
-            </div>
+            <BookInfo 
+              title={book.title}
+              author={book.author}
+              category={book.category}
+              condition={book.condition}
+              grade={book.grade}
+              universityYear={book.universityYear}
+            />
 
-            {/* Price */}
-            <Card>
-              <CardContent className="p-6">
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-green-600 mb-2">
-                    R{book.price.toFixed(2)}
-                  </div>
-                  <div className="text-sm text-gray-500">
-                    Commission: R{commission.toFixed(2)} | Seller receives: R{sellerReceives.toFixed(2)}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+            <BookPricing 
+              price={book.price}
+              commission={commission}
+              sellerReceives={sellerReceives}
+            />
 
-            {/* Description */}
-            {book.description && (
-              <div>
-                <h3 className="text-lg font-semibold mb-2">Description</h3>
-                <p className="text-gray-700 leading-relaxed">{book.description}</p>
+            <BookDescription description={book.description} />
+
+            <SellerInfo 
+              seller={book.seller}
+              createdAt={book.createdAt}
+              onViewProfile={() => navigate(`/user/${book.seller.id}`)}
+            />
+
+            <BookActions
+              book={book}
+              user={user}
+              onBuyNow={handleBuyNow}
+              onContactSeller={handleContactSeller}
+              onShare={handleShare}
+              onEdit={() => navigate(`/edit-book/${book.id}`)}
+              onMarkAsSold={() => toast.info('Mark as sold feature coming soon!')}
+            />
+
+            {/* Report Button - Always visible for non-owners */}
+            {user?.id !== book.seller.id && (
+              <div className="pt-4 border-t">
+                <ReportBookDialog
+                  bookId={book.id}
+                  bookTitle={book.title}
+                  sellerId={book.seller.id}
+                  sellerName={book.seller.name}
+                >
+                  <Button variant="ghost" size="sm" className="w-full text-red-600 hover:text-red-700">
+                    <span className="text-red-500 mr-2">⚠️</span>
+                    Report this listing
+                  </Button>
+                </ReportBookDialog>
               </div>
             )}
-
-            {/* Seller Info */}
-            <Card>
-              <CardContent className="p-4">
-                <h3 className="text-lg font-semibold mb-2">Seller Information</h3>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="font-medium">{book.seller.name}</p>
-                    <p className="text-sm text-gray-500">
-                      Listed on {new Date(book.createdAt).toLocaleDateString()}
-                    </p>
-                  </div>
-                  <Button 
-                    variant="outline" 
-                    size="sm"
-                    onClick={() => navigate(`/user/${book.seller.id}`)}
-                  >
-                    View Profile
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Action Buttons */}
-            <div className="space-y-3">
-              {!book.sold && user?.id !== book.seller.id && (
-                <>
-                  <Button 
-                    onClick={handleBuyNow}
-                    className="w-full bg-book-600 hover:bg-book-700 text-white py-3"
-                    size="lg"
-                  >
-                    Buy Now - R{book.price.toFixed(2)}
-                  </Button>
-                  
-                  <div className="grid grid-cols-2 gap-3">
-                    <Button 
-                      variant="outline" 
-                      onClick={handleContactSeller}
-                      className="w-full"
-                    >
-                      <MessageCircle className="mr-2 h-4 w-4" />
-                      Contact Seller
-                    </Button>
-                    
-                    <Button 
-                      variant="outline" 
-                      onClick={handleShare}
-                      className="w-full"
-                    >
-                      <Share2 className="mr-2 h-4 w-4" />
-                      Share
-                    </Button>
-                  </div>
-                </>
-              )}
-              
-              {book.sold && (
-                <div className="text-center py-4">
-                  <Badge variant="destructive" className="text-lg px-4 py-2">
-                    SOLD
-                  </Badge>
-                </div>
-              )}
-              
-              {user?.id === book.seller.id && (
-                <div className="space-y-2">
-                  <Button 
-                    onClick={() => navigate(`/edit-book/${book.id}`)}
-                    className="w-full"
-                    variant="outline"
-                  >
-                    Edit Listing
-                  </Button>
-                  
-                  <div className="grid grid-cols-2 gap-3">
-                    <Button 
-                      variant="outline" 
-                      onClick={handleShare}
-                      className="w-full"
-                    >
-                      <Share2 className="mr-2 h-4 w-4" />
-                      Share
-                    </Button>
-                    
-                    <Button 
-                      variant="outline" 
-                      onClick={() => toast.info('Mark as sold feature coming soon!')}
-                      className="w-full"
-                    >
-                      Mark as Sold
-                    </Button>
-                  </div>
-                </div>
-              )}
-
-              {/* Report Button - Always visible for non-owners */}
-              {user?.id !== book.seller.id && (
-                <div className="pt-4 border-t">
-                  <ReportBookDialog
-                    bookId={book.id}
-                    bookTitle={book.title}
-                    sellerId={book.seller.id}
-                    sellerName={book.seller.name}
-                  >
-                    <Button variant="ghost" size="sm" className="w-full text-red-600 hover:text-red-700">
-                      <span className="text-red-500 mr-2">⚠️</span>
-                      Report this listing
-                    </Button>
-                  </ReportBookDialog>
-                </div>
-              )}
-            </div>
           </div>
         </div>
       </div>
