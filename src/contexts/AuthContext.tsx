@@ -1,90 +1,59 @@
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { useErrorHandler } from '@/hooks/useErrorHandler';
 
 interface Profile {
   id: string;
   name: string;
   email: string;
   isAdmin: boolean;
-  isVerified?: boolean;
-  successfulDeliveries?: number;
-  isBanned?: boolean;
-  banReason?: string;
-  rating?: number;
+  status: string;
+  profile_picture_url?: string;
+  bio?: string;
 }
 
 interface AuthContextType {
   user: User | null;
   profile: Profile | null;
   session: Session | null;
+  isLoading: boolean;
   isAuthenticated: boolean;
   isAdmin: boolean;
-  isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
-  register: (name: string, email: string, password: string, enable2FA?: boolean) => Promise<void>;
+  register: (name: string, email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
-  updateProfile: (updates: Partial<Profile>) => Promise<void>;
+  refreshProfile: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
-  if (!context) {
+  if (context === undefined) {
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
 };
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+interface AuthProviderProps {
+  children: ReactNode;
+}
+
+export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const { handleError } = useErrorHandler();
 
-  useEffect(() => {
-    // Set up auth state listener FIRST
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, currentSession) => {
-        console.log('Auth state changed:', event, currentSession?.user?.email);
-        setSession(currentSession);
-        setUser(currentSession?.user ?? null);
-        
-        // Defer profile fetching to avoid Supabase deadlock
-        if (currentSession?.user) {
-          setTimeout(() => {
-            fetchUserProfile(currentSession.user.id);
-          }, 0);
-        } else {
-          setProfile(null);
-        }
-      }
-    );
+  const isAuthenticated = !!user;
+  const isAdmin = profile?.isAdmin ?? false;
 
-    // THEN check for existing session
-    supabase.auth.getSession().then(({ data: { session: currentSession } }) => {
-      console.log('Existing session check:', currentSession?.user?.email);
-      setSession(currentSession);
-      setUser(currentSession?.user ?? null);
-      
-      if (currentSession?.user) {
-        fetchUserProfile(currentSession.user.id);
-      }
-    });
-
-    setIsLoading(false);
-    
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, []);
-
-  const fetchUserProfile = async (userId: string) => {
+  const fetchProfile = async (userId: string): Promise<Profile | null> => {
     try {
-      console.log('Fetching profile for user:', userId);
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
@@ -92,200 +61,234 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         .single();
 
       if (error) {
-        console.error('Error fetching user profile:', error);
-        return;
-      }
-
-      if (data) {
-        console.log('Profile data retrieved:', data);
-        // Check if this is the admin email and ensure admin status
-        const isAdminEmail = data.email === 'AdminSimnLi@gmail.com';
-        
-        setProfile({
-          id: data.id,
-          name: data.name || '',
-          email: data.email || '',
-          isAdmin: isAdminEmail || !!data.is_admin, // Force admin status for admin email
-          isVerified: false,
-          successfulDeliveries: 0,
-          isBanned: false,
-          banReason: '',
-          rating: 0
-        });
-
-        // Update admin status in database if needed for the specific admin email
-        if (isAdminEmail && !data.is_admin) {
-          await supabase
-            .from('profiles')
-            .update({ is_admin: true })
-            .eq('id', userId);
+        if (error.code === 'PGRST116') {
+          console.log('Profile not found for user:', userId);
+          return null;
         }
+        throw error;
       }
+
+      return {
+        id: data.id,
+        name: data.name || '',
+        email: data.email || '',
+        isAdmin: data.is_admin || false,
+        status: data.status || 'active',
+        profile_picture_url: data.profile_picture_url,
+        bio: data.bio,
+      };
     } catch (error) {
       console.error('Error fetching profile:', error);
+      return null;
     }
   };
+
+  const refreshProfile = async () => {
+    if (user) {
+      const profileData = await fetchProfile(user.id);
+      setProfile(profileData);
+    }
+  };
+
+  useEffect(() => {
+    let mounted = true;
+
+    const initializeAuth = async () => {
+      try {
+        setIsLoading(true);
+        
+        // Set up auth state listener
+        const { data: { subscription } } = supabase.auth.onAuthStateChange(
+          async (event, currentSession) => {
+            console.log('Auth state changed:', event, currentSession?.user?.id);
+            
+            if (!mounted) return;
+
+            setSession(currentSession);
+            setUser(currentSession?.user ?? null);
+
+            if (currentSession?.user) {
+              // Fetch profile data for authenticated user
+              setTimeout(async () => {
+                if (mounted) {
+                  const profileData = await fetchProfile(currentSession.user.id);
+                  if (mounted) {
+                    setProfile(profileData);
+                  }
+                }
+              }, 0);
+            } else {
+              setProfile(null);
+            }
+
+            if (mounted) {
+              setIsLoading(false);
+            }
+          }
+        );
+
+        // Check for existing session
+        const { data: { session: initialSession }, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.error('Error getting initial session:', error);
+        } else if (initialSession && mounted) {
+          setSession(initialSession);
+          setUser(initialSession.user);
+          
+          const profileData = await fetchProfile(initialSession.user.id);
+          if (mounted) {
+            setProfile(profileData);
+          }
+        }
+
+        if (mounted) {
+          setIsLoading(false);
+        }
+
+        return () => {
+          subscription.unsubscribe();
+        };
+      } catch (error) {
+        console.error('Error initializing auth:', error);
+        if (mounted) {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    initializeAuth();
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   const login = async (email: string, password: string) => {
     try {
-      console.log('Attempting login with email:', email);
+      setIsLoading(true);
+      console.log('Attempting login for:', email);
+
       const { data, error } = await supabase.auth.signInWithPassword({
         email: email.trim(),
-        password
+        password: password,
       });
 
       if (error) {
-        console.error('Login error:', error.message);
-        // Provide more specific error messages
+        console.error('Login error:', error);
+        
+        let errorMessage = 'Login failed';
         if (error.message.includes('Invalid login credentials')) {
-          throw new Error('Invalid email or password. Please check your credentials and try again.');
+          errorMessage = 'Invalid email or password';
+        } else if (error.message.includes('Email not confirmed')) {
+          errorMessage = 'Please check your email and click the confirmation link';
+        } else {
+          errorMessage = error.message;
         }
-        if (error.message.includes('Email not confirmed')) {
-          throw new Error('Please confirm your email address before logging in. Check your inbox for a confirmation link.');
-        }
-        throw error;
+        
+        toast.error(errorMessage);
+        throw new Error(errorMessage);
       }
 
-      console.log('Login successful:', data.user?.email);
-      toast.success('Logged in successfully');
-    } catch (error: any) {
-      console.error('Login error caught:', error.message);
-      toast.error(error.message || 'Failed to login');
+      if (!data.user) {
+        throw new Error('Login failed - no user data returned');
+      }
+
+      console.log('Login successful');
+      toast.success('Login successful!');
+    } catch (error) {
+      handleError(error, 'Login');
       throw error;
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const register = async (name: string, email: string, password: string, enable2FA = false) => {
+  const register = async (name: string, email: string, password: string) => {
     try {
-      console.log('Attempting registration with email:', email);
-      
-      // Create the confirm URL with proper domain
-      const confirmUrl = `${window.location.origin}/confirm`;
-      console.log('Confirm URL:', confirmUrl);
-      
+      setIsLoading(true);
+      console.log('Attempting registration for:', email);
+
       const { data, error } = await supabase.auth.signUp({
         email: email.trim(),
-        password,
+        password: password,
         options: {
           data: {
             name: name.trim(),
-            enable_2fa: enable2FA
           },
-          emailRedirectTo: confirmUrl
-        }
+          emailRedirectTo: `${window.location.origin}/confirm`,
+        },
       });
 
       if (error) {
-        console.error('Registration error:', error.message);
-        if (error.message.includes('User already registered')) {
-          throw new Error('An account with this email already exists. Please try logging in instead.');
-        }
-        throw error;
-      }
-
-      console.log('Registration response:', data);
-      
-      // Create profile record if user was created
-      if (data.user && !data.user.identities?.length) {
-        console.log('User already exists, profile should exist');
-      } else if (data.user) {
-        console.log('Creating profile for new user');
-        // Check if this is the admin email
-        const isAdminEmail = email.trim() === 'AdminSimnLi@gmail.com';
+        console.error('Registration error:', error);
         
-        const { error: profileError } = await supabase
-          .from('profiles')
-          .insert({
-            id: data.user.id,
-            name: name.trim(),
-            email: email.trim(),
-            is_admin: isAdminEmail // Set admin status for admin email
-          });
-          
-        if (profileError) {
-          console.error('Profile creation error:', profileError);
-          // Don't throw here as the user was created successfully
+        let errorMessage = 'Registration failed';
+        if (error.message.includes('already registered')) {
+          errorMessage = 'This email is already registered. Please try logging in instead.';
+        } else {
+          errorMessage = error.message;
         }
+        
+        toast.error(errorMessage);
+        throw new Error(errorMessage);
       }
-      
-      if (data.user && !data.session) {
-        toast.success('Registration successful! Please check your email to confirm your account before logging in.');
-      } else if (data.session) {
-        toast.success('Registration successful! You are now logged in.');
-      }
-    } catch (error: any) {
-      console.error('Registration error caught:', error.message);
-      toast.error(error.message || 'Failed to register');
-      throw error;
-    }
-  };
 
-  const updateProfile = async (updates: Partial<Profile>) => {
-    try {
-      if (!user) throw new Error('User not authenticated');
-      
-      // Map our Profile interface fields to the database fields
-      const dbUpdates: any = {};
-      if (updates.name !== undefined) dbUpdates.name = updates.name;
-      if (updates.email !== undefined) dbUpdates.email = updates.email;
-      
-      // Only proceed if we have updates to make
-      if (Object.keys(dbUpdates).length === 0) {
-        return;
+      if (data.user && !data.session) {
+        console.log('Registration successful, confirmation email sent');
+        toast.success('Registration successful! Please check your email to confirm your account.');
+      } else if (data.session) {
+        console.log('Registration successful with immediate login');
+        toast.success('Registration successful! Welcome to ReBooked Solutions!');
       }
-      
-      const { error } = await supabase
-        .from('profiles')
-        .update(dbUpdates)
-        .eq('id', user.id);
-      
-      if (error) throw error;
-      
-      // Update local state
-      if (profile) {
-        setProfile({ ...profile, ...updates });
-      }
-      
-      toast.success('Profile updated successfully');
-    } catch (error: any) {
-      toast.error(error.message || 'Failed to update profile');
+    } catch (error) {
+      handleError(error, 'Registration');
       throw error;
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const logout = async () => {
     try {
+      setIsLoading(true);
+      console.log('Attempting logout');
+
       const { error } = await supabase.auth.signOut();
       
       if (error) {
+        console.error('Logout error:', error);
+        toast.error('Logout failed');
         throw error;
       }
+
+      console.log('Logout successful');
+      toast.success('Logged out successfully');
       
+      // Clear state immediately
       setUser(null);
       setProfile(null);
       setSession(null);
-      toast.success('Logged out successfully');
-    } catch (error: any) {
-      toast.error(error.message || 'Failed to logout');
+    } catch (error) {
+      handleError(error, 'Logout');
+      throw error;
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  return (
-    <AuthContext.Provider
-      value={{
-        user,
-        profile,
-        session,
-        isAuthenticated: !!session,
-        isAdmin: !!profile?.isAdmin,
-        isLoading,
-        login,
-        register,
-        logout,
-        updateProfile
-      }}
-    >
-      {children}
-    </AuthContext.Provider>
-  );
+  const value: AuthContextType = {
+    user,
+    profile,
+    session,
+    isLoading,
+    isAuthenticated,
+    isAdmin,
+    login,
+    register,
+    logout,
+    refreshProfile,
+  };
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

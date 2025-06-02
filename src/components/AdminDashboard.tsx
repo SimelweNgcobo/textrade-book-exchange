@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
@@ -23,6 +22,7 @@ import AdminListingsTab from '@/components/admin/AdminListingsTab';
 import AdminSettingsTab from '@/components/admin/AdminSettingsTab';
 import AdminContactTab from '@/components/admin/AdminContactTab';
 import ErrorFallback from '@/components/ErrorFallback';
+import SystemHealthCheck from '@/components/SystemHealthCheck';
 
 const AdminDashboard = () => {
   const isMobile = useIsMobile();
@@ -149,7 +149,7 @@ const AdminDashboard = () => {
       <AdminStats stats={stats} />
 
       <Tabs defaultValue="earnings" className="space-y-4">
-        <TabsList className={`${isMobile ? 'grid grid-cols-3 h-auto' : 'grid grid-cols-5'} w-full`}>
+        <TabsList className={`${isMobile ? 'grid grid-cols-3 h-auto' : 'grid grid-cols-6'} w-full`}>
           <TabsTrigger value="earnings" className={isMobile ? 'text-xs px-2 py-2' : ''}>
             {isMobile ? 'Earnings' : 'Earnings'}
           </TabsTrigger>
@@ -172,6 +172,9 @@ const AdminDashboard = () => {
               </span>
             )}
           </TabsTrigger>
+          <TabsTrigger value="health" className={isMobile ? 'text-xs px-2 py-2' : ''}>
+            {isMobile ? 'Health' : 'System Health'}
+          </TabsTrigger>
           <TabsTrigger value="settings" className={isMobile ? 'text-xs px-2 py-2' : ''}>
             {isMobile ? 'Settings' : 'Settings'}
           </TabsTrigger>
@@ -191,6 +194,10 @@ const AdminDashboard = () => {
 
         <TabsContent value="contact" className="space-y-4">
           <AdminContactTab />
+        </TabsContent>
+
+        <TabsContent value="health" className="space-y-4">
+          <SystemHealthCheck />
         </TabsContent>
 
         <TabsContent value="settings" className="space-y-4">

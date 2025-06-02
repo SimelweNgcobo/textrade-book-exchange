@@ -11,12 +11,14 @@ import {
   TableHeader, 
   TableRow 
 } from '@/components/ui/table';
-import { Flag, UserX } from 'lucide-react';
+import { Flag, UserX, RefreshCw } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import ReportFilters from './reports/ReportFilters';
 import ReportActions from './reports/ReportActions';
 import ErrorFallback from '@/components/ErrorFallback';
+import { Button } from '@/components/ui/button';
+import { useErrorHandler } from '@/hooks/useErrorHandler';
 
 interface Report {
   id: string;
@@ -30,26 +32,37 @@ interface Report {
   book_id?: string;
 }
 
+interface SuspendedUser {
+  id: string;
+  name: string;
+  email: string;
+  status: string;
+  suspended_at: string;
+  suspension_reason: string;
+}
+
 const EnhancedModerationDashboard = () => {
   const [reports, setReports] = useState<Report[]>([]);
-  const [filteredReports, setFilteredReports] = useState<Report[]>([]);
+  const [suspendedUsers, setSuspendedUsers] = useState<SuspendedUser[]>([]);
+  const [filteredData, setFilteredData] = useState<Report[] | SuspendedUser[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'pending' | 'resolved' | 'dismissed' | 'suspended' | 'all'>('pending');
   const [actionReason, setActionReason] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { handleError } = useErrorHandler();
 
   useEffect(() => {
-    loadReports();
+    loadData();
     setupRealtimeSubscription();
   }, []);
 
   useEffect(() => {
-    filterReports();
-  }, [reports, activeTab]);
+    filterData();
+  }, [reports, suspendedUsers, activeTab]);
 
   const setupRealtimeSubscription = () => {
-    const channel = supabase
+    const reportsChannel = supabase
       .channel('reports-changes')
       .on(
         'postgres_changes',
@@ -59,67 +72,102 @@ const EnhancedModerationDashboard = () => {
           table: 'reports'
         },
         () => {
-          loadReports();
+          console.log('Reports updated, reloading...');
+          loadData();
+        }
+      )
+      .subscribe();
+
+    const profilesChannel = supabase
+      .channel('profiles-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'profiles'
+        },
+        () => {
+          console.log('User profiles updated, reloading...');
+          loadData();
         }
       )
       .subscribe();
 
     return () => {
-      supabase.removeChannel(channel);
+      supabase.removeChannel(reportsChannel);
+      supabase.removeChannel(profilesChannel);
     };
   };
 
-  const loadReports = async () => {
+  const loadData = async () => {
     try {
       setError(null);
-      const { data, error } = await supabase
-        .from('reports')
-        .select('*')
-        .order('created_at', { ascending: false });
+      setIsLoading(true);
 
-      if (error) {
-        console.error('Error loading reports:', error);
-        throw new Error(`Failed to load reports: ${error.message}`);
+      const [reportsResponse, usersResponse] = await Promise.all([
+        supabase
+          .from('reports')
+          .select('*')
+          .order('created_at', { ascending: false }),
+        supabase
+          .from('profiles')
+          .select('id, name, email, status, suspended_at, suspension_reason')
+          .in('status', ['suspended', 'banned'])
+          .order('suspended_at', { ascending: false })
+      ]);
+
+      if (reportsResponse.error) {
+        throw new Error(`Failed to load reports: ${reportsResponse.error.message}`);
       }
 
-      const typedReports: Report[] = (data || []).map(report => ({
+      if (usersResponse.error) {
+        throw new Error(`Failed to load suspended users: ${usersResponse.error.message}`);
+      }
+
+      const typedReports: Report[] = (reportsResponse.data || []).map(report => ({
         ...report,
         status: report.status as 'pending' | 'resolved' | 'dismissed'
       }));
 
+      const typedUsers: SuspendedUser[] = (usersResponse.data || []).map(user => ({
+        ...user,
+        name: user.name || 'Anonymous',
+        email: user.email || 'No email',
+        suspended_at: user.suspended_at || new Date().toISOString(),
+        suspension_reason: user.suspension_reason || 'No reason provided'
+      }));
+
       setReports(typedReports);
+      setSuspendedUsers(typedUsers);
     } catch (error) {
-      console.error('Error in loadReports:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Failed to load reports';
+      console.error('Error loading moderation data:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Failed to load moderation data';
       setError(errorMessage);
-      toast.error(errorMessage);
+      handleError(error, 'Moderation Dashboard');
     } finally {
       setIsLoading(false);
     }
   };
 
-  const filterReports = () => {
-    let filtered = reports;
-    
+  const filterData = () => {
     switch (activeTab) {
       case 'pending':
-        filtered = reports.filter(r => r.status === 'pending');
+        setFilteredData(reports.filter(r => r.status === 'pending'));
         break;
       case 'resolved':
-        filtered = reports.filter(r => r.status === 'resolved');
+        setFilteredData(reports.filter(r => r.status === 'resolved'));
         break;
       case 'dismissed':
-        filtered = reports.filter(r => r.status === 'dismissed');
+        setFilteredData(reports.filter(r => r.status === 'dismissed'));
         break;
       case 'suspended':
-        filtered = reports;
+        setFilteredData(suspendedUsers);
         break;
       case 'all':
-        filtered = reports;
+        setFilteredData(reports);
         break;
     }
-    
-    setFilteredReports(filtered);
   };
 
   const updateReportStatus = async (reportId: string, status: 'resolved' | 'dismissed') => {
@@ -130,16 +178,13 @@ const EnhancedModerationDashboard = () => {
         .eq('id', reportId);
 
       if (error) {
-        console.error('Error updating report:', error);
         throw new Error(`Failed to update report: ${error.message}`);
       }
 
       toast.success(`Report ${status} successfully`);
-      loadReports();
+      loadData();
     } catch (error) {
-      console.error('Error in updateReportStatus:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Failed to update report status';
-      toast.error(errorMessage);
+      handleError(error, 'Update Report Status');
     }
   };
 
@@ -158,19 +203,38 @@ const EnhancedModerationDashboard = () => {
         .eq('id', userId);
 
       if (profileError) {
-        console.error('Error updating user status:', profileError);
         throw new Error(`Failed to ${action} user: ${profileError.message}`);
       }
 
       toast.success(`User ${action === 'ban' ? 'banned' : 'suspended'} successfully`);
       setActionReason('');
-      loadReports();
+      loadData();
     } catch (error) {
-      console.error(`Error ${action}ing user:`, error);
-      const errorMessage = error instanceof Error ? error.message : `Failed to ${action} user`;
-      toast.error(errorMessage);
+      handleError(error, `${action} User`);
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const unsuspendUser = async (userId: string) => {
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ 
+          status: 'active',
+          suspension_reason: null,
+          suspended_at: null
+        })
+        .eq('id', userId);
+
+      if (error) {
+        throw new Error(`Failed to unsuspend user: ${error.message}`);
+      }
+
+      toast.success('User unsuspended successfully');
+      loadData();
+    } catch (error) {
+      handleError(error, 'Unsuspend User');
     }
   };
 
@@ -192,10 +256,10 @@ const EnhancedModerationDashboard = () => {
         error={new Error(error)}
         resetError={() => {
           setError(null);
-          loadReports();
+          loadData();
         }}
-        title="Reports Error"
-        description="Failed to load reports. Please try again."
+        title="Moderation Dashboard Error"
+        description="Failed to load moderation data. Please try again."
       />
     );
   }
@@ -204,8 +268,9 @@ const EnhancedModerationDashboard = () => {
     return (
       <Card>
         <CardContent className="p-6">
-          <div className="flex items-center justify-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+          <div className="flex items-center justify-center space-x-2">
+            <RefreshCw className="h-6 w-6 animate-spin text-book-600" />
+            <span>Loading moderation data...</span>
           </div>
         </CardContent>
       </Card>
@@ -215,20 +280,33 @@ const EnhancedModerationDashboard = () => {
   return (
     <Card>
       <CardHeader>
-        <div className="flex items-center gap-2">
-          <Flag className="h-5 w-5 text-red-600" />
-          <CardTitle>Moderation Dashboard</CardTitle>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Flag className="h-5 w-5 text-red-600" />
+            <CardTitle>Enhanced Moderation Dashboard</CardTitle>
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={loadData}
+            disabled={isLoading}
+          >
+            <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
+            Refresh
+          </Button>
         </div>
         <CardDescription>
-          Manage user and book reports with real-time updates
+          Manage user reports and moderation actions with real-time updates
         </CardDescription>
       </CardHeader>
       <CardContent>
         <ReportFilters activeTab={activeTab} onTabChange={setActiveTab} />
 
-        {filteredReports.length === 0 ? (
+        {filteredData.length === 0 ? (
           <div className="text-center py-8">
-            <p className="text-gray-500">No reports to review</p>
+            <p className="text-gray-500">
+              {activeTab === 'suspended' ? 'No suspended users' : 'No reports to review'}
+            </p>
           </div>
         ) : (
           <ScrollArea className="w-full">
@@ -237,78 +315,119 @@ const EnhancedModerationDashboard = () => {
                 <TableRow>
                   <TableHead>Type</TableHead>
                   <TableHead>Entity</TableHead>
-                  <TableHead>Email</TableHead>
-                  <TableHead>Warning</TableHead>
-                  <TableHead>Reporter</TableHead>
+                  <TableHead>{activeTab === 'suspended' ? 'Reason' : 'Reason'}</TableHead>
+                  <TableHead>{activeTab === 'suspended' ? 'Suspended' : 'Reporter'}</TableHead>
                   <TableHead>Date</TableHead>
                   <TableHead>Severity</TableHead>
                   <TableHead className="w-[200px]">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredReports.map((report) => {
-                  const reportCount = filteredReports.filter(r => r.reported_user_id === report.reported_user_id).length;
-                  return (
-                    <TableRow key={report.id}>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          {report.book_id ? (
-                            <div className="flex items-center gap-1 text-blue-600">
-                              <Flag className="h-4 w-4" />
-                              <span>Listing</span>
-                            </div>
-                          ) : (
-                            <div className="flex items-center gap-1 text-purple-600">
-                              <UserX className="h-4 w-4" />
-                              <span>User</span>
-                            </div>
-                          )}
-                        </div>
-                      </TableCell>
-                      <TableCell className="font-medium">
-                        <div className="max-w-[150px] truncate">
-                          {report.book_id ? report.book_title : report.seller_name}
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-sm text-gray-600">
-                        N/A
-                      </TableCell>
-                      <TableCell>
-                        {reportCount >= 2 && (
-                          <Badge className="bg-yellow-100 text-yellow-800">
-                            Warning
+                {filteredData.map((item) => {
+                  if (activeTab === 'suspended') {
+                    const user = item as SuspendedUser;
+                    return (
+                      <TableRow key={user.id}>
+                        <TableCell>
+                          <div className="flex items-center gap-1 text-orange-600">
+                            <UserX className="h-4 w-4" />
+                            <span>{user.status === 'banned' ? 'Banned' : 'Suspended'}</span>
+                          </div>
+                        </TableCell>
+                        <TableCell className="font-medium">
+                          <div className="max-w-[150px] truncate">
+                            {user.name}
+                          </div>
+                          <div className="text-xs text-gray-500">{user.email}</div>
+                        </TableCell>
+                        <TableCell className="max-w-[200px] truncate">
+                          {user.suspension_reason}
+                        </TableCell>
+                        <TableCell>
+                          {new Date(user.suspended_at).toLocaleDateString()}
+                        </TableCell>
+                        <TableCell>
+                          {new Date(user.suspended_at).toLocaleDateString('en-US', {
+                            month: 'short',
+                            day: 'numeric',
+                            year: 'numeric'
+                          })}
+                        </TableCell>
+                        <TableCell>
+                          <Badge className={user.status === 'banned' ? 'bg-red-100 text-red-800' : 'bg-orange-100 text-orange-800'}>
+                            {user.status === 'banned' ? 'Banned' : 'Suspended'}
                           </Badge>
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        <span className="text-sm">Reporter #{report.reporter_user_id.slice(-8)}</span>
-                      </TableCell>
-                      <TableCell>
-                        {new Date(report.created_at).toLocaleDateString('en-US', {
-                          month: 'short',
-                          day: 'numeric',
-                          year: 'numeric',
-                          hour: '2-digit',
-                          minute: '2-digit'
-                        })}
-                      </TableCell>
-                      <TableCell>
-                        <Badge className={getSeverityColor(reportCount)}>
-                          {getSeverityText(reportCount)}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <ReportActions
-                          report={report}
-                          actionReason={actionReason}
-                          setActionReason={setActionReason}
-                          isSubmitting={isSubmitting}
-                          onUpdateStatus={updateReportStatus}
-                          onUserAction={handleUserAction}
-                        />
-                      </TableCell>
-                    </TableRow>
-                  );
+                        </TableCell>
+                        <TableCell>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => unsuspendUser(user.id)}
+                            className="text-green-600 hover:text-green-700"
+                          >
+                            Unsuspend
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  } else {
+                    const report = item as Report;
+                    const reportCount = reports.filter(r => r.reported_user_id === report.reported_user_id).length;
+                    return (
+                      <TableRow key={report.id}>
+                        <TableCell>
+                          <div className="flex items-center gap-2">
+                            {report.book_id ? (
+                              <div className="flex items-center gap-1 text-blue-600">
+                                <Flag className="h-4 w-4" />
+                                <span>Listing</span>
+                              </div>
+                            ) : (
+                              <div className="flex items-center gap-1 text-purple-600">
+                                <UserX className="h-4 w-4" />
+                                <span>User</span>
+                              </div>
+                            )}
+                          </div>
+                        </TableCell>
+                        <TableCell className="font-medium">
+                          <div className="max-w-[150px] truncate">
+                            {report.book_id ? report.book_title : report.seller_name}
+                          </div>
+                        </TableCell>
+                        <TableCell className="max-w-[200px] truncate">
+                          {report.reason}
+                        </TableCell>
+                        <TableCell>
+                          <span className="text-sm">Reporter #{report.reporter_user_id.slice(-8)}</span>
+                        </TableCell>
+                        <TableCell>
+                          {new Date(report.created_at).toLocaleDateString('en-US', {
+                            month: 'short',
+                            day: 'numeric',
+                            year: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                          })}
+                        </TableCell>
+                        <TableCell>
+                          <Badge className={getSeverityColor(reportCount)}>
+                            {getSeverityText(reportCount)}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          <ReportActions
+                            report={report}
+                            actionReason={actionReason}
+                            setActionReason={setActionReason}
+                            isSubmitting={isSubmitting}
+                            onUpdateStatus={updateReportStatus}
+                            onUserAction={handleUserAction}
+                          />
+                        </TableCell>
+                      </TableRow>
+                    );
+                  }
                 })}
               </TableBody>
             </Table>

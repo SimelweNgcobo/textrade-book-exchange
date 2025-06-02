@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
-import { Lock, Loader2, Eye, EyeOff } from 'lucide-react';
+import { Lock, Loader2, Eye, EyeOff, CheckCircle, XCircle } from 'lucide-react';
 
 const ResetPassword = () => {
   const [password, setPassword] = useState('');
@@ -15,7 +15,7 @@ const ResetPassword = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [isValidSession, setIsValidSession] = useState(false);
+  const [isValidSession, setIsValidSession] = useState<boolean | null>(null);
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
 
@@ -23,11 +23,29 @@ const ResetPassword = () => {
     const verifySession = async () => {
       try {
         console.log('Verifying reset password session');
+        
         const accessToken = searchParams.get('access_token');
         const refreshToken = searchParams.get('refresh_token');
         const type = searchParams.get('type');
+        const error_code = searchParams.get('error_code');
+        const error_description = searchParams.get('error_description');
         
-        console.log('Reset password params:', { accessToken: !!accessToken, refreshToken: !!refreshToken, type });
+        console.log('Reset password params:', { 
+          accessToken: !!accessToken, 
+          refreshToken: !!refreshToken, 
+          type,
+          error_code,
+          error_description 
+        });
+
+        // Check for errors in URL
+        if (error_code || error_description) {
+          console.error('Reset password error from URL:', { error_code, error_description });
+          toast.error(error_description || 'Invalid or expired reset link');
+          setIsValidSession(false);
+          setTimeout(() => navigate('/forgot-password'), 3000);
+          return;
+        }
         
         if (accessToken && refreshToken && type === 'recovery') {
           console.log('Setting session with recovery tokens');
@@ -39,7 +57,8 @@ const ResetPassword = () => {
           if (error) {
             console.error('Session error:', error);
             toast.error('Invalid or expired reset link');
-            navigate('/forgot-password');
+            setIsValidSession(false);
+            setTimeout(() => navigate('/forgot-password'), 3000);
             return;
           }
           
@@ -59,23 +78,34 @@ const ResetPassword = () => {
           } else {
             console.log('No valid session found');
             toast.error('Invalid or expired reset link');
-            navigate('/forgot-password');
+            setIsValidSession(false);
+            setTimeout(() => navigate('/forgot-password'), 3000);
           }
         }
       } catch (error) {
         console.error('Error verifying session:', error);
         toast.error('Something went wrong. Please try again.');
-        navigate('/forgot-password');
+        setIsValidSession(false);
+        setTimeout(() => navigate('/forgot-password'), 3000);
       }
     };
 
     verifySession();
   }, [searchParams, navigate]);
 
+  const validatePassword = (pwd: string): string[] => {
+    const errors: string[] = [];
+    if (pwd.length < 6) errors.push('Must be at least 6 characters long');
+    if (!/[A-Z]/.test(pwd)) errors.push('Must contain at least one uppercase letter');
+    if (!/[a-z]/.test(pwd)) errors.push('Must contain at least one lowercase letter');
+    if (!/[0-9]/.test(pwd)) errors.push('Must contain at least one number');
+    return errors;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!isValidSession) {
+    if (isValidSession === false) {
       toast.error('Invalid session. Please request a new reset link.');
       return;
     }
@@ -91,12 +121,13 @@ const ResetPassword = () => {
         throw new Error("Passwords don't match");
       }
 
-      if (password.length < 6) {
-        throw new Error("Password must be at least 6 characters long");
+      const passwordErrors = validatePassword(password);
+      if (passwordErrors.length > 0) {
+        throw new Error(`Password requirements: ${passwordErrors.join(', ')}`);
       }
 
       console.log('Updating user password');
-      const { error } = await supabase.auth.updateUser({
+      const { data, error } = await supabase.auth.updateUser({
         password: password
       });
 
@@ -119,7 +150,7 @@ const ResetPassword = () => {
     }
   };
 
-  if (!isValidSession) {
+  if (isValidSession === null) {
     return (
       <Layout>
         <div className="min-h-[70vh] flex items-center justify-center px-4">
@@ -139,15 +170,47 @@ const ResetPassword = () => {
     );
   }
 
+  if (isValidSession === false) {
+    return (
+      <Layout>
+        <div className="min-h-[70vh] flex items-center justify-center px-4">
+          <div className="w-full max-w-md">
+            <div className="bg-white rounded-lg shadow-lg p-6 md:p-8 text-center">
+              <XCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
+              <h2 className="text-xl md:text-2xl font-semibold mb-2 text-gray-800">
+                Invalid Reset Link
+              </h2>
+              <p className="text-gray-600 text-sm md:text-base mb-4">
+                This password reset link is invalid or has expired.
+              </p>
+              <p className="text-gray-500 text-sm">
+                Redirecting you to request a new link...
+              </p>
+            </div>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
+
+  const passwordErrors = validatePassword(password);
+  const isPasswordValid = password.length > 0 && passwordErrors.length === 0;
+
   return (
     <Layout>
       <div className="min-h-[70vh] flex items-center justify-center px-4">
         <div className="w-full max-w-md">
           <div className="bg-white rounded-lg shadow-lg overflow-hidden">
             <div className="p-6 md:p-8">
-              <h1 className="text-xl md:text-2xl font-bold text-center text-gray-800 mb-6">
-                Set New Password
-              </h1>
+              <div className="text-center mb-6">
+                <CheckCircle className="h-12 w-12 text-green-500 mx-auto mb-4" />
+                <h1 className="text-xl md:text-2xl font-bold text-gray-800 mb-2">
+                  Set New Password
+                </h1>
+                <p className="text-gray-600 text-sm">
+                  Enter your new password below
+                </p>
+              </div>
 
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="space-y-2">
@@ -159,7 +222,7 @@ const ResetPassword = () => {
                     <Input
                       id="password"
                       type={showPassword ? "text" : "password"}
-                      placeholder="••••••••"
+                      placeholder="Enter new password"
                       className="pl-10 pr-10"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
@@ -177,9 +240,17 @@ const ResetPassword = () => {
                       )}
                     </button>
                   </div>
-                  <p className="text-xs text-gray-500">
-                    Must be at least 6 characters long
-                  </p>
+                  
+                  {password.length > 0 && (
+                    <div className="text-xs space-y-1">
+                      {passwordErrors.map((error, index) => (
+                        <p key={index} className="text-red-500">• {error}</p>
+                      ))}
+                      {isPasswordValid && (
+                        <p className="text-green-500">• Password meets all requirements</p>
+                      )}
+                    </div>
+                  )}
                 </div>
 
                 <div className="space-y-2">
@@ -191,7 +262,7 @@ const ResetPassword = () => {
                     <Input
                       id="confirmPassword"
                       type={showConfirmPassword ? "text" : "password"}
-                      placeholder="••••••••"
+                      placeholder="Confirm new password"
                       className="pl-10 pr-10"
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
@@ -209,12 +280,22 @@ const ResetPassword = () => {
                       )}
                     </button>
                   </div>
+                  
+                  {confirmPassword.length > 0 && (
+                    <div className="text-xs">
+                      {password === confirmPassword ? (
+                        <p className="text-green-500">• Passwords match</p>
+                      ) : (
+                        <p className="text-red-500">• Passwords don't match</p>
+                      )}
+                    </div>
+                  )}
                 </div>
 
                 <Button
                   type="submit"
                   className="w-full bg-book-600 hover:bg-book-700"
-                  disabled={isLoading}
+                  disabled={isLoading || !isPasswordValid || password !== confirmPassword}
                 >
                   {isLoading ? (
                     <>
