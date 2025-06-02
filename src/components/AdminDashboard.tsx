@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
@@ -23,9 +24,12 @@ import AdminSettingsTab from '@/components/admin/AdminSettingsTab';
 import AdminContactTab from '@/components/admin/AdminContactTab';
 import ErrorFallback from '@/components/ErrorFallback';
 import SystemHealthCheck from '@/components/SystemHealthCheck';
+import LoadingSpinner from '@/components/LoadingSpinner';
+import { useErrorHandler } from '@/hooks/useErrorHandler';
 
 const AdminDashboard = () => {
   const isMobile = useIsMobile();
+  const { handleError } = useErrorHandler();
   
   const [stats, setStats] = useState<AdminStatsType>({
     totalUsers: 0,
@@ -45,6 +49,7 @@ const AdminDashboard = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [broadcastMessage, setBroadcastMessage] = useState('');
+  const [retryCount, setRetryCount] = useState(0);
 
   useEffect(() => {
     loadDashboardData();
@@ -53,24 +58,72 @@ const AdminDashboard = () => {
   const loadDashboardData = async () => {
     setIsLoading(true);
     setError(null);
+    
     try {
-      const [adminStats, usersData, listingsData] = await Promise.all([
+      console.log('Loading admin dashboard data...');
+      
+      // Load data with individual error handling to prevent cascading failures
+      const results = await Promise.allSettled([
         getAdminStats(),
         getAllUsers(),
         getAllListings()
       ]);
 
-      setStats(adminStats);
-      setUsers(usersData);
-      setListings(listingsData);
+      // Handle stats
+      if (results[0].status === 'fulfilled') {
+        setStats(results[0].value);
+        console.log('Stats loaded successfully');
+      } else {
+        console.error('Failed to load stats:', results[0].reason);
+        handleError(results[0].reason, 'Load Admin Stats', { showToast: false });
+      }
+
+      // Handle users
+      if (results[1].status === 'fulfilled') {
+        setUsers(results[1].value);
+        console.log('Users loaded successfully:', results[1].value.length);
+      } else {
+        console.error('Failed to load users:', results[1].reason);
+        handleError(results[1].reason, 'Load Users', { showToast: false });
+        setUsers([]); // Set empty array as fallback
+      }
+
+      // Handle listings
+      if (results[2].status === 'fulfilled') {
+        setListings(results[2].value);
+        console.log('Listings loaded successfully:', results[2].value.length);
+      } else {
+        console.error('Failed to load listings:', results[2].reason);
+        handleError(results[2].reason, 'Load Listings', { showToast: false });
+        setListings([]); // Set empty array as fallback
+      }
+
+      // Check if all operations failed
+      const allFailed = results.every(result => result.status === 'rejected');
+      if (allFailed) {
+        throw new Error('Failed to load all dashboard data');
+      }
+
+      // Show warning if some operations failed
+      const failedCount = results.filter(result => result.status === 'rejected').length;
+      if (failedCount > 0) {
+        toast.warning(`${failedCount} out of 3 data sections failed to load`);
+      }
+
+      setRetryCount(0); // Reset retry count on success
     } catch (error) {
       console.error('Error loading dashboard data:', error);
       const errorMessage = error instanceof Error ? error.message : 'Failed to load dashboard data';
       setError(errorMessage);
-      toast.error(errorMessage);
+      handleError(error, 'Admin Dashboard');
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleRetry = () => {
+    setRetryCount(prev => prev + 1);
+    loadDashboardData();
   };
 
   const handleUserAction = async (userId: string, action: 'suspend' | 'activate') => {
@@ -83,10 +136,17 @@ const AdminDashboard = () => {
       ));
       
       toast.success(`User ${action}d successfully`);
-      loadDashboardData();
+      
+      // Reload stats to reflect the change
+      try {
+        const newStats = await getAdminStats();
+        setStats(newStats);
+      } catch (error) {
+        console.error('Failed to reload stats after user action:', error);
+      }
     } catch (error) {
       console.error(`Error ${action}ing user:`, error);
-      toast.error(`Failed to ${action} user`);
+      handleError(error, `${action} User`);
     }
   };
 
@@ -96,11 +156,18 @@ const AdminDashboard = () => {
         await deleteBookListing(listingId);
         setListings(listings.filter(listing => listing.id !== listingId));
         toast.success('Listing deleted successfully');
+        
+        // Reload stats to reflect the change
+        try {
+          const newStats = await getAdminStats();
+          setStats(newStats);
+        } catch (error) {
+          console.error('Failed to reload stats after listing deletion:', error);
+        }
       }
-      loadDashboardData();
     } catch (error) {
       console.error(`Error ${action}ing listing:`, error);
-      toast.error(`Failed to ${action} listing`);
+      handleError(error, `${action} Listing`);
     }
   };
 
@@ -114,24 +181,19 @@ const AdminDashboard = () => {
       await sendBroadcastMessage(broadcastMessage);
       toast.success(`Broadcast message sent to all ${stats.totalUsers} users`);
       setBroadcastMessage('');
-      
-      loadDashboardData();
     } catch (error) {
       console.error('Error sending broadcast:', error);
-      toast.error('Failed to send broadcast message');
+      handleError(error, 'Send Broadcast');
     }
   };
 
-  if (error) {
+  if (error && retryCount < 3) {
     return (
       <ErrorFallback 
         error={new Error(error)}
-        resetError={() => {
-          setError(null);
-          loadDashboardData();
-        }}
+        resetError={handleRetry}
         title="Dashboard Error"
-        description="Failed to load admin dashboard. Please try again."
+        description="Failed to load admin dashboard. Click 'Try Again' to retry."
       />
     );
   }
@@ -139,7 +201,7 @@ const AdminDashboard = () => {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+        <LoadingSpinner size="lg" text="Loading admin dashboard..." />
       </div>
     );
   }
@@ -163,6 +225,11 @@ const AdminDashboard = () => {
           </TabsTrigger>
           <TabsTrigger value="listings" className={isMobile ? 'text-xs px-2 py-2' : ''}>
             {isMobile ? 'Listings' : 'Listings'}
+            {listings.length > 0 && (
+              <span className="ml-1 bg-green-500 text-white text-xs rounded-full px-1">
+                {listings.length}
+              </span>
+            )}
           </TabsTrigger>
           <TabsTrigger value="contact" className={isMobile ? 'text-xs px-2 py-2' : ''}>
             {isMobile ? 'Contact' : 'Contact Messages'}

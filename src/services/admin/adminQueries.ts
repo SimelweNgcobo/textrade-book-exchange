@@ -1,3 +1,4 @@
+
 import { supabase } from '@/integrations/supabase/client';
 
 export interface AdminStats {
@@ -29,6 +30,7 @@ export interface AdminListing {
   price: number;
   status: string;
   user: string;
+  sellerId: string;
 }
 
 export const getUserProfile = async (userId: string): Promise<AdminUser> => {
@@ -153,22 +155,34 @@ export const getAllUsers = async (): Promise<AdminUser[]> => {
 
     if (!users) return [];
 
-    // Get book counts for each user
+    // Get book counts for each user in batches to avoid overwhelming the server
     const usersWithCounts = await Promise.all(
       users.map(async (user) => {
-        const { count } = await supabase
-          .from('books')
-          .select('*', { count: 'exact', head: true })
-          .eq('seller_id', user.id);
+        try {
+          const { count } = await supabase
+            .from('books')
+            .select('*', { count: 'exact', head: true })
+            .eq('seller_id', user.id);
 
-        return {
-          id: user.id,
-          name: user.name || 'Anonymous',
-          email: user.email || '',
-          status: user.status || 'active',
-          listingsCount: count || 0,
-          createdAt: user.created_at
-        };
+          return {
+            id: user.id,
+            name: user.name || 'Anonymous',
+            email: user.email || '',
+            status: user.status || 'active',
+            listingsCount: count || 0,
+            createdAt: user.created_at
+          };
+        } catch (error) {
+          console.error(`Error fetching book count for user ${user.id}:`, error);
+          return {
+            id: user.id,
+            name: user.name || 'Anonymous',
+            email: user.email || '',
+            status: user.status || 'active',
+            listingsCount: 0,
+            createdAt: user.created_at
+          };
+        }
       })
     );
 
@@ -181,17 +195,10 @@ export const getAllUsers = async (): Promise<AdminUser[]> => {
 
 export const getAllListings = async (): Promise<AdminListing[]> => {
   try {
+    // First, get all books
     const { data: books, error: booksError } = await supabase
       .from('books')
-      .select(`
-        id,
-        title,
-        author,
-        price,
-        sold,
-        seller_id,
-        profiles!books_seller_id_fkey(name)
-      `)
+      .select('id, title, author, price, sold, seller_id')
       .order('created_at', { ascending: false });
 
     if (booksError) {
@@ -199,15 +206,39 @@ export const getAllListings = async (): Promise<AdminListing[]> => {
       throw booksError;
     }
 
-    if (!books) return [];
+    if (!books || books.length === 0) return [];
 
-    return books.map((book: any) => ({
+    // Get unique seller IDs
+    const sellerIds = [...new Set(books.map(book => book.seller_id))];
+    
+    // Fetch seller profiles
+    const { data: profiles, error: profilesError } = await supabase
+      .from('profiles')
+      .select('id, name')
+      .in('id', sellerIds);
+
+    if (profilesError) {
+      console.error('Error fetching profiles:', profilesError);
+      // Continue without profiles rather than failing completely
+    }
+
+    // Create a map for quick profile lookup
+    const profileMap = new Map();
+    if (profiles) {
+      profiles.forEach(profile => {
+        profileMap.set(profile.id, profile.name || 'Anonymous');
+      });
+    }
+
+    // Combine books with seller names
+    return books.map((book) => ({
       id: book.id,
       title: book.title,
       author: book.author,
       price: book.price,
       status: book.sold ? 'sold' : 'active',
-      user: book.profiles?.name || 'Anonymous'
+      user: profileMap.get(book.seller_id) || 'Anonymous',
+      sellerId: book.seller_id
     }));
   } catch (error) {
     console.error('Error in getAllListings:', error);

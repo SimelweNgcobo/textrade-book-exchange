@@ -4,22 +4,87 @@ import Layout from '@/components/Layout';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import AdminDashboard from '@/components/AdminDashboard';
-import { ArrowLeft, Flag } from 'lucide-react';
+import { ArrowLeft, Flag, Shield } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
+import LoadingSpinner from '@/components/LoadingSpinner';
+import AppErrorBoundary from '@/components/AppErrorBoundary';
 
 const Admin = () => {
-  const { user, profile } = useAuth();
+  const { user, profile, isLoading, isAuthenticated, isAdmin } = useAuth();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
 
-  // Redirect if not admin
-  if (!user || !profile?.isAdmin) {
+  // Show loading state while authentication is being checked
+  if (isLoading) {
     return (
       <Layout>
         <div className="container mx-auto px-4 py-8">
-          <div className="text-center">
-            <h2 className="text-2xl font-semibold mb-4">Access Denied</h2>
-            <p className="text-gray-600">You do not have permission to view this page.</p>
+          <LoadingSpinner size="lg" text="Checking admin access..." />
+        </div>
+      </Layout>
+    );
+  }
+
+  // Show access denied for non-authenticated users
+  if (!isAuthenticated || !user) {
+    return (
+      <Layout>
+        <div className="container mx-auto px-4 py-8">
+          <div className="text-center max-w-md mx-auto">
+            <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Shield className="h-8 w-8 text-red-600" />
+            </div>
+            <h2 className="text-2xl font-semibold mb-4">Authentication Required</h2>
+            <p className="text-gray-600 mb-6">You must be logged in to access the admin dashboard.</p>
+            <div className="space-y-3">
+              <Button 
+                onClick={() => navigate('/login')}
+                className="w-full"
+              >
+                Log In
+              </Button>
+              <Button 
+                variant="outline"
+                onClick={() => navigate('/')}
+                className="w-full"
+              >
+                Go Home
+              </Button>
+            </div>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
+
+  // Show access denied for non-admin users
+  if (!isAdmin) {
+    return (
+      <Layout>
+        <div className="container mx-auto px-4 py-8">
+          <div className="text-center max-w-md mx-auto">
+            <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Shield className="h-8 w-8 text-orange-600" />
+            </div>
+            <h2 className="text-2xl font-semibold mb-4">Admin Access Required</h2>
+            <p className="text-gray-600 mb-6">
+              You do not have administrator privileges to access this page.
+            </p>
+            <div className="space-y-3">
+              <Button 
+                onClick={() => navigate('/profile')}
+                className="w-full"
+              >
+                Go to Profile
+              </Button>
+              <Button 
+                variant="outline"
+                onClick={() => navigate('/')}
+                className="w-full"
+              >
+                Go Home
+              </Button>
+            </div>
           </div>
         </div>
       </Layout>
@@ -39,7 +104,10 @@ const Admin = () => {
             >
               <ArrowLeft className="mr-2 h-4 w-4" /> Back to Home
             </Button>
-            <h1 className="text-xl md:text-3xl font-bold text-book-800">Admin Dashboard</h1>
+            <div className="flex items-center space-x-2">
+              <Shield className="h-5 w-5 text-book-600" />
+              <h1 className="text-xl md:text-3xl font-bold text-book-800">Admin Dashboard</h1>
+            </div>
           </div>
           
           <Button 
@@ -54,7 +122,9 @@ const Admin = () => {
         </div>
 
         <div className="bg-white rounded-lg shadow-md p-3 md:p-6">
-          <AdminDashboard />
+          <AppErrorBoundary>
+            <AdminDashboard />
+          </AppErrorBoundary>
         </div>
       </div>
     </Layout>

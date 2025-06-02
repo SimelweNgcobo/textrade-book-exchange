@@ -47,13 +47,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [profileLoading, setProfileLoading] = useState(false);
   const { handleError } = useErrorHandler();
 
   const isAuthenticated = !!user;
   const isAdmin = profile?.isAdmin ?? false;
 
-  const fetchProfile = async (userId: string): Promise<Profile | null> => {
+  const fetchProfile = async (userId: string, retryCount = 0): Promise<Profile | null> => {
     try {
+      setProfileLoading(true);
+      console.log(`Fetching profile for user: ${userId} (attempt ${retryCount + 1})`);
+      
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
@@ -68,7 +72,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         throw error;
       }
 
-      return {
+      const profileData = {
         id: data.id,
         name: data.name || '',
         email: data.email || '',
@@ -77,9 +81,22 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         profile_picture_url: data.profile_picture_url,
         bio: data.bio,
       };
+
+      console.log('Profile fetched successfully:', profileData);
+      return profileData;
     } catch (error) {
       console.error('Error fetching profile:', error);
+      
+      // Retry logic for transient errors
+      if (retryCount < 2) {
+        console.log(`Retrying profile fetch (${retryCount + 1}/3)...`);
+        await new Promise(resolve => setTimeout(resolve, 1000 * (retryCount + 1)));
+        return fetchProfile(userId, retryCount + 1);
+      }
+      
       return null;
+    } finally {
+      setProfileLoading(false);
     }
   };
 
@@ -92,9 +109,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   useEffect(() => {
     let mounted = true;
+    let profileFetchTimeout: NodeJS.Timeout;
 
     const initializeAuth = async () => {
       try {
+        console.log('Initializing auth...');
         setIsLoading(true);
         
         // Set up auth state listener
@@ -108,20 +127,26 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             setUser(currentSession?.user ?? null);
 
             if (currentSession?.user) {
-              // Fetch profile data for authenticated user
-              setTimeout(async () => {
+              // Clear any existing timeout
+              if (profileFetchTimeout) {
+                clearTimeout(profileFetchTimeout);
+              }
+              
+              // Delay profile fetch to avoid race conditions
+              profileFetchTimeout = setTimeout(async () => {
                 if (mounted) {
                   const profileData = await fetchProfile(currentSession.user.id);
                   if (mounted) {
                     setProfile(profileData);
                   }
                 }
-              }, 0);
+              }, 100);
             } else {
               setProfile(null);
+              setProfileLoading(false);
             }
 
-            if (mounted) {
+            if (mounted && !profileLoading) {
               setIsLoading(false);
             }
           }
@@ -133,6 +158,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         if (error) {
           console.error('Error getting initial session:', error);
         } else if (initialSession && mounted) {
+          console.log('Found existing session');
           setSession(initialSession);
           setUser(initialSession.user);
           
@@ -148,6 +174,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
         return () => {
           subscription.unsubscribe();
+          if (profileFetchTimeout) {
+            clearTimeout(profileFetchTimeout);
+          }
         };
       } catch (error) {
         console.error('Error initializing auth:', error);
@@ -161,6 +190,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     return () => {
       mounted = false;
+      if (profileFetchTimeout) {
+        clearTimeout(profileFetchTimeout);
+      }
     };
   }, []);
 
@@ -182,6 +214,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           errorMessage = 'Invalid email or password';
         } else if (error.message.includes('Email not confirmed')) {
           errorMessage = 'Please check your email and click the confirmation link';
+        } else if (error.message.includes('Too many requests')) {
+          errorMessage = 'Too many login attempts. Please try again later.';
         } else {
           errorMessage = error.message;
         }
@@ -226,6 +260,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         let errorMessage = 'Registration failed';
         if (error.message.includes('already registered')) {
           errorMessage = 'This email is already registered. Please try logging in instead.';
+        } else if (error.message.includes('Password should be')) {
+          errorMessage = 'Password must be at least 6 characters long';
         } else {
           errorMessage = error.message;
         }
@@ -281,7 +317,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     user,
     profile,
     session,
-    isLoading,
+    isLoading: isLoading || profileLoading,
     isAuthenticated,
     isAdmin,
     login,

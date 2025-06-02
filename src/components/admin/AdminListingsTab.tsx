@@ -11,7 +11,7 @@ import {
   TableHeader, 
   TableRow 
 } from '@/components/ui/table';
-import { AdminListing } from '@/services/adminService';
+import { AdminListing } from '@/services/admin/adminQueries';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 interface AdminListingsTabProps {
@@ -22,11 +22,27 @@ interface AdminListingsTabProps {
 const AdminListingsTab = ({ listings, onListingAction }: AdminListingsTabProps) => {
   const isMobile = useIsMobile();
 
+  if (!listings || listings.length === 0) {
+    return (
+      <Card>
+        <CardHeader className="pb-4">
+          <CardTitle className="text-lg md:text-xl">Book Listings Management</CardTitle>
+          <CardDescription className="text-sm">No listings found at the moment</CardDescription>
+        </CardHeader>
+        <CardContent className="text-center py-8">
+          <p className="text-gray-500">No book listings to display</p>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
     <Card>
       <CardHeader className="pb-4">
         <CardTitle className="text-lg md:text-xl">Book Listings Management</CardTitle>
-        <CardDescription className="text-sm">All listings are auto-approved and go live immediately</CardDescription>
+        <CardDescription className="text-sm">
+          All listings are auto-approved and go live immediately ({listings.length} total)
+        </CardDescription>
       </CardHeader>
       <CardContent className="p-0 md:p-6">
         <div className="overflow-x-auto">
@@ -44,15 +60,21 @@ const AdminListingsTab = ({ listings, onListingAction }: AdminListingsTabProps) 
             <TableBody>
               {listings.map((listing) => (
                 <TableRow key={listing.id}>
-                  <TableCell className="text-xs md:text-sm font-medium">{listing.title}</TableCell>
-                  <TableCell className="text-xs md:text-sm">{listing.author}</TableCell>
+                  <TableCell className="text-xs md:text-sm font-medium max-w-[150px] truncate">
+                    {listing.title}
+                  </TableCell>
+                  <TableCell className="text-xs md:text-sm max-w-[120px] truncate">
+                    {listing.author}
+                  </TableCell>
                   <TableCell className="text-xs md:text-sm">R{listing.price}</TableCell>
                   <TableCell>
                     <Badge variant={listing.status === 'active' ? 'default' : 'secondary'} className="text-xs">
                       {listing.status}
                     </Badge>
                   </TableCell>
-                  <TableCell className="text-xs md:text-sm">{listing.user}</TableCell>
+                  <TableCell className="text-xs md:text-sm max-w-[120px] truncate">
+                    {listing.user}
+                  </TableCell>
                   <TableCell className="text-right">
                     <Button
                       size="sm"
