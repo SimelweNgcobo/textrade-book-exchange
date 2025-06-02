@@ -1,113 +1,76 @@
 
 import { supabase } from '@/integrations/supabase/client';
 
-export const suspendUser = async (userId: string): Promise<void> => {
+export const updateUserStatus = async (userId: string, status: string): Promise<void> => {
   try {
     const { error } = await supabase
       .from('profiles')
-      .update({ status: 'suspended' })
+      .update({ 
+        status,
+        updated_at: new Date().toISOString()
+      })
       .eq('id', userId);
 
     if (error) {
-      console.error('Error suspending user:', error);
+      console.error('Error updating user status:', error);
       throw error;
     }
   } catch (error) {
-    console.error('Error in suspendUser:', error);
-    throw error;
+    console.error('Error in updateUserStatus:', error);
+    throw new Error('Failed to update user status');
   }
 };
 
-export const activateUser = async (userId: string): Promise<void> => {
+export const deleteBookListing = async (bookId: string): Promise<void> => {
   try {
-    const { error } = await supabase
-      .from('profiles')
-      .update({ status: 'active' })
-      .eq('id', userId);
-
-    if (error) {
-      console.error('Error activating user:', error);
-      throw error;
-    }
-  } catch (error) {
-    console.error('Error in activateUser:', error);
-    throw error;
-  }
-};
-
-export const updateUserStatus = async (userId: string, status: 'active' | 'suspended'): Promise<void> => {
-  if (status === 'suspended') {
-    return suspendUser(userId);
-  } else {
-    return activateUser(userId);
-  }
-};
-
-export const removeBook = async (bookId: string): Promise<void> => {
-  try {
-    // Get book details for notification
-    const { data: book } = await supabase
-      .from('books')
-      .select('title, seller_id')
-      .eq('id', bookId)
-      .single();
-
     const { error } = await supabase
       .from('books')
       .delete()
       .eq('id', bookId);
 
     if (error) {
-      console.error('Error removing book:', error);
+      console.error('Error deleting book:', error);
       throw error;
     }
-
-    // Send notification to seller
-    if (book) {
-      try {
-        const { addNotification } = await import('@/services/notificationService');
-        await addNotification({
-          userId: book.seller_id,
-          title: 'Book Listing Removed',
-          message: `Your book listing for "${book.title}" was removed by an administrator. If you believe this was done in error, please contact support.`,
-          type: 'warning',
-          read: false
-        });
-      } catch (notificationError) {
-        console.error('Error sending notification:', notificationError);
-      }
-    }
   } catch (error) {
-    console.error('Error in removeBook:', error);
-    throw error;
+    console.error('Error in deleteBookListing:', error);
+    throw new Error('Failed to delete book listing');
   }
 };
 
 export const sendBroadcastMessage = async (message: string): Promise<void> => {
   try {
-    // Get all user IDs
-    const { data: profiles, error } = await supabase
+    // Get all users
+    const { data: users, error: usersError } = await supabase
       .from('profiles')
       .select('id');
 
-    if (error) {
-      throw error;
+    if (usersError) {
+      throw usersError;
     }
 
-    // Send notification to all users
-    const { addNotification } = await import('@/services/notificationService');
-    
-    for (const profile of profiles || []) {
-      await addNotification({
-        userId: profile.id,
-        title: 'Admin Announcement',
-        message: message,
-        type: 'info',
-        read: false
-      });
+    if (!users || users.length === 0) {
+      throw new Error('No users found');
+    }
+
+    // Create notifications for all users
+    const notifications = users.map(user => ({
+      user_id: user.id,
+      title: 'System Announcement',
+      message: message,
+      type: 'system'
+    }));
+
+    const { error: notificationError } = await supabase
+      .from('notifications')
+      .insert(notifications);
+
+    if (notificationError) {
+      console.error('Error creating notifications:', notificationError);
+      throw notificationError;
     }
   } catch (error) {
-    console.error('Error sending broadcast message:', error);
-    throw error;
+    console.error('Error in sendBroadcastMessage:', error);
+    throw new Error('Failed to send broadcast message');
   }
 };

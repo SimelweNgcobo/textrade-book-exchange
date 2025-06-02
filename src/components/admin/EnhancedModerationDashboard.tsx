@@ -16,6 +16,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import ReportFilters from './reports/ReportFilters';
 import ReportActions from './reports/ReportActions';
+import ErrorFallback from '@/components/ErrorFallback';
 
 interface Report {
   id: string;
@@ -33,6 +34,7 @@ const EnhancedModerationDashboard = () => {
   const [reports, setReports] = useState<Report[]>([]);
   const [filteredReports, setFilteredReports] = useState<Report[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'pending' | 'resolved' | 'dismissed' | 'suspended' | 'all'>('pending');
   const [actionReason, setActionReason] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -69,6 +71,7 @@ const EnhancedModerationDashboard = () => {
 
   const loadReports = async () => {
     try {
+      setError(null);
       const { data, error } = await supabase
         .from('reports')
         .select('*')
@@ -76,8 +79,7 @@ const EnhancedModerationDashboard = () => {
 
       if (error) {
         console.error('Error loading reports:', error);
-        toast.error('Failed to load reports');
-        return;
+        throw new Error(`Failed to load reports: ${error.message}`);
       }
 
       const typedReports: Report[] = (data || []).map(report => ({
@@ -88,7 +90,9 @@ const EnhancedModerationDashboard = () => {
       setReports(typedReports);
     } catch (error) {
       console.error('Error in loadReports:', error);
-      toast.error('Failed to load reports');
+      const errorMessage = error instanceof Error ? error.message : 'Failed to load reports';
+      setError(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -127,14 +131,15 @@ const EnhancedModerationDashboard = () => {
 
       if (error) {
         console.error('Error updating report:', error);
-        toast.error('Failed to update report status');
-        return;
+        throw new Error(`Failed to update report: ${error.message}`);
       }
 
       toast.success(`Report ${status} successfully`);
+      loadReports();
     } catch (error) {
       console.error('Error in updateReportStatus:', error);
-      toast.error('Failed to update report status');
+      const errorMessage = error instanceof Error ? error.message : 'Failed to update report status';
+      toast.error(errorMessage);
     }
   };
 
@@ -154,15 +159,16 @@ const EnhancedModerationDashboard = () => {
 
       if (profileError) {
         console.error('Error updating user status:', profileError);
-        toast.error(`Failed to ${action} user`);
-        return;
+        throw new Error(`Failed to ${action} user: ${profileError.message}`);
       }
 
       toast.success(`User ${action === 'ban' ? 'banned' : 'suspended'} successfully`);
       setActionReason('');
+      loadReports();
     } catch (error) {
       console.error(`Error ${action}ing user:`, error);
-      toast.error(`Failed to ${action} user`);
+      const errorMessage = error instanceof Error ? error.message : `Failed to ${action} user`;
+      toast.error(errorMessage);
     } finally {
       setIsSubmitting(false);
     }
@@ -179,6 +185,20 @@ const EnhancedModerationDashboard = () => {
     if (reportCount >= 2) return 'Medium';
     return 'Low';
   };
+
+  if (error) {
+    return (
+      <ErrorFallback 
+        error={new Error(error)}
+        resetError={() => {
+          setError(null);
+          loadReports();
+        }}
+        title="Reports Error"
+        description="Failed to load reports. Please try again."
+      />
+    );
+  }
 
   if (isLoading) {
     return (
@@ -246,7 +266,9 @@ const EnhancedModerationDashboard = () => {
                         </div>
                       </TableCell>
                       <TableCell className="font-medium">
-                        {report.book_id ? report.book_title : report.seller_name}
+                        <div className="max-w-[150px] truncate">
+                          {report.book_id ? report.book_title : report.seller_name}
+                        </div>
                       </TableCell>
                       <TableCell className="text-sm text-gray-600">
                         N/A

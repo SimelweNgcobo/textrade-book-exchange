@@ -5,14 +5,16 @@ import { toast } from 'sonner';
 import { 
   getAdminStats, 
   getAllUsers, 
-  getAllListings, 
-  updateUserStatus,
-  deleteBookListing,
-  sendBroadcastMessage,
+  getAllListings,
   AdminStats as AdminStatsType,
   AdminUser,
   AdminListing
-} from '@/services/adminService';
+} from '@/services/admin/adminQueries';
+import { 
+  updateUserStatus,
+  deleteBookListing,
+  sendBroadcastMessage
+} from '@/services/admin/adminMutations';
 import { useIsMobile } from '@/hooks/use-mobile';
 import AdminStats from '@/components/admin/AdminStats';
 import AdminEarningsTab from '@/components/admin/AdminEarningsTab';
@@ -20,6 +22,7 @@ import AdminUsersTab from '@/components/admin/AdminUsersTab';
 import AdminListingsTab from '@/components/admin/AdminListingsTab';
 import AdminSettingsTab from '@/components/admin/AdminSettingsTab';
 import AdminContactTab from '@/components/admin/AdminContactTab';
+import ErrorFallback from '@/components/ErrorFallback';
 
 const AdminDashboard = () => {
   const isMobile = useIsMobile();
@@ -40,6 +43,7 @@ const AdminDashboard = () => {
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [listings, setListings] = useState<AdminListing[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [broadcastMessage, setBroadcastMessage] = useState('');
 
   useEffect(() => {
@@ -48,18 +52,22 @@ const AdminDashboard = () => {
 
   const loadDashboardData = async () => {
     setIsLoading(true);
+    setError(null);
     try {
-      const adminStats = await getAdminStats();
+      const [adminStats, usersData, listingsData] = await Promise.all([
+        getAdminStats(),
+        getAllUsers(),
+        getAllListings()
+      ]);
+
       setStats(adminStats);
-
-      const users = await getAllUsers();
-      setUsers(users);
-
-      const listings = await getAllListings();
-      setListings(listings);
+      setUsers(usersData);
+      setListings(listingsData);
     } catch (error) {
       console.error('Error loading dashboard data:', error);
-      toast.error('Failed to load dashboard data');
+      const errorMessage = error instanceof Error ? error.message : 'Failed to load dashboard data';
+      setError(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -113,6 +121,20 @@ const AdminDashboard = () => {
       toast.error('Failed to send broadcast message');
     }
   };
+
+  if (error) {
+    return (
+      <ErrorFallback 
+        error={new Error(error)}
+        resetError={() => {
+          setError(null);
+          loadDashboardData();
+        }}
+        title="Dashboard Error"
+        description="Failed to load admin dashboard. Please try again."
+      />
+    );
+  }
 
   if (isLoading) {
     return (

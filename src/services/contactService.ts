@@ -1,25 +1,33 @@
 
 import { supabase } from '@/integrations/supabase/client';
 
-export interface ContactMessage {
-  id?: string;
+export interface ContactMessageData {
   name: string;
   email: string;
   subject: string;
   message: string;
-  status?: 'unread' | 'read';
-  created_at?: string;
 }
 
-export const submitContactMessage = async (contactData: Omit<ContactMessage, 'id' | 'created_at' | 'status'>): Promise<void> => {
+export interface ContactMessage {
+  id: string;
+  name: string;
+  email: string;
+  subject: string;
+  message: string;
+  status: 'unread' | 'read';
+  created_at: string;
+  updated_at: string;
+}
+
+export const submitContactMessage = async (messageData: ContactMessageData): Promise<void> => {
   try {
-    const { error } = await (supabase as any)
+    const { error } = await supabase
       .from('contact_messages')
       .insert({
-        name: contactData.name,
-        email: contactData.email,
-        subject: contactData.subject,
-        message: contactData.message,
+        name: messageData.name,
+        email: messageData.email,
+        subject: messageData.subject,
+        message: messageData.message,
         status: 'unread'
       });
 
@@ -29,13 +37,13 @@ export const submitContactMessage = async (contactData: Omit<ContactMessage, 'id
     }
   } catch (error) {
     console.error('Error in submitContactMessage:', error);
-    throw error;
+    throw new Error('Failed to submit contact message');
   }
 };
 
-export const getContactMessages = async (): Promise<ContactMessage[]> => {
+export const getAllContactMessages = async (): Promise<ContactMessage[]> => {
   try {
-    const { data, error } = await (supabase as any)
+    const { data, error } = await supabase
       .from('contact_messages')
       .select('*')
       .order('created_at', { ascending: false });
@@ -47,7 +55,27 @@ export const getContactMessages = async (): Promise<ContactMessage[]> => {
 
     return data || [];
   } catch (error) {
-    console.error('Error in getContactMessages:', error);
-    throw error;
+    console.error('Error in getAllContactMessages:', error);
+    throw new Error('Failed to fetch contact messages');
+  }
+};
+
+export const markMessageAsRead = async (messageId: string): Promise<void> => {
+  try {
+    const { error } = await supabase
+      .from('contact_messages')
+      .update({ 
+        status: 'read',
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', messageId);
+
+    if (error) {
+      console.error('Error marking message as read:', error);
+      throw error;
+    }
+  } catch (error) {
+    console.error('Error in markMessageAsRead:', error);
+    throw new Error('Failed to mark message as read');
   }
 };

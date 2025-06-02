@@ -60,7 +60,11 @@ const AdminUsersTab = ({ users, onUserAction }: AdminUsersTabProps) => {
                 {users.map((user) => (
                   <TableRow key={user.id}>
                     <TableCell className="text-xs md:text-sm font-medium">{user.name}</TableCell>
-                    <TableCell className="text-xs md:text-sm">{user.email}</TableCell>
+                    <TableCell className="text-xs md:text-sm">
+                      <div className="max-w-[150px] truncate">
+                        {user.email}
+                      </div>
+                    </TableCell>
                     <TableCell>
                       <Badge variant={user.status === 'active' ? 'default' : 'destructive'} className="text-xs">
                         {user.status}

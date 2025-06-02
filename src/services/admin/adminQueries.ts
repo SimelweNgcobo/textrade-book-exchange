@@ -19,8 +19,8 @@ export interface AdminUser {
   name: string;
   email: string;
   status: string;
-  createdAt: string;
   listingsCount: number;
+  createdAt: string;
 }
 
 export interface AdminListing {
@@ -28,108 +28,62 @@ export interface AdminListing {
   title: string;
   author: string;
   price: number;
-  condition: string;
   status: string;
   user: string;
-  seller: {
-    name: string;
-    email: string;
-  };
-  createdAt: string;
-  sold: boolean;
 }
-
-export const getUserProfile = async (userId: string): Promise<AdminUser | null> => {
-  try {
-    const { data: profile, error } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', userId)
-      .single();
-
-    if (error) {
-      console.error('Error fetching user profile:', error);
-      return null;
-    }
-
-    const { count } = await supabase
-      .from('books')
-      .select('*', { count: 'exact', head: true })
-      .eq('seller_id', userId);
-
-    return {
-      id: profile.id,
-      name: profile.name || 'Anonymous',
-      email: profile.email || '',
-      status: profile.status || 'active',
-      createdAt: profile.created_at,
-      listingsCount: count || 0
-    };
-  } catch (error) {
-    console.error('Error in getUserProfile:', error);
-    return null;
-  }
-};
 
 export const getAdminStats = async (): Promise<AdminStats> => {
   try {
-    // Get total users
+    // Get total users count
     const { count: totalUsers } = await supabase
       .from('profiles')
       .select('*', { count: 'exact', head: true });
 
-    // Get active listings
+    // Get active listings count
     const { count: activeListings } = await supabase
       .from('books')
       .select('*', { count: 'exact', head: true })
       .eq('sold', false);
 
-    // Get books sold
+    // Get sold books count
     const { count: booksSold } = await supabase
       .from('books')
       .select('*', { count: 'exact', head: true })
       .eq('sold', true);
 
-    // Get pending reports
+    // Get pending reports count
     const { count: pendingReports } = await supabase
       .from('reports')
       .select('*', { count: 'exact', head: true })
       .eq('status', 'pending');
 
-    // Get unread contact messages
+    // Get unread contact messages count
     const { count: unreadMessages } = await supabase
       .from('contact_messages')
       .select('*', { count: 'exact', head: true })
       .eq('status', 'unread');
 
-    // Get transactions for commission calculation
-    const { data: transactions } = await supabase
-      .from('transactions')
-      .select('commission, created_at');
-
-    const now = new Date();
-    const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-    const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
-
-    const weeklyCommission = transactions
-      ?.filter(t => new Date(t.created_at) >= weekAgo)
-      .reduce((sum, t) => sum + Number(t.commission), 0) || 0;
-
-    const monthlyCommission = transactions
-      ?.filter(t => new Date(t.created_at) >= monthAgo)
-      .reduce((sum, t) => sum + Number(t.commission), 0) || 0;
-
     // Get new users this week
+    const oneWeekAgo = new Date();
+    oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+    
     const { count: newUsersThisWeek } = await supabase
       .from('profiles')
       .select('*', { count: 'exact', head: true })
-      .gte('created_at', weekAgo.toISOString());
+      .gte('created_at', oneWeekAgo.toISOString());
 
     // Get sales this month
+    const startOfMonth = new Date();
+    startOfMonth.setDate(1);
+    
     const { count: salesThisMonth } = await supabase
       .from('transactions')
       .select('*', { count: 'exact', head: true })
-      .gte('created_at', monthAgo.toISOString());
+      .gte('created_at', startOfMonth.toISOString());
+
+    // Calculate commissions (mock data for now)
+    const weeklyCommission = (salesThisMonth || 0) * 0.1 * 50; // 10% commission, avg R50 per book
+    const monthlyCommission = weeklyCommission * 4;
 
     return {
       totalUsers: totalUsers || 0,
@@ -145,94 +99,82 @@ export const getAdminStats = async (): Promise<AdminStats> => {
     };
   } catch (error) {
     console.error('Error fetching admin stats:', error);
-    return {
-      totalUsers: 0,
-      activeListings: 0,
-      booksSold: 0,
-      reportedIssues: 0,
-      newUsersThisWeek: 0,
-      salesThisMonth: 0,
-      weeklyCommission: 0,
-      monthlyCommission: 0,
-      pendingReports: 0,
-      unreadMessages: 0
-    };
+    throw new Error('Failed to fetch admin statistics');
   }
 };
 
-export const getAdminUsers = async (): Promise<AdminUser[]> => {
+export const getAllUsers = async (): Promise<AdminUser[]> => {
   try {
-    const { data: profiles, error } = await supabase
+    const { data: users, error: usersError } = await supabase
       .from('profiles')
-      .select('*')
+      .select('id, name, email, status, created_at')
       .order('created_at', { ascending: false });
 
-    if (error) {
-      console.error('Error fetching users:', error);
-      return [];
+    if (usersError) {
+      console.error('Error fetching users:', usersError);
+      throw usersError;
     }
+
+    if (!users) return [];
 
     // Get book counts for each user
     const usersWithCounts = await Promise.all(
-      (profiles || []).map(async (profile) => {
+      users.map(async (user) => {
         const { count } = await supabase
           .from('books')
           .select('*', { count: 'exact', head: true })
-          .eq('seller_id', profile.id);
+          .eq('seller_id', user.id);
 
         return {
-          id: profile.id,
-          name: profile.name || 'Anonymous',
-          email: profile.email || '',
-          status: profile.status || 'active',
-          createdAt: profile.created_at,
-          listingsCount: count || 0
+          id: user.id,
+          name: user.name || 'Anonymous',
+          email: user.email || '',
+          status: user.status || 'active',
+          listingsCount: count || 0,
+          createdAt: user.created_at
         };
       })
     );
 
     return usersWithCounts;
   } catch (error) {
-    console.error('Error in getAdminUsers:', error);
-    return [];
+    console.error('Error in getAllUsers:', error);
+    throw new Error('Failed to fetch users');
   }
 };
 
-export const getAdminListings = async (): Promise<AdminListing[]> => {
+export const getAllListings = async (): Promise<AdminListing[]> => {
   try {
-    const { data: books, error } = await supabase
+    const { data: books, error: booksError } = await supabase
       .from('books')
       .select(`
-        *,
-        profiles!books_seller_id_fkey (
-          name,
-          email
-        )
+        id,
+        title,
+        author,
+        price,
+        sold,
+        seller_id,
+        profiles!books_seller_id_fkey(name)
       `)
       .order('created_at', { ascending: false });
 
-    if (error) {
-      console.error('Error fetching listings:', error);
-      return [];
+    if (booksError) {
+      console.error('Error fetching books:', booksError);
+      throw booksError;
     }
 
-    return (books || []).map(book => ({
+    if (!books) return [];
+
+    return books.map((book: any) => ({
       id: book.id,
       title: book.title,
       author: book.author,
       price: book.price,
-      condition: book.condition,
       status: book.sold ? 'sold' : 'active',
-      user: (book.profiles as any)?.name || 'Anonymous',
-      seller: {
-        name: (book.profiles as any)?.name || 'Anonymous',
-        email: (book.profiles as any)?.email || ''
-      },
-      createdAt: book.created_at,
-      sold: book.sold
+      user: book.profiles?.name || 'Anonymous'
     }));
   } catch (error) {
-    console.error('Error in getAdminListings:', error);
-    return [];
+    console.error('Error in getAllListings:', error);
+    throw new Error('Failed to fetch listings');
   }
 };
