@@ -99,7 +99,8 @@ const EditBook = () => {
         }
       } catch (error) {
         console.error('Error loading book data:', error);
-        setError('Failed to load book data');
+        const errorMessage = error instanceof Error ? error.message : 'Failed to load book data';
+        setError(errorMessage);
       } finally {
         setIsLoading(false);
       }

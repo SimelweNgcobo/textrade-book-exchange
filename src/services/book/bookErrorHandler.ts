@@ -19,6 +19,16 @@ export const handleBookServiceError = (error: any, operation: string): never => 
     throw new Error('Database configuration error. Please contact support.');
   }
   
-  // Generic error fallback
-  throw new Error(`Failed to ${operation}. Please try again later.`);
+  if (error?.code === 'PGRST200') {
+    throw new Error('Database relationship error. Please try again or contact support.');
+  }
+  
+  // Network and connection errors
+  if (error?.message?.includes('fetch') || error?.message?.includes('network')) {
+    throw new Error('Network error. Please check your connection and try again.');
+  }
+  
+  // Generic error fallback with more context
+  const errorMessage = error?.message || 'Unknown error occurred';
+  throw new Error(`Failed to ${operation}: ${errorMessage}. Please try again later.`);
 };

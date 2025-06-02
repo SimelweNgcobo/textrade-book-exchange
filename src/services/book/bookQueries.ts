@@ -9,16 +9,10 @@ export const getBooks = async (filters?: BookFilters): Promise<Book[]> => {
   try {
     console.log('Fetching books with filters:', filters);
     
+    // First get books
     let query = supabase
       .from('books')
-      .select(`
-        *,
-        profiles!books_seller_id_fkey (
-          id,
-          name,
-          email
-        )
-      `)
+      .select('*')
       .eq('sold', false)
       .order('created_at', { ascending: false });
 
@@ -47,33 +41,55 @@ export const getBooks = async (filters?: BookFilters): Promise<Book[]> => {
       }
     }
 
-    const { data, error } = await query;
+    const { data: booksData, error: booksError } = await query;
 
-    if (error) {
-      console.error('Supabase error:', error);
-      handleBookServiceError(error, 'fetch books');
+    if (booksError) {
+      console.error('Error fetching books:', booksError);
+      handleBookServiceError(booksError, 'fetch books');
     }
 
-    if (!data) {
-      console.log('No data returned from books query');
+    if (!booksData || booksData.length === 0) {
+      console.log('No books found');
       return [];
     }
 
-    console.log('Raw books data:', data);
+    // Get unique seller IDs
+    const sellerIds = [...new Set(booksData.map(book => book.seller_id))];
     
-    const books: Book[] = data.map((book: any) => {
+    // Fetch seller profiles separately
+    const { data: profilesData, error: profilesError } = await supabase
+      .from('profiles')
+      .select('id, name, email')
+      .in('id', sellerIds);
+
+    if (profilesError) {
+      console.error('Error fetching profiles:', profilesError);
+      // Continue without profile data rather than failing completely
+    }
+
+    // Create profiles map for efficient lookup
+    const profilesMap = new Map();
+    if (profilesData) {
+      profilesData.forEach(profile => {
+        profilesMap.set(profile.id, profile);
+      });
+    }
+
+    // Combine books with profile data
+    const books: Book[] = booksData.map((book: any) => {
+      const profile = profilesMap.get(book.seller_id);
       const bookData: BookQueryResult = {
         ...book,
-        profiles: book.profiles ? {
-          id: book.profiles.id,
-          name: book.profiles.name,
-          email: book.profiles.email
+        profiles: profile ? {
+          id: profile.id,
+          name: profile.name,
+          email: profile.email
         } : null
       };
       return mapBookFromDatabase(bookData);
     });
 
-    console.log('Processed books:', books);
+    console.log('Processed books:', books.length);
     return books;
   } catch (error) {
     console.error('Error in getBooks:', error);
@@ -85,41 +101,50 @@ export const getBookById = async (id: string): Promise<Book | null> => {
   try {
     console.log('Fetching book by ID:', id);
     
-    const { data: book, error } = await supabase
+    // Get book first
+    const { data: bookData, error: bookError } = await supabase
       .from('books')
-      .select(`
-        *,
-        profiles!books_seller_id_fkey (
-          id,
-          name,
-          email
-        )
-      `)
+      .select('*')
       .eq('id', id)
       .single();
 
-    if (error) {
-      console.error('Supabase error:', error);
-      handleBookServiceError(error, 'fetch book by ID');
+    if (bookError) {
+      console.error('Error fetching book:', bookError);
+      if (bookError.code === 'PGRST116') {
+        return null; // Book not found
+      }
+      handleBookServiceError(bookError, 'fetch book by ID');
     }
 
-    if (!book) {
+    if (!bookData) {
       console.log('No book found with ID:', id);
       return null;
     }
 
-    console.log('Found book:', book);
+    // Get seller profile separately
+    const { data: profileData, error: profileError } = await supabase
+      .from('profiles')
+      .select('id, name, email')
+      .eq('id', bookData.seller_id)
+      .single();
+
+    if (profileError) {
+      console.error('Error fetching seller profile:', profileError);
+      // Continue without profile data rather than failing
+    }
+
+    console.log('Found book:', bookData);
     
-    const bookData: BookQueryResult = {
-      ...book,
-      profiles: book.profiles ? {
-        id: book.profiles.id,
-        name: book.profiles.name,
-        email: book.profiles.email
+    const bookWithProfile: BookQueryResult = {
+      ...bookData,
+      profiles: profileData ? {
+        id: profileData.id,
+        name: profileData.name,
+        email: profileData.email
       } : null
     };
     
-    return mapBookFromDatabase(bookData);
+    return mapBookFromDatabase(bookWithProfile);
   } catch (error) {
     console.error('Error in getBookById:', error);
     handleBookServiceError(error, 'fetch book by ID');
@@ -130,38 +155,44 @@ export const getUserBooks = async (userId: string): Promise<Book[]> => {
   try {
     console.log('Fetching user books for ID:', userId);
     
-    const { data, error } = await supabase
+    // Get books for user
+    const { data: booksData, error: booksError } = await supabase
       .from('books')
-      .select(`
-        *,
-        profiles!books_seller_id_fkey (
-          id,
-          name,
-          email
-        )
-      `)
+      .select('*')
       .eq('seller_id', userId)
       .order('created_at', { ascending: false });
 
-    if (error) {
-      console.error('Supabase error:', error);
-      handleBookServiceError(error, 'fetch user books');
+    if (booksError) {
+      console.error('Error fetching user books:', booksError);
+      handleBookServiceError(booksError, 'fetch user books');
     }
 
-    if (!data) {
+    if (!booksData || booksData.length === 0) {
       console.log('No books found for user:', userId);
       return [];
     }
 
-    console.log('User books data:', data);
+    // Get user profile
+    const { data: profileData, error: profileError } = await supabase
+      .from('profiles')
+      .select('id, name, email')
+      .eq('id', userId)
+      .single();
+
+    if (profileError) {
+      console.error('Error fetching user profile:', profileError);
+      // Continue without profile data
+    }
+
+    console.log('User books data:', booksData.length);
     
-    return data.map((book: any) => {
+    return booksData.map((book: any) => {
       const bookData: BookQueryResult = {
         ...book,
-        profiles: book.profiles ? {
-          id: book.profiles.id,
-          name: book.profiles.name,
-          email: book.profiles.email
+        profiles: profileData ? {
+          id: profileData.id,
+          name: profileData.name,
+          email: profileData.email
         } : null
       };
       return mapBookFromDatabase(bookData);

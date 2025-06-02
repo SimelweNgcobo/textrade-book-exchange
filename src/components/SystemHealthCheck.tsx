@@ -1,54 +1,73 @@
 
 import { useState, useEffect } from 'react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { testDatabaseConnection, validateEnvironmentVariables } from '@/services/connectionTest';
+import { performHealthCheck } from '@/services/connectionTest';
 
 const SystemHealthCheck = () => {
-  const [dbStatus, setDbStatus] = useState<'checking' | 'connected' | 'error'>('checking');
-  const [envStatus, setEnvStatus] = useState<{ valid: boolean; missing: string[] }>({ valid: true, missing: [] });
+  const [healthStatus, setHealthStatus] = useState<{
+    database: boolean;
+    config: boolean;
+    errors: string[];
+    isLoading: boolean;
+  }>({
+    database: false,
+    config: false,
+    errors: [],
+    isLoading: true
+  });
 
   useEffect(() => {
     const checkSystemHealth = async () => {
-      // Check environment variables
-      const envCheck = validateEnvironmentVariables();
-      setEnvStatus(envCheck);
-      
-      // Check database connection
-      if (envCheck.valid) {
-        try {
-          const isConnected = await testDatabaseConnection();
-          setDbStatus(isConnected ? 'connected' : 'error');
-        } catch (error) {
-          console.error('Health check failed:', error);
-          setDbStatus('error');
-        }
-      } else {
-        setDbStatus('error');
+      try {
+        const health = await performHealthCheck();
+        setHealthStatus({
+          ...health,
+          isLoading: false
+        });
+      } catch (error) {
+        console.error('Health check failed:', error);
+        setHealthStatus({
+          database: false,
+          config: false,
+          errors: ['System health check failed'],
+          isLoading: false
+        });
       }
     };
 
     checkSystemHealth();
   }, []);
 
-  if (!envStatus.valid) {
+  if (healthStatus.isLoading) {
+    return (
+      <div className="flex items-center gap-2 text-sm text-gray-600 mb-4">
+        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
+        Checking system health...
+      </div>
+    );
+  }
+
+  if (healthStatus.errors.length > 0) {
     return (
       <Alert variant="destructive" className="mb-4">
-        <AlertTitle>Configuration Error</AlertTitle>
+        <AlertTitle>System Error</AlertTitle>
         <AlertDescription>
-          Missing environment variables: {envStatus.missing.join(', ')}
+          {healthStatus.errors.map((error, index) => (
+            <div key={index}>{error}</div>
+          ))}
           <br />
-          Please check your Supabase configuration.
+          Please check your configuration and try again.
         </AlertDescription>
       </Alert>
     );
   }
 
-  if (dbStatus === 'error') {
+  if (!healthStatus.database || !healthStatus.config) {
     return (
       <Alert variant="destructive" className="mb-4">
-        <AlertTitle>Database Connection Error</AlertTitle>
+        <AlertTitle>System Unavailable</AlertTitle>
         <AlertDescription>
-          Unable to connect to the database. Please check your Supabase configuration and try again.
+          The system is currently experiencing issues. Please try again later.
         </AlertDescription>
       </Alert>
     );

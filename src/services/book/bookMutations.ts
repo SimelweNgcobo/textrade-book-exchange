@@ -1,6 +1,9 @@
 
 import { supabase } from '@/integrations/supabase/client';
 import { Book, BookFormData } from '@/types/book';
+import { mapBookFromDatabase } from './bookMapper';
+import { handleBookServiceError } from './bookErrorHandler';
+import { BookQueryResult } from './bookTypes';
 
 export const createBook = async (bookData: BookFormData): Promise<Book> => {
   try {
@@ -9,8 +12,6 @@ export const createBook = async (bookData: BookFormData): Promise<Book> => {
     if (!user) {
       throw new Error('User not authenticated');
     }
-
-    console.log('Creating book with data:', bookData);
 
     const { data: book, error } = await supabase
       .from('books')
@@ -36,10 +37,8 @@ export const createBook = async (bookData: BookFormData): Promise<Book> => {
 
     if (error) {
       console.error('Error creating book:', error);
-      throw new Error(`Failed to create book: ${error.message}`);
+      handleBookServiceError(error, 'create book');
     }
-
-    console.log('Book created successfully:', book);
 
     // Fetch seller profile
     const { data: seller } = await supabase
@@ -48,47 +47,29 @@ export const createBook = async (bookData: BookFormData): Promise<Book> => {
       .eq('id', user.id)
       .single();
 
-    return {
-      id: book.id,
-      title: book.title,
-      author: book.author,
-      description: book.description,
-      price: book.price,
-      category: book.category,
-      condition: book.condition as "New" | "Good" | "Better" | "Average" | "Below Average",
-      imageUrl: book.image_url || book.front_cover || 'https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=400&h=300&fit=crop&auto=format&q=80',
-      frontCover: book.front_cover,
-      backCover: book.back_cover,
-      insidePages: book.inside_pages,
-      sold: book.sold,
-      createdAt: book.created_at,
-      grade: book.grade,
-      universityYear: book.university_year,
-      seller: {
-        id: seller?.id || '',
-        name: seller?.name || 'Anonymous',
-        email: seller?.email || ''
-      }
+    const bookWithProfile: BookQueryResult = {
+      ...book,
+      profiles: seller ? {
+        id: seller.id,
+        name: seller.name,
+        email: seller.email
+      } : null
     };
+
+    return mapBookFromDatabase(bookWithProfile);
   } catch (error) {
     console.error('Error in createBook:', error);
-    throw error;
+    handleBookServiceError(error, 'create book');
   }
 };
 
 export const updateBook = async (bookId: string, bookData: Partial<BookFormData>): Promise<Book | null> => {
   try {
-    if (!bookId) {
-      throw new Error('Book ID is required');
-    }
-
     const { data: { user } } = await supabase.auth.getUser();
     
     if (!user) {
       throw new Error('User not authenticated');
     }
-
-    console.log('Updating book:', bookId, 'with data:', bookData);
 
     // First verify the user owns this book
     const { data: existingBook, error: fetchError } = await supabase
@@ -97,17 +78,12 @@ export const updateBook = async (bookId: string, bookData: Partial<BookFormData>
       .eq('id', bookId)
       .single();
 
-    if (fetchError) {
-      console.error('Book fetch error:', fetchError);
-      throw new Error('Book not found');
-    }
-
-    if (!existingBook) {
+    if (fetchError || !existingBook) {
       throw new Error('Book not found');
     }
 
     if (existingBook.seller_id !== user.id) {
-      throw new Error('You are not authorized to edit this book');
+      throw new Error('User not authorized to edit this book');
     }
 
     const updateData: any = {};
@@ -125,8 +101,6 @@ export const updateBook = async (bookId: string, bookData: Partial<BookFormData>
     if (bookData.grade !== undefined) updateData.grade = bookData.grade;
     if (bookData.universityYear !== undefined) updateData.university_year = bookData.universityYear;
 
-    console.log('Update data:', updateData);
-
     const { data: book, error } = await supabase
       .from('books')
       .update(updateData)
@@ -136,10 +110,8 @@ export const updateBook = async (bookId: string, bookData: Partial<BookFormData>
 
     if (error) {
       console.error('Error updating book:', error);
-      throw new Error(`Failed to update book: ${error.message}`);
+      handleBookServiceError(error, 'update book');
     }
-
-    console.log('Book updated successfully:', book);
 
     // Fetch seller profile
     const { data: seller } = await supabase
@@ -148,47 +120,29 @@ export const updateBook = async (bookId: string, bookData: Partial<BookFormData>
       .eq('id', book.seller_id)
       .single();
 
-    return {
-      id: book.id,
-      title: book.title,
-      author: book.author,
-      description: book.description,
-      price: book.price,
-      category: book.category,
-      condition: book.condition as "New" | "Good" | "Better" | "Average" | "Below Average",
-      imageUrl: book.image_url || book.front_cover || 'https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=400&h=300&fit=crop&auto=format&q=80',
-      frontCover: book.front_cover,
-      backCover: book.back_cover,
-      insidePages: book.inside_pages,
-      sold: book.sold,
-      createdAt: book.created_at,
-      grade: book.grade,
-      universityYear: book.university_year,
-      seller: {
-        id: seller?.id || '',
-        name: seller?.name || 'Anonymous',
-        email: seller?.email || ''
-      }
+    const bookWithProfile: BookQueryResult = {
+      ...book,
+      profiles: seller ? {
+        id: seller.id,
+        name: seller.name,
+        email: seller.email
+      } : null
     };
+
+    return mapBookFromDatabase(bookWithProfile);
   } catch (error) {
     console.error('Error in updateBook:', error);
-    throw error;
+    handleBookServiceError(error, 'update book');
   }
 };
 
 export const deleteBook = async (bookId: string): Promise<void> => {
   try {
-    if (!bookId) {
-      throw new Error('Book ID is required');
-    }
-
     const { data: { user } } = await supabase.auth.getUser();
     
     if (!user) {
       throw new Error('User not authenticated');
     }
-
-    console.log('Deleting book:', bookId);
 
     // First verify the user owns this book or is an admin
     const { data: existingBook, error: fetchError } = await supabase
@@ -197,12 +151,7 @@ export const deleteBook = async (bookId: string): Promise<void> => {
       .eq('id', bookId)
       .single();
 
-    if (fetchError) {
-      console.error('Book fetch error:', fetchError);
-      throw new Error('Book not found');
-    }
-
-    if (!existingBook) {
+    if (fetchError || !existingBook) {
       throw new Error('Book not found');
     }
 
@@ -217,7 +166,7 @@ export const deleteBook = async (bookId: string): Promise<void> => {
     const isOwner = existingBook.seller_id === user.id;
 
     if (!isAdmin && !isOwner) {
-      throw new Error('You are not authorized to delete this book');
+      throw new Error('User not authorized to delete this book');
     }
 
     const { error } = await supabase
@@ -227,12 +176,10 @@ export const deleteBook = async (bookId: string): Promise<void> => {
 
     if (error) {
       console.error('Error deleting book:', error);
-      throw new Error(`Failed to delete book: ${error.message}`);
+      handleBookServiceError(error, 'delete book');
     }
-
-    console.log('Book deleted successfully');
   } catch (error) {
     console.error('Error in deleteBook:', error);
-    throw error;
+    handleBookServiceError(error, 'delete book');
   }
 };

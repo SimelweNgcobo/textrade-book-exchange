@@ -159,15 +159,56 @@ const BookListing = () => {
             setBookType={setBookType}
             showFilters={showFilters}
             setShowFilters={setShowFilters}
-            onSearch={handleSearch}
-            onUpdateFilters={updateFilters}
-            onClearFilters={clearFilters}
+            onSearch={(e) => {
+              e.preventDefault();
+              console.log('Search submitted with query:', searchQuery);
+              const params = new URLSearchParams();
+              if (searchQuery) params.set('search', searchQuery);
+              if (selectedCategory) params.set('category', selectedCategory);
+              if (selectedGrade) params.set('grade', selectedGrade);
+              if (selectedUniversityYear) params.set('universityYear', selectedUniversityYear);
+              setSearchParams(params);
+              loadBooks();
+            }}
+            onUpdateFilters={() => {
+              console.log('Updating filters...');
+              const params = new URLSearchParams();
+              if (searchQuery) params.set('search', searchQuery);
+              if (selectedCategory) params.set('category', selectedCategory);
+              if (selectedGrade) params.set('grade', selectedGrade);
+              if (selectedUniversityYear) params.set('universityYear', selectedUniversityYear);
+              setSearchParams(params);
+              loadBooks();
+            }}
+            onClearFilters={() => {
+              console.log('Clearing all filters');
+              setSearchQuery('');
+              setSelectedCategory('');
+              setSelectedCondition('');
+              setSelectedGrade('');
+              setSelectedUniversityYear('');
+              setPriceRange([0, 1000]);
+              setBookType('all');
+              setSearchParams({});
+              loadBooks();
+            }}
           />
           
           <BookGrid
             books={books}
             isLoading={isLoading}
-            onClearFilters={clearFilters}
+            onClearFilters={() => {
+              console.log('Clearing all filters');
+              setSearchQuery('');
+              setSelectedCategory('');
+              setSelectedCondition('');
+              setSelectedGrade('');
+              setSelectedUniversityYear('');
+              setPriceRange([0, 1000]);
+              setBookType('all');
+              setSearchParams({});
+              loadBooks();
+            }}
           />
         </div>
       </div>
