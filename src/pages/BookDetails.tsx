@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
@@ -52,8 +51,9 @@ const BookDetails = () => {
         }
       } catch (error) {
         console.error('Error loading book:', error);
-        setError('Failed to load book details');
-        toast.error('Failed to load book details');
+        const errorMessage = error instanceof Error ? error.message : 'Failed to load book details';
+        setError(errorMessage);
+        toast.error(errorMessage);
       } finally {
         setIsLoading(false);
       }

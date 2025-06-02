@@ -1,16 +1,8 @@
 
 import { supabase } from '@/integrations/supabase/client';
 import { Book } from '@/types/book';
-
-interface BookFilters {
-  search?: string;
-  category?: string;
-  condition?: string;
-  grade?: string;
-  universityYear?: string;
-  minPrice?: number;
-  maxPrice?: number;
-}
+import { BookFilters, BookQueryResult } from './bookTypes';
+import { mapBookFromDatabase } from './bookMapper';
 
 export const getBooks = async (filters?: BookFilters): Promise<Book[]> => {
   try {
@@ -20,7 +12,7 @@ export const getBooks = async (filters?: BookFilters): Promise<Book[]> => {
       .from('books')
       .select(`
         *,
-        profiles!books_seller_id_fkey (
+        profiles:seller_id (
           id,
           name,
           email
@@ -67,32 +59,8 @@ export const getBooks = async (filters?: BookFilters): Promise<Book[]> => {
     }
 
     console.log('Raw books data:', data);
-
-    const books: Book[] = data.map((book: any) => {
-      const profile = book.profiles;
-      return {
-        id: book.id,
-        title: book.title,
-        author: book.author,
-        description: book.description,
-        price: book.price,
-        category: book.category,
-        condition: book.condition as "New" | "Good" | "Better" | "Average" | "Below Average",
-        imageUrl: book.front_cover || book.image_url || 'https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=400&h=300&fit=crop&auto=format&q=80',
-        frontCover: book.front_cover,
-        backCover: book.back_cover,
-        insidePages: book.inside_pages,
-        sold: book.sold,
-        createdAt: book.created_at,
-        grade: book.grade,
-        universityYear: book.university_year,
-        seller: {
-          id: book.seller_id,
-          name: profile?.name || 'Anonymous',
-          email: profile?.email || ''
-        }
-      };
-    });
+    
+    const books: Book[] = data.map((book: any) => mapBookFromDatabase(book));
 
     console.log('Processed books:', books);
     return books;
@@ -110,7 +78,7 @@ export const getBookById = async (id: string): Promise<Book | null> => {
       .from('books')
       .select(`
         *,
-        profiles!books_seller_id_fkey (
+        profiles:seller_id (
           id,
           name,
           email
@@ -130,30 +98,7 @@ export const getBookById = async (id: string): Promise<Book | null> => {
     }
 
     console.log('Found book:', book);
-
-    const profile = book.profiles;
-    return {
-      id: book.id,
-      title: book.title,
-      author: book.author,
-      description: book.description,
-      price: book.price,
-      category: book.category,
-      condition: book.condition as "New" | "Good" | "Better" | "Average" | "Below Average",
-      imageUrl: book.front_cover || book.image_url || 'https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=400&h=300&fit=crop&auto=format&q=80',
-      frontCover: book.front_cover,
-      backCover: book.back_cover,
-      insidePages: book.inside_pages,
-      sold: book.sold,
-      createdAt: book.created_at,
-      grade: book.grade,
-      universityYear: book.university_year,
-      seller: {
-        id: book.seller_id,
-        name: profile?.name || 'Anonymous',
-        email: profile?.email || ''
-      }
-    };
+    return mapBookFromDatabase(book);
   } catch (error) {
     console.error('Error in getBookById:', error);
     return null;
@@ -168,7 +113,7 @@ export const getUserBooks = async (userId: string): Promise<Book[]> => {
       .from('books')
       .select(`
         *,
-        profiles!books_seller_id_fkey (
+        profiles:seller_id (
           id,
           name,
           email
@@ -188,32 +133,7 @@ export const getUserBooks = async (userId: string): Promise<Book[]> => {
     }
 
     console.log('User books data:', data);
-
-    return data.map((book: any) => {
-      const profile = book.profiles;
-      return {
-        id: book.id,
-        title: book.title,
-        author: book.author,
-        description: book.description,
-        price: book.price,
-        category: book.category,
-        condition: book.condition as "New" | "Good" | "Better" | "Average" | "Below Average",
-        imageUrl: book.front_cover || book.image_url || 'https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=400&h=300&fit=crop&auto=format&q=80',
-        frontCover: book.front_cover,
-        backCover: book.back_cover,
-        insidePages: book.inside_pages,
-        sold: book.sold,
-        createdAt: book.created_at,
-        grade: book.grade,
-        universityYear: book.university_year,
-        seller: {
-          id: book.seller_id,
-          name: profile?.name || 'Anonymous',
-          email: profile?.email || ''
-        }
-      };
-    });
+    return data.map((book: any) => mapBookFromDatabase(book));
   } catch (error) {
     console.error('Error in getUserBooks:', error);
     return [];

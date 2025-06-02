@@ -13,6 +13,7 @@ const BookListing = () => {
   const [books, setBooks] = useState<Book[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showFilters, setShowFilters] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   
   // Filter states
   const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || '');
@@ -36,6 +37,8 @@ const BookListing = () => {
   const loadBooks = async () => {
     console.log('Loading books...');
     setIsLoading(true);
+    setError(null);
+    
     try {
       const searchQuery = searchParams.get('search') || '';
       const category = searchParams.get('category') || '';
@@ -72,7 +75,9 @@ const BookListing = () => {
       }
     } catch (error) {
       console.error('Error loading books:', error);
-      toast.error('Failed to load books. Please try again.');
+      const errorMessage = error instanceof Error ? error.message : 'Failed to load books. Please try again.';
+      setError(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -109,6 +114,25 @@ const BookListing = () => {
     setSearchParams({});
     loadBooks();
   };
+
+  if (error) {
+    return (
+      <Layout>
+        <div className="container mx-auto px-4 py-8">
+          <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
+            <h2 className="text-xl font-semibold text-red-800 mb-2">Error Loading Books</h2>
+            <p className="text-red-600 mb-4">{error}</p>
+            <button 
+              onClick={loadBooks}
+              className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+            >
+              Try Again
+            </button>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
   
   return (
     <Layout>
