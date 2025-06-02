@@ -160,6 +160,8 @@ export type Database = {
           profile_picture_url: string | null
           shipping_address: Json | null
           status: string | null
+          suspended_at: string | null
+          suspension_reason: string | null
           updated_at: string
         }
         Insert: {
@@ -174,6 +176,8 @@ export type Database = {
           profile_picture_url?: string | null
           shipping_address?: Json | null
           status?: string | null
+          suspended_at?: string | null
+          suspension_reason?: string | null
           updated_at?: string
         }
         Update: {
@@ -188,6 +192,8 @@ export type Database = {
           profile_picture_url?: string | null
           shipping_address?: Json | null
           status?: string | null
+          suspended_at?: string | null
+          suspension_reason?: string | null
           updated_at?: string
         }
         Relationships: []

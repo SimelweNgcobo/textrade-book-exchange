@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -130,9 +129,14 @@ const EnhancedModerationDashboard = () => {
         status: report.status as 'pending' | 'resolved' | 'dismissed'
       }));
 
-      // Handle potentially null data from Supabase with proper fallbacks
+      // Properly handle the suspended users data with better type safety
       const typedUsers: SuspendedUser[] = (usersResponse.data || [])
-        .filter(user => user && typeof user === 'object')
+        .filter((user): user is NonNullable<typeof user> => 
+          user !== null && 
+          user !== undefined && 
+          typeof user === 'object' &&
+          'id' in user
+        )
         .map(user => ({
           id: user.id || '',
           name: user.name || 'Anonymous',
