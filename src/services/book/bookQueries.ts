@@ -13,7 +13,7 @@ export const getBooks = async (filters?: BookFilters): Promise<Book[]> => {
       .from('books')
       .select(`
         *,
-        profiles (
+        profiles!books_seller_id_fkey (
           id,
           name,
           email
@@ -89,7 +89,7 @@ export const getBookById = async (id: string): Promise<Book | null> => {
       .from('books')
       .select(`
         *,
-        profiles (
+        profiles!books_seller_id_fkey (
           id,
           name,
           email
@@ -134,7 +134,7 @@ export const getUserBooks = async (userId: string): Promise<Book[]> => {
       .from('books')
       .select(`
         *,
-        profiles (
+        profiles!books_seller_id_fkey (
           id,
           name,
           email

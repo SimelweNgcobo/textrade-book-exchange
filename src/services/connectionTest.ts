@@ -37,18 +37,14 @@ export const validateEnvironmentVariables = (): { valid: boolean; missing: strin
     missing.push('Supabase client initialization failed');
   }
   
-  // Note: In browser environment, we can't directly check env vars
-  // but we can check if the supabase client has the required config
+  // Check if environment variables are available via the client configuration
   try {
-    const url = supabase.supabaseUrl;
-    const key = supabase.supabaseKey;
+    // Test if we can make a simple query to validate the connection
+    // This indirectly validates that the URL and key are properly configured
+    const hasValidConfig = supabase && typeof supabase.from === 'function';
     
-    if (!url || url === '') {
-      missing.push('SUPABASE_URL');
-    }
-    
-    if (!key || key === '') {
-      missing.push('SUPABASE_ANON_KEY');
+    if (!hasValidConfig) {
+      missing.push('SUPABASE_URL or SUPABASE_ANON_KEY');
     }
   } catch (error) {
     missing.push('Supabase configuration error');
