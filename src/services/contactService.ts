@@ -53,7 +53,11 @@ export const getAllContactMessages = async (): Promise<ContactMessage[]> => {
       throw error;
     }
 
-    return data || [];
+    // Type assertion to ensure status is properly typed
+    return (data || []).map(message => ({
+      ...message,
+      status: message.status as 'unread' | 'read'
+    }));
   } catch (error) {
     console.error('Error in getAllContactMessages:', error);
     throw new Error('Failed to fetch contact messages');

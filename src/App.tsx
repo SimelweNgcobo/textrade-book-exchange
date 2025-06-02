@@ -27,7 +27,6 @@ import ActivityLog from './pages/ActivityLog';
 import FAQ from './pages/FAQ';
 import Terms from './pages/Terms';
 import Privacy from './pages/Privacy';
-import ReportForm from './pages/ReportForm';
 import AdminReports from './pages/AdminReports';
 import Notifications from './pages/Notifications';
 import Confirm from './pages/Confirm';
@@ -66,7 +65,6 @@ function App() {
                 <Route path="/create-listing" element={<ProtectedRoute><CreateListing /></ProtectedRoute>} />
                 <Route path="/checkout/:id" element={<ProtectedRoute><Checkout /></ProtectedRoute>} />
                 <Route path="/activity" element={<ProtectedRoute><ActivityLog /></ProtectedRoute>} />
-                <Route path="/report" element={<ProtectedRoute><ReportForm /></ProtectedRoute>} />
                 <Route path="/notifications" element={<ProtectedRoute><Notifications /></ProtectedRoute>} />
                 <Route path="/cart" element={<ProtectedRoute><Cart /></ProtectedRoute>} />
                 <Route path="/edit-book/:id" element={<ProtectedRoute><EditBook /></ProtectedRoute>} />

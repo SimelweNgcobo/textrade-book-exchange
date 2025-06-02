@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 
 export interface AdminStats {
@@ -31,6 +30,43 @@ export interface AdminListing {
   status: string;
   user: string;
 }
+
+export const getUserProfile = async (userId: string): Promise<AdminUser> => {
+  try {
+    const { data: user, error: userError } = await supabase
+      .from('profiles')
+      .select('id, name, email, status, created_at')
+      .eq('id', userId)
+      .single();
+
+    if (userError) {
+      console.error('Error fetching user profile:', userError);
+      throw userError;
+    }
+
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    // Get book count for this user
+    const { count } = await supabase
+      .from('books')
+      .select('*', { count: 'exact', head: true })
+      .eq('seller_id', userId);
+
+    return {
+      id: user.id,
+      name: user.name || 'Anonymous',
+      email: user.email || '',
+      status: user.status || 'active',
+      listingsCount: count || 0,
+      createdAt: user.created_at
+    };
+  } catch (error) {
+    console.error('Error in getUserProfile:', error);
+    throw new Error('Failed to fetch user profile');
+  }
+};
 
 export const getAdminStats = async (): Promise<AdminStats> => {
   try {
