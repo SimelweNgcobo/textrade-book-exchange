@@ -114,7 +114,7 @@ const EnhancedModerationDashboard = () => {
           .from('profiles')
           .select('id, name, email, status, suspended_at, suspension_reason')
           .in('status', ['suspended', 'banned'])
-          .order('suspended_at', { ascending: false })
+          .order('created_at', { ascending: false })
       ]);
 
       if (reportsResponse.error) {
@@ -130,13 +130,17 @@ const EnhancedModerationDashboard = () => {
         status: report.status as 'pending' | 'resolved' | 'dismissed'
       }));
 
-      const typedUsers: SuspendedUser[] = (usersResponse.data || []).map(user => ({
-        ...user,
-        name: user.name || 'Anonymous',
-        email: user.email || 'No email',
-        suspended_at: user.suspended_at || new Date().toISOString(),
-        suspension_reason: user.suspension_reason || 'No reason provided'
-      }));
+      // Handle potentially null data from Supabase with proper fallbacks
+      const typedUsers: SuspendedUser[] = (usersResponse.data || [])
+        .filter(user => user && typeof user === 'object')
+        .map(user => ({
+          id: user.id || '',
+          name: user.name || 'Anonymous',
+          email: user.email || 'No email',
+          status: user.status || 'suspended',
+          suspended_at: user.suspended_at || new Date().toISOString(),
+          suspension_reason: user.suspension_reason || 'No reason provided'
+        }));
 
       setReports(typedReports);
       setSuspendedUsers(typedUsers);

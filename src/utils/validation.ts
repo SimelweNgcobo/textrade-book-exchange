@@ -1,4 +1,6 @@
 
+import { useState } from 'react';
+
 export interface ValidationRule {
   test: (value: any) => boolean;
   message: string;
