@@ -1,22 +1,10 @@
 import { useState, useEffect } from 'react';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle
-} from '@/components/ui/dialog';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle
-} from '@/components/ui/card';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { User, Book, Calendar } from 'lucide-react';
+import { User, Book, Calendar, Mail, MapPin } from 'lucide-react';
 import { getUserProfile, AdminUser } from '@/services/admin/adminQueries';
 import { getUserBooks } from '@/services/book/bookQueries';
 import { Book as BookType } from '@/types/book';
@@ -31,7 +19,6 @@ const UserProfileViewer = ({ userId, isOpen, onClose }: UserProfileViewerProps) 
   const [user, setUser] = useState<AdminUser | null>(null);
   const [userBooks, setUserBooks] = useState<BookType[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (userId && isOpen) {
@@ -39,28 +26,18 @@ const UserProfileViewer = ({ userId, isOpen, onClose }: UserProfileViewerProps) 
     }
   }, [userId, isOpen]);
 
-  useEffect(() => {
-    if (!isOpen) {
-      setUser(null);
-      setUserBooks([]);
-      setError(null);
-    }
-  }, [isOpen]);
-
   const loadUserProfile = async (id: string) => {
-    if (!id) return;
     setIsLoading(true);
-    setError(null);
     try {
       const [profileData, booksData] = await Promise.all([
         getUserProfile(id),
         getUserBooks(id)
       ]);
+      
       setUser(profileData);
       setUserBooks(booksData);
-    } catch (err) {
-      console.error('Error loading user profile:', err);
-      setError('Failed to load user data. Please try again.');
+    } catch (error) {
+      console.error('Error loading user profile:', error);
     } finally {
       setIsLoading(false);
     }
@@ -80,13 +57,8 @@ const UserProfileViewer = ({ userId, isOpen, onClose }: UserProfileViewerProps) 
 
         {isLoading ? (
           <div className="flex items-center justify-center py-8">
-            <div
-              className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"
-              aria-label="Loading"
-            ></div>
+            <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div>
           </div>
-        ) : error ? (
-          <div className="text-center text-red-600 py-8">{error}</div>
         ) : user ? (
           <div className="space-y-6">
             {/* User Info */}
@@ -96,7 +68,7 @@ const UserProfileViewer = ({ userId, isOpen, onClose }: UserProfileViewerProps) 
                   <Avatar className="h-16 w-16">
                     <AvatarImage src="" />
                     <AvatarFallback>
-                      {user.name?.charAt(0).toUpperCase() ?? <User className="h-8 w-8" />}
+                      <User className="h-8 w-8" />
                     </AvatarFallback>
                   </Avatar>
                   <div>
@@ -143,14 +115,14 @@ const UserProfileViewer = ({ userId, isOpen, onClose }: UserProfileViewerProps) 
                     {userBooks.map((book) => (
                       <div key={book.id} className="border rounded-lg p-4">
                         <div className="flex items-start gap-3">
-                          <img
-                            src={book.frontCover || book.imageUrl}
+                          <img 
+                            src={book.frontCover || book.imageUrl} 
                             alt={book.title}
                             className="w-16 h-20 object-cover rounded"
                           />
                           <div className="flex-1">
-                            <h4 className="font-medium text-sm line-clamp-1">{book.title}</h4>
-                            <p className="text-xs text-gray-600 line-clamp-1">{book.author}</p>
+                            <h4 className="font-medium text-sm">{book.title}</h4>
+                            <p className="text-xs text-gray-600">{book.author}</p>
                             <div className="flex items-center justify-between mt-2">
                               <span className="font-semibold text-green-600">
                                 R{book.price.toFixed(2)}
