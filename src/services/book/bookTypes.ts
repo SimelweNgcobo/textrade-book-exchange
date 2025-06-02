@@ -9,6 +9,12 @@ export interface BookFilters {
   maxPrice?: number;
 }
 
+export interface ProfileData {
+  id: string;
+  name: string;
+  email: string;
+}
+
 export interface BookQueryResult {
   id: string;
   title: string;
@@ -26,9 +32,5 @@ export interface BookQueryResult {
   grade?: string;
   university_year?: string;
   seller_id: string;
-  profiles?: {
-    id: string;
-    name: string;
-    email: string;
-  };
+  profiles?: ProfileData | null;
 }

@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Book } from '@/types/book';
 import { BookFilters, BookQueryResult } from './bookTypes';
 import { mapBookFromDatabase } from './bookMapper';
+import { handleBookServiceError } from './bookErrorHandler';
 
 export const getBooks = async (filters?: BookFilters): Promise<Book[]> => {
   try {
@@ -12,7 +13,7 @@ export const getBooks = async (filters?: BookFilters): Promise<Book[]> => {
       .from('books')
       .select(`
         *,
-        profiles:seller_id (
+        profiles (
           id,
           name,
           email
@@ -49,8 +50,8 @@ export const getBooks = async (filters?: BookFilters): Promise<Book[]> => {
     const { data, error } = await query;
 
     if (error) {
-      console.error('Error fetching books:', error);
-      throw error;
+      console.error('Supabase error:', error);
+      handleBookServiceError(error, 'fetch books');
     }
 
     if (!data) {
@@ -60,13 +61,23 @@ export const getBooks = async (filters?: BookFilters): Promise<Book[]> => {
 
     console.log('Raw books data:', data);
     
-    const books: Book[] = data.map((book: any) => mapBookFromDatabase(book));
+    const books: Book[] = data.map((book: any) => {
+      const bookData: BookQueryResult = {
+        ...book,
+        profiles: book.profiles ? {
+          id: book.profiles.id,
+          name: book.profiles.name,
+          email: book.profiles.email
+        } : null
+      };
+      return mapBookFromDatabase(bookData);
+    });
 
     console.log('Processed books:', books);
     return books;
   } catch (error) {
     console.error('Error in getBooks:', error);
-    return [];
+    handleBookServiceError(error, 'fetch books');
   }
 };
 
@@ -78,7 +89,7 @@ export const getBookById = async (id: string): Promise<Book | null> => {
       .from('books')
       .select(`
         *,
-        profiles:seller_id (
+        profiles (
           id,
           name,
           email
@@ -88,8 +99,8 @@ export const getBookById = async (id: string): Promise<Book | null> => {
       .single();
 
     if (error) {
-      console.error('Error fetching book by ID:', error);
-      throw error;
+      console.error('Supabase error:', error);
+      handleBookServiceError(error, 'fetch book by ID');
     }
 
     if (!book) {
@@ -98,10 +109,20 @@ export const getBookById = async (id: string): Promise<Book | null> => {
     }
 
     console.log('Found book:', book);
-    return mapBookFromDatabase(book);
+    
+    const bookData: BookQueryResult = {
+      ...book,
+      profiles: book.profiles ? {
+        id: book.profiles.id,
+        name: book.profiles.name,
+        email: book.profiles.email
+      } : null
+    };
+    
+    return mapBookFromDatabase(bookData);
   } catch (error) {
     console.error('Error in getBookById:', error);
-    return null;
+    handleBookServiceError(error, 'fetch book by ID');
   }
 };
 
@@ -113,7 +134,7 @@ export const getUserBooks = async (userId: string): Promise<Book[]> => {
       .from('books')
       .select(`
         *,
-        profiles:seller_id (
+        profiles (
           id,
           name,
           email
@@ -123,8 +144,8 @@ export const getUserBooks = async (userId: string): Promise<Book[]> => {
       .order('created_at', { ascending: false });
 
     if (error) {
-      console.error('Error fetching user books:', error);
-      throw error;
+      console.error('Supabase error:', error);
+      handleBookServiceError(error, 'fetch user books');
     }
 
     if (!data) {
@@ -133,9 +154,20 @@ export const getUserBooks = async (userId: string): Promise<Book[]> => {
     }
 
     console.log('User books data:', data);
-    return data.map((book: any) => mapBookFromDatabase(book));
+    
+    return data.map((book: any) => {
+      const bookData: BookQueryResult = {
+        ...book,
+        profiles: book.profiles ? {
+          id: book.profiles.id,
+          name: book.profiles.name,
+          email: book.profiles.email
+        } : null
+      };
+      return mapBookFromDatabase(bookData);
+    });
   } catch (error) {
     console.error('Error in getUserBooks:', error);
-    return [];
+    handleBookServiceError(error, 'fetch user books');
   }
 };

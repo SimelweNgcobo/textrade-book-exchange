@@ -1,9 +1,9 @@
-
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import Layout from '@/components/Layout';
 import BookFilters from '@/components/book-listing/BookFilters';
 import BookGrid from '@/components/book-listing/BookGrid';
+import SystemHealthCheck from '@/components/SystemHealthCheck';
 import { getBooks } from '@/services/book/bookQueries';
 import { Book } from '@/types/book';
 import { toast } from 'sonner';
@@ -119,6 +119,7 @@ const BookListing = () => {
     return (
       <Layout>
         <div className="container mx-auto px-4 py-8">
+          <SystemHealthCheck />
           <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
             <h2 className="text-xl font-semibold text-red-800 mb-2">Error Loading Books</h2>
             <p className="text-red-600 mb-4">{error}</p>
@@ -137,6 +138,7 @@ const BookListing = () => {
   return (
     <Layout>
       <div className="container mx-auto px-4 py-8">
+        <SystemHealthCheck />
         <h1 className="text-3xl font-bold text-book-800 mb-8">Browse Books</h1>
         
         <div className="flex flex-col lg:flex-row gap-8">
