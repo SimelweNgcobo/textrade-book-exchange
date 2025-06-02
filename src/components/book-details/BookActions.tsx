@@ -1,7 +1,7 @@
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { ShoppingCart, CreditCard, Edit, Share2, MessageCircle } from 'lucide-react';
+import { ShoppingCart, CreditCard, Edit, Share2 } from 'lucide-react';
 import { Book } from '@/types/book';
 
 interface BookActionsProps {
@@ -11,10 +11,10 @@ interface BookActionsProps {
   onAddToCart: () => void;
   onEditBook: () => void;
   onShare: () => void;
-  onContactSeller: () => void;
+  onViewSellerProfile: () => void;
 }
 
-const BookActions = ({ book, user, onBuyNow, onAddToCart, onEditBook, onShare, onContactSeller }: BookActionsProps) => {
+const BookActions = ({ book, user, onBuyNow, onAddToCart, onEditBook, onShare, onViewSellerProfile }: BookActionsProps) => {
   const isOwner = user?.id === book.seller?.id;
   const isSold = book.sold;
 
@@ -57,12 +57,11 @@ const BookActions = ({ book, user, onBuyNow, onAddToCart, onEditBook, onShare, o
               </Button>
               <div className="flex gap-2">
                 <Button
-                  onClick={onContactSeller}
+                  onClick={onViewSellerProfile}
                   variant="outline"
                   className="flex-1"
                 >
-                  <MessageCircle className="mr-2 h-4 w-4" />
-                  Contact Seller
+                  View Seller
                 </Button>
                 <Button
                   onClick={onShare}

@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
@@ -107,15 +108,6 @@ const BookDetails = () => {
     toast.info('Add to cart feature coming soon!');
   };
 
-  const handleContactSeller = () => {
-    if (!user) {
-      toast.error('Please log in to contact the seller');
-      navigate('/login');
-      return;
-    }
-    toast.info('Contact seller feature coming soon!');
-  };
-
   const handleEditBook = () => {
     if (!book?.id) {
       toast.error('Book ID is missing');
@@ -123,6 +115,15 @@ const BookDetails = () => {
     }
     console.log('Navigating to edit book:', book.id);
     navigate(`/edit-book/${book.id}`);
+  };
+
+  const handleViewSellerProfile = () => {
+    if (!book?.seller?.id) {
+      toast.error('Seller information not available');
+      return;
+    }
+    console.log('Navigating to seller profile:', book.seller.id);
+    navigate(`/user/${book.seller.id}`);
   };
 
   if (isLoading) {
@@ -171,6 +172,8 @@ const BookDetails = () => {
   const images = [book.frontCover, book.backCover, ...(book.insidePages || [])].filter(Boolean);
   const commission = calculateCommission(book.price);
   const sellerReceives = calculateSellerReceives(book.price);
+  const isOwner = user?.id === book.seller?.id;
+  const showCommissionDetails = isOwner || (user && user.isAdmin);
 
   return (
     <Layout>
@@ -189,17 +192,20 @@ const BookDetails = () => {
           <div className="space-y-6">
             <BookInfo book={book} />
 
-            <BookPricing 
-              price={book.price}
-              commission={commission}
-              sellerReceives={sellerReceives}
-            />
+            {showCommissionDetails && (
+              <BookPricing 
+                price={book.price}
+                commission={commission}
+                sellerReceives={sellerReceives}
+                showCommissionDetails={showCommissionDetails}
+              />
+            )}
 
             <BookDescription description={book.description} />
 
             <SellerInfo 
               book={book}
-              onViewSellerProfile={() => navigate(`/user/${book.seller.id}`)}
+              onViewSellerProfile={handleViewSellerProfile}
             />
 
             <BookActions
@@ -209,7 +215,7 @@ const BookDetails = () => {
               onAddToCart={handleAddToCart}
               onEditBook={handleEditBook}
               onShare={handleShare}
-              onContactSeller={handleContactSeller}
+              onViewSellerProfile={handleViewSellerProfile}
             />
 
             {user?.id !== book.seller.id && (

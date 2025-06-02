@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
@@ -22,8 +21,8 @@ import AdminUsersTab from '@/components/admin/AdminUsersTab';
 import AdminListingsTab from '@/components/admin/AdminListingsTab';
 import AdminSettingsTab from '@/components/admin/AdminSettingsTab';
 import AdminContactTab from '@/components/admin/AdminContactTab';
+import AdminOnlySystemHealth from '@/components/admin/AdminOnlySystemHealth';
 import ErrorFallback from '@/components/ErrorFallback';
-import SystemHealthCheck from '@/components/SystemHealthCheck';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import { useErrorHandler } from '@/hooks/useErrorHandler';
 
@@ -154,20 +153,35 @@ const AdminDashboard = () => {
     try {
       if (action === 'delete') {
         await deleteBookListing(listingId);
+        
+        // Remove from local state immediately for better UX
         setListings(listings.filter(listing => listing.id !== listingId));
         toast.success('Listing deleted successfully');
         
-        // Reload stats to reflect the change
+        // Reload stats and full listings to ensure accuracy
         try {
-          const newStats = await getAdminStats();
+          const [newStats, updatedListings] = await Promise.all([
+            getAdminStats(),
+            getAllListings()
+          ]);
           setStats(newStats);
+          setListings(updatedListings);
         } catch (error) {
-          console.error('Failed to reload stats after listing deletion:', error);
+          console.error('Failed to reload data after listing deletion:', error);
+          // Reload the page data to ensure consistency
+          loadDashboardData();
         }
       }
     } catch (error) {
       console.error(`Error ${action}ing listing:`, error);
       handleError(error, `${action} Listing`);
+      // Reload listings in case of error to show current state
+      try {
+        const updatedListings = await getAllListings();
+        setListings(updatedListings);
+      } catch (reloadError) {
+        console.error('Failed to reload listings after error:', reloadError);
+      }
     }
   };
 
@@ -264,7 +278,7 @@ const AdminDashboard = () => {
         </TabsContent>
 
         <TabsContent value="health" className="space-y-4">
-          <SystemHealthCheck />
+          <AdminOnlySystemHealth />
         </TabsContent>
 
         <TabsContent value="settings" className="space-y-4">

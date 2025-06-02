@@ -144,14 +144,17 @@ export const deleteBook = async (bookId: string): Promise<void> => {
       throw new Error('User not authenticated');
     }
 
+    console.log('Attempting to delete book:', bookId);
+
     // First verify the user owns this book or is an admin
     const { data: existingBook, error: fetchError } = await supabase
       .from('books')
-      .select('seller_id')
+      .select('seller_id, title')
       .eq('id', bookId)
       .single();
 
     if (fetchError || !existingBook) {
+      console.error('Book not found:', fetchError);
       throw new Error('Book not found');
     }
 
@@ -169,15 +172,43 @@ export const deleteBook = async (bookId: string): Promise<void> => {
       throw new Error('User not authorized to delete this book');
     }
 
-    const { error } = await supabase
+    console.log('User authorized to delete book. Proceeding with deletion...');
+
+    // Delete related records first to maintain referential integrity
+    // Delete any reports related to this book
+    const { error: reportsDeleteError } = await supabase
+      .from('reports')
+      .delete()
+      .eq('book_id', bookId);
+
+    if (reportsDeleteError) {
+      console.warn('Error deleting related reports:', reportsDeleteError);
+      // Continue with deletion even if reports cleanup fails
+    }
+
+    // Delete any transactions related to this book
+    const { error: transactionsDeleteError } = await supabase
+      .from('transactions')
+      .delete()
+      .eq('book_id', bookId);
+
+    if (transactionsDeleteError) {
+      console.warn('Error deleting related transactions:', transactionsDeleteError);
+      // Continue with deletion even if transactions cleanup fails
+    }
+
+    // Finally delete the book itself
+    const { error: deleteError } = await supabase
       .from('books')
       .delete()
       .eq('id', bookId);
 
-    if (error) {
-      console.error('Error deleting book:', error);
-      handleBookServiceError(error, 'delete book');
+    if (deleteError) {
+      console.error('Error deleting book:', deleteError);
+      throw new Error(`Failed to delete book: ${deleteError.message}`);
     }
+
+    console.log('Book deleted successfully:', existingBook.title);
   } catch (error) {
     console.error('Error in deleteBook:', error);
     handleBookServiceError(error, 'delete book');

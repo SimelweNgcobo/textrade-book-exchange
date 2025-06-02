@@ -72,10 +72,11 @@ export const getUserProfile = async (userId: string): Promise<AdminUser> => {
 
 export const getAdminStats = async (): Promise<AdminStats> => {
   try {
-    // Get total users count
+    // Get total ACTIVE users count (not suspended or deleted)
     const { count: totalUsers } = await supabase
       .from('profiles')
-      .select('*', { count: 'exact', head: true });
+      .select('*', { count: 'exact', head: true })
+      .eq('status', 'active');
 
     // Get active listings count
     const { count: activeListings } = await supabase
@@ -101,13 +102,14 @@ export const getAdminStats = async (): Promise<AdminStats> => {
       .select('*', { count: 'exact', head: true })
       .eq('status', 'unread');
 
-    // Get new users this week
+    // Get new ACTIVE users this week
     const oneWeekAgo = new Date();
     oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
     
     const { count: newUsersThisWeek } = await supabase
       .from('profiles')
       .select('*', { count: 'exact', head: true })
+      .eq('status', 'active')
       .gte('created_at', oneWeekAgo.toISOString());
 
     // Get sales this month
@@ -195,6 +197,51 @@ export const getAllUsers = async (): Promise<AdminUser[]> => {
 
 export const getAllListings = async (): Promise<AdminListing[]> => {
   try {
+    // First, get all books with seller information in one query
+    const { data: booksWithProfiles, error: booksError } = await supabase
+      .from('books')
+      .select(`
+        id,
+        title,
+        author,
+        price,
+        sold,
+        seller_id,
+        profiles!books_seller_id_fkey (
+          id,
+          name
+        )
+      `)
+      .order('created_at', { ascending: false });
+
+    if (booksError) {
+      console.error('Error fetching books with profiles:', booksError);
+      // Fallback to separate queries if the join fails
+      return await getAllListingsFallback();
+    }
+
+    if (!booksWithProfiles || booksWithProfiles.length === 0) return [];
+
+    // Map the results to the expected format
+    return booksWithProfiles.map((book: any) => ({
+      id: book.id,
+      title: book.title,
+      author: book.author,
+      price: book.price,
+      status: book.sold ? 'sold' : 'active',
+      user: book.profiles?.name || 'Anonymous',
+      sellerId: book.seller_id
+    }));
+  } catch (error) {
+    console.error('Error in getAllListings:', error);
+    // Fallback to separate queries
+    return await getAllListingsFallback();
+  }
+};
+
+// Fallback function for when the join query fails
+const getAllListingsFallback = async (): Promise<AdminListing[]> => {
+  try {
     // First, get all books
     const { data: books, error: booksError } = await supabase
       .from('books')
@@ -241,7 +288,7 @@ export const getAllListings = async (): Promise<AdminListing[]> => {
       sellerId: book.seller_id
     }));
   } catch (error) {
-    console.error('Error in getAllListings:', error);
+    console.error('Error in getAllListingsFallback:', error);
     throw new Error('Failed to fetch listings');
   }
 };

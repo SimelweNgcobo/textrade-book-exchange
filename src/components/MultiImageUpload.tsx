@@ -1,239 +1,180 @@
 
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
-import { Upload, X, Image as ImageIcon, ImageOff } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
+import { Upload, X, Eye } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 
 interface MultiImageUploadProps {
-  onImagesChange: (images: { frontCover: string; backCover: string; insidePages: string }) => void;
-  currentImages?: { frontCover: string; backCover: string; insidePages: string };
-  disabled?: boolean;
+  images: string[];
+  onImagesChange: (images: string[]) => void;
+  maxImages?: number;
+  className?: string;
 }
 
-const MultiImageUpload = ({ onImagesChange, currentImages, disabled }: MultiImageUploadProps) => {
-  const { user } = useAuth();
-  const [images, setImages] = useState({
-    frontCover: currentImages?.frontCover || '',
-    backCover: currentImages?.backCover || '',
-    insidePages: currentImages?.insidePages || ''
-  });
+const MultiImageUpload = ({ images, onImagesChange, maxImages = 3, className = '' }: MultiImageUploadProps) => {
+  const [isUploading, setIsUploading] = useState(false);
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
 
-  const [uploading, setUploading] = useState({
-    frontCover: false,
-    backCover: false,
-    insidePages: false
-  });
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (!files || files.length === 0) return;
 
-  const [imageErrors, setImageErrors] = useState<Set<string>>(new Set());
-
-  const handleImageUpload = async (file: File, type: 'frontCover' | 'backCover' | 'insidePages') => {
-    if (!file || !user) return;
-
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error('Image must be less than 5MB');
+    const remainingSlots = maxImages - images.length;
+    if (remainingSlots <= 0) {
+      toast.error(`Maximum ${maxImages} images allowed`);
       return;
     }
 
-    if (!file.type.startsWith('image/')) {
-      toast.error('Please upload an image file');
-      return;
-    }
-
-    setUploading(prev => ({ ...prev, [type]: true }));
+    const filesToUpload = Array.from(files).slice(0, remainingSlots);
+    setIsUploading(true);
 
     try {
-      // Upload to Supabase Storage
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${user.id}/${type}-${Date.now()}.${fileExt}`;
-      
-      const { data, error } = await supabase.storage
-        .from('book-images')
-        .upload(fileName, file);
+      const uploadPromises = filesToUpload.map(async (file) => {
+        // Validate file type
+        if (!file.type.startsWith('image/')) {
+          throw new Error(`${file.name} is not a valid image file`);
+        }
 
-      if (error) {
-        throw error;
-      }
+        // Validate file size (max 5MB)
+        if (file.size > 5 * 1024 * 1024) {
+          throw new Error(`${file.name} is too large. Maximum size is 5MB`);
+        }
 
-      // Get the public URL
-      const { data: { publicUrl } } = supabase.storage
-        .from('book-images')
-        .getPublicUrl(data.path);
-      
-      // Verify the image is accessible
-      const img = new Image();
-      img.onload = () => {
-        const newImages = { ...images, [type]: publicUrl };
-        setImages(newImages);
-        onImagesChange(newImages);
-        
-        // Remove from error set if it was there
-        setImageErrors(prev => {
-          const newSet = new Set(prev);
-          newSet.delete(publicUrl);
-          return newSet;
-        });
-        
-        toast.success(`${getTypeLabel(type)} uploaded successfully`);
-      };
-      img.onerror = () => {
-        console.error('Failed to load uploaded image:', publicUrl);
-        toast.error('Image upload failed - image not accessible');
-        setImageErrors(prev => new Set(prev).add(publicUrl));
-      };
-      img.src = publicUrl;
-      
-    } catch (error) {
-      console.error('Upload error:', error);
-      toast.error('Failed to upload image');
-    } finally {
-      setUploading(prev => ({ ...prev, [type]: false }));
-    }
-  };
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${Math.random()}.${fileExt}`;
+        const filePath = `book-images/${fileName}`;
 
-  const removeImage = async (type: 'frontCover' | 'backCover' | 'insidePages') => {
-    const currentImageUrl = images[type];
-    
-    // If there's an image URL, try to delete it from storage
-    if (currentImageUrl && currentImageUrl.includes('book-images')) {
-      try {
-        // Extract the file path from the URL
-        const urlParts = currentImageUrl.split('/');
-        const filePath = urlParts.slice(-2).join('/'); // Get user_id/filename
-        
-        await supabase.storage
+        const { error: uploadError } = await supabase.storage
           .from('book-images')
-          .remove([filePath]);
-      } catch (error) {
-        console.error('Error deleting image from storage:', error);
-      }
-    }
-    
-    // Remove from error set
-    setImageErrors(prev => {
-      const newSet = new Set(prev);
-      newSet.delete(currentImageUrl);
-      return newSet;
-    });
-    
-    const newImages = { ...images, [type]: '' };
-    setImages(newImages);
-    onImagesChange(newImages);
-  };
+          .upload(filePath, file);
 
-  const handleImageError = (imageUrl: string) => {
-    setImageErrors(prev => new Set(prev).add(imageUrl));
-  };
+        if (uploadError) {
+          throw uploadError;
+        }
 
-  const getTypeLabel = (type: string) => {
-    switch (type) {
-      case 'frontCover': return 'Front Cover';
-      case 'backCover': return 'Back Cover';
-      case 'insidePages': return 'Inside Pages';
-      default: return 'Image';
-    }
-  };
+        const { data: { publicUrl } } = supabase.storage
+          .from('book-images')
+          .getPublicUrl(filePath);
 
-  const renderImageUpload = (type: 'frontCover' | 'backCover' | 'insidePages', description: string) => (
-    <div key={type} className="space-y-2">
-      <Label className="text-sm font-medium">
-        {getTypeLabel(type)} <span className="text-red-500">*</span>
-      </Label>
-      <p className="text-xs text-gray-500">{description}</p>
+        return publicUrl;
+      });
+
+      const uploadedUrls = await Promise.all(uploadPromises);
+      const newImages = [...images, ...uploadedUrls];
+      onImagesChange(newImages);
       
-      {images[type] ? (
-        <div className="relative">
-          {imageErrors.has(images[type]) ? (
-            <div className="w-full h-40 bg-gray-100 border border-gray-300 rounded-md flex items-center justify-center">
-              <div className="text-center text-gray-500">
-                <ImageOff className="h-8 w-8 mx-auto mb-2" />
-                <p className="text-sm">Failed to load image</p>
-              </div>
-            </div>
-          ) : (
-            <img
-              src={images[type]}
-              alt={getTypeLabel(type)}
-              className="w-full h-40 object-cover rounded-md border"
-              onError={() => handleImageError(images[type])}
+      toast.success(`${uploadedUrls.length} image(s) uploaded successfully`);
+    } catch (error) {
+      console.error('Error uploading images:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Failed to upload images';
+      toast.error(errorMessage);
+    } finally {
+      setIsUploading(false);
+      // Reset the input
+      event.target.value = '';
+    }
+  };
+
+  const removeImage = (index: number) => {
+    const newImages = images.filter((_, i) => i !== index);
+    onImagesChange(newImages);
+    toast.success('Image removed');
+  };
+
+  const canUploadMore = images.length < maxImages;
+
+  return (
+    <div className={`space-y-4 ${className}`}>
+      <div className="flex items-center justify-between">
+        <p className="text-sm text-gray-600">
+          Upload up to {maxImages} images ({images.length}/{maxImages} uploaded)
+        </p>
+        {canUploadMore && (
+          <div className="relative">
+            <input
+              type="file"
+              multiple
+              accept="image/*"
+              onChange={handleFileUpload}
+              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+              disabled={isUploading}
             />
-          )}
-          <Button
-            type="button"
-            variant="destructive"
-            size="sm"
-            className="absolute top-2 right-2"
-            onClick={() => removeImage(type)}
-            disabled={disabled}
-          >
-            <X className="h-4 w-4" />
-          </Button>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              disabled={isUploading}
+              className="relative"
+            >
+              <Upload className="mr-2 h-4 w-4" />
+              {isUploading ? 'Uploading...' : 'Add Images'}
+            </Button>
+          </div>
+        )}
+      </div>
+
+      {images.length > 0 && (
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+          {images.map((imageUrl, index) => (
+            <Card key={index} className="relative group">
+              <CardContent className="p-2">
+                <img
+                  src={imageUrl}
+                  alt={`Upload ${index + 1}`}
+                  className="w-full h-32 object-cover rounded cursor-pointer"
+                  onClick={() => setPreviewImage(imageUrl)}
+                />
+                <div className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    size="sm"
+                    onClick={() => removeImage(index)}
+                    className="h-6 w-6 p-0"
+                  >
+                    <X className="h-3 w-3" />
+                  </Button>
+                </div>
+                <div className="absolute bottom-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => setPreviewImage(imageUrl)}
+                    className="h-6 w-6 p-0"
+                  >
+                    <Eye className="h-3 w-3" />
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
         </div>
-      ) : (
-        <div className="border-2 border-dashed border-gray-300 rounded-md p-4">
-          <div className="text-center">
-            <ImageIcon className="mx-auto h-8 w-8 text-gray-400" />
-            <div className="mt-2">
-              <label htmlFor={`image-${type}`}>
-                <Button
-                  type="button"
-                  variant="outline"
-                  disabled={disabled || uploading[type]}
-                  className="cursor-pointer"
-                  asChild
-                >
-                  <span>
-                    {uploading[type] ? (
-                      <>
-                        <svg className="animate-spin -ml-1 mr-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                        Uploading...
-                      </>
-                    ) : (
-                      <>
-                        <Upload className="mr-2 h-4 w-4" />
-                        Upload Image
-                      </>
-                    )}
-                  </span>
-                </Button>
-              </label>
-              <input
-                id={`image-${type}`}
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  if (file) handleImageUpload(file, type);
-                }}
-                disabled={disabled || uploading[type]}
-              />
-            </div>
-            <p className="text-xs text-gray-500 mt-1">PNG, JPG up to 5MB</p>
+      )}
+
+      {!canUploadMore && (
+        <p className="text-sm text-amber-600 bg-amber-50 p-3 rounded">
+          You have reached the maximum limit of {maxImages} images. Remove an image to add a new one.
+        </p>
+      )}
+
+      {/* Image Preview Modal */}
+      {previewImage && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+          onClick={() => setPreviewImage(null)}
+        >
+          <div className="max-w-4xl max-h-[90vh] p-4">
+            <img
+              src={previewImage}
+              alt="Preview"
+              className="max-w-full max-h-full object-contain rounded"
+            />
           </div>
         </div>
       )}
-    </div>
-  );
-
-  return (
-    <div>
-      <Label className="text-base font-medium mb-4 block">
-        Book Photos <span className="text-red-500">*</span>
-      </Label>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {renderImageUpload('frontCover', 'Clear photo of the front cover')}
-        {renderImageUpload('backCover', 'Clear photo of the back cover')}
-        {renderImageUpload('insidePages', 'Photo of table of contents or sample pages')}
-      </div>
-      <p className="text-sm text-gray-600 mt-3">
-        All three photos are required to create your listing. This helps buyers make informed decisions.
-      </p>
     </div>
   );
 };
