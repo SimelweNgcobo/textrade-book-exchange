@@ -1,4 +1,4 @@
-import { useState } from 'react';
+
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
@@ -28,20 +28,21 @@ interface Report {
 
 interface ReportActionsProps {
   report: Report;
+  actionReason: string;
+  setActionReason: (reason: string) => void;
   isSubmitting: boolean;
   onUpdateStatus: (reportId: string, status: 'resolved' | 'dismissed') => void;
   onUserAction: (userId: string, action: 'ban' | 'suspend', reason: string) => void;
 }
 
-const ReportActions = ({
-  report,
-  isSubmitting,
-  onUpdateStatus,
-  onUserAction,
+const ReportActions = ({ 
+  report, 
+  actionReason, 
+  setActionReason, 
+  isSubmitting, 
+  onUpdateStatus, 
+  onUserAction 
 }: ReportActionsProps) => {
-  const [banReason, setBanReason] = useState('');
-  const [suspendReason, setSuspendReason] = useState('');
-
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'resolved':
@@ -67,7 +68,7 @@ const ReportActions = ({
   if (report.status !== 'pending') {
     return (
       <Badge className={getStatusColor(report.status)}>
-        <span className="flex items-center gap-1 capitalize">
+        <span className="flex items-center gap-1">
           {getStatusIcon(report.status)}
           {report.status}
         </span>
@@ -78,10 +79,9 @@ const ReportActions = ({
   return (
     <ScrollArea className="w-full">
       <div className="flex gap-2 min-w-max">
-        {/* View Report */}
         <Dialog>
           <DialogTrigger asChild>
-            <Button size="sm" variant="outline" title="View Report Details">
+            <Button size="sm" variant="outline">
               <Eye className="h-4 w-4 mr-1" />
               View
             </Button>
@@ -101,28 +101,24 @@ const ReportActions = ({
                 <strong>Reason:</strong> {report.reason}
               </div>
               <div>
-                <strong>Date:</strong>{' '}
-                {new Date(report.created_at).toLocaleString()}
+                <strong>Date:</strong> {new Date(report.created_at).toLocaleString()}
               </div>
             </div>
           </DialogContent>
         </Dialog>
 
-        {/* Dismiss Report */}
         <Button
           size="sm"
           variant="outline"
-          title="Dismiss this report"
           onClick={() => onUpdateStatus(report.id, 'dismissed')}
         >
           <X className="h-4 w-4 mr-1" />
           Dismiss
         </Button>
 
-        {/* Ban User Dialog */}
         <Dialog>
           <DialogTrigger asChild>
-            <Button size="sm" variant="destructive" title="Ban user">
+            <Button size="sm" variant="destructive">
               <Ban className="h-4 w-4 mr-1" />
               Ban
             </Button>
@@ -137,23 +133,19 @@ const ReportActions = ({
             <div className="space-y-4">
               <Textarea
                 placeholder="Enter reason for banning..."
-                value={banReason}
-                onChange={(e) => setBanReason(e.target.value)}
+                value={actionReason}
+                onChange={(e) => setActionReason(e.target.value)}
                 className="min-h-[100px]"
               />
             </div>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setBanReason('')}>
+              <Button variant="outline" onClick={() => setActionReason('')}>
                 Cancel
               </Button>
               <Button
                 variant="destructive"
-                disabled={!banReason.trim() || isSubmitting}
-                onClick={() => {
-                  if (!banReason.trim()) return;
-                  onUserAction(report.reported_user_id, 'ban', banReason);
-                  setBanReason('');
-                }}
+                disabled={!actionReason.trim() || isSubmitting}
+                onClick={() => onUserAction(report.reported_user_id, 'ban', actionReason)}
               >
                 {isSubmitting ? 'Banning...' : 'Ban User'}
               </Button>
@@ -161,14 +153,9 @@ const ReportActions = ({
           </DialogContent>
         </Dialog>
 
-        {/* Suspend User Dialog */}
         <Dialog>
           <DialogTrigger asChild>
-            <Button
-              size="sm"
-              className="bg-orange-600 hover:bg-orange-700"
-              title="Suspend user"
-            >
+            <Button size="sm" className="bg-orange-600 hover:bg-orange-700">
               <UserX className="h-4 w-4 mr-1" />
               Suspend
             </Button>
@@ -183,23 +170,19 @@ const ReportActions = ({
             <div className="space-y-4">
               <Textarea
                 placeholder="Enter reason for suspension..."
-                value={suspendReason}
-                onChange={(e) => setSuspendReason(e.target.value)}
+                value={actionReason}
+                onChange={(e) => setActionReason(e.target.value)}
                 className="min-h-[100px]"
               />
             </div>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setSuspendReason('')}>
+              <Button variant="outline" onClick={() => setActionReason('')}>
                 Cancel
               </Button>
               <Button
                 className="bg-orange-600 hover:bg-orange-700"
-                disabled={!suspendReason.trim() || isSubmitting}
-                onClick={() => {
-                  if (!suspendReason.trim()) return;
-                  onUserAction(report.reported_user_id, 'suspend', suspendReason);
-                  setSuspendReason('');
-                }}
+                disabled={!actionReason.trim() || isSubmitting}
+                onClick={() => onUserAction(report.reported_user_id, 'suspend', actionReason)}
               >
                 {isSubmitting ? 'Suspending...' : 'Suspend User'}
               </Button>

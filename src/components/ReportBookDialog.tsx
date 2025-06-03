@@ -1,22 +1,10 @@
+
 import { useState } from 'react';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useAuth } from '@/contexts/AuthContext';
 import { submitReport } from '@/services/reportService';
 import { toast } from 'sonner';
@@ -30,33 +18,27 @@ interface ReportBookDialogProps {
   sellerName?: string;
 }
 
-const categories = [
-  { value: 'inappropriate-content', label: 'Inappropriate Content' },
-  { value: 'misleading-info', label: 'Misleading Information' },
-  { value: 'counterfeit', label: 'Counterfeit/Fake Book' },
-  { value: 'overpriced', label: 'Unreasonably Overpriced' },
-  { value: 'duplicate', label: 'Duplicate Listing' },
-  { value: 'spam', label: 'Spam' },
-  { value: 'other', label: 'Other' },
-] as const;
-
-const ReportBookDialog = ({
-  isOpen,
-  onClose,
-  bookId,
-  bookTitle,
-  sellerId,
-  sellerName,
-}: ReportBookDialogProps) => {
+const ReportBookDialog = ({ isOpen, onClose, bookId, bookTitle, sellerId, sellerName }: ReportBookDialogProps) => {
   const { user } = useAuth();
   const [reason, setReason] = useState('');
   const [category, setCategory] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async () => {
-    if (!user) return toast.error('You must be logged in to report a listing');
-    if (!category || !reason.trim()) return toast.error('Please select a category and provide a reason');
-    if (!sellerId || !sellerName) return toast.error('Seller information not available');
+    if (!user) {
+      toast.error('You must be logged in to report a listing');
+      return;
+    }
+
+    if (!category || !reason.trim()) {
+      toast.error('Please select a category and provide a reason');
+      return;
+    }
+
+    if (!sellerId || !sellerName) {
+      toast.error('Seller information not available');
+      return;
+    }
 
     setIsSubmitting(true);
     try {
@@ -66,7 +48,7 @@ const ReportBookDialog = ({
         bookId,
         bookTitle,
         sellerName,
-        reason: `${category}: ${reason.trim()}`,
+        reason: `${category}: ${reason}`
       });
 
       toast.success('Report submitted successfully');
@@ -90,39 +72,40 @@ const ReportBookDialog = ({
             Help us maintain a safe marketplace by reporting inappropriate content or suspicious activity.
           </DialogDescription>
         </DialogHeader>
-
+        
         <div className="space-y-4">
           <div>
             <Label>Book Title</Label>
             <p className="text-sm text-gray-600">{bookTitle}</p>
           </div>
-
+          
           <div>
             <Label>Seller</Label>
             <p className="text-sm text-gray-600">{sellerName || 'Unknown'}</p>
           </div>
-
+          
           <div>
             <Label htmlFor="category">Category</Label>
             <Select value={category} onValueChange={setCategory}>
-              <SelectTrigger id="category" aria-label="Report Category">
+              <SelectTrigger>
                 <SelectValue placeholder="Select a reason category" />
               </SelectTrigger>
               <SelectContent>
-                {categories.map((cat) => (
-                  <SelectItem key={cat.value} value={cat.value}>
-                    {cat.label}
-                  </SelectItem>
-                ))}
+                <SelectItem value="inappropriate-content">Inappropriate Content</SelectItem>
+                <SelectItem value="misleading-info">Misleading Information</SelectItem>
+                <SelectItem value="counterfeit">Counterfeit/Fake Book</SelectItem>
+                <SelectItem value="overpriced">Unreasonably Overpriced</SelectItem>
+                <SelectItem value="duplicate">Duplicate Listing</SelectItem>
+                <SelectItem value="spam">Spam</SelectItem>
+                <SelectItem value="other">Other</SelectItem>
               </SelectContent>
             </Select>
           </div>
-
+          
           <div>
             <Label htmlFor="reason">Additional Details</Label>
             <Textarea
               id="reason"
-              aria-label="Additional Details"
               placeholder="Please provide specific details about why you're reporting this listing..."
               value={reason}
               onChange={(e) => setReason(e.target.value)}
@@ -130,17 +113,13 @@ const ReportBookDialog = ({
             />
           </div>
         </div>
-
+        
         <DialogFooter>
-          <Button
-            variant="outline"
-            onClick={onClose}
-            disabled={isSubmitting}
-          >
+          <Button variant="outline" onClick={onClose}>
             Cancel
           </Button>
-          <Button
-            onClick={handleSubmit}
+          <Button 
+            onClick={handleSubmit} 
             disabled={!category || !reason.trim() || isSubmitting}
           >
             {isSubmitting ? 'Submitting...' : 'Submit Report'}
