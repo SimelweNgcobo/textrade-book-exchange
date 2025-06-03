@@ -13,7 +13,7 @@ interface BookImages {
 }
 
 interface MultiImageUploadProps {
-  images: string[] | BookImages;
+  images?: string[] | BookImages;
   onImagesChange: (images: string[] | BookImages) => void;
   maxImages?: number;
   className?: string;
@@ -27,7 +27,7 @@ const MultiImageUpload = ({
   onImagesChange, 
   maxImages = 3, 
   className = '',
-  variant = 'array',
+  variant = 'object',
   currentImages,
   disabled = false
 }: MultiImageUploadProps) => {
@@ -38,9 +38,10 @@ const MultiImageUpload = ({
   const getImageArray = (): string[] => {
     if (variant === 'object') {
       const bookImages = (currentImages || images) as BookImages;
+      if (!bookImages) return [];
       return [bookImages.frontCover, bookImages.backCover, bookImages.insidePages].filter(Boolean);
     }
-    return images as string[];
+    return (images || []) as string[];
   };
 
   // Convert array back to appropriate format
@@ -161,7 +162,7 @@ const MultiImageUpload = ({
               variant="outline"
               size="sm"
               disabled={isUploading || disabled}
-              className="relative w-full sm:w-auto"
+              className="relative w-full sm:w-auto min-h-[44px]"
             >
               <Upload className="mr-2 h-4 w-4" />
               {isUploading ? 'Uploading...' : 'Add Images'}
@@ -195,7 +196,7 @@ const MultiImageUpload = ({
                       variant="destructive"
                       size="sm"
                       onClick={() => removeImage(index)}
-                      className="h-6 w-6 p-0"
+                      className="h-8 w-8 p-0 min-h-[32px]"
                     >
                       <X className="h-3 w-3" />
                     </Button>
@@ -207,7 +208,7 @@ const MultiImageUpload = ({
                     variant="secondary"
                     size="sm"
                     onClick={() => setPreviewImage(imageUrl)}
-                    className="h-6 w-6 p-0"
+                    className="h-8 w-8 p-0 min-h-[32px]"
                   >
                     <Eye className="h-3 w-3" />
                   </Button>

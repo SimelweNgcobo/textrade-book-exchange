@@ -202,43 +202,47 @@ const CreateListing = () => {
   return (
     <Layout>
       <div className="container mx-auto px-4 py-8">
-        <Button variant="ghost" onClick={() => navigate(-1)} className="mb-6 text-book-600">
+        <Button 
+          variant="ghost" 
+          onClick={() => navigate(-1)} 
+          className="mb-6 text-book-600 min-h-[44px]"
+        >
           <ArrowLeft className="mr-2 h-4 w-4" /> Back
         </Button>
 
         <div className="bg-white rounded-lg shadow-md p-6 md:p-8">
           <h1 className="text-3xl font-bold text-book-800 mb-6">Sell Your Book</h1>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="bg-gray-50 p-4 rounded-lg mb-6">
-              <Label className="text-base font-medium mb-2 block">Book Type</Label>
+          <form onSubmit={handleSubmit} className="space-y-8">
+            <div className="bg-gray-50 p-4 rounded-lg">
+              <Label className="text-base font-medium mb-4 block">Book Type</Label>
               <RadioGroup 
-                className="flex flex-col sm:flex-row gap-4" 
+                className="flex flex-col sm:flex-row gap-6" 
                 defaultValue="school"
                 value={bookType}
                 onValueChange={(value) => handleBookTypeChange(value as 'school' | 'university')}
               >
-                <div className="flex items-center space-x-2">
+                <div className="flex items-center space-x-3">
                   <RadioGroupItem value="school" id="school" />
-                  <Label htmlFor="school" className="flex items-center">
+                  <Label htmlFor="school" className="flex items-center cursor-pointer">
                     <School className="mr-2 h-4 w-4" />
                     School Book
                   </Label>
                 </div>
-                <div className="flex items-center space-x-2">
+                <div className="flex items-center space-x-3">
                   <RadioGroupItem value="university" id="university" />
-                  <Label htmlFor="university" className="flex items-center">
+                  <Label htmlFor="university" className="flex items-center cursor-pointer">
                     <GraduationCap className="mr-2 h-4 w-4" />
                     University Book
                   </Label>
                 </div>
               </RadioGroup>
-              <p className="text-sm text-gray-500 mt-2">
+              <p className="text-sm text-gray-500 mt-3">
                 We have both new and second-hand books available
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div className="space-y-6">
                 <div>
                   <Label htmlFor="title" className="text-base font-medium">
@@ -402,39 +406,50 @@ const CreateListing = () => {
               </div>
             </div>
 
-            <div className="mt-6">
+            <div className="space-y-4">
+              <div>
+                <Label className="text-base font-medium mb-2 block">
+                  Book Photos <span className="text-red-500">*</span>
+                </Label>
+                <p className="text-sm text-gray-600 mb-4">
+                  Upload photos of your book's front cover, back cover, and inside pages
+                </p>
+              </div>
               <MultiImageUpload
-                onImagesChange={handleImagesChange}
                 currentImages={bookImages}
+                onImagesChange={handleImagesChange}
                 disabled={isSubmitting}
+                variant="object"
+                maxImages={3}
+                className="border rounded-lg p-4"
               />
               {(errors.frontCover || errors.backCover || errors.insidePages) && (
                 <p className="text-sm text-red-500 mt-2">All three photos are required</p>
               )}
             </div>
 
-            <div className="p-4 bg-book-50 rounded-lg border border-book-200 mt-6">
-              <h3 className="font-semibold text-book-800 mb-2">Commission & Earnings</h3>
-              <div className="space-y-2 text-sm">
+            <div className="p-6 bg-book-50 rounded-lg border border-book-200">
+              <h3 className="font-semibold text-book-800 mb-4">Commission & Earnings</h3>
+              <div className="space-y-3 text-sm">
                 <p className="text-book-700">
                   <strong>Book Price:</strong> R{formData.price.toFixed(2)}
                 </p>
                 <p className="text-orange-600">
                   <strong>ReBooked Commission (10%):</strong> -R{calculateCommission(formData.price).toFixed(2)}
                 </p>
-                <p className="text-green-600 font-semibold">
+                <p className="text-green-600 font-semibold text-lg">
                   <strong>You will receive:</strong> R{calculateSellerReceives(formData.price).toFixed(2)}
                 </p>
               </div>
-              <p className="text-book-600 mt-3 text-sm">
+              <p className="text-book-600 mt-4 text-sm">
                 ReBooked takes a 10% commission from each sale to maintain the platform and provide secure transactions.
               </p>
             </div>
 
-            <div className="flex justify-end">
+            <div className="flex justify-end pt-4">
               <Button
                 type="submit"
-                className="bg-book-600 hover:bg-book-700"
+                className="bg-book-600 hover:bg-book-700 min-h-[48px] px-8"
                 disabled={isSubmitting}
                 size="lg"
               >

@@ -39,14 +39,16 @@ const Admin = () => {
             <div className="space-y-3">
               <Button 
                 onClick={() => navigate('/login')}
-                className="w-full"
+                className="w-full min-h-[48px]"
+                size="lg"
               >
                 Log In
               </Button>
               <Button 
                 variant="outline"
                 onClick={() => navigate('/')}
-                className="w-full"
+                className="w-full min-h-[48px]"
+                size="lg"
               >
                 Go Home
               </Button>
@@ -73,14 +75,16 @@ const Admin = () => {
             <div className="space-y-3">
               <Button 
                 onClick={() => navigate('/profile')}
-                className="w-full"
+                className="w-full min-h-[48px]"
+                size="lg"
               >
                 Go to Profile
               </Button>
               <Button 
                 variant="outline"
                 onClick={() => navigate('/')}
-                className="w-full"
+                className="w-full min-h-[48px]"
+                size="lg"
               >
                 Go Home
               </Button>
@@ -93,35 +97,39 @@ const Admin = () => {
 
   return (
     <Layout>
-      <div className="container mx-auto px-2 md:px-4 py-4 md:py-8">
-        <div className={`flex ${isMobile ? 'flex-col space-y-4' : 'items-center justify-between'} mb-4 md:mb-6`}>
-          <div className="flex items-center space-x-2 md:space-x-4">
+      <div className="container mx-auto px-4 py-4 md:py-8 space-y-6">
+        {/* Improved Header Layout for Mobile */}
+        <div className="space-y-4">
+          <div className="flex items-center space-x-3">
             <Button 
               variant="ghost" 
               onClick={() => navigate('/')}
-              className="text-book-600"
+              className="text-book-600 min-h-[44px]"
               size={isMobile ? "sm" : "default"}
             >
               <ArrowLeft className="mr-2 h-4 w-4" /> Back to Home
             </Button>
-            <div className="flex items-center space-x-2">
-              <Shield className="h-5 w-5 text-book-600" />
-              <h1 className="text-xl md:text-3xl font-bold text-book-800">Admin Dashboard</h1>
-            </div>
           </div>
           
-          <Button 
-            variant="outline"
-            onClick={() => navigate('/admin/reports')}
-            className="flex items-center w-full md:w-auto"
-            size={isMobile ? "sm" : "default"}
-          >
-            <Flag className="mr-2 h-4 w-4" />
-            View Reports
-          </Button>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div className="flex items-center space-x-3">
+              <Shield className="h-6 w-6 text-book-600" />
+              <h1 className="text-2xl md:text-3xl font-bold text-book-800">Admin Dashboard</h1>
+            </div>
+            
+            <Button 
+              variant="outline"
+              onClick={() => navigate('/admin/reports')}
+              className="flex items-center w-full sm:w-auto min-h-[48px]"
+              size={isMobile ? "lg" : "default"}
+            >
+              <Flag className="mr-2 h-4 w-4" />
+              View Reports
+            </Button>
+          </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow-md p-3 md:p-6">
+        <div className="bg-white rounded-lg shadow-md p-4 md:p-6">
           <AppErrorBoundary>
             <AdminDashboard />
           </AppErrorBoundary>

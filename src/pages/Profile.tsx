@@ -154,50 +154,62 @@ const Profile = () => {
             />
           </div>
 
-          {/* Mobile Quick Actions */}
-          <div className="grid grid-cols-2 gap-3 mb-6">
+          {/* Mobile Quick Actions - Improved spacing and layout */}
+          <div className="space-y-3 mb-6">
             <Button
               onClick={() => navigate('/create-listing')}
-              className="bg-book-600 hover:bg-book-700 text-white"
+              className="bg-book-600 hover:bg-book-700 text-white w-full min-h-[48px]"
+              size="lg"
             >
               <Plus className="h-4 w-4 mr-2" />
-              Create Listing
+              Create New Listing
             </Button>
             <Button
               onClick={() => setIsEditDialogOpen(true)}
               variant="outline"
-              className="border-book-600 text-book-600"
+              className="border-book-600 text-book-600 w-full min-h-[48px]"
+              size="lg"
             >
               <User className="h-4 w-4 mr-2" />
               Edit Profile
             </Button>
           </div>
 
-          {/* Mobile Content */}
-          <div className="space-y-6">
-            {/* Active Listings */}
-            <MobileListingsView
-              activeListings={activeListings}
-              isLoading={isLoadingListings}
-              onEditBook={handleEditBook}
-              onDeleteBook={handleDeleteBook}
-            />
+          {/* Mobile Content - Improved vertical stacking */}
+          <div className="space-y-8">
+            {/* Active Listings Section */}
+            <div className="bg-white rounded-lg shadow-sm border p-4">
+              <h2 className="text-lg font-semibold mb-4 flex items-center">
+                <BookOpen className="h-5 w-5 mr-2 text-book-600" />
+                Your Active Listings
+              </h2>
+              <MobileListingsView
+                activeListings={activeListings}
+                isLoading={isLoadingListings}
+                onEditBook={handleEditBook}
+                onDeleteBook={handleDeleteBook}
+              />
+            </div>
 
             {/* Book Not Selling Help */}
-            <div className="px-4">
+            <div className="bg-blue-50 rounded-lg p-4">
               <BookNotSellingHelp />
             </div>
 
             {/* Account Information */}
-            <AccountInformation
-              profile={profile}
-              onEditProfile={() => setIsEditDialogOpen(true)}
-            />
+            <div className="bg-white rounded-lg shadow-sm border p-4">
+              <AccountInformation
+                profile={profile}
+                onEditProfile={() => setIsEditDialogOpen(true)}
+              />
+            </div>
 
             {/* Security Settings */}
-            <SecuritySettings
-              onChangePassword={() => setIsChangePasswordDialogOpen(true)}
-            />
+            <div className="bg-white rounded-lg shadow-sm border p-4">
+              <SecuritySettings
+                onChangePassword={() => setIsChangePasswordDialogOpen(true)}
+              />
+            </div>
           </div>
 
           {/* Mobile Dialogs */}
