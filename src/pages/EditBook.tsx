@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
@@ -195,6 +194,12 @@ const EditBook = () => {
     );
   }
 
+  const currentImages = {
+    frontCover: form.watch('frontCover') || '',
+    backCover: form.watch('backCover') || '',
+    insidePages: form.watch('insidePages') || ''
+  };
+
   return (
     <Layout>
       <div className="container mx-auto px-4 py-8 max-w-2xl">
@@ -302,16 +307,15 @@ const EditBook = () => {
 
             <div className="space-y-4">
               <MultiImageUpload
+                images={currentImages}
                 onImagesChange={(images) => {
-                  form.setValue('frontCover', images.frontCover || '');
-                  form.setValue('backCover', images.backCover || '');
-                  form.setValue('insidePages', images.insidePages || '');
+                  const bookImages = images as { frontCover: string; backCover: string; insidePages: string };
+                  form.setValue('frontCover', bookImages.frontCover || '');
+                  form.setValue('backCover', bookImages.backCover || '');
+                  form.setValue('insidePages', bookImages.insidePages || '');
                 }}
-                currentImages={{
-                  frontCover: form.watch('frontCover'),
-                  backCover: form.watch('backCover'),
-                  insidePages: form.watch('insidePages')
-                }}
+                variant="object"
+                currentImages={currentImages}
               />
             </div>
 

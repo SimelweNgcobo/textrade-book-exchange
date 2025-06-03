@@ -4,23 +4,21 @@ import { Card, CardContent } from '@/components/ui/card';
 import { User } from 'lucide-react';
 
 interface SellerInfoProps {
-  book: {
-    seller: {
-      id: string;
-      name: string;
-      email: string;
-    };
+  seller: {
+    id: string;
+    name: string;
+    email: string;
   };
-  onViewSellerProfile: () => void;
+  onViewProfile: () => void;
 }
 
-const SellerInfo = ({ book, onViewSellerProfile }: SellerInfoProps) => {
+const SellerInfo = ({ seller, onViewProfile }: SellerInfoProps) => {
   return (
     <Card>
       <CardContent className="p-4">
         <div className="flex items-center justify-between">
           <div>
-            <p className="font-semibold">Seller: {book.seller?.name || 'Anonymous'}</p>
+            <p className="font-semibold">Seller: {seller?.name || 'Anonymous'}</p>
             <p className="text-sm text-gray-600">
               Member since {new Date().getFullYear()}
             </p>
@@ -28,7 +26,7 @@ const SellerInfo = ({ book, onViewSellerProfile }: SellerInfoProps) => {
           <Button
             variant="outline"
             size="sm"
-            onClick={onViewSellerProfile}
+            onClick={onViewProfile}
             className="flex items-center gap-2"
           >
             <User className="h-4 w-4" />

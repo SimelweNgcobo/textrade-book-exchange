@@ -13,6 +13,7 @@ export const useBookDetails = (bookId: string | undefined) => {
   const { addToCart } = useCart();
   const [book, setBook] = useState<Book | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (bookId) {
@@ -24,9 +25,11 @@ export const useBookDetails = (bookId: string | undefined) => {
     if (!bookId) return;
     
     setIsLoading(true);
+    setError(null);
     try {
       const bookData = await getBookById(bookId);
       if (!bookData) {
+        setError('Book not found');
         toast.error('Book not found');
         navigate('/books');
         return;
@@ -34,7 +37,9 @@ export const useBookDetails = (bookId: string | undefined) => {
       setBook(bookData);
     } catch (error) {
       console.error('Error loading book:', error);
-      toast.error('Failed to load book details');
+      const errorMessage = error instanceof Error ? error.message : 'Failed to load book details';
+      setError(errorMessage);
+      toast.error(errorMessage);
       navigate('/books');
     } finally {
       setIsLoading(false);
@@ -110,6 +115,7 @@ export const useBookDetails = (bookId: string | undefined) => {
   return {
     book,
     isLoading,
+    error,
     user,
     handleBuyNow,
     handleAddToCart,

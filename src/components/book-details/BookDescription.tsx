@@ -1,15 +1,17 @@
 
+import { Book } from '@/types/book';
+
 interface BookDescriptionProps {
-  description?: string;
+  book: Book;
 }
 
-const BookDescription = ({ description }: BookDescriptionProps) => {
-  if (!description) return null;
+const BookDescription = ({ book }: BookDescriptionProps) => {
+  if (!book.description) return null;
 
   return (
     <div>
       <h3 className="text-lg font-semibold mb-2">Description</h3>
-      <p className="text-gray-700 leading-relaxed">{description}</p>
+      <p className="text-gray-700 leading-relaxed">{book.description}</p>
     </div>
   );
 };

@@ -19,6 +19,7 @@ interface MultiImageUploadProps {
   className?: string;
   variant?: 'array' | 'object';
   currentImages?: BookImages;
+  disabled?: boolean;
 }
 
 const MultiImageUpload = ({ 
@@ -27,7 +28,8 @@ const MultiImageUpload = ({
   maxImages = 3, 
   className = '',
   variant = 'array',
-  currentImages
+  currentImages,
+  disabled = false
 }: MultiImageUploadProps) => {
   const [isUploading, setIsUploading] = useState(false);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
@@ -58,6 +60,8 @@ const MultiImageUpload = ({
   const imageArray = getImageArray();
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (disabled) return;
+    
     const files = event.target.files;
     if (!files || files.length === 0) return;
 
@@ -118,6 +122,8 @@ const MultiImageUpload = ({
   };
 
   const removeImage = (index: number) => {
+    if (disabled) return;
+    
     const newImages = imageArray.filter((_, i) => i !== index);
     setImages(newImages);
     toast.success('Image removed');
@@ -140,7 +146,7 @@ const MultiImageUpload = ({
         <p className="text-sm text-gray-600">
           Upload up to {maxImages} images ({imageArray.length}/{maxImages} uploaded)
         </p>
-        {canUploadMore && (
+        {canUploadMore && !disabled && (
           <div className="relative">
             <input
               type="file"
@@ -148,13 +154,13 @@ const MultiImageUpload = ({
               accept="image/*"
               onChange={handleFileUpload}
               className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-              disabled={isUploading}
+              disabled={isUploading || disabled}
             />
             <Button
               type="button"
               variant="outline"
               size="sm"
-              disabled={isUploading}
+              disabled={isUploading || disabled}
               className="relative w-full sm:w-auto"
             >
               <Upload className="mr-2 h-4 w-4" />
@@ -182,17 +188,19 @@ const MultiImageUpload = ({
                     </div>
                   )}
                 </div>
-                <div className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <Button
-                    type="button"
-                    variant="destructive"
-                    size="sm"
-                    onClick={() => removeImage(index)}
-                    className="h-6 w-6 p-0"
-                  >
-                    <X className="h-3 w-3" />
-                  </Button>
-                </div>
+                {!disabled && (
+                  <div className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => removeImage(index)}
+                      className="h-6 w-6 p-0"
+                    >
+                      <X className="h-3 w-3" />
+                    </Button>
+                  </div>
+                )}
                 <div className="absolute bottom-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity">
                   <Button
                     type="button"

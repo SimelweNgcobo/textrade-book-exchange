@@ -1,26 +1,25 @@
 
 import { useState } from 'react';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Flag } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { submitReport } from '@/services/reportService';
 import { toast } from 'sonner';
 
 interface ReportBookDialogProps {
+  isOpen: boolean;
+  onClose: () => void;
   bookId: string;
   bookTitle: string;
-  sellerId: string;
-  sellerName: string;
-  children?: React.ReactNode;
+  sellerId?: string;
+  sellerName?: string;
 }
 
-const ReportBookDialog = ({ bookId, bookTitle, sellerId, sellerName, children }: ReportBookDialogProps) => {
+const ReportBookDialog = ({ isOpen, onClose, bookId, bookTitle, sellerId, sellerName }: ReportBookDialogProps) => {
   const { user } = useAuth();
-  const [isOpen, setIsOpen] = useState(false);
   const [reason, setReason] = useState('');
   const [category, setCategory] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -36,6 +35,11 @@ const ReportBookDialog = ({ bookId, bookTitle, sellerId, sellerName, children }:
       return;
     }
 
+    if (!sellerId || !sellerName) {
+      toast.error('Seller information not available');
+      return;
+    }
+
     setIsSubmitting(true);
     try {
       await submitReport({
@@ -48,7 +52,7 @@ const ReportBookDialog = ({ bookId, bookTitle, sellerId, sellerName, children }:
       });
 
       toast.success('Report submitted successfully');
-      setIsOpen(false);
+      onClose();
       setReason('');
       setCategory('');
     } catch (error) {
@@ -60,15 +64,7 @@ const ReportBookDialog = ({ bookId, bookTitle, sellerId, sellerName, children }:
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
-        {children || (
-          <Button variant="outline" size="sm">
-            <Flag className="h-4 w-4 mr-2" />
-            Report
-          </Button>
-        )}
-      </DialogTrigger>
+    <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Report Book Listing</DialogTitle>
@@ -85,7 +81,7 @@ const ReportBookDialog = ({ bookId, bookTitle, sellerId, sellerName, children }:
           
           <div>
             <Label>Seller</Label>
-            <p className="text-sm text-gray-600">{sellerName}</p>
+            <p className="text-sm text-gray-600">{sellerName || 'Unknown'}</p>
           </div>
           
           <div>
@@ -119,7 +115,7 @@ const ReportBookDialog = ({ bookId, bookTitle, sellerId, sellerName, children }:
         </div>
         
         <DialogFooter>
-          <Button variant="outline" onClick={() => setIsOpen(false)}>
+          <Button variant="outline" onClick={onClose}>
             Cancel
           </Button>
           <Button 

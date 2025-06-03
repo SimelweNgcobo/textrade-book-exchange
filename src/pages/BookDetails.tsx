@@ -254,6 +254,8 @@ const BookDetails = () => {
           onClose={() => setIsReportDialogOpen(false)}
           bookId={book.id}
           bookTitle={book.title}
+          sellerId={book.seller?.id}
+          sellerName={book.seller?.name}
         />
       </div>
     </Layout>
