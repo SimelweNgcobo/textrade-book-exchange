@@ -139,7 +139,7 @@ const ContactUs = () => {
                 </div>
                 <div>
                   <h3 className="text-lg font-semibold text-gray-800">Email</h3>
-                  <p className="text-gray-600 mt-1">rebooked.solutions@gmail.com</p>
+                  <p className="text-gray-600 mt-1">support@rebookedsolutions.co.za</p>
                   <a href="mailto:rebooked.solutions@gmail.com" className="text-book-600 hover:text-book-800 mt-1 inline-block">
                     Send us an email
                   </a>
