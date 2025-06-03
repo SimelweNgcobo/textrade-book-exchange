@@ -18,6 +18,9 @@ export const useBookDetails = (bookId: string | undefined) => {
   useEffect(() => {
     if (bookId) {
       loadBook();
+    } else {
+      setError('Invalid book ID');
+      setIsLoading(false);
     }
   }, [bookId]);
 
@@ -26,21 +29,33 @@ export const useBookDetails = (bookId: string | undefined) => {
     
     setIsLoading(true);
     setError(null);
+    
     try {
+      console.log('Loading book with ID:', bookId);
       const bookData = await getBookById(bookId);
+      
       if (!bookData) {
         setError('Book not found');
-        toast.error('Book not found');
-        navigate('/books');
         return;
       }
+      
+      console.log('Book loaded successfully:', bookData);
       setBook(bookData);
     } catch (error) {
       console.error('Error loading book:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Failed to load book details';
-      setError(errorMessage);
-      toast.error(errorMessage);
-      navigate('/books');
+      
+      // Handle specific error types
+      if (error instanceof Error) {
+        if (error.message.includes('not found') || error.message.includes('404')) {
+          setError('Book not found or has been removed');
+        } else if (error.message.includes('network') || error.message.includes('fetch')) {
+          setError('Network error. Please check your connection and try again');
+        } else {
+          setError('Failed to load book details. Please try again');
+        }
+      } else {
+        setError('An unexpected error occurred');
+      }
     } finally {
       setIsLoading(false);
     }
@@ -63,7 +78,9 @@ export const useBookDetails = (bookId: string | undefined) => {
       return;
     }
 
-    navigate(`/checkout/${bookId}`);
+    if (bookId) {
+      navigate(`/checkout/${bookId}`);
+    }
   };
 
   const handleAddToCart = () => {
@@ -84,7 +101,16 @@ export const useBookDetails = (bookId: string | undefined) => {
     }
 
     if (book) {
-      addToCart(book);
+      addToCart({
+        id: book.id,
+        bookId: book.id,
+        title: book.title,
+        author: book.author,
+        price: book.price,
+        imageUrl: book.frontCover || book.imageUrl,
+        sellerId: book.seller?.id || '',
+        sellerName: book.seller?.name || 'Unknown Seller'
+      });
       toast.success('Book added to cart');
     }
   };
@@ -109,7 +135,9 @@ export const useBookDetails = (bookId: string | undefined) => {
       return;
     }
 
-    navigate(`/edit-book/${bookId}`);
+    if (bookId) {
+      navigate(`/edit-book/${bookId}`);
+    }
   };
 
   return {
@@ -121,6 +149,7 @@ export const useBookDetails = (bookId: string | undefined) => {
     handleAddToCart,
     handleViewSellerProfile,
     handleEditBook,
-    navigate
+    navigate,
+    refetch: loadBook
   };
 };

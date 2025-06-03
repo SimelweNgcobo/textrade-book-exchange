@@ -13,7 +13,7 @@ import SellerInfo from '@/components/book-details/SellerInfo';
 import ReportBookDialog from '@/components/ReportBookDialog';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Share2 } from 'lucide-react';
+import { ArrowLeft, AlertTriangle, BookOpen } from 'lucide-react';
 import { useBookDetails } from '@/hooks/useBookDetails';
 import { toast } from 'sonner';
 
@@ -24,13 +24,16 @@ const BookDetails = () => {
   const { addToCart } = useCart();
   const [isReportDialogOpen, setIsReportDialogOpen] = useState(false);
 
-  const { book, isLoading, error } = useBookDetails(id || '');
-
+  // Redirect to books page if no ID is provided
   useEffect(() => {
     if (!id) {
+      console.error('No book ID provided in URL');
+      toast.error('Invalid book link');
       navigate('/books');
     }
   }, [id, navigate]);
+
+  const { book, isLoading, error } = useBookDetails(id || '');
 
   const handleBuyNow = () => {
     if (!user) {
@@ -40,6 +43,16 @@ const BookDetails = () => {
     }
 
     if (!book) return;
+
+    if (book.sold) {
+      toast.error('This book has already been sold');
+      return;
+    }
+
+    if (user.id === book.seller?.id) {
+      toast.error('You cannot buy your own book');
+      return;
+    }
 
     navigate(`/checkout/${book.id}`);
   };
@@ -53,13 +66,25 @@ const BookDetails = () => {
 
     if (!book) return;
 
+    if (book.sold) {
+      toast.error('This book has already been sold');
+      return;
+    }
+
+    if (user.id === book.seller?.id) {
+      toast.error('You cannot add your own book to cart');
+      return;
+    }
+
     addToCart({
       id: book.id,
+      bookId: book.id,
       title: book.title,
       author: book.author,
       price: book.price,
       imageUrl: book.frontCover || book.imageUrl,
-      sellerId: book.seller?.id || ''
+      sellerId: book.seller?.id || '',
+      sellerName: book.seller?.name || 'Unknown Seller'
     });
 
     toast.success('Book added to cart!');
@@ -113,26 +138,98 @@ const BookDetails = () => {
     setIsReportDialogOpen(true);
   };
 
+  // Loading state
   if (isLoading) {
     return (
       <Layout>
         <div className="container mx-auto px-4 py-8">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-book-600 mx-auto"></div>
+          <div className="flex flex-col items-center justify-center min-h-[400px] space-y-4">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-book-600"></div>
+            <p className="text-gray-600">Loading book details...</p>
+          </div>
         </div>
       </Layout>
     );
   }
 
+  // Error state with better error handling
   if (error || !book) {
+    const errorMessage = error || 'Book not found or may have been removed';
+    
     return (
       <Layout>
-        <div className="container mx-auto px-4 py-8 text-center">
-          <h2 className="text-2xl font-semibold mb-4">Book not found</h2>
-          <p className="text-gray-600 mb-4">The book you're looking for doesn't exist or has been removed.</p>
-          <Button onClick={() => navigate('/books')} variant="outline">
+        <div className="container mx-auto px-4 py-8">
+          <div className="flex flex-col items-center justify-center min-h-[400px] max-w-md mx-auto text-center">
+            <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4">
+              <AlertTriangle className="h-8 w-8 text-red-600" />
+            </div>
+            <h2 className="text-2xl font-semibold mb-2 text-gray-800">Book Not Available</h2>
+            <p className="text-gray-600 mb-6">{errorMessage}</p>
+            <div className="space-y-3 w-full">
+              <Button 
+                onClick={() => navigate('/books')} 
+                className="bg-book-600 hover:bg-book-700 w-full min-h-[48px]"
+                size="lg"
+              >
+                <BookOpen className="mr-2 h-4 w-4" />
+                Browse All Books
+              </Button>
+              <Button 
+                variant="outline"
+                onClick={() => navigate(-1)} 
+                className="w-full min-h-[48px]"
+                size="lg"
+              >
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Go Back
+              </Button>
+            </div>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
+
+  // Book is sold state
+  if (book.sold) {
+    return (
+      <Layout>
+        <div className="container mx-auto px-4 py-8">
+          <Button 
+            variant="ghost" 
+            onClick={() => navigate(-1)} 
+            className="mb-6 text-book-600 hover:bg-book-50 min-h-[44px]"
+          >
             <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Books
+            Back
           </Button>
+          
+          <div className="text-center max-w-md mx-auto">
+            <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <BookOpen className="h-8 w-8 text-orange-600" />
+            </div>
+            <h2 className="text-2xl font-semibold mb-2">Book Already Sold</h2>
+            <p className="text-gray-600 mb-6">
+              This book has already been purchased by another buyer.
+            </p>
+            <div className="space-y-3">
+              <Button 
+                onClick={() => navigate('/books')}
+                className="bg-book-600 hover:bg-book-700 w-full min-h-[48px]"
+                size="lg"
+              >
+                Find Similar Books
+              </Button>
+              <Button 
+                variant="outline"
+                onClick={() => navigate(-1)}
+                className="w-full min-h-[48px]"
+                size="lg"
+              >
+                Go Back
+              </Button>
+            </div>
+          </div>
         </div>
       </Layout>
     );
@@ -149,7 +246,7 @@ const BookDetails = () => {
           <Button 
             variant="ghost" 
             onClick={() => navigate(-1)} 
-            className="text-book-600 hover:bg-book-50 p-2 sm:p-3"
+            className="text-book-600 hover:bg-book-50 p-2 sm:p-3 min-h-[44px]"
           >
             <ArrowLeft className="mr-2 h-4 w-4" />
             <span className="hidden sm:inline">Back</span>
@@ -227,7 +324,7 @@ const BookDetails = () => {
                 variant="outline"
                 size="sm"
                 onClick={handleReportBook}
-                className="text-red-600 border-red-600 hover:bg-red-50"
+                className="text-red-600 border-red-600 hover:bg-red-50 min-h-[44px]"
               >
                 Report Issue
               </Button>
@@ -242,7 +339,7 @@ const BookDetails = () => {
               variant="outline"
               size="sm"
               onClick={handleReportBook}
-              className="text-red-600 border-red-600 hover:bg-red-50"
+              className="text-red-600 border-red-600 hover:bg-red-50 min-h-[44px]"
             >
               Report Issue with this Book
             </Button>

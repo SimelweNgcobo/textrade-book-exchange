@@ -4,7 +4,7 @@ export const handleBookServiceError = (error: any, operation: string): never => 
   
   // Handle specific Supabase errors
   if (error?.message?.includes('JWT')) {
-    throw new Error('Authentication required. Please log in and try again.');
+    throw new Error('Your session has expired. Please log in again.');
   }
   
   if (error?.message?.includes('Row Level Security')) {
@@ -12,7 +12,7 @@ export const handleBookServiceError = (error: any, operation: string): never => 
   }
   
   if (error?.code === 'PGRST116') {
-    throw new Error('The requested resource was not found.');
+    throw new Error('The requested book was not found or has been removed.');
   }
   
   if (error?.message?.includes('relation') && error?.message?.includes('does not exist')) {
@@ -26,6 +26,19 @@ export const handleBookServiceError = (error: any, operation: string): never => 
   // Network and connection errors
   if (error?.message?.includes('fetch') || error?.message?.includes('network')) {
     throw new Error('Network error. Please check your connection and try again.');
+  }
+  
+  // Handle book-specific errors
+  if (error?.message?.includes('book not found')) {
+    throw new Error('This book is no longer available or has been removed.');
+  }
+  
+  if (error?.message?.includes('already sold')) {
+    throw new Error('This book has already been sold to another buyer.');
+  }
+  
+  if (error?.message?.includes('permission denied')) {
+    throw new Error('You do not have permission to access this book.');
   }
   
   // Generic error fallback with more context

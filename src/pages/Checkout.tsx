@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
@@ -12,7 +13,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, CreditCard } from 'lucide-react';
+import { ArrowLeft, CreditCard, AlertTriangle, ShoppingCart } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface AddressData {
@@ -34,6 +35,7 @@ const Checkout = () => {
   
   const [book, setBook] = useState<Book | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [savedAddresses, setSavedAddresses] = useState<any>(null);
   const [selectedAddress, setSelectedAddress] = useState<'pickup' | 'shipping' | 'new'>('new');
   const [shippingAddress, setShippingAddress] = useState({
@@ -52,11 +54,14 @@ const Checkout = () => {
   useEffect(() => {
     const loadData = async () => {
       if (!user?.id) {
+        toast.error('Please log in to complete your purchase');
         navigate('/login');
         return;
       }
 
       setIsLoading(true);
+      setError(null);
+
       try {
         // Load saved addresses
         const addresses = await getUserAddresses(user.id);
@@ -81,27 +86,32 @@ const Checkout = () => {
         if (!isCartCheckout && id) {
           const bookData = await getBookById(id);
           if (!bookData) {
-            toast.error('Book not found');
-            navigate('/books');
+            setError('Book not found');
             return;
           }
           if (bookData.sold) {
-            toast.error('This book has already been sold');
-            navigate('/books');
+            setError('This book has already been sold');
+            return;
+          }
+          if (bookData.seller?.id === user.id) {
+            setError('You cannot purchase your own book');
             return;
           }
           setBook(bookData);
+        } else if (isCartCheckout && cartData.length === 0) {
+          setError('Your cart is empty');
+          return;
         }
       } catch (error) {
         console.error('Error loading checkout data:', error);
-        toast.error('Failed to load checkout data');
+        setError('Failed to load checkout data. Please try again.');
       } finally {
         setIsLoading(false);
       }
     };
 
     loadData();
-  }, [id, user?.id, navigate, isCartCheckout]);
+  }, [id, user?.id, navigate, isCartCheckout, cartData.length]);
 
   const handleAddressSelection = (type: 'pickup' | 'shipping' | 'new') => {
     setSelectedAddress(type);
@@ -148,18 +158,30 @@ const Checkout = () => {
     return book?.price || 0;
   };
 
-  const handlePayment = async () => {
-    // Validate shipping address
+  const validateAddress = () => {
     const requiredFields = ['streetAddress', 'suburb', 'city', 'province', 'postalCode'];
     const missingFields = requiredFields.filter(field => !shippingAddress[field as keyof typeof shippingAddress]);
     
     if (missingFields.length > 0) {
       toast.error('Please fill in all required address fields');
+      return false;
+    }
+    return true;
+  };
+
+  const handlePayment = async () => {
+    if (!validateAddress()) {
       return;
     }
 
     try {
-      toast.success('Payment successful! Your order has been placed.');
+      // Simulate payment processing
+      toast.loading('Processing payment...', { id: 'payment' });
+      
+      // Simulate payment delay
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      toast.success('Payment successful! Your order has been placed.', { id: 'payment' });
       
       if (isCartCheckout) {
         clearCart();
@@ -168,7 +190,7 @@ const Checkout = () => {
       navigate('/');
     } catch (error) {
       console.error('Payment error:', error);
-      toast.error('Payment failed. Please try again.');
+      toast.error('Payment failed. Please try again.', { id: 'payment' });
     }
   };
 
@@ -176,7 +198,44 @@ const Checkout = () => {
     return (
       <Layout>
         <div className="container mx-auto px-4 py-8 flex justify-center items-center min-h-[60vh]">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-book-600"></div>
+          <div className="flex flex-col items-center space-y-4">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-book-600"></div>
+            <p className="text-gray-600">Loading checkout...</p>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
+
+  if (error) {
+    return (
+      <Layout>
+        <div className="container mx-auto px-4 py-8">
+          <div className="flex flex-col items-center justify-center min-h-[400px] max-w-md mx-auto text-center">
+            <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4">
+              <AlertTriangle className="h-8 w-8 text-red-600" />
+            </div>
+            <h2 className="text-2xl font-semibold mb-2 text-gray-800">Checkout Error</h2>
+            <p className="text-gray-600 mb-6">{error}</p>
+            <div className="space-y-3 w-full">
+              <Button 
+                onClick={() => navigate('/books')}
+                className="bg-book-600 hover:bg-book-700 w-full min-h-[48px]"
+                size="lg"
+              >
+                Browse Books
+              </Button>
+              <Button 
+                variant="outline"
+                onClick={() => navigate(-1)}
+                className="w-full min-h-[48px]"
+                size="lg"
+              >
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Go Back
+              </Button>
+            </div>
+          </div>
         </div>
       </Layout>
     );
@@ -187,7 +246,11 @@ const Checkout = () => {
   return (
     <Layout>
       <div className="container mx-auto px-4 py-4 md:py-8 max-w-6xl">
-        <Button variant="ghost" onClick={() => navigate(-1)} className="mb-6 text-book-600">
+        <Button 
+          variant="ghost" 
+          onClick={() => navigate(-1)} 
+          className="mb-6 text-book-600 min-h-[44px]"
+        >
           <ArrowLeft className="mr-2 h-4 w-4" /> Back
         </Button>
 
@@ -205,7 +268,7 @@ const Checkout = () => {
                   <div>
                     <Label className="text-base font-medium">Use saved address</Label>
                     <Select value={selectedAddress} onValueChange={(value: 'pickup' | 'shipping' | 'new') => handleAddressSelection(value)}>
-                      <SelectTrigger className="mt-2">
+                      <SelectTrigger className="mt-2 min-h-[44px]">
                         <SelectValue placeholder="Select an address" />
                       </SelectTrigger>
                       <SelectContent>
@@ -229,7 +292,7 @@ const Checkout = () => {
                       value={shippingAddress.complex}
                       onChange={(e) => setShippingAddress(prev => ({ ...prev, complex: e.target.value }))}
                       placeholder="Optional"
-                      className="w-full"
+                      className="w-full min-h-[44px]"
                     />
                   </div>
                   <div>
@@ -239,7 +302,7 @@ const Checkout = () => {
                       value={shippingAddress.unitNumber}
                       onChange={(e) => setShippingAddress(prev => ({ ...prev, unitNumber: e.target.value }))}
                       placeholder="Optional"
-                      className="w-full"
+                      className="w-full min-h-[44px]"
                     />
                   </div>
                 </div>
@@ -252,7 +315,7 @@ const Checkout = () => {
                     onChange={(e) => setShippingAddress(prev => ({ ...prev, streetAddress: e.target.value }))}
                     placeholder="123 Main Street"
                     required
-                    className="w-full"
+                    className="w-full min-h-[44px]"
                   />
                 </div>
 
@@ -265,7 +328,7 @@ const Checkout = () => {
                       onChange={(e) => setShippingAddress(prev => ({ ...prev, suburb: e.target.value }))}
                       placeholder="Suburb"
                       required
-                      className="w-full"
+                      className="w-full min-h-[44px]"
                     />
                   </div>
                   <div>
@@ -276,7 +339,7 @@ const Checkout = () => {
                       onChange={(e) => setShippingAddress(prev => ({ ...prev, city: e.target.value }))}
                       placeholder="City"
                       required
-                      className="w-full"
+                      className="w-full min-h-[44px]"
                     />
                   </div>
                 </div>
@@ -285,7 +348,7 @@ const Checkout = () => {
                   <div>
                     <Label htmlFor="province">Province *</Label>
                     <Select value={shippingAddress.province} onValueChange={(value) => setShippingAddress(prev => ({ ...prev, province: value }))}>
-                      <SelectTrigger className="w-full">
+                      <SelectTrigger className="w-full min-h-[44px]">
                         <SelectValue placeholder="Select province" />
                       </SelectTrigger>
                       <SelectContent>
@@ -309,7 +372,7 @@ const Checkout = () => {
                       onChange={(e) => setShippingAddress(prev => ({ ...prev, postalCode: e.target.value }))}
                       placeholder="1234"
                       required
-                      className="w-full"
+                      className="w-full min-h-[44px]"
                     />
                   </div>
                 </div>
@@ -371,7 +434,7 @@ const Checkout = () => {
 
                 <Button
                   onClick={handlePayment}
-                  className="w-full bg-book-600 hover:bg-book-700 text-sm md:text-base py-2 md:py-3"
+                  className="w-full bg-book-600 hover:bg-book-700 text-sm md:text-base py-2 md:py-3 min-h-[48px]"
                   size="lg"
                 >
                   <CreditCard className="mr-2 h-4 w-4" />
