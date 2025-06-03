@@ -1,6 +1,29 @@
-
 import { supabase } from '@/integrations/supabase/client';
 
+// --- Type Definitions ---
+export interface Report {
+  id: string;
+  reported_user_id: string;
+  reporter_user_id: string;
+  book_id?: string;
+  book_title: string;
+  seller_name: string;
+  reason: string;
+  status: 'pending' | 'resolved' | 'dismissed';
+  created_at: string;
+  updated_at?: string;
+}
+
+export interface UserProfile {
+  id: string;
+  name: string;
+  status: 'active' | 'suspended' | 'banned';
+  suspension_reason?: string;
+  suspended_at?: string;
+  created_at: string;
+}
+
+// --- Report Submission ---
 export interface ReportData {
   reportedUserId: string;
   reporterUserId: string;
@@ -25,8 +48,7 @@ export const submitReport = async (reportData: ReportData): Promise<void> => {
       });
 
     if (error) {
-      console.error('Error submitting report:', error);
-      throw error;
+      throw new Error(`Error submitting report: ${error.message}`);
     }
   } catch (error) {
     console.error('Error in submitReport:', error);
@@ -34,7 +56,8 @@ export const submitReport = async (reportData: ReportData): Promise<void> => {
   }
 };
 
-export const getAllReports = async (): Promise<any[]> => {
+// --- Fetch All Reports ---
+export const getAllReports = async (): Promise<Report[]> => {
   try {
     const { data, error } = await supabase
       .from('reports')
@@ -42,8 +65,7 @@ export const getAllReports = async (): Promise<any[]> => {
       .order('created_at', { ascending: false });
 
     if (error) {
-      console.error('Error fetching reports:', error);
-      throw error;
+      throw new Error(`Error fetching all reports: ${error.message}`);
     }
 
     return data || [];
@@ -53,7 +75,8 @@ export const getAllReports = async (): Promise<any[]> => {
   }
 };
 
-export const getReportsByStatus = async (status: 'pending' | 'resolved' | 'dismissed'): Promise<any[]> => {
+// --- Fetch Reports by Status ---
+export const getReportsByStatus = async (status: 'pending' | 'resolved' | 'dismissed'): Promise<Report[]> => {
   try {
     const { data, error } = await supabase
       .from('reports')
@@ -62,8 +85,7 @@ export const getReportsByStatus = async (status: 'pending' | 'resolved' | 'dismi
       .order('created_at', { ascending: false });
 
     if (error) {
-      console.error('Error fetching reports by status:', error);
-      throw error;
+      throw new Error(`Error fetching ${status} reports: ${error.message}`);
     }
 
     return data || [];
@@ -73,7 +95,8 @@ export const getReportsByStatus = async (status: 'pending' | 'resolved' | 'dismi
   }
 };
 
-export const getSuspendedUsers = async (): Promise<any[]> => {
+// --- Fetch Suspended Users ---
+export const getSuspendedUsers = async (): Promise<UserProfile[]> => {
   try {
     const { data, error } = await supabase
       .from('profiles')
@@ -82,8 +105,7 @@ export const getSuspendedUsers = async (): Promise<any[]> => {
       .order('created_at', { ascending: false });
 
     if (error) {
-      console.error('Error fetching suspended users:', error);
-      throw error;
+      throw new Error(`Error fetching suspended users: ${error.message}`);
     }
 
     return data || [];
@@ -93,6 +115,7 @@ export const getSuspendedUsers = async (): Promise<any[]> => {
   }
 };
 
+// --- Dismiss Report ---
 export const dismissReport = async (reportId: string): Promise<void> => {
   try {
     const { error } = await supabase
@@ -101,8 +124,7 @@ export const dismissReport = async (reportId: string): Promise<void> => {
       .eq('id', reportId);
 
     if (error) {
-      console.error('Error dismissing report:', error);
-      throw error;
+      throw new Error(`Error dismissing report: ${error.message}`);
     }
   } catch (error) {
     console.error('Error in dismissReport:', error);
@@ -110,9 +132,9 @@ export const dismissReport = async (reportId: string): Promise<void> => {
   }
 };
 
+// --- Ban User Based on Report ---
 export const banUserFromReport = async (reportId: string, reason: string): Promise<void> => {
   try {
-    // First get the report to find the reported user
     const { data: report, error: reportError } = await supabase
       .from('reports')
       .select('reported_user_id')
@@ -120,13 +142,12 @@ export const banUserFromReport = async (reportId: string, reason: string): Promi
       .single();
 
     if (reportError || !report) {
-      throw new Error('Report not found');
+      throw new Error('Report not found or invalid');
     }
 
-    // Ban the user
     const { error: banError } = await supabase
       .from('profiles')
-      .update({ 
+      .update({
         status: 'banned',
         suspension_reason: reason,
         suspended_at: new Date().toISOString()
@@ -134,17 +155,16 @@ export const banUserFromReport = async (reportId: string, reason: string): Promi
       .eq('id', report.reported_user_id);
 
     if (banError) {
-      throw banError;
+      throw new Error(`Error banning user: ${banError.message}`);
     }
 
-    // Mark report as resolved
     const { error: resolveError } = await supabase
       .from('reports')
       .update({ status: 'resolved', updated_at: new Date().toISOString() })
       .eq('id', reportId);
 
     if (resolveError) {
-      throw resolveError;
+      throw new Error(`Failed to mark report as resolved: ${resolveError.message}`);
     }
   } catch (error) {
     console.error('Error banning user from report:', error);
@@ -152,9 +172,9 @@ export const banUserFromReport = async (reportId: string, reason: string): Promi
   }
 };
 
+// --- Suspend User Based on Report ---
 export const suspendUserFromReport = async (reportId: string, reason: string): Promise<void> => {
   try {
-    // First get the report to find the reported user
     const { data: report, error: reportError } = await supabase
       .from('reports')
       .select('reported_user_id')
@@ -162,13 +182,12 @@ export const suspendUserFromReport = async (reportId: string, reason: string): P
       .single();
 
     if (reportError || !report) {
-      throw new Error('Report not found');
+      throw new Error('Report not found or invalid');
     }
 
-    // Suspend the user
     const { error: suspendError } = await supabase
       .from('profiles')
-      .update({ 
+      .update({
         status: 'suspended',
         suspension_reason: reason,
         suspended_at: new Date().toISOString()
@@ -176,17 +195,16 @@ export const suspendUserFromReport = async (reportId: string, reason: string): P
       .eq('id', report.reported_user_id);
 
     if (suspendError) {
-      throw suspendError;
+      throw new Error(`Error suspending user: ${suspendError.message}`);
     }
 
-    // Mark report as resolved
     const { error: resolveError } = await supabase
       .from('reports')
       .update({ status: 'resolved', updated_at: new Date().toISOString() })
       .eq('id', reportId);
 
     if (resolveError) {
-      throw resolveError;
+      throw new Error(`Failed to mark report as resolved: ${resolveError.message}`);
     }
   } catch (error) {
     console.error('Error suspending user from report:', error);
