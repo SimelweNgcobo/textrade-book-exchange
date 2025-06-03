@@ -12,6 +12,7 @@ import { Book } from '@/types/book';
 import { ArrowLeft, Eye } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface UserProfile {
   id: string;
@@ -23,6 +24,7 @@ interface UserProfile {
 const UserProfile = () => {
   const { userId } = useParams();
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [userBooks, setUserBooks] = useState<Book[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -121,12 +123,17 @@ const UserProfile = () => {
   return (
     <Layout>
       <div className="container mx-auto px-4 py-4 md:py-8 max-w-6xl">
-        <Button variant="ghost" onClick={() => navigate(-1)} className="mb-6 text-book-600">
-          <ArrowLeft className="mr-2 h-4 w-4" /> Back
+        <Button 
+          variant="ghost" 
+          onClick={() => navigate(-1)} 
+          className="mb-4 md:mb-6 text-book-600 p-2"
+        >
+          <ArrowLeft className="mr-2 h-4 w-4" /> 
+          <span className="hidden sm:inline">Back</span>
         </Button>
 
         {/* Profile Header */}
-        <div className="mb-8">
+        <div className="mb-6 md:mb-8">
           <ProfileHeader 
             userData={userData}
             isOwnProfile={false}
@@ -137,7 +144,9 @@ const UserProfile = () => {
         {/* Active Listings */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-xl md:text-2xl">Active Listings ({userBooks.length})</CardTitle>
+            <CardTitle className="text-lg md:text-xl lg:text-2xl">
+              Active Listings ({userBooks.length})
+            </CardTitle>
           </CardHeader>
           <CardContent>
             {userBooks.length === 0 ? (
@@ -147,11 +156,11 @@ const UserProfile = () => {
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                 {userBooks.map((book) => (
-                  <div key={book.id} className="border rounded-lg p-4 hover:shadow-md transition-shadow">
+                  <div key={book.id} className="border rounded-lg p-3 sm:p-4 hover:shadow-md transition-shadow">
                     <img
                       src={book.frontCover || book.imageUrl}
                       alt={book.title}
-                      className="w-full h-32 object-cover rounded mb-3"
+                      className="w-full h-24 sm:h-32 object-cover rounded mb-3"
                     />
                     <h4 className="font-semibold text-sm truncate">{book.title}</h4>
                     <p className="text-xs text-gray-600 truncate">by {book.author}</p>

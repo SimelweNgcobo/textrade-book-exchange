@@ -5,20 +5,27 @@ import Layout from '@/components/Layout';
 import ProfileHeader from '@/components/ProfileHeader';
 import ShareProfileDialog from '@/components/ShareProfileDialog';
 import { Button } from '@/components/ui/button';
-import { Lock } from 'lucide-react';
+import { Lock, MapPin, User, BookOpen, Plus } from 'lucide-react';
 import ProfileEditDialog from '@/components/ProfileEditDialog';
 import ChangePasswordDialog from '@/components/ChangePasswordDialog';
 import UserProfileTabs from '@/components/profile/UserProfileTabs';
+import MobileListingsView from '@/components/profile/MobileListingsView';
+import ListingsSidebar from '@/components/profile/ListingsSidebar';
+import SecuritySettings from '@/components/profile/SecuritySettings';
+import AccountInformation from '@/components/profile/AccountInformation';
 import { saveUserAddresses, getUserAddresses } from '@/services/addressService';
 import { getUserBooks } from '@/services/book/bookQueries';
 import { deleteBook } from '@/services/book/bookMutations';
 import { Book } from '@/types/book';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
+import { useIsMobile } from '@/hooks/use-mobile';
+import BookNotSellingHelp from '@/components/BookNotSellingHelp';
 
 const Profile = () => {
   const { profile, user } = useAuth();
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isChangePasswordDialogOpen, setIsChangePasswordDialogOpen] = useState(false);
   const [isShareDialogOpen, setIsShareDialogOpen] = useState(false);
@@ -134,9 +141,92 @@ const Profile = () => {
     isVerified: false
   };
 
+  if (isMobile) {
+    return (
+      <Layout>
+        <div className="container mx-auto px-4 py-4 max-w-6xl">
+          {/* Mobile Profile Header */}
+          <div className="mb-6">
+            <ProfileHeader 
+              userData={userData}
+              isOwnProfile={true}
+              onShareProfile={handleShareProfile}
+            />
+          </div>
+
+          {/* Mobile Quick Actions */}
+          <div className="grid grid-cols-2 gap-3 mb-6">
+            <Button
+              onClick={() => navigate('/create-listing')}
+              className="bg-book-600 hover:bg-book-700 text-white"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Create Listing
+            </Button>
+            <Button
+              onClick={() => setIsEditDialogOpen(true)}
+              variant="outline"
+              className="border-book-600 text-book-600"
+            >
+              <User className="h-4 w-4 mr-2" />
+              Edit Profile
+            </Button>
+          </div>
+
+          {/* Mobile Content */}
+          <div className="space-y-6">
+            {/* Active Listings */}
+            <MobileListingsView
+              activeListings={activeListings}
+              isLoading={isLoadingListings}
+              onEditBook={handleEditBook}
+              onDeleteBook={handleDeleteBook}
+            />
+
+            {/* Book Not Selling Help */}
+            <div className="px-4">
+              <BookNotSellingHelp />
+            </div>
+
+            {/* Account Information */}
+            <AccountInformation
+              profile={profile}
+              onEditProfile={() => setIsEditDialogOpen(true)}
+            />
+
+            {/* Security Settings */}
+            <SecuritySettings
+              onChangePassword={() => setIsChangePasswordDialogOpen(true)}
+            />
+          </div>
+
+          {/* Mobile Dialogs */}
+          <ProfileEditDialog
+            isOpen={isEditDialogOpen}
+            onClose={() => setIsEditDialogOpen(false)}
+          />
+
+          <ChangePasswordDialog
+            open={isChangePasswordDialogOpen}
+            onOpenChange={setIsChangePasswordDialogOpen}
+          />
+
+          <ShareProfileDialog
+            isOpen={isShareDialogOpen}
+            onClose={() => setIsShareDialogOpen(false)}
+            userId={user.id}
+            userName={profile.name || 'Anonymous User'}
+            isOwnProfile={true}
+          />
+        </div>
+      </Layout>
+    );
+  }
+
+  // Desktop Layout
   return (
     <Layout>
-      <div className="container mx-auto px-4 py-4 md:py-8 max-w-6xl">
+      <div className="container mx-auto px-4 py-8 max-w-6xl">
         <div className="mb-6">
           <ProfileHeader 
             userData={userData}
@@ -145,34 +235,43 @@ const Profile = () => {
           />
         </div>
         
-        <UserProfileTabs
-          activeListings={activeListings}
-          isLoading={isLoadingListings}
-          onEditBook={handleEditBook}
-          onDeleteBook={handleDeleteBook}
-          profile={profile}
-          addressData={addressData}
-          isOwnProfile={true}
-          userId={user.id}
-          userName={profile.name || 'Anonymous User'}
-          onSaveAddresses={handleSaveAddresses}
-          isLoadingAddress={isLoadingAddress}
-        />
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          {/* Desktop Sidebar */}
+          <div className="lg:col-span-1 space-y-6">
+            <ListingsSidebar
+              activeListings={activeListings}
+              isLoading={isLoadingListings}
+              onEditBook={handleEditBook}
+              onDeleteBook={handleDeleteBook}
+            />
+            
+            <AccountInformation
+              profile={profile}
+              onEditProfile={() => setIsEditDialogOpen(true)}
+            />
+            
+            <SecuritySettings
+              onChangePassword={() => setIsChangePasswordDialogOpen(true)}
+            />
+          </div>
 
-        <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 space-y-3">
-          <div className="container mx-auto max-w-sm space-y-3">
-            <Button
-              onClick={() => setIsChangePasswordDialogOpen(true)}
-              variant="outline"
-              className="w-full"
-            >
-              <Lock className="h-4 w-4 mr-2" />
-              Change Password
-            </Button>
+          {/* Desktop Main Content */}
+          <div className="lg:col-span-3">
+            <UserProfileTabs
+              activeListings={activeListings}
+              isLoading={isLoadingListings}
+              onEditBook={handleEditBook}
+              onDeleteBook={handleDeleteBook}
+              profile={profile}
+              addressData={addressData}
+              isOwnProfile={true}
+              userId={user.id}
+              userName={profile.name || 'Anonymous User'}
+              onSaveAddresses={handleSaveAddresses}
+              isLoadingAddress={isLoadingAddress}
+            />
           </div>
         </div>
-
-        <div className="lg:hidden h-24"></div>
 
         <ProfileEditDialog
           isOpen={isEditDialogOpen}

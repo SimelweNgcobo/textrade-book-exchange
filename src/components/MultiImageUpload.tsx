@@ -6,22 +6,62 @@ import { Upload, X, Eye } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
-interface MultiImageUploadProps {
-  images: string[];
-  onImagesChange: (images: string[]) => void;
-  maxImages?: number;
-  className?: string;
+interface BookImages {
+  frontCover: string;
+  backCover: string;
+  insidePages: string;
 }
 
-const MultiImageUpload = ({ images, onImagesChange, maxImages = 3, className = '' }: MultiImageUploadProps) => {
+interface MultiImageUploadProps {
+  images: string[] | BookImages;
+  onImagesChange: (images: string[] | BookImages) => void;
+  maxImages?: number;
+  className?: string;
+  variant?: 'array' | 'object';
+  currentImages?: BookImages;
+}
+
+const MultiImageUpload = ({ 
+  images, 
+  onImagesChange, 
+  maxImages = 3, 
+  className = '',
+  variant = 'array',
+  currentImages
+}: MultiImageUploadProps) => {
   const [isUploading, setIsUploading] = useState(false);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
+
+  // Convert images to array format for consistent handling
+  const getImageArray = (): string[] => {
+    if (variant === 'object') {
+      const bookImages = (currentImages || images) as BookImages;
+      return [bookImages.frontCover, bookImages.backCover, bookImages.insidePages].filter(Boolean);
+    }
+    return images as string[];
+  };
+
+  // Convert array back to appropriate format
+  const setImages = (newImages: string[]) => {
+    if (variant === 'object') {
+      const bookImages: BookImages = {
+        frontCover: newImages[0] || '',
+        backCover: newImages[1] || '',
+        insidePages: newImages[2] || ''
+      };
+      onImagesChange(bookImages);
+    } else {
+      onImagesChange(newImages);
+    }
+  };
+
+  const imageArray = getImageArray();
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
     if (!files || files.length === 0) return;
 
-    const remainingSlots = maxImages - images.length;
+    const remainingSlots = maxImages - imageArray.length;
     if (remainingSlots <= 0) {
       toast.error(`Maximum ${maxImages} images allowed`);
       return;
@@ -62,8 +102,8 @@ const MultiImageUpload = ({ images, onImagesChange, maxImages = 3, className = '
       });
 
       const uploadedUrls = await Promise.all(uploadPromises);
-      const newImages = [...images, ...uploadedUrls];
-      onImagesChange(newImages);
+      const newImages = [...imageArray, ...uploadedUrls];
+      setImages(newImages);
       
       toast.success(`${uploadedUrls.length} image(s) uploaded successfully`);
     } catch (error) {
@@ -78,18 +118,27 @@ const MultiImageUpload = ({ images, onImagesChange, maxImages = 3, className = '
   };
 
   const removeImage = (index: number) => {
-    const newImages = images.filter((_, i) => i !== index);
-    onImagesChange(newImages);
+    const newImages = imageArray.filter((_, i) => i !== index);
+    setImages(newImages);
     toast.success('Image removed');
   };
 
-  const canUploadMore = images.length < maxImages;
+  const canUploadMore = imageArray.length < maxImages;
+
+  const getImageLabels = () => {
+    if (variant === 'object') {
+      return ['Front Cover', 'Back Cover', 'Inside Pages'];
+    }
+    return imageArray.map((_, index) => `Image ${index + 1}`);
+  };
+
+  const labels = getImageLabels();
 
   return (
     <div className={`space-y-4 ${className}`}>
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
         <p className="text-sm text-gray-600">
-          Upload up to {maxImages} images ({images.length}/{maxImages} uploaded)
+          Upload up to {maxImages} images ({imageArray.length}/{maxImages} uploaded)
         </p>
         {canUploadMore && (
           <div className="relative">
@@ -106,7 +155,7 @@ const MultiImageUpload = ({ images, onImagesChange, maxImages = 3, className = '
               variant="outline"
               size="sm"
               disabled={isUploading}
-              className="relative"
+              className="relative w-full sm:w-auto"
             >
               <Upload className="mr-2 h-4 w-4" />
               {isUploading ? 'Uploading...' : 'Add Images'}
@@ -115,17 +164,24 @@ const MultiImageUpload = ({ images, onImagesChange, maxImages = 3, className = '
         )}
       </div>
 
-      {images.length > 0 && (
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-          {images.map((imageUrl, index) => (
+      {imageArray.length > 0 && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+          {imageArray.map((imageUrl, index) => (
             <Card key={index} className="relative group">
               <CardContent className="p-2">
-                <img
-                  src={imageUrl}
-                  alt={`Upload ${index + 1}`}
-                  className="w-full h-32 object-cover rounded cursor-pointer"
-                  onClick={() => setPreviewImage(imageUrl)}
-                />
+                <div className="relative">
+                  <img
+                    src={imageUrl}
+                    alt={labels[index] || `Upload ${index + 1}`}
+                    className="w-full h-32 object-cover rounded cursor-pointer"
+                    onClick={() => setPreviewImage(imageUrl)}
+                  />
+                  {variant === 'object' && (
+                    <div className="absolute bottom-1 left-1 bg-black/70 text-white text-xs px-2 py-1 rounded">
+                      {labels[index]}
+                    </div>
+                  )}
+                </div>
                 <div className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity">
                   <Button
                     type="button"
@@ -155,22 +211,22 @@ const MultiImageUpload = ({ images, onImagesChange, maxImages = 3, className = '
       )}
 
       {!canUploadMore && (
-        <p className="text-sm text-amber-600 bg-amber-50 p-3 rounded">
+        <div className="text-sm text-amber-600 bg-amber-50 p-3 rounded">
           You have reached the maximum limit of {maxImages} images. Remove an image to add a new one.
-        </p>
+        </div>
       )}
 
       {/* Image Preview Modal */}
       {previewImage && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
           onClick={() => setPreviewImage(null)}
         >
-          <div className="max-w-4xl max-h-[90vh] p-4">
+          <div className="max-w-4xl max-h-[90vh] w-full">
             <img
               src={previewImage}
               alt="Preview"
-              className="max-w-full max-h-full object-contain rounded"
+              className="max-w-full max-h-full object-contain rounded mx-auto"
             />
           </div>
         </div>

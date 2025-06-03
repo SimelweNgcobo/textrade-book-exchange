@@ -1,89 +1,36 @@
 
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import Layout from '@/components/Layout';
-import { Button } from '@/components/ui/button';
-import { ArrowLeft } from 'lucide-react';
-import BookImageSection from '@/components/book-details/BookImageSection';
-import BookPricing from '@/components/book-details/BookPricing';
-import BookDescription from '@/components/book-details/BookDescription';
-import BookInfo from '@/components/book-details/BookInfo';
-import SellerInfo from '@/components/book-details/SellerInfo';
-import BookActions from '@/components/book-details/BookActions';
-import ReportBookDialog from '@/components/ReportBookDialog';
 import { useAuth } from '@/contexts/AuthContext';
-import { getBookById } from '@/services/book/bookQueries';
-import { Book } from '@/types/book';
-import { calculateCommission, calculateSellerReceives } from '@/services/bookService';
+import { useCart } from '@/contexts/CartContext';
+import Layout from '@/components/Layout';
+import BookImageSection from '@/components/book-details/BookImageSection';
+import BookInfo from '@/components/book-details/BookInfo';
+import BookDescription from '@/components/book-details/BookDescription';
+import BookActions from '@/components/book-details/BookActions';
+import BookPricing from '@/components/book-details/BookPricing';
+import SellerInfo from '@/components/book-details/SellerInfo';
+import ReportBookDialog from '@/components/ReportBookDialog';
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { ArrowLeft, Share2 } from 'lucide-react';
+import { useBookDetails } from '@/hooks/useBookDetails';
 import { toast } from 'sonner';
 
 const BookDetails = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { user } = useAuth();
-  const [book, setBook] = useState<Book | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { user, isAdmin } = useAuth();
+  const { addToCart } = useCart();
+  const [isReportDialogOpen, setIsReportDialogOpen] = useState(false);
+
+  const { book, isLoading, error } = useBookDetails(id || '');
 
   useEffect(() => {
-    console.log('BookDetails component mounted with ID:', id);
-    const loadBook = async () => {
-      if (!id) {
-        console.error('Book ID is missing from URL parameters');
-        setError('Book ID is missing from the URL');
-        setIsLoading(false);
-        return;
-      }
-
-      try {
-        console.log('Loading book with ID:', id);
-        setIsLoading(true);
-        setError(null);
-        
-        const bookData = await getBookById(id);
-        
-        if (bookData) {
-          console.log('Book data loaded successfully:', bookData);
-          setBook(bookData);
-        } else {
-          console.error('Book not found with ID:', id);
-          setError('Book not found');
-          toast.error('Book not found');
-        }
-      } catch (error) {
-        console.error('Error loading book:', error);
-        const errorMessage = error instanceof Error ? error.message : 'Failed to load book details';
-        setError(errorMessage);
-        toast.error(errorMessage);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    loadBook();
-  }, [id]);
-
-  const handleShare = async () => {
-    const url = window.location.href;
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: book?.title,
-          text: `Check out this book: ${book?.title} by ${book?.author}`,
-          url: url,
-        });
-      } catch (error) {
-        console.error('Error sharing:', error);
-      }
-    } else {
-      try {
-        await navigator.clipboard.writeText(url);
-        toast.success('Link copied to clipboard!');
-      } catch (error) {
-        toast.error('Failed to copy link');
-      }
+    if (!id) {
+      navigate('/books');
     }
-  };
+  }, [id, navigate]);
 
   const handleBuyNow = () => {
     if (!user) {
@@ -91,12 +38,10 @@ const BookDetails = () => {
       navigate('/login');
       return;
     }
-    if (!book) {
-      toast.error('Book information not available');
-      return;
-    }
-    console.log('Navigating to checkout for book:', book.id);
-    navigate('/checkout', { state: { book } });
+
+    if (!book) return;
+
+    navigate(`/checkout/${book.id}`);
   };
 
   const handleAddToCart = () => {
@@ -105,34 +50,74 @@ const BookDetails = () => {
       navigate('/login');
       return;
     }
-    toast.info('Add to cart feature coming soon!');
+
+    if (!book) return;
+
+    addToCart({
+      id: book.id,
+      title: book.title,
+      author: book.author,
+      price: book.price,
+      imageUrl: book.frontCover || book.imageUrl,
+      sellerId: book.seller?.id || ''
+    });
+
+    toast.success('Book added to cart!');
   };
 
   const handleEditBook = () => {
-    if (!book?.id) {
-      toast.error('Book ID is missing');
-      return;
-    }
-    console.log('Navigating to edit book:', book.id);
+    if (!book) return;
     navigate(`/edit-book/${book.id}`);
+  };
+
+  const handleShare = async () => {
+    if (!book) return;
+
+    const shareData = {
+      title: `${book.title} by ${book.author}`,
+      text: `Check out this book on ReBooked: ${book.title} by ${book.author} for R${book.price}`,
+      url: window.location.href,
+    };
+
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData);
+      } catch (error) {
+        console.log('Error sharing:', error);
+        fallbackShare();
+      }
+    } else {
+      fallbackShare();
+    }
+  };
+
+  const fallbackShare = () => {
+    navigator.clipboard.writeText(window.location.href);
+    toast.success('Link copied to clipboard!');
   };
 
   const handleViewSellerProfile = () => {
     if (!book?.seller?.id) {
-      toast.error('Seller information not available');
+      toast.error('Seller profile not available');
       return;
     }
-    console.log('Navigating to seller profile:', book.seller.id);
     navigate(`/user/${book.seller.id}`);
+  };
+
+  const handleReportBook = () => {
+    if (!user) {
+      toast.error('Please log in to report a book');
+      navigate('/login');
+      return;
+    }
+    setIsReportDialogOpen(true);
   };
 
   if (isLoading) {
     return (
       <Layout>
         <div className="container mx-auto px-4 py-8">
-          <div className="flex items-center justify-center min-h-[400px]">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
-          </div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-book-600 mx-auto"></div>
         </div>
       </Layout>
     );
@@ -141,73 +126,68 @@ const BookDetails = () => {
   if (error || !book) {
     return (
       <Layout>
-        <div className="container mx-auto px-4 py-8">
-          <Button 
-            variant="ghost" 
-            onClick={() => navigate(-1)} 
-            className="mb-6 text-book-600"
-          >
-            <ArrowLeft className="mr-2 h-4 w-4" /> Back
+        <div className="container mx-auto px-4 py-8 text-center">
+          <h2 className="text-2xl font-semibold mb-4">Book not found</h2>
+          <p className="text-gray-600 mb-4">The book you're looking for doesn't exist or has been removed.</p>
+          <Button onClick={() => navigate('/books')} variant="outline">
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back to Books
           </Button>
-          <div className="text-center">
-            <h2 className="text-2xl font-semibold mb-4">
-              {error || 'Book Not Found'}
-            </h2>
-            <p className="text-gray-600 mb-4">
-              {error === 'Book ID is missing from the URL' 
-                ? 'The book link appears to be invalid or incomplete.'
-                : 'The book you\'re looking for doesn\'t exist or has been removed.'
-              }
-            </p>
-            <div className="space-y-2">
-              <Button onClick={() => navigate('/books')}>Browse Books</Button>
-              <Button variant="outline" onClick={() => navigate(-1)}>Go Back</Button>
-            </div>
-          </div>
         </div>
       </Layout>
     );
   }
 
-  const images = [book.frontCover, book.backCover, ...(book.insidePages || [])].filter(Boolean);
-  const commission = calculateCommission(book.price);
-  const sellerReceives = calculateSellerReceives(book.price);
   const isOwner = user?.id === book.seller?.id;
-  const showCommissionDetails = isOwner || (user && user.isAdmin);
+  const showCommissionDetails = isOwner || isAdmin;
 
   return (
     <Layout>
-      <div className="container mx-auto px-4 py-8">
-        <Button 
-          variant="ghost" 
-          onClick={() => navigate(-1)} 
-          className="mb-6 text-book-600"
-        >
-          <ArrowLeft className="mr-2 h-4 w-4" /> Back
-        </Button>
+      <div className="container mx-auto px-4 py-4 sm:py-8 max-w-6xl">
+        {/* Mobile back button */}
+        <div className="mb-4 sm:mb-6">
+          <Button 
+            variant="ghost" 
+            onClick={() => navigate(-1)} 
+            className="text-book-600 hover:bg-book-50 p-2 sm:p-3"
+          >
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            <span className="hidden sm:inline">Back</span>
+          </Button>
+        </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <BookImageSection images={images} />
-
-          <div className="space-y-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
+          {/* Left column - Images and Description */}
+          <div className="lg:col-span-2 space-y-6">
+            <BookImageSection book={book} />
             <BookInfo book={book} />
+            <BookDescription book={book} />
+            
+            {/* Mobile-only pricing card */}
+            <div className="lg:hidden">
+              <Card>
+                <CardContent className="p-4 sm:p-6">
+                  <div className="text-center mb-4">
+                    <span className="text-2xl sm:text-3xl font-bold text-book-600">
+                      R{book.price?.toLocaleString()}
+                    </span>
+                  </div>
+                  <BookActions
+                    book={book}
+                    user={user}
+                    onBuyNow={handleBuyNow}
+                    onAddToCart={handleAddToCart}
+                    onEditBook={handleEditBook}
+                    onShare={handleShare}
+                    onViewSellerProfile={handleViewSellerProfile}
+                  />
+                </CardContent>
+              </Card>
+            </div>
+          </div>
 
-            {showCommissionDetails && (
-              <BookPricing 
-                price={book.price}
-                commission={commission}
-                sellerReceives={sellerReceives}
-                showCommissionDetails={showCommissionDetails}
-              />
-            )}
-
-            <BookDescription description={book.description} />
-
-            <SellerInfo 
-              book={book}
-              onViewSellerProfile={handleViewSellerProfile}
-            />
-
+          {/* Right column - Pricing and Actions (Desktop only) */}
+          <div className="hidden lg:block space-y-6">
             <BookActions
               book={book}
               user={user}
@@ -217,24 +197,64 @@ const BookDetails = () => {
               onShare={handleShare}
               onViewSellerProfile={handleViewSellerProfile}
             />
-
-            {user?.id !== book.seller.id && (
-              <div className="pt-4 border-t">
-                <ReportBookDialog
-                  bookId={book.id}
-                  bookTitle={book.title}
-                  sellerId={book.seller.id}
-                  sellerName={book.seller.name}
-                >
-                  <Button variant="ghost" size="sm" className="w-full text-red-600 hover:text-red-700">
-                    <span className="text-red-500 mr-2">⚠️</span>
-                    Report this listing
-                  </Button>
-                </ReportBookDialog>
-              </div>
+            
+            {showCommissionDetails && (
+              <BookPricing
+                price={book.price}
+                commission={book.price * 0.1}
+                sellerReceives={book.price * 0.9}
+                showCommissionDetails={showCommissionDetails}
+              />
             )}
+            
+            <SellerInfo 
+              seller={book.seller} 
+              onViewProfile={handleViewSellerProfile}
+            />
           </div>
         </div>
+
+        {/* Mobile seller info and report button */}
+        <div className="lg:hidden mt-6 space-y-4">
+          <SellerInfo 
+            seller={book.seller} 
+            onViewProfile={handleViewSellerProfile}
+          />
+          
+          {!isOwner && (
+            <div className="flex justify-center">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleReportBook}
+                className="text-red-600 border-red-600 hover:bg-red-50"
+              >
+                Report Issue
+              </Button>
+            </div>
+          )}
+        </div>
+
+        {/* Desktop report button */}
+        {!isOwner && (
+          <div className="hidden lg:flex justify-center mt-8">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleReportBook}
+              className="text-red-600 border-red-600 hover:bg-red-50"
+            >
+              Report Issue with this Book
+            </Button>
+          </div>
+        )}
+
+        <ReportBookDialog
+          isOpen={isReportDialogOpen}
+          onClose={() => setIsReportDialogOpen(false)}
+          bookId={book.id}
+          bookTitle={book.title}
+        />
       </div>
     </Layout>
   );
