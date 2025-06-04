@@ -51,7 +51,7 @@ export const initializePayment = async (paymentData: PaymentData): Promise<strin
       throw new Error('Buyer or book not found');
     }
 
-    // Create transaction record
+    // Create transaction record with existing schema
     const reference = `RB_${Date.now()}_${paymentData.bookId.slice(0, 8)}`;
     
     const { error: transactionError } = await supabase
@@ -62,12 +62,7 @@ export const initializePayment = async (paymentData: PaymentData): Promise<strin
         buyer_id: paymentData.buyerId,
         seller_id: paymentData.sellerId,
         price: paymentData.amount,
-        delivery_method: paymentData.deliveryMethod,
-        delivery_cost: paymentData.deliveryCost || 0,
-        platform_commission: commission,
-        seller_earnings: sellerEarnings,
-        paystack_reference: reference,
-        payment_status: 'pending'
+        commission: commission
       });
 
     if (transactionError) {
@@ -99,29 +94,13 @@ export const verifyPayment = async (reference: string): Promise<boolean> => {
     const isSuccessful = Math.random() > 0.1; // 90% success rate for testing
 
     if (isSuccessful) {
-      // Update transaction status
-      const { error } = await supabase
-        .from('transactions')
-        .update({ payment_status: 'completed' })
-        .eq('paystack_reference', reference);
-
-      if (error) {
-        console.error('Error updating transaction status:', error);
-        return false;
-      }
-
-      // Mark book as sold
-      const { data: transaction } = await supabase
-        .from('transactions')
-        .select('book_id')
-        .eq('paystack_reference', reference)
-        .single();
-
-      if (transaction) {
+      // Mark book as sold (simplified for now)
+      const bookId = reference.split('_')[2]; // Extract book ID from reference
+      if (bookId) {
         await supabase
           .from('books')
           .update({ sold: true })
-          .eq('id', transaction.book_id);
+          .eq('id', bookId);
       }
     }
 

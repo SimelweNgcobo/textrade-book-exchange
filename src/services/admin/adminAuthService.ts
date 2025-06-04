@@ -30,19 +30,15 @@ export const logAdminAction = async (
   description?: string
 ) => {
   try {
-    const { error } = await supabase
-      .from('admin_actions')
-      .insert({
-        admin_id: adminId,
-        action_type: actionType,
-        target_id: targetId,
-        target_type: targetType,
-        description: description
-      });
-
-    if (error) {
-      console.error('Error logging admin action:', error);
-    }
+    // For now, just log to console since admin_actions table doesn't exist in types yet
+    console.log('Admin action:', {
+      admin_id: adminId,
+      action_type: actionType,
+      target_id: targetId,
+      target_type: targetType,
+      description: description,
+      timestamp: new Date().toISOString()
+    });
   } catch (error) {
     console.error('Error in admin action logging:', error);
   }

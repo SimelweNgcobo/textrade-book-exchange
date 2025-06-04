@@ -9,6 +9,7 @@ interface Address {
   city: string;
   province: string;
   postalCode: string;
+  [key: string]: string | undefined;
 }
 
 export const validateAddress = (address: Address): boolean => {
@@ -23,14 +24,25 @@ export const validateAddress = (address: Address): boolean => {
 export const canUserListBooks = async (userId: string): Promise<boolean> => {
   try {
     const { data, error } = await supabase
-      .rpc('can_user_list_books', { user_id: userId });
+      .from('profiles')
+      .select('pickup_address')
+      .eq('id', userId)
+      .single();
 
     if (error) {
       console.error('Error checking if user can list books:', error);
       return false;
     }
 
-    return data || false;
+    if (!data?.pickup_address) return false;
+    
+    const pickupAddr = data.pickup_address as any;
+    return validateAddress({
+      streetAddress: pickupAddr.streetAddress || '',
+      city: pickupAddr.city || '',
+      province: pickupAddr.province || '',
+      postalCode: pickupAddr.postalCode || ''
+    });
   } catch (error) {
     console.error('Error in canUserListBooks:', error);
     return false;
@@ -51,11 +63,9 @@ export const updateAddressValidation = async (
     const { error } = await supabase
       .from('profiles')
       .update({
-        pickup_address: pickupAddress,
-        shipping_address: shippingAddress,
+        pickup_address: pickupAddress as any,
+        shipping_address: shippingAddress as any,
         addresses_same: addressesSame,
-        address_validated: canList,
-        can_list_books: canList,
         updated_at: new Date().toISOString()
       })
       .eq('id', userId);

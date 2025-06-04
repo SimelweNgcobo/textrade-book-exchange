@@ -1,8 +1,7 @@
-
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import Layout from '@/components/Layout';
-import ProfileHeader from '@/components/ProfileHeader';
+import EnhancedProfileHeader from '@/components/profile/EnhancedProfileHeader';
 import ShareProfileDialog from '@/components/ShareProfileDialog';
 import { Button } from '@/components/ui/button';
 import { Lock, MapPin, User, BookOpen, Plus } from 'lucide-react';
@@ -21,9 +20,10 @@ import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
 import { useIsMobile } from '@/hooks/use-mobile';
 import BookNotSellingHelp from '@/components/BookNotSellingHelp';
+import BookNotSellingModal from '@/components/BookNotSellingModal';
 
 const Profile = () => {
-  const { profile, user } = useAuth();
+  const { user, profile, isLoading, refreshProfile } = useAuth();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
@@ -33,6 +33,8 @@ const Profile = () => {
   const [activeListings, setActiveListings] = useState<Book[]>([]);
   const [isLoadingAddress, setIsLoadingAddress] = useState(false);
   const [isLoadingListings, setIsLoadingListings] = useState(true);
+  const [isBookNotSellingModalOpen, setIsBookNotSellingModalOpen] = useState(false);
+  const [selectedBook, setSelectedBook] = useState<any>(null);
 
   useEffect(() => {
     if (user?.id) {
@@ -121,13 +123,21 @@ const Profile = () => {
     setIsShareDialogOpen(true);
   };
 
-  if (!profile || !user) {
+  const handleBookNotSelling = (book: any) => {
+    setSelectedBook(book);
+    setIsBookNotSellingModalOpen(true);
+  };
+
+  if (!user || !profile) {
     return (
       <Layout>
         <div className="container mx-auto px-4 py-8">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-book-600 mx-auto"></div>
-            <p className="text-gray-600 mt-4">Loading profile...</p>
+            <h2 className="text-2xl font-semibold mb-4">Access Denied</h2>
+            <p className="text-gray-600 mb-6">You must be logged in to view this page.</p>
+            <Button onClick={() => navigate('/login')}>
+              Log In
+            </Button>
           </div>
         </div>
       </Layout>
@@ -147,10 +157,10 @@ const Profile = () => {
         <div className="container mx-auto px-4 py-4 max-w-6xl">
           {/* Mobile Profile Header */}
           <div className="mb-6">
-            <ProfileHeader 
-              userData={userData}
+            <EnhancedProfileHeader 
+              profile={profile} 
               isOwnProfile={true}
-              onShareProfile={handleShareProfile}
+              onProfileUpdate={refreshProfile}
             />
           </div>
 
@@ -240,10 +250,10 @@ const Profile = () => {
     <Layout>
       <div className="container mx-auto px-4 py-8 max-w-6xl">
         <div className="mb-6">
-          <ProfileHeader 
-            userData={userData}
+          <EnhancedProfileHeader 
+            profile={profile} 
             isOwnProfile={true}
-            onShareProfile={handleShareProfile}
+            onProfileUpdate={refreshProfile}
           />
         </div>
         
@@ -302,6 +312,16 @@ const Profile = () => {
           userName={profile.name || 'Anonymous User'}
           isOwnProfile={true}
         />
+
+        {selectedBook && (
+          <BookNotSellingModal
+            isOpen={isBookNotSellingModalOpen}
+            onClose={() => setIsBookNotSellingModalOpen(false)}
+            bookTitle={selectedBook.title}
+            bookPrice={selectedBook.price}
+            daysListed={Math.floor((new Date().getTime() - new Date(selectedBook.created_at).getTime()) / (1000 * 3600 * 24))}
+          />
+        )}
       </div>
     </Layout>
   );

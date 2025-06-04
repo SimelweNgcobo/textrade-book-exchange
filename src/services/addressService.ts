@@ -1,3 +1,4 @@
+
 import { supabase } from '@/integrations/supabase/client';
 import { updateAddressValidation } from './addressValidationService';
 
@@ -28,7 +29,7 @@ export const saveUserAddresses = async (
 
     const { data, error } = await supabase
       .from('profiles')
-      .select('pickup_address, shipping_address, addresses_same, can_list_books')
+      .select('pickup_address, shipping_address, addresses_same')
       .eq('id', userId)
       .single();
 

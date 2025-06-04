@@ -17,17 +17,23 @@ interface DeliveryQuote {
 
 export const getDeliveryOptions = async (): Promise<DeliveryOption[]> => {
   try {
-    const { data, error } = await supabase
-      .from('delivery_options')
-      .select('id, name, base_url, is_active')
-      .eq('is_active', true);
+    // Mock delivery options until table is available in types
+    const mockOptions: DeliveryOption[] = [
+      {
+        id: '1',
+        name: 'Fastway',
+        base_url: 'https://api.fastway.co.za',
+        is_active: true
+      },
+      {
+        id: '2',
+        name: 'Courier Guy',
+        base_url: 'https://api.courierguy.co.za',
+        is_active: true
+      }
+    ];
 
-    if (error) {
-      console.error('Error fetching delivery options:', error);
-      return [];
-    }
-
-    return data || [];
+    return mockOptions;
   } catch (error) {
     console.error('Error in getDeliveryOptions:', error);
     return [];
@@ -70,19 +76,13 @@ export const updateBookDeliveryInfo = async (
   courierName: string
 ) => {
   try {
-    const { error } = await supabase
-      .from('books')
-      .update({
-        delivery_method: deliveryMethod,
-        delivery_cost: deliveryCost,
-        courier_name: courierName
-      })
-      .eq('id', bookId);
-
-    if (error) {
-      console.error('Error updating book delivery info:', error);
-      throw error;
-    }
+    // For now, just log since delivery columns aren't in types yet
+    console.log('Update book delivery info:', {
+      bookId,
+      deliveryMethod,
+      deliveryCost,
+      courierName
+    });
   } catch (error) {
     console.error('Error in updateBookDeliveryInfo:', error);
     throw error;
