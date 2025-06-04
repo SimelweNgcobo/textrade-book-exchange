@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -18,39 +17,37 @@ interface MultiImageUploadProps {
   maxImages?: number;
   className?: string;
   variant?: 'array' | 'object';
-  currentImages?: BookImages;
   disabled?: boolean;
 }
 
-const MultiImageUpload = ({ 
-  images, 
-  onImagesChange, 
-  maxImages = 3, 
+const MultiImageUpload = ({
+  images,
+  onImagesChange,
+  maxImages = 3,
   className = '',
   variant = 'object',
-  currentImages,
-  disabled = false
+  disabled = false,
 }: MultiImageUploadProps) => {
   const [isUploading, setIsUploading] = useState(false);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
 
-  // Convert images to array format for consistent handling
+  // Convert images prop to array
   const getImageArray = (): string[] => {
     if (variant === 'object') {
-      const bookImages = (currentImages || images) as BookImages;
+      const bookImages = images as BookImages | undefined;
       if (!bookImages) return [];
       return [bookImages.frontCover, bookImages.backCover, bookImages.insidePages].filter(Boolean);
     }
     return (images || []) as string[];
   };
 
-  // Convert array back to appropriate format
+  // Convert array back to object or array and emit change
   const setImages = (newImages: string[]) => {
     if (variant === 'object') {
       const bookImages: BookImages = {
         frontCover: newImages[0] || '',
         backCover: newImages[1] || '',
-        insidePages: newImages[2] || ''
+        insidePages: newImages[2] || '',
       };
       onImagesChange(bookImages);
     } else {
@@ -62,13 +59,14 @@ const MultiImageUpload = ({
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     if (disabled) return;
-    
+
     const files = event.target.files;
     if (!files || files.length === 0) return;
 
     const remainingSlots = maxImages - imageArray.length;
     if (remainingSlots <= 0) {
       toast.error(`Maximum ${maxImages} images allowed`);
+      event.target.value = '';
       return;
     }
 
@@ -77,18 +75,15 @@ const MultiImageUpload = ({
 
     try {
       const uploadPromises = filesToUpload.map(async (file) => {
-        // Validate file type
         if (!file.type.startsWith('image/')) {
           throw new Error(`${file.name} is not a valid image file`);
         }
-
-        // Validate file size (max 5MB)
         if (file.size > 5 * 1024 * 1024) {
           throw new Error(`${file.name} is too large. Maximum size is 5MB`);
         }
 
-        const fileExt = file.name.split('.').pop();
-        const fileName = `${Math.random()}.${fileExt}`;
+        const fileExt = file.name.split('.').pop() ?? 'png';
+        const fileName = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}.${fileExt}`;
         const filePath = `book-images/${fileName}`;
 
         const { error: uploadError } = await supabase.storage
@@ -99,17 +94,17 @@ const MultiImageUpload = ({
           throw uploadError;
         }
 
-        const { data: { publicUrl } } = supabase.storage
-          .from('book-images')
-          .getPublicUrl(filePath);
-
-        return publicUrl;
+        const { data } = supabase.storage.from('book-images').getPublicUrl(filePath);
+        if (!data?.publicUrl) {
+          throw new Error('Failed to get public URL');
+        }
+        return data.publicUrl;
       });
 
       const uploadedUrls = await Promise.all(uploadPromises);
       const newImages = [...imageArray, ...uploadedUrls];
       setImages(newImages);
-      
+
       toast.success(`${uploadedUrls.length} image(s) uploaded successfully`);
     } catch (error) {
       console.error('Error uploading images:', error);
@@ -117,14 +112,13 @@ const MultiImageUpload = ({
       toast.error(errorMessage);
     } finally {
       setIsUploading(false);
-      // Reset the input
       event.target.value = '';
     }
   };
 
   const removeImage = (index: number) => {
     if (disabled) return;
-    
+
     const newImages = imageArray.filter((_, i) => i !== index);
     setImages(newImages);
     toast.success('Image removed');
@@ -245,3 +239,4 @@ const MultiImageUpload = ({
 };
 
 export default MultiImageUpload;
+

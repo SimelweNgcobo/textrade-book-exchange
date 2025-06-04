@@ -1,4 +1,3 @@
-
 import { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -13,10 +12,10 @@ interface ImageUploadProps {
   disabled?: boolean;
 }
 
-const ImageUpload: React.FC<ImageUploadProps> = ({ 
-  onImageChange, 
+const ImageUpload: React.FC<ImageUploadProps> = ({
+  onImageChange,
   currentImageUrl,
-  disabled = false 
+  disabled = false,
 }) => {
   const { user } = useAuth();
   const [isUploading, setIsUploading] = useState(false);
@@ -28,13 +27,11 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
     const file = event.target.files?.[0];
     if (!file || !user) return;
 
-    // Validate file type
     if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
       toast.error('Please select a valid image file (JPEG, PNG, or WebP)');
       return;
     }
 
-    // Validate file size (5MB limit)
     if (file.size > 5 * 1024 * 1024) {
       toast.error('Image must be smaller than 5MB');
       return;
@@ -44,39 +41,37 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
     setImageError(false);
 
     try {
-      // Create a preview URL immediately
       const previewObjectUrl = URL.createObjectURL(file);
       setPreviewUrl(previewObjectUrl);
 
-      // Upload to Supabase Storage
       const fileExt = file.name.split('.').pop();
       const fileName = `${user.id}/${Date.now()}.${fileExt}`;
-      
-      const { data, error } = await supabase.storage
+
+      const { data: uploadData, error: uploadError } = await supabase.storage
         .from('book-images')
         .upload(fileName, file);
 
-      if (error) {
-        throw error;
+      if (uploadError || !uploadData) {
+        throw uploadError || new Error('Upload failed');
       }
 
-      // Get the public URL
-      const { data: { publicUrl } } = supabase.storage
+      const publicUrlData = supabase.storage
         .from('book-images')
-        .getPublicUrl(data.path);
+        .getPublicUrl(uploadData.path);
 
-      // Clean up the object URL
-      URL.revokeObjectURL(previewObjectUrl);
-      
-      // Verify the image is accessible
+      const publicUrl = publicUrlData?.data?.publicUrl;
+      if (!publicUrl) {
+        throw new Error('Failed to get public URL');
+      }
+
       const img = document.createElement('img');
       img.onload = () => {
+        URL.revokeObjectURL(previewObjectUrl); // revoke after successful load
         setPreviewUrl(publicUrl);
         onImageChange(publicUrl);
         toast.success('Image uploaded successfully');
       };
       img.onerror = () => {
-        console.error('Failed to load uploaded image');
         toast.error('Image upload failed - image not accessible');
         setImageError(true);
         if (currentImageUrl) {
@@ -84,12 +79,11 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
         }
       };
       img.src = publicUrl;
-      
+
     } catch (error) {
       console.error('Upload error:', error);
       toast.error('Failed to upload image');
       setImageError(true);
-      // Reset to original preview if upload failed
       if (currentImageUrl) {
         setPreviewUrl(currentImageUrl);
       }
@@ -115,9 +109,8 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
     fileInputRef.current?.click();
   };
 
-  const getFallbackImage = () => {
-    return 'https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=400&h=300&fit=crop&auto=format&q=80';
-  };
+  const getFallbackImage = () =>
+    'https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=400&h=300&fit=crop&auto=format&q=80';
 
   const getImageSrc = () => {
     if (imageError || !previewUrl) {
@@ -128,10 +121,8 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
 
   return (
     <div className="space-y-4">
-      <Label className="text-base font-medium">
-        Book Image
-      </Label>
-      
+      <Label className="text-base font-medium">Book Image</Label>
+
       <input
         ref={fileInputRef}
         type="file"
@@ -170,7 +161,9 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
             )}
           </div>
           <p className="text-sm text-gray-500 mt-2">
-            {imageError ? 'Click X to remove and try uploading again' : 'Click the X to remove and upload a different image'}
+            {imageError
+              ? 'Click X to remove and try uploading again'
+              : 'Click the X to remove and upload a different image'}
           </p>
         </div>
       ) : (
@@ -179,16 +172,12 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
             <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center">
               <Image className="h-8 w-8 text-gray-400" />
             </div>
-            
+
             <div className="space-y-2">
-              <p className="text-gray-600 font-medium">
-                Upload a photo of your book
-              </p>
-              <p className="text-sm text-gray-500">
-                JPEG, PNG or WebP up to 5MB
-              </p>
+              <p className="text-gray-600 font-medium">Upload a photo of your book</p>
+              <p className="text-sm text-gray-500">JPEG, PNG or WebP up to 5MB</p>
             </div>
-            
+
             <Button
               type="button"
               variant="outline"
@@ -211,12 +200,14 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
           </div>
         </div>
       )}
-      
+
       <p className="text-xs text-gray-500">
-        Adding a clear photo of your book helps buyers make informed decisions and increases your chances of a sale.
+        Adding a clear photo of your book helps buyers make informed decisions and increases your chances
+        of a sale.
       </p>
     </div>
   );
 };
 
 export default ImageUpload;
+
