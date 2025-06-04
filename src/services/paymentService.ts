@@ -51,7 +51,7 @@ export const initializePayment = async (paymentData: PaymentData): Promise<strin
       throw new Error('Buyer or book not found');
     }
 
-    // Create transaction record with existing schema
+    // Create transaction record with enhanced schema
     const reference = `RB_${Date.now()}_${paymentData.bookId.slice(0, 8)}`;
     
     const { error: transactionError } = await supabase
@@ -62,7 +62,13 @@ export const initializePayment = async (paymentData: PaymentData): Promise<strin
         buyer_id: paymentData.buyerId,
         seller_id: paymentData.sellerId,
         price: paymentData.amount,
-        commission: commission
+        commission: commission,
+        delivery_method: paymentData.deliveryMethod,
+        delivery_cost: paymentData.deliveryCost || 0,
+        platform_commission: commission,
+        seller_earnings: sellerEarnings,
+        payment_status: 'pending',
+        paystack_reference: reference
       });
 
     if (transactionError) {
@@ -94,19 +100,52 @@ export const verifyPayment = async (reference: string): Promise<boolean> => {
     const isSuccessful = Math.random() > 0.1; // 90% success rate for testing
 
     if (isSuccessful) {
-      // Mark book as sold (simplified for now)
-      const bookId = reference.split('_')[2]; // Extract book ID from reference
-      if (bookId) {
+      // Update transaction status
+      await supabase
+        .from('transactions')
+        .update({ payment_status: 'completed' })
+        .eq('paystack_reference', reference);
+
+      // Mark book as sold
+      const bookIdMatch = reference.match(/RB_\d+_(.+)/);
+      if (bookIdMatch) {
+        const bookId = bookIdMatch[1];
         await supabase
           .from('books')
           .update({ sold: true })
           .eq('id', bookId);
       }
+    } else {
+      // Update transaction status to failed
+      await supabase
+        .from('transactions')
+        .update({ payment_status: 'failed' })
+        .eq('paystack_reference', reference);
     }
 
     return isSuccessful;
   } catch (error) {
     console.error('Error verifying payment:', error);
     return false;
+  }
+};
+
+export const getTransactionHistory = async (userId: string) => {
+  try {
+    const { data, error } = await supabase
+      .from('transactions')
+      .select('*')
+      .or(`buyer_id.eq.${userId},seller_id.eq.${userId}`)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Error fetching transaction history:', error);
+      throw error;
+    }
+
+    return data || [];
+  } catch (error) {
+    console.error('Error in getTransactionHistory:', error);
+    return [];
   }
 };

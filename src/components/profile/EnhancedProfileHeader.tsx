@@ -1,176 +1,186 @@
 
-import { useState } from 'react';
+import React, { useState } from 'react';
+import { Camera, MapPin, Calendar, Share2, Edit, Award, TrendingUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { MapPin, Calendar, BookOpen, TrendingUp, Share2, Edit } from 'lucide-react';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Profile } from '@/types/auth';
+import { useAuth } from '@/contexts/AuthContext';
 import ProfileEditDialog from '@/components/ProfileEditDialog';
 import ShareProfileDialog from '@/components/ShareProfileDialog';
-import { getUserStats } from '@/services/userStatsService';
-import { useQuery } from '@tanstack/react-query';
 
 interface EnhancedProfileHeaderProps {
   profile: Profile;
   isOwnProfile: boolean;
-  onProfileUpdate?: () => void;
+  onProfileUpdate: () => void;
 }
 
-const EnhancedProfileHeader = ({ profile, isOwnProfile, onProfileUpdate }: EnhancedProfileHeaderProps) => {
+const EnhancedProfileHeader: React.FC<EnhancedProfileHeaderProps> = ({
+  profile,
+  isOwnProfile,
+  onProfileUpdate
+}) => {
+  const { userStats } = useAuth();
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isShareDialogOpen, setIsShareDialogOpen] = useState(false);
 
-  const { data: userStats } = useQuery({
-    queryKey: ['userStats', profile.id],
-    queryFn: () => getUserStats(profile.id),
-    enabled: !!profile.id
-  });
-
-  const getInitials = (name: string) => {
-    return name
-      .split(' ')
-      .map(n => n[0])
-      .join('')
-      .toUpperCase()
-      .slice(0, 2);
+  const getInitials = (name: string | null) => {
+    if (!name) return 'A';
+    return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
   };
 
-  const formatJoinDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-ZA', {
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'long'
     });
   };
 
+  const getStatusColor = (status: string | null) => {
+    switch (status) {
+      case 'active': return 'bg-green-500';
+      case 'suspended': return 'bg-red-500';
+      default: return 'bg-gray-500';
+    }
+  };
+
   return (
     <>
-      <Card className="mb-6">
-        <CardHeader className="pb-4">
-          <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4">
-            <Avatar className="h-20 w-20">
-              <AvatarImage 
-                src={profile.profile_picture_url || ''} 
-                alt={profile.name || 'User'} 
-              />
-              <AvatarFallback className="text-lg font-semibold bg-book-100">
-                {getInitials(profile.name || 'User')}
-              </AvatarFallback>
-            </Avatar>
-            
-            <div className="flex-1 text-center sm:text-left">
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2">
-                <CardTitle className="text-xl sm:text-2xl text-book-800">
-                  {profile.name || 'Anonymous User'}
-                </CardTitle>
-                <div className="flex gap-2 justify-center sm:justify-end">
-                  {isOwnProfile && (
+      <Card className="w-full">
+        <CardContent className="p-4 md:p-6">
+          <div className="flex flex-col md:flex-row gap-4 md:gap-6">
+            {/* Profile Picture Section */}
+            <div className="flex flex-col items-center md:items-start">
+              <div className="relative">
+                <Avatar className="w-20 h-20 md:w-24 md:h-24">
+                  <AvatarImage 
+                    src={profile.profile_picture_url || undefined} 
+                    alt={profile.name || 'User'} 
+                  />
+                  <AvatarFallback className="text-lg md:text-xl font-semibold bg-book-100 text-book-700">
+                    {getInitials(profile.name)}
+                  </AvatarFallback>
+                </Avatar>
+                {isOwnProfile && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="absolute -bottom-2 -right-2 h-8 w-8 rounded-full p-0 bg-white border-2"
+                    onClick={() => setIsEditDialogOpen(true)}
+                  >
+                    <Camera className="h-3 w-3" />
+                  </Button>
+                )}
+              </div>
+              
+              {/* Status Badge */}
+              <div className="flex items-center gap-2 mt-2">
+                <div className={`w-2 h-2 rounded-full ${getStatusColor(profile.status)}`} />
+                <span className="text-xs text-gray-600 capitalize">
+                  {profile.status || 'active'}
+                </span>
+              </div>
+            </div>
+
+            {/* Profile Info Section */}
+            <div className="flex-1 space-y-3">
+              <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-2">
+                <div>
+                  <h1 className="text-xl md:text-2xl font-bold text-gray-900 text-center md:text-left">
+                    {profile.name || 'Anonymous User'}
+                  </h1>
+                  <p className="text-sm text-gray-600 text-center md:text-left">
+                    {profile.email}
+                  </p>
+                </div>
+                
+                {/* Action Buttons */}
+                <div className="flex gap-2 justify-center md:justify-start">
+                  {isOwnProfile ? (
+                    <>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setIsEditDialogOpen(true)}
+                        className="flex items-center gap-1"
+                      >
+                        <Edit className="h-3 w-3" />
+                        <span className="hidden sm:inline">Edit</span>
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setIsShareDialogOpen(true)}
+                        className="flex items-center gap-1"
+                      >
+                        <Share2 className="h-3 w-3" />
+                        <span className="hidden sm:inline">Share</span>
+                      </Button>
+                    </>
+                  ) : (
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => setIsEditDialogOpen(true)}
-                      className="min-h-[36px]"
+                      onClick={() => setIsShareDialogOpen(true)}
+                      className="flex items-center gap-1"
                     >
-                      <Edit className="h-4 w-4 mr-2" />
-                      Edit Profile
+                      <Share2 className="h-3 w-3" />
+                      <span className="hidden sm:inline">Share Profile</span>
                     </Button>
                   )}
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setIsShareDialogOpen(true)}
-                    className="min-h-[36px]"
-                  >
-                    <Share2 className="h-4 w-4 mr-2" />
-                    Share Profile
-                  </Button>
                 </div>
               </div>
-              
+
+              {/* Bio */}
               {profile.bio && (
-                <p className="text-gray-600 mb-3">{profile.bio}</p>
+                <p className="text-sm text-gray-700 leading-relaxed text-center md:text-left">
+                  {profile.bio}
+                </p>
               )}
-              
-              <div className="flex flex-wrap items-center justify-center sm:justify-start gap-4 text-sm text-gray-500">
-                <div className="flex items-center gap-1">
-                  <Calendar className="h-4 w-4" />
-                  <span>Joined {formatJoinDate(profile.created_at)}</span>
-                </div>
-                {userStats?.lastActive && (
-                  <div className="flex items-center gap-1">
-                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                    <span>Last active {new Date(userStats.lastActive).toLocaleDateString()}</span>
+
+              {/* Stats Row */}
+              {userStats && (
+                <div className="flex flex-wrap gap-4 justify-center md:justify-start">
+                  <div className="flex items-center gap-1 text-sm">
+                    <TrendingUp className="h-4 w-4 text-book-600" />
+                    <span className="font-medium">{userStats.totalBooksListed}</span>
+                    <span className="text-gray-600">listed</span>
                   </div>
-                )}
+                  <div className="flex items-center gap-1 text-sm">
+                    <Award className="h-4 w-4 text-green-600" />
+                    <span className="font-medium">{userStats.totalBooksSold}</span>
+                    <span className="text-gray-600">sold</span>
+                  </div>
+                  {userStats.canListBooks && (
+                    <Badge variant="secondary" className="text-xs">
+                      Verified Seller
+                    </Badge>
+                  )}
+                </div>
+              )}
+
+              {/* Member Since */}
+              <div className="flex items-center gap-1 text-xs text-gray-500 justify-center md:justify-start">
+                <Calendar className="h-3 w-3" />
+                <span>Member since {formatDate(profile.created_at)}</span>
               </div>
             </div>
           </div>
-        </CardHeader>
-        
-        <CardContent className="pt-0">
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            <div className="text-center p-3 bg-book-50 rounded-lg">
-              <div className="flex items-center justify-center gap-2 mb-1">
-                <BookOpen className="h-4 w-4 text-book-600" />
-                <span className="font-semibold text-book-800">
-                  {userStats?.totalBooksListed || 0}
-                </span>
-              </div>
-              <p className="text-xs text-gray-600">Books Listed</p>
-            </div>
-            
-            <div className="text-center p-3 bg-green-50 rounded-lg">
-              <div className="flex items-center justify-center gap-2 mb-1">
-                <TrendingUp className="h-4 w-4 text-green-600" />
-                <span className="font-semibold text-green-800">
-                  {userStats?.totalBooksSold || 0}
-                </span>
-              </div>
-              <p className="text-xs text-gray-600">Books Sold</p>
-            </div>
-            
-            <div className="text-center p-3 bg-blue-50 rounded-lg">
-              <div className="flex items-center justify-center gap-2 mb-1">
-                <MapPin className="h-4 w-4 text-blue-600" />
-                <Badge variant={userStats?.addressValidated ? "default" : "secondary"} className="text-xs">
-                  {userStats?.addressValidated ? "Verified" : "Pending"}
-                </Badge>
-              </div>
-              <p className="text-xs text-gray-600">Address Status</p>
-            </div>
-            
-            <div className="text-center p-3 bg-purple-50 rounded-lg">
-              <div className="flex items-center justify-center gap-2 mb-1">
-                <span className="font-semibold text-purple-800">
-                  {userStats?.canListBooks ? "Active" : "Limited"}
-                </span>
-              </div>
-              <p className="text-xs text-gray-600">Seller Status</p>
-            </div>
-          </div>
-          
-          {!userStats?.addressValidated && isOwnProfile && (
-            <div className="mt-4 p-3 bg-orange-50 border border-orange-200 rounded-lg">
-              <p className="text-sm text-orange-800">
-                <strong>Action Required:</strong> Please add your pickup address to start listing books.
-              </p>
-            </div>
-          )}
         </CardContent>
       </Card>
 
       <ProfileEditDialog
         isOpen={isEditDialogOpen}
         onClose={() => setIsEditDialogOpen(false)}
-        profile={profile}
-        onProfileUpdate={onProfileUpdate}
+        onSuccess={onProfileUpdate}
       />
 
       <ShareProfileDialog
         isOpen={isShareDialogOpen}
         onClose={() => setIsShareDialogOpen(false)}
         userId={profile.id}
-        userName={profile.name || 'User'}
+        userName={profile.name || 'Anonymous User'}
         isOwnProfile={isOwnProfile}
       />
     </>
