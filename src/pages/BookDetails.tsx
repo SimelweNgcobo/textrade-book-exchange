@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -9,7 +10,7 @@ import BookDescription from '@/components/book-details/BookDescription';
 import BookActions from '@/components/book-details/BookActions';
 import BookPricing from '@/components/book-details/BookPricing';
 import SellerInfo from '@/components/book-details/SellerInfo';
-import EnhancedReportBookDialog from '@/components/EnhancedReportBookDialog';
+import ReportBookDialog from '@/components/ReportBookDialog';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, AlertTriangle, BookOpen } from 'lucide-react';
@@ -345,7 +346,7 @@ const BookDetails = () => {
           </div>
         )}
 
-        <EnhancedReportBookDialog
+        <ReportBookDialog
           isOpen={isReportDialogOpen}
           onClose={() => setIsReportDialogOpen(false)}
           bookId={book.id}

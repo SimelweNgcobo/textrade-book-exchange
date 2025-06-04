@@ -11,46 +11,23 @@ interface UserStats {
 
 export const getUserStats = async (userId: string): Promise<UserStats | null> => {
   try {
-    const { data: profile, error: profileError } = await supabase
+    const { data, error } = await supabase
       .from('profiles')
-      .select('pickup_address, updated_at')
+      .select('total_books_listed, total_books_sold, can_list_books, address_validated, last_active')
       .eq('id', userId)
       .single();
 
-    if (profileError) {
-      console.error('Error fetching user profile:', profileError);
+    if (error) {
+      console.error('Error fetching user stats:', error);
       return null;
     }
-
-    // Get book counts manually
-    const { data: totalBooks, error: totalError } = await supabase
-      .from('books')
-      .select('id, sold')
-      .eq('seller_id', userId);
-
-    if (totalError) {
-      console.error('Error fetching user books:', totalError);
-      return null;
-    }
-
-    const totalBooksListed = totalBooks?.length || 0;
-    const totalBooksSold = totalBooks?.filter(book => book.sold).length || 0;
-    
-    // Check if address is validated
-    const addressValidated = !!(
-      profile?.pickup_address &&
-      (profile.pickup_address as any)?.streetAddress &&
-      (profile.pickup_address as any)?.city &&
-      (profile.pickup_address as any)?.province &&
-      (profile.pickup_address as any)?.postalCode
-    );
 
     return {
-      totalBooksListed,
-      totalBooksSold,
-      canListBooks: addressValidated,
-      addressValidated,
-      lastActive: profile?.updated_at || new Date().toISOString()
+      totalBooksListed: data.total_books_listed || 0,
+      totalBooksSold: data.total_books_sold || 0,
+      canListBooks: data.can_list_books || false,
+      addressValidated: data.address_validated || false,
+      lastActive: data.last_active || new Date().toISOString()
     };
   } catch (error) {
     console.error('Error in getUserStats:', error);
@@ -62,7 +39,7 @@ export const updateLastActive = async (userId: string) => {
   try {
     const { error } = await supabase
       .from('profiles')
-      .update({ updated_at: new Date().toISOString() })
+      .update({ last_active: new Date().toISOString() })
       .eq('id', userId);
 
     if (error) {

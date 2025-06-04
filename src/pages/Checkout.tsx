@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
@@ -5,8 +6,6 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useCart } from '@/contexts/CartContext';
 import { getBookById } from '@/services/bookService';
 import { getUserAddresses } from '@/services/addressService';
-import { getDeliveryOptions, calculateDeliveryQuote } from '@/services/deliveryService';
-import { initializePayment } from '@/services/paymentService';
 import { Book } from '@/types/book';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -14,7 +13,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, CreditCard, AlertTriangle, Truck } from 'lucide-react';
+import { ArrowLeft, CreditCard, AlertTriangle, ShoppingCart } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface AddressData {
@@ -48,10 +47,6 @@ const Checkout = () => {
     province: '',
     postalCode: ''
   });
-  const [deliveryOptions, setDeliveryOptions] = useState<any[]>([]);
-  const [selectedDelivery, setSelectedDelivery] = useState<string>('');
-  const [deliveryQuote, setDeliveryQuote] = useState<any>(null);
-  const [isCalculatingDelivery, setIsCalculatingDelivery] = useState(false);
 
   const isCartCheckout = id === 'cart';
   const cartData = location.state?.cartItems || [];
@@ -71,10 +66,6 @@ const Checkout = () => {
         // Load saved addresses
         const addresses = await getUserAddresses(user.id);
         setSavedAddresses(addresses);
-
-        // Load delivery options
-        const delivery = await getDeliveryOptions();
-        setDeliveryOptions(delivery);
 
         // Autofill with saved shipping address if available
         if (addresses?.shipping_address) {
@@ -160,35 +151,11 @@ const Checkout = () => {
     }
   };
 
-  const handleDeliverySelection = async (courier: string) => {
-    setSelectedDelivery(courier);
-    setDeliveryQuote(null);
-
-    if (!courier || !savedAddresses?.pickup_address) return;
-
-    setIsCalculatingDelivery(true);
-    try {
-      const quote = await calculateDeliveryQuote(
-        courier,
-        savedAddresses.pickup_address,
-        shippingAddress
-      );
-      setDeliveryQuote(quote);
-    } catch (error) {
-      console.error('Error calculating delivery quote:', error);
-      toast.error('Failed to calculate delivery cost');
-    } finally {
-      setIsCalculatingDelivery(false);
-    }
-  };
-
   const calculateTotal = () => {
-    const itemsTotal = isCartCheckout 
-      ? cartData.reduce((total: number, item: any) => total + item.price, 0)
-      : book?.price || 0;
-    
-    const deliveryCost = deliveryQuote?.cost || 0;
-    return itemsTotal + deliveryCost;
+    if (isCartCheckout) {
+      return cartData.reduce((total: number, item: any) => total + item.price, 0);
+    }
+    return book?.price || 0;
   };
 
   const validateAddress = () => {
@@ -199,49 +166,27 @@ const Checkout = () => {
       toast.error('Please fill in all required address fields');
       return false;
     }
-    
-    if (!selectedDelivery) {
-      toast.error('Please select a delivery option');
-      return false;
-    }
-    
     return true;
   };
 
   const handlePayment = async () => {
-    if (!validateAddress() || !user?.id) {
+    if (!validateAddress()) {
       return;
     }
 
     try {
+      // Simulate payment processing
       toast.loading('Processing payment...', { id: 'payment' });
       
-      if (isCartCheckout) {
-        // Handle multiple books payment
-        for (const item of cartData) {
-          await initializePayment({
-            bookId: item.bookId,
-            buyerId: user.id,
-            sellerId: item.sellerId,
-            amount: item.price,
-            deliveryMethod: selectedDelivery,
-            deliveryCost: deliveryQuote?.cost || 0
-          });
-        }
-        clearCart();
-      } else if (book) {
-        // Handle single book payment
-        await initializePayment({
-          bookId: book.id,
-          buyerId: user.id,
-          sellerId: book.seller?.id || '',
-          amount: book.price,
-          deliveryMethod: selectedDelivery,
-          deliveryCost: deliveryQuote?.cost || 0
-        });
-      }
+      // Simulate payment delay
+      await new Promise(resolve => setTimeout(resolve, 2000));
       
       toast.success('Payment successful! Your order has been placed.', { id: 'payment' });
+      
+      if (isCartCheckout) {
+        clearCart();
+      }
+      
       navigate('/');
     } catch (error) {
       console.error('Payment error:', error);
@@ -435,48 +380,6 @@ const Checkout = () => {
             </Card>
           </div>
 
-          {/* Delivery Options */}
-          <div className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg md:text-xl flex items-center">
-                  <Truck className="mr-2 h-5 w-5" />
-                  Delivery Options
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <Label>Select Courier</Label>
-                  <Select value={selectedDelivery} onValueChange={handleDeliverySelection}>
-                    <SelectTrigger className="min-h-[44px]">
-                      <SelectValue placeholder="Choose delivery option" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {deliveryOptions.map((option) => (
-                        <SelectItem key={option.id} value={option.name}>
-                          {option.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                {isCalculatingDelivery && (
-                  <p className="text-sm text-gray-600">Calculating delivery cost...</p>
-                )}
-
-                {deliveryQuote && (
-                  <div className="p-3 bg-gray-50 rounded-lg">
-                    <h4 className="font-medium">{deliveryQuote.courier}</h4>
-                    <p className="text-sm text-gray-600">Service: {deliveryQuote.service_type}</p>
-                    <p className="text-sm text-gray-600">ETA: {deliveryQuote.eta}</p>
-                    <p className="font-semibold text-book-600">Cost: R{deliveryQuote.cost.toFixed(2)}</p>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </div>
-
           {/* Order Summary */}
           <div className="space-y-6">
             <Card>
@@ -523,16 +426,6 @@ const Checkout = () => {
                 <Separator />
 
                 <div className="space-y-2">
-                  <div className="flex justify-between items-center">
-                    <span>Subtotal</span>
-                    <span>R{(totalAmount - (deliveryQuote?.cost || 0)).toFixed(2)}</span>
-                  </div>
-                  {deliveryQuote && (
-                    <div className="flex justify-between items-center">
-                      <span>Delivery</span>
-                      <span>R{deliveryQuote.cost.toFixed(2)}</span>
-                    </div>
-                  )}
                   <div className="flex justify-between items-center">
                     <span className="text-base md:text-lg font-bold">Total</span>
                     <span className="text-base md:text-lg font-bold">R{totalAmount.toFixed(2)}</span>
