@@ -1,9 +1,10 @@
-
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useErrorHandler } from '@/hooks/useErrorHandler';
+import { getUserStats, updateLastActive } from '@/services/userStatsService';
+import { isAdminUser } from '@/services/admin/adminAuthService';
 
 interface Profile {
   id: string;
@@ -22,6 +23,9 @@ interface AuthContextType {
   isLoading: boolean;
   isAuthenticated: boolean;
   isAdmin: boolean;
+  userStats: any;
+  loadUserStats: () => Promise<void>;
+  checkAdminStatus: (userId: string) => Promise<boolean>;
   login: (email: string, password: string) => Promise<void>;
   register: (name: string, email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
@@ -48,6 +52,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [profileLoading, setProfileLoading] = useState(false);
+  const [userStats, setUserStats] = useState<any>(null);
   const { handleError } = useErrorHandler();
 
   const isAuthenticated = !!user;
@@ -313,6 +318,36 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
+  const loadUserStats = async () => {
+    if (!user) return;
+    
+    try {
+      const stats = await getUserStats(user.id);
+      setUserStats(stats);
+    } catch (error) {
+      console.error('Error loading user stats:', error);
+    }
+  };
+
+  const checkAdminStatus = async (userId: string): Promise<boolean> => {
+    try {
+      return await isAdminUser(userId);
+    } catch (error) {
+      console.error('Error checking admin status:', error);
+      return false;
+    }
+  };
+
+  useEffect(() => {
+    if (user && profile) {
+      // Update last active timestamp
+      updateLastActive(user.id);
+      
+      // Load user stats
+      loadUserStats();
+    }
+  }, [user, profile]);
+
   const value: AuthContextType = {
     user,
     profile,
@@ -320,6 +355,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     isLoading: isLoading || profileLoading,
     isAuthenticated,
     isAdmin,
+    userStats,
+    loadUserStats,
+    checkAdminStatus,
     login,
     register,
     logout,
