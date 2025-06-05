@@ -1,3 +1,4 @@
+
 import { supabase } from '@/integrations/supabase/client';
 import { updateAddressValidation } from './addressValidationService';
 
@@ -9,7 +10,7 @@ interface Address {
   city: string;
   province: string;
   postalCode: string;
-  [key: string]: string;
+  [key: string]: any;
 }
 
 export const saveUserAddresses = async (
@@ -28,7 +29,7 @@ export const saveUserAddresses = async (
 
     const { data, error } = await supabase
       .from('profiles')
-      .select('pickup_address, shipping_address, addresses_same, can_list_books')
+      .select('pickup_address, shipping_address, addresses_same')
       .eq('id', userId)
       .single();
 
@@ -37,7 +38,12 @@ export const saveUserAddresses = async (
       throw error;
     }
 
-    return { ...data, canListBooks: result.canListBooks };
+    return { 
+      pickup_address: data.pickup_address,
+      shipping_address: data.shipping_address,
+      addresses_same: data.addresses_same,
+      canListBooks: result.canListBooks 
+    };
   } catch (error) {
     console.error('Error saving addresses:', error);
     throw error;

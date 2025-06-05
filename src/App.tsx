@@ -30,6 +30,7 @@ import Privacy from './pages/Privacy';
 import AdminReports from './pages/AdminReports';
 import Notifications from './pages/Notifications';
 import Confirm from './pages/Confirm';
+import Verify from './pages/Verify';
 import EditBook from './pages/EditBook';
 import Cart from './pages/Cart';
 
@@ -52,6 +53,7 @@ function App() {
                 <Route path="/forgot-password" element={<ForgotPassword />} />
                 <Route path="/reset-password" element={<ResetPassword />} />
                 <Route path="/confirm" element={<Confirm />} />
+                <Route path="/verify" element={<Verify />} />
                 <Route path="/faq" element={<FAQ />} />
                 <Route path="/terms" element={<Terms />} />
                 <Route path="/privacy" element={<Privacy />} />

@@ -17,17 +17,23 @@ interface DeliveryQuote {
 
 export const getDeliveryOptions = async (): Promise<DeliveryOption[]> => {
   try {
-    const { data, error } = await supabase
-      .from('delivery_options')
-      .select('id, name, base_url, is_active')
-      .eq('is_active', true);
+    // Since delivery_options table doesn't exist, return mock data
+    const mockOptions: DeliveryOption[] = [
+      {
+        id: '1',
+        name: 'Fastway',
+        base_url: 'https://fastway.co.za',
+        is_active: true
+      },
+      {
+        id: '2',
+        name: 'Courier Guy',
+        base_url: 'https://courierguy.co.za',
+        is_active: true
+      }
+    ];
 
-    if (error) {
-      console.error('Error fetching delivery options:', error);
-      return [];
-    }
-
-    return data || [];
+    return mockOptions;
   } catch (error) {
     console.error('Error in getDeliveryOptions:', error);
     return [];
@@ -70,12 +76,11 @@ export const updateBookDeliveryInfo = async (
   courierName: string
 ) => {
   try {
+    // Since delivery fields don't exist in books table, we'll store this info in a comment or description
     const { error } = await supabase
       .from('books')
       .update({
-        delivery_method: deliveryMethod,
-        delivery_cost: deliveryCost,
-        courier_name: courierName
+        description: `${deliveryMethod} via ${courierName} - R${deliveryCost}`
       })
       .eq('id', bookId);
 

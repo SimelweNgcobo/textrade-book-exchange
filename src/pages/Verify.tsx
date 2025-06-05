@@ -1,0 +1,215 @@
+
+import { useEffect, useState } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { supabase } from '@/integrations/supabase/client';
+import Layout from '@/components/Layout';
+import { Loader2, CheckCircle, XCircle } from 'lucide-react';
+import { toast } from 'sonner';
+import { Button } from '@/components/ui/button';
+
+const Verify = () => {
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
+  const [message, setMessage] = useState('');
+
+  useEffect(() => {
+    const handleVerification = async () => {
+      try {
+        console.log('Starting email verification process');
+        
+        // Get tokens from URL hash or search params
+        const hash = window.location.hash.substring(1);
+        const hashParams = new URLSearchParams(hash);
+        
+        const access_token = hashParams.get('access_token') || searchParams.get('access_token');
+        const refresh_token = hashParams.get('refresh_token') || searchParams.get('refresh_token');
+        const token_hash = searchParams.get('token_hash');
+        const type = searchParams.get('type');
+        const error_code = searchParams.get('error_code');
+        const error_description = searchParams.get('error_description');
+        
+        console.log('Verification params:', { 
+          access_token: !!access_token, 
+          refresh_token: !!refresh_token,
+          token_hash: !!token_hash,
+          type,
+          error_code,
+          error_description 
+        });
+
+        // Check for errors first
+        if (error_code || error_description) {
+          console.error('Verification error from URL:', { error_code, error_description });
+          setStatus('error');
+          setMessage(error_description || 'Email verification failed');
+          toast.error(error_description || 'Email verification failed');
+          return;
+        }
+
+        // Method 1: Token hash verification (most reliable for email confirmation)
+        if (token_hash && type) {
+          console.log('Using token hash verification');
+          const { data, error } = await supabase.auth.verifyOtp({
+            token_hash,
+            type: type as any,
+          });
+          
+          if (error) {
+            console.error('Token hash verification error:', error);
+            throw error;
+          }
+
+          if (data.session) {
+            console.log('Email confirmed successfully with token hash');
+            setStatus('success');
+            setMessage('Email verified successfully! You are now logged in.');
+            toast.success('Email verified successfully!');
+            setTimeout(() => navigate('/'), 2000);
+            return;
+          }
+        }
+
+        // Method 2: Access/Refresh token session (for direct verification links)
+        if (access_token && refresh_token) {
+          console.log('Using session tokens');
+          const { data, error } = await supabase.auth.setSession({
+            access_token,
+            refresh_token,
+          });
+          
+          if (error) {
+            console.error('Session token error:', error);
+            throw error;
+          }
+
+          if (data.session) {
+            console.log('Session set successfully');
+            setStatus('success');
+            setMessage('Email verified successfully! You are now logged in.');
+            toast.success('Email verified successfully!');
+            setTimeout(() => navigate('/'), 2000);
+            return;
+          }
+        }
+
+        // Method 3: Code exchange (fallback)
+        console.log('Attempting code exchange method');
+        const { data, error } = await supabase.auth.exchangeCodeForSession(window.location.href);
+        
+        if (error) {
+          console.error('Code exchange error:', error);
+          throw error;
+        }
+
+        if (data.session) {
+          console.log('Code exchange successful');
+          setStatus('success');
+          setMessage('Email verified successfully! You are now logged in.');
+          toast.success('Email verified successfully!');
+          setTimeout(() => navigate('/'), 2000);
+          return;
+        }
+
+        // If we get here, none of the methods worked
+        throw new Error('Unable to verify email with any available method');
+
+      } catch (error: any) {
+        console.error('Email verification error:', error);
+        setStatus('error');
+        
+        let errorMessage = 'Email verification failed. ';
+        if (error.message?.includes('expired')) {
+          errorMessage += 'The verification link has expired.';
+        } else if (error.message?.includes('already confirmed')) {
+          errorMessage += 'This email has already been verified.';
+        } else if (error.message?.includes('invalid')) {
+          errorMessage += 'The verification link is invalid.';
+        } else {
+          errorMessage += 'Please try again or contact support.';
+        }
+        
+        setMessage(errorMessage);
+        toast.error(errorMessage);
+      }
+    };
+
+    handleVerification();
+  }, [navigate, searchParams]);
+
+  return (
+    <Layout>
+      <div className="min-h-[70vh] flex items-center justify-center px-4">
+        <div className="w-full max-w-md">
+          <div className="bg-white rounded-lg shadow-lg p-6 md:p-8 text-center">
+            {status === 'loading' && (
+              <>
+                <Loader2 className="h-12 w-12 text-book-600 mx-auto mb-4 animate-spin" />
+                <h2 className="text-xl md:text-2xl font-semibold mb-2 text-gray-800">
+                  Verifying your email...
+                </h2>
+                <p className="text-gray-600 text-sm md:text-base">
+                  Please wait while we verify your email address.
+                </p>
+              </>
+            )}
+            
+            {status === 'success' && (
+              <>
+                <CheckCircle className="h-12 w-12 text-green-500 mx-auto mb-4" />
+                <h2 className="text-xl md:text-2xl font-semibold mb-2 text-gray-800">
+                  Email Verified!
+                </h2>
+                <p className="text-gray-600 mb-4 text-sm md:text-base">
+                  {message}
+                </p>
+                <p className="text-xs md:text-sm text-gray-500 mb-4">
+                  Welcome to ReBooked Solutions - Pre-Loved Pages, New Adventures
+                </p>
+                <p className="text-xs md:text-sm text-gray-500">
+                  Redirecting you to the home page...
+                </p>
+              </>
+            )}
+            
+            {status === 'error' && (
+              <>
+                <XCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
+                <h2 className="text-xl md:text-2xl font-semibold mb-2 text-gray-800">
+                  Verification Failed
+                </h2>
+                <p className="text-gray-600 mb-6 text-sm md:text-base">
+                  {message}
+                </p>
+                <div className="space-y-3">
+                  <Button
+                    onClick={() => navigate('/login')}
+                    className="bg-book-600 hover:bg-book-700 text-white px-4 md:px-6 py-2 rounded-lg transition-colors text-sm md:text-base w-full"
+                  >
+                    Go to Login
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => navigate('/register')}
+                    className="px-4 md:px-6 py-2 rounded-lg transition-colors text-sm md:text-base w-full"
+                  >
+                    Register Again
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    onClick={() => navigate('/')}
+                    className="text-sm text-gray-500 w-full"
+                  >
+                    Go to Home Page
+                  </Button>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      </div>
+    </Layout>
+  );
+};
+
+export default Verify;
