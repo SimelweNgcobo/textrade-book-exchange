@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
@@ -406,33 +407,23 @@ const CreateListing = () => {
               </div>
             </div>
 
-            <div className="space-y-4">
-              <div>
-                <Label className="text-base font-medium mb-2 block">
-                  Book Photos <span className="text-red-500">*</span>
-                </Label>
-                <p className="text-sm text-gray-600 mb-4">
-                  Upload photos of your book's front cover, back cover, and inside pages
-                </p>
-              </div>
-              <MultiImageUpload
-                currentImages={bookImages}
-                onImagesChange={handleImagesChange}
-                disabled={isSubmitting}
-                variant="object"
-                maxImages={3}
-                className="border rounded-lg p-4"
-              />
-              {(errors.frontCover || errors.backCover || errors.insidePages) && (
-                <p className="text-sm text-red-500 mt-2">All three photos are required</p>
-              )}
-            </div>
+            <MultiImageUpload
+              currentImages={bookImages}
+              onImagesChange={handleImagesChange}
+              disabled={isSubmitting}
+              variant="object"
+              maxImages={3}
+              className="border rounded-lg p-6"
+            />
+            {(errors.frontCover || errors.backCover || errors.insidePages) && (
+              <p className="text-sm text-red-500 mt-2">All three photos are required</p>
+            )}
 
             <div className="p-6 bg-book-50 rounded-lg border border-book-200">
-              <h3 className="font-semibold text-book-800 mb-4">Commission & Earnings</h3>
-              <div className="space-y-3 text-sm">
+              <h3 className="font-semibold text-book-800 mb-4 text-center">Commission & Earnings</h3>
+              <div className="space-y-3 text-center">
                 <p className="text-book-700">
-                  <strong>Book Price:</strong> R{formData.price.toFixed(2)}
+                  <strong>Book Price:</strong> <span className="text-green-600">R{formData.price.toFixed(2)}</span>
                 </p>
                 <p className="text-orange-600">
                   <strong>ReBooked Commission (10%):</strong> -R{calculateCommission(formData.price).toFixed(2)}
@@ -441,15 +432,15 @@ const CreateListing = () => {
                   <strong>You will receive:</strong> R{calculateSellerReceives(formData.price).toFixed(2)}
                 </p>
               </div>
-              <p className="text-book-600 mt-4 text-sm">
+              <p className="text-book-600 mt-4 text-sm text-center">
                 ReBooked takes a 10% commission from each sale to maintain the platform and provide secure transactions.
               </p>
             </div>
 
-            <div className="flex justify-end pt-4">
+            <div className="flex justify-center pt-4">
               <Button
                 type="submit"
-                className="bg-book-600 hover:bg-book-700 min-h-[48px] px-8"
+                className="bg-green-600 hover:bg-green-700 min-h-[48px] px-16 text-lg"
                 disabled={isSubmitting}
                 size="lg"
               >

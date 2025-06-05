@@ -60,60 +60,49 @@ const MultiImageUpload = ({
 
   const imageArray = getImageArray();
 
-  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>, index: number) => {
     if (disabled) return;
     
-    const files = event.target.files;
-    if (!files || files.length === 0) return;
+    const file = event.target.files?.[0];
+    if (!file) return;
 
-    const remainingSlots = maxImages - imageArray.length;
-    if (remainingSlots <= 0) {
-      toast.error(`Maximum ${maxImages} images allowed`);
-      return;
-    }
-
-    const filesToUpload = Array.from(files).slice(0, remainingSlots);
     setIsUploading(true);
 
     try {
-      const uploadPromises = filesToUpload.map(async (file) => {
-        // Validate file type
-        if (!file.type.startsWith('image/')) {
-          throw new Error(`${file.name} is not a valid image file`);
-        }
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        throw new Error(`${file.name} is not a valid image file`);
+      }
 
-        // Validate file size (max 5MB)
-        if (file.size > 5 * 1024 * 1024) {
-          throw new Error(`${file.name} is too large. Maximum size is 5MB`);
-        }
+      // Validate file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        throw new Error(`${file.name} is too large. Maximum size is 5MB`);
+      }
 
-        const fileExt = file.name.split('.').pop();
-        const fileName = `${Math.random()}.${fileExt}`;
-        const filePath = `book-images/${fileName}`;
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Math.random()}.${fileExt}`;
+      const filePath = `book-images/${fileName}`;
 
-        const { error: uploadError } = await supabase.storage
-          .from('book-images')
-          .upload(filePath, file);
+      const { error: uploadError } = await supabase.storage
+        .from('book-images')
+        .upload(filePath, file);
 
-        if (uploadError) {
-          throw uploadError;
-        }
+      if (uploadError) {
+        throw uploadError;
+      }
 
-        const { data: { publicUrl } } = supabase.storage
-          .from('book-images')
-          .getPublicUrl(filePath);
+      const { data: { publicUrl } } = supabase.storage
+        .from('book-images')
+        .getPublicUrl(filePath);
 
-        return publicUrl;
-      });
-
-      const uploadedUrls = await Promise.all(uploadPromises);
-      const newImages = [...imageArray, ...uploadedUrls];
+      const newImages = [...imageArray];
+      newImages[index] = publicUrl;
       setImages(newImages);
       
-      toast.success(`${uploadedUrls.length} image(s) uploaded successfully`);
+      toast.success('Image uploaded successfully');
     } catch (error) {
-      console.error('Error uploading images:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Failed to upload images';
+      console.error('Error uploading image:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Failed to upload image';
       toast.error(errorMessage);
     } finally {
       setIsUploading(false);
@@ -125,105 +114,102 @@ const MultiImageUpload = ({
   const removeImage = (index: number) => {
     if (disabled) return;
     
-    const newImages = imageArray.filter((_, i) => i !== index);
+    const newImages = [...imageArray];
+    newImages[index] = '';
     setImages(newImages);
     toast.success('Image removed');
   };
 
-  const canUploadMore = imageArray.length < maxImages;
-
-  const getImageLabels = () => {
-    if (variant === 'object') {
-      return ['Front Cover', 'Back Cover', 'Inside Pages'];
-    }
-    return imageArray.map((_, index) => `Image ${index + 1}`);
-  };
-
-  const labels = getImageLabels();
+  const imageSlots = [
+    { label: 'Front Cover', description: 'Clear photo of the front cover' },
+    { label: 'Back Cover', description: 'Clear photo of the back cover' },
+    { label: 'Inside Pages', description: 'Photo of table of contents or sample pages' }
+  ];
 
   return (
-    <div className={`space-y-4 ${className}`}>
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-        <p className="text-sm text-gray-600">
-          Upload up to {maxImages} images ({imageArray.length}/{maxImages} uploaded)
-        </p>
-        {canUploadMore && !disabled && (
-          <div className="relative">
-            <input
-              type="file"
-              multiple
-              accept="image/*"
-              onChange={handleFileUpload}
-              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-              disabled={isUploading || disabled}
-            />
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              disabled={isUploading || disabled}
-              className="relative w-full sm:w-auto min-h-[44px]"
-            >
-              <Upload className="mr-2 h-4 w-4" />
-              {isUploading ? 'Uploading...' : 'Add Images'}
-            </Button>
-          </div>
-        )}
-      </div>
-
-      {imageArray.length > 0 && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-          {imageArray.map((imageUrl, index) => (
-            <Card key={index} className="relative group">
-              <CardContent className="p-2">
-                <div className="relative">
-                  <img
-                    src={imageUrl}
-                    alt={labels[index] || `Upload ${index + 1}`}
-                    className="w-full h-32 object-cover rounded cursor-pointer"
-                    onClick={() => setPreviewImage(imageUrl)}
-                  />
-                  {variant === 'object' && (
-                    <div className="absolute bottom-1 left-1 bg-black/70 text-white text-xs px-2 py-1 rounded">
-                      {labels[index]}
+    <div className={`space-y-6 ${className}`}>
+      <div>
+        <h3 className="text-lg font-medium mb-2">
+          Book Photos <span className="text-red-500">*</span>
+        </h3>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {imageSlots.map((slot, index) => (
+            <div key={index} className="space-y-2">
+              <div className="text-center">
+                <h4 className="font-medium">
+                  {slot.label} <span className="text-red-500">*</span>
+                </h4>
+                <p className="text-sm text-gray-600 mb-3">{slot.description}</p>
+              </div>
+              
+              <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center min-h-[200px] flex flex-col justify-center">
+                {imageArray[index] ? (
+                  <div className="relative">
+                    <img
+                      src={imageArray[index]}
+                      alt={slot.label}
+                      className="w-full h-32 object-cover rounded mb-3 cursor-pointer"
+                      onClick={() => setPreviewImage(imageArray[index])}
+                    />
+                    <div className="flex gap-2 justify-center">
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        size="sm"
+                        onClick={() => setPreviewImage(imageArray[index])}
+                        className="min-h-[32px]"
+                      >
+                        <Eye className="h-3 w-3 mr-1" />
+                        View
+                      </Button>
+                      {!disabled && (
+                        <Button
+                          type="button"
+                          variant="destructive"
+                          size="sm"
+                          onClick={() => removeImage(index)}
+                          className="min-h-[32px]"
+                        >
+                          <X className="h-3 w-3 mr-1" />
+                          Remove
+                        </Button>
+                      )}
                     </div>
-                  )}
-                </div>
-                {!disabled && (
-                  <div className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <Button
-                      type="button"
-                      variant="destructive"
-                      size="sm"
-                      onClick={() => removeImage(index)}
-                      className="h-8 w-8 p-0 min-h-[32px]"
-                    >
-                      <X className="h-3 w-3" />
-                    </Button>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    <div className="w-16 h-16 bg-gray-100 rounded-lg mx-auto flex items-center justify-center">
+                      <Upload className="h-8 w-8 text-gray-400" />
+                    </div>
+                    <div className="relative">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => handleFileUpload(e, index)}
+                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                        disabled={isUploading || disabled}
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        disabled={isUploading || disabled}
+                        className="w-full min-h-[44px]"
+                      >
+                        <Upload className="h-4 w-4 mr-2" />
+                        {isUploading ? 'Uploading...' : 'Upload Image'}
+                      </Button>
+                    </div>
+                    <p className="text-xs text-gray-500">PNG, JPG up to 5MB</p>
                   </div>
                 )}
-                <div className="absolute bottom-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <Button
-                    type="button"
-                    variant="secondary"
-                    size="sm"
-                    onClick={() => setPreviewImage(imageUrl)}
-                    className="h-8 w-8 p-0 min-h-[32px]"
-                  >
-                    <Eye className="h-3 w-3" />
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           ))}
         </div>
-      )}
-
-      {!canUploadMore && (
-        <div className="text-sm text-amber-600 bg-amber-50 p-3 rounded">
-          You have reached the maximum limit of {maxImages} images. Remove an image to add a new one.
-        </div>
-      )}
+        <p className="text-sm text-gray-600 mt-4 text-center">
+          All three photos are required to create your listing. This helps buyers make informed decisions.
+        </p>
+      </div>
 
       {/* Image Preview Modal */}
       {previewImage && (

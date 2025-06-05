@@ -1,6 +1,5 @@
 
 import { useAuth } from '@/contexts/AuthContext';
-import SystemHealthCheck from '@/components/SystemHealthCheck';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
 const AdminOnlySystemHealth = () => {
@@ -10,17 +9,27 @@ const AdminOnlySystemHealth = () => {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>System Health</CardTitle>
+          <CardTitle>Access Restricted</CardTitle>
           <CardDescription>Administrator access required</CardDescription>
         </CardHeader>
         <CardContent>
-          <p className="text-gray-500">You do not have permission to view system health information.</p>
+          <p className="text-gray-500">You do not have permission to view this section.</p>
         </CardContent>
       </Card>
     );
   }
 
-  return <SystemHealthCheck />;
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Admin Panel</CardTitle>
+        <CardDescription>Administrative functions</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <p className="text-gray-600">Admin features are available through the main dashboard.</p>
+      </CardContent>
+    </Card>
+  );
 };
 
 export default AdminOnlySystemHealth;

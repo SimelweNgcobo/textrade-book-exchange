@@ -6,8 +6,9 @@ import ProfileHeader from '@/components/ProfileHeader';
 import ShareProfileDialog from '@/components/ShareProfileDialog';
 import ProfileActions from '@/components/profile/ProfileActions';
 import BookNotSellingDialog from '@/components/BookNotSellingDialog';
+import ReportIssueDialog from '@/components/ReportIssueDialog';
 import { Button } from '@/components/ui/button';
-import { BookOpen, Plus } from 'lucide-react';
+import { BookOpen, Plus, AlertTriangle } from 'lucide-react';
 import ProfileEditDialog from '@/components/ProfileEditDialog';
 import UserProfileTabs from '@/components/profile/UserProfileTabs';
 import MobileListingsView from '@/components/profile/MobileListingsView';
@@ -28,6 +29,7 @@ const Profile = () => {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isShareDialogOpen, setIsShareDialogOpen] = useState(false);
   const [isBookNotSellingDialogOpen, setIsBookNotSellingDialogOpen] = useState(false);
+  const [isReportIssueDialogOpen, setIsReportIssueDialogOpen] = useState(false);
   const [addressData, setAddressData] = useState<any>(null);
   const [activeListings, setActiveListings] = useState<Book[]>([]);
   const [isLoadingAddress, setIsLoadingAddress] = useState(false);
@@ -124,6 +126,10 @@ const Profile = () => {
     setIsBookNotSellingDialogOpen(true);
   };
 
+  const handleReportIssue = () => {
+    setIsReportIssueDialogOpen(true);
+  };
+
   if (!profile || !user) {
     return (
       <Layout>
@@ -148,6 +154,16 @@ const Profile = () => {
     return (
       <Layout>
         <div className="container mx-auto px-4 py-4 max-w-6xl">
+          {/* Fixed Report Issue Button */}
+          <div className="fixed bottom-4 right-4 z-50">
+            <Button
+              onClick={handleReportIssue}
+              className="bg-red-600 hover:bg-red-700 text-white rounded-full w-12 h-12 p-0 shadow-lg"
+            >
+              <AlertTriangle className="h-5 w-5" />
+            </Button>
+          </div>
+
           {/* Mobile Profile Header */}
           <div className="mb-6">
             <ProfileHeader 
@@ -221,6 +237,11 @@ const Profile = () => {
             isOpen={isBookNotSellingDialogOpen}
             onClose={() => setIsBookNotSellingDialogOpen(false)}
           />
+
+          <ReportIssueDialog
+            isOpen={isReportIssueDialogOpen}
+            onClose={() => setIsReportIssueDialogOpen(false)}
+          />
         </div>
       </Layout>
     );
@@ -230,6 +251,16 @@ const Profile = () => {
   return (
     <Layout>
       <div className="container mx-auto px-4 py-8 max-w-6xl">
+        {/* Fixed Report Issue Button */}
+        <div className="fixed bottom-4 right-4 z-50">
+          <Button
+            onClick={handleReportIssue}
+            className="bg-red-600 hover:bg-red-700 text-white rounded-full w-12 h-12 p-0 shadow-lg"
+          >
+            <AlertTriangle className="h-5 w-5" />
+          </Button>
+        </div>
+
         <div className="mb-6">
           <ProfileHeader 
             userData={userData}
@@ -297,6 +328,11 @@ const Profile = () => {
         <BookNotSellingDialog
           isOpen={isBookNotSellingDialogOpen}
           onClose={() => setIsBookNotSellingDialogOpen(false)}
+        />
+
+        <ReportIssueDialog
+          isOpen={isReportIssueDialogOpen}
+          onClose={() => setIsReportIssueDialogOpen(false)}
         />
       </div>
     </Layout>
