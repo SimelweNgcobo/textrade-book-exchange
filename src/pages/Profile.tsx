@@ -4,14 +4,14 @@ import { useAuth } from '@/contexts/AuthContext';
 import Layout from '@/components/Layout';
 import ProfileHeader from '@/components/ProfileHeader';
 import ShareProfileDialog from '@/components/ShareProfileDialog';
+import ProfileActions from '@/components/profile/ProfileActions';
+import BookNotSellingDialog from '@/components/BookNotSellingDialog';
 import { Button } from '@/components/ui/button';
-import { Lock, MapPin, User, BookOpen, Plus } from 'lucide-react';
+import { BookOpen, Plus } from 'lucide-react';
 import ProfileEditDialog from '@/components/ProfileEditDialog';
-import ChangePasswordDialog from '@/components/ChangePasswordDialog';
 import UserProfileTabs from '@/components/profile/UserProfileTabs';
 import MobileListingsView from '@/components/profile/MobileListingsView';
 import ListingsSidebar from '@/components/profile/ListingsSidebar';
-import SecuritySettings from '@/components/profile/SecuritySettings';
 import AccountInformation from '@/components/profile/AccountInformation';
 import { saveUserAddresses, getUserAddresses } from '@/services/addressService';
 import { getUserBooks } from '@/services/book/bookQueries';
@@ -20,15 +20,14 @@ import { Book } from '@/types/book';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
 import { useIsMobile } from '@/hooks/use-mobile';
-import BookNotSellingHelp from '@/components/BookNotSellingHelp';
 
 const Profile = () => {
   const { profile, user } = useAuth();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const [isChangePasswordDialogOpen, setIsChangePasswordDialogOpen] = useState(false);
   const [isShareDialogOpen, setIsShareDialogOpen] = useState(false);
+  const [isBookNotSellingDialogOpen, setIsBookNotSellingDialogOpen] = useState(false);
   const [addressData, setAddressData] = useState<any>(null);
   const [activeListings, setActiveListings] = useState<Book[]>([]);
   const [isLoadingAddress, setIsLoadingAddress] = useState(false);
@@ -121,6 +120,10 @@ const Profile = () => {
     setIsShareDialogOpen(true);
   };
 
+  const handleBookNotSelling = () => {
+    setIsBookNotSellingDialogOpen(true);
+  };
+
   if (!profile || !user) {
     return (
       <Layout>
@@ -154,8 +157,17 @@ const Profile = () => {
             />
           </div>
 
-          {/* Mobile Quick Actions - Improved spacing and layout */}
-          <div className="space-y-3 mb-6">
+          {/* Mobile Profile Actions */}
+          <div className="mb-6">
+            <ProfileActions
+              onEditProfile={() => setIsEditDialogOpen(true)}
+              onShareProfile={handleShareProfile}
+              onBookNotSelling={handleBookNotSelling}
+            />
+          </div>
+
+          {/* Mobile Quick Actions */}
+          <div className="mb-6">
             <Button
               onClick={() => navigate('/create-listing')}
               className="bg-book-600 hover:bg-book-700 text-white w-full min-h-[48px]"
@@ -164,18 +176,9 @@ const Profile = () => {
               <Plus className="h-4 w-4 mr-2" />
               Create New Listing
             </Button>
-            <Button
-              onClick={() => setIsEditDialogOpen(true)}
-              variant="outline"
-              className="border-book-600 text-book-600 w-full min-h-[48px]"
-              size="lg"
-            >
-              <User className="h-4 w-4 mr-2" />
-              Edit Profile
-            </Button>
           </div>
 
-          {/* Mobile Content - Improved vertical stacking */}
+          {/* Mobile Content */}
           <div className="space-y-8">
             {/* Active Listings Section */}
             <div className="bg-white rounded-lg shadow-sm border p-4">
@@ -191,23 +194,11 @@ const Profile = () => {
               />
             </div>
 
-            {/* Book Not Selling Help */}
-            <div className="bg-blue-50 rounded-lg p-4">
-              <BookNotSellingHelp />
-            </div>
-
             {/* Account Information */}
             <div className="bg-white rounded-lg shadow-sm border p-4">
               <AccountInformation
                 profile={profile}
                 onEditProfile={() => setIsEditDialogOpen(true)}
-              />
-            </div>
-
-            {/* Security Settings */}
-            <div className="bg-white rounded-lg shadow-sm border p-4">
-              <SecuritySettings
-                onChangePassword={() => setIsChangePasswordDialogOpen(true)}
               />
             </div>
           </div>
@@ -218,17 +209,17 @@ const Profile = () => {
             onClose={() => setIsEditDialogOpen(false)}
           />
 
-          <ChangePasswordDialog
-            open={isChangePasswordDialogOpen}
-            onOpenChange={setIsChangePasswordDialogOpen}
-          />
-
           <ShareProfileDialog
             isOpen={isShareDialogOpen}
             onClose={() => setIsShareDialogOpen(false)}
             userId={user.id}
             userName={profile.name || 'Anonymous User'}
             isOwnProfile={true}
+          />
+
+          <BookNotSellingDialog
+            isOpen={isBookNotSellingDialogOpen}
+            onClose={() => setIsBookNotSellingDialogOpen(false)}
           />
         </div>
       </Layout>
@@ -246,6 +237,15 @@ const Profile = () => {
             onShareProfile={handleShareProfile}
           />
         </div>
+
+        {/* Desktop Profile Actions */}
+        <div className="mb-8">
+          <ProfileActions
+            onEditProfile={() => setIsEditDialogOpen(true)}
+            onShareProfile={handleShareProfile}
+            onBookNotSelling={handleBookNotSelling}
+          />
+        </div>
         
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           {/* Desktop Sidebar */}
@@ -260,10 +260,6 @@ const Profile = () => {
             <AccountInformation
               profile={profile}
               onEditProfile={() => setIsEditDialogOpen(true)}
-            />
-            
-            <SecuritySettings
-              onChangePassword={() => setIsChangePasswordDialogOpen(true)}
             />
           </div>
 
@@ -290,17 +286,17 @@ const Profile = () => {
           onClose={() => setIsEditDialogOpen(false)}
         />
 
-        <ChangePasswordDialog
-          open={isChangePasswordDialogOpen}
-          onOpenChange={setIsChangePasswordDialogOpen}
-        />
-
         <ShareProfileDialog
           isOpen={isShareDialogOpen}
           onClose={() => setIsShareDialogOpen(false)}
           userId={user.id}
           userName={profile.name || 'Anonymous User'}
           isOwnProfile={true}
+        />
+
+        <BookNotSellingDialog
+          isOpen={isBookNotSellingDialogOpen}
+          onClose={() => setIsBookNotSellingDialogOpen(false)}
         />
       </div>
     </Layout>

@@ -23,10 +23,10 @@ export const validateAddress = (address: Address): boolean => {
 
 export const canUserListBooks = async (userId: string): Promise<boolean> => {
   try {
-    // Since the RPC function doesn't exist, we'll check address_validated and can_list_books directly
+    // Check if user has addresses set up (addresses_same indicates address setup completion)
     const { data, error } = await supabase
       .from('profiles')
-      .select('address_validated')
+      .select('addresses_same')
       .eq('id', userId)
       .single();
 
@@ -35,7 +35,8 @@ export const canUserListBooks = async (userId: string): Promise<boolean> => {
       return false;
     }
 
-    return data?.address_validated || false;
+    // User can list books if they have completed address setup
+    return data?.addresses_same !== null;
   } catch (error) {
     console.error('Error in canUserListBooks:', error);
     return false;

@@ -3,10 +3,9 @@ import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Edit, Trash2, Eye, MapPin, User, Shield } from 'lucide-react';
+import { Edit, Trash2, Eye, MapPin, User } from 'lucide-react';
 import { Book } from '@/types/book';
 import ProfileEditDialog from '@/components/ProfileEditDialog';
-import ChangePasswordDialog from '@/components/ChangePasswordDialog';
 import AddressEditDialog from '@/components/AddressEditDialog';
 
 interface UserProfileTabsProps {
@@ -37,7 +36,6 @@ const UserProfileTabs = ({
   isLoadingAddress = false
 }: UserProfileTabsProps) => {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const [isChangePasswordDialogOpen, setIsChangePasswordDialogOpen] = useState(false);
   const [isAddressEditDialogOpen, setIsAddressEditDialogOpen] = useState(false);
 
   const formatAddress = (address: any) => {
@@ -48,10 +46,9 @@ const UserProfileTabs = ({
   return (
     <div className="w-full">
       <Tabs defaultValue="listings" className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="listings">Listings</TabsTrigger>
           {isOwnProfile && <TabsTrigger value="account">Account</TabsTrigger>}
-          {isOwnProfile && <TabsTrigger value="security">Security</TabsTrigger>}
         </TabsList>
 
         <TabsContent value="listings" className="space-y-4">
@@ -192,44 +189,11 @@ const UserProfileTabs = ({
             </Card>
           </TabsContent>
         )}
-
-        {isOwnProfile && (
-          <TabsContent value="security" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center">
-                  <Shield className="h-5 w-5 mr-2" />
-                  Security Settings
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <h4 className="font-medium">Password</h4>
-                  <p className="text-sm text-gray-600 mt-1">
-                    Keep your account secure by using a strong password.
-                  </p>
-                  <Button
-                    onClick={() => setIsChangePasswordDialogOpen(true)}
-                    variant="outline"
-                    className="mt-3"
-                  >
-                    Change Password
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-        )}
       </Tabs>
 
       <ProfileEditDialog
         isOpen={isEditDialogOpen}
         onClose={() => setIsEditDialogOpen(false)}
-      />
-
-      <ChangePasswordDialog
-        open={isChangePasswordDialogOpen}
-        onOpenChange={setIsChangePasswordDialogOpen}
       />
 
       {isOwnProfile && onSaveAddresses && (
