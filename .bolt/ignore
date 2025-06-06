@@ -1,0 +1,86 @@
+
+# Dependency folders
+node_modules/
+bun.lockb
+package-lock.json
+
+# Environment files
+.env
+.env.local
+.env.production
+.env.development
+
+# Build output folders
+build/
+dist/
+.next/
+out/
+
+# Test folders
+tests/
+test/
+__tests__/
+*.test.ts
+*.test.tsx
+*.spec.ts
+*.spec.tsx
+
+# Static asset folders (unless editing assets)
+public/
+assets/static/
+
+# Version control
+.git/
+.gitignore
+.gitattributes
+
+# Editor config folders
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# The .bolt folder itself
+.bolt/
+
+# Config files that don't affect frontend
+tsconfig.json
+tsconfig.app.json
+tsconfig.node.json
+vite.config.ts
+tailwind.config.ts
+postcss.config.js
+eslint.config.js
+components.json
+
+# Documentation
+README.md
+CHANGELOG.md
+LICENSE
+
+# Database and backend config
+supabase/
+migrations/
+*.sql
+
+# Lock files and package management
+yarn.lock
+pnpm-lock.yaml
+
+# Logs
+*.log
+logs/
+
+# Coverage reports
+coverage/
+.nyc_output/
+
+# Temporary files
+tmp/
+temp/
+.tmp/
