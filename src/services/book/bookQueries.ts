@@ -3,6 +3,7 @@ import { Book } from "@/types/book";
 import { BookFilters, BookQueryResult } from "./bookTypes";
 import { mapBookFromDatabase } from "./bookMapper";
 import { handleBookServiceError } from "./bookErrorHandler";
+import { logError } from "@/utils/errorUtils";
 
 export const getBooks = async (filters?: BookFilters): Promise<Book[]> => {
   try {
@@ -133,10 +134,7 @@ export const getBookById = async (id: string): Promise<Book | null> => {
       .single();
 
     if (profileError) {
-      console.error(
-        "Error fetching seller profile:",
-        profileError.message || profileError,
-      );
+      logError("Error fetching seller profile", profileError);
       // Continue without profile data rather than failing
     }
 
@@ -190,10 +188,7 @@ export const getUserBooks = async (userId: string): Promise<Book[]> => {
       .single();
 
     if (profileError) {
-      console.error(
-        "Error fetching user profile:",
-        profileError.message || profileError,
-      );
+      logError("Error fetching user profile", profileError);
       // Continue without profile data
     }
 
