@@ -38,9 +38,27 @@ export const logError = (context: string, error: unknown): void => {
   const message = getErrorMessage(error);
   console.error(`${context}:`, message);
 
-  // In development, also log the full error object for debugging
-  if (process.env.NODE_ENV === "development") {
-    console.error("Full error object:", error);
+  // In development, also log the full error object for debugging (safely)
+  if (process.env.NODE_ENV === "development" && error) {
+    try {
+      // Try to stringify the error object safely
+      const errorDetails =
+        typeof error === "object"
+          ? JSON.stringify(error, null, 2)
+          : String(error);
+      console.error("Full error details:", errorDetails);
+    } catch (stringifyError) {
+      // If stringify fails, just log key properties
+      if (typeof error === "object" && error !== null) {
+        const errorObj = error as any;
+        console.error("Error properties:", {
+          message: errorObj.message,
+          code: errorObj.code,
+          details: errorObj.details,
+          hint: errorObj.hint,
+        });
+      }
+    }
   }
 };
 
