@@ -12,19 +12,41 @@ export const getErrorMessage = (
   if (error instanceof Error) return error.message;
 
   if (typeof error === "object" && error !== null) {
+    const errorObj = error as any;
+
     // Handle Supabase error format
-    if ("message" in error && typeof (error as any).message === "string") {
-      return (error as any).message;
+    if ("message" in errorObj && typeof errorObj.message === "string") {
+      // Handle specific Supabase errors with user-friendly messages
+      if (
+        errorObj.message.includes(
+          "JSON object requested, multiple (or no) rows returned",
+        )
+      ) {
+        return "Profile not found or multiple profiles exist";
+      }
+      return errorObj.message;
     }
 
     // Handle PostgreSQL error format
-    if ("details" in error && typeof (error as any).details === "string") {
-      return (error as any).details;
+    if ("details" in errorObj && typeof errorObj.details === "string") {
+      return errorObj.details;
     }
 
     // Handle other error objects
-    if ("error" in error && typeof (error as any).error === "string") {
-      return (error as any).error;
+    if ("error" in errorObj && typeof errorObj.error === "string") {
+      return errorObj.error;
+    }
+
+    // Handle error codes
+    if ("code" in errorObj && typeof errorObj.code === "string") {
+      switch (errorObj.code) {
+        case "PGRST116":
+          return "Resource not found";
+        case "PGRST200":
+          return "Database constraint error";
+        default:
+          return `Database error (${errorObj.code})`;
+      }
     }
   }
 
