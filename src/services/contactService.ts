@@ -53,7 +53,6 @@ export const getAllContactMessages = async (): Promise<ContactMessage[]> => {
       throw error;
     }
 
-    // Type assertion to ensure status is properly typed
     return (data || []).map(message => ({
       ...message,
       status: message.status as 'unread' | 'read'

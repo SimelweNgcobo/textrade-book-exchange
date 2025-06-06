@@ -14,6 +14,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { AlertTriangle, Send, X } from 'lucide-react';
 import { toast } from 'sonner';
+import { submitIssueReport } from '@/services/issueReportService';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface ReportIssueDialogProps {
   isOpen: boolean;
@@ -21,9 +23,10 @@ interface ReportIssueDialogProps {
 }
 
 const ReportIssueDialog = ({ isOpen, onClose }: ReportIssueDialogProps) => {
+  const { user, profile } = useAuth();
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
+    name: profile?.name || '',
+    email: profile?.email || '',
     category: '',
     description: ''
   });
@@ -36,6 +39,7 @@ const ReportIssueDialog = ({ isOpen, onClose }: ReportIssueDialogProps) => {
     'Book Listing Issue',
     'User Behavior',
     'Feature Request',
+    'Bug Report',
     'Other'
   ];
 
@@ -44,7 +48,12 @@ const ReportIssueDialog = ({ isOpen, onClose }: ReportIssueDialogProps) => {
   };
 
   const resetForm = () => {
-    setFormData({ name: '', email: '', category: '', description: '' });
+    setFormData({ 
+      name: profile?.name || '', 
+      email: profile?.email || '', 
+      category: '', 
+      description: '' 
+    });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -60,14 +69,23 @@ const ReportIssueDialog = ({ isOpen, onClose }: ReportIssueDialogProps) => {
       return;
     }
 
+    if (formData.description.length < 10) {
+      toast.error('Please provide a more detailed description (at least 10 characters)');
+      return;
+    }
+
     setIsSubmitting(true);
     
     try {
-      // Simulate API call - replace with actual implementation
-      console.log('Submitting report:', formData);
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      await submitIssueReport({
+        name: formData.name,
+        email: formData.email,
+        category: formData.category,
+        description: formData.description,
+        user_id: user?.id
+      });
       
-      toast.success('Report submitted successfully! We\'ll get back to you soon.');
+      toast.success('Report submitted successfully! We\'ll review it and get back to you soon.');
       resetForm();
       onClose();
     } catch (error) {
@@ -161,11 +179,14 @@ const ReportIssueDialog = ({ isOpen, onClose }: ReportIssueDialogProps) => {
               id="description"
               value={formData.description}
               onChange={(e) => handleInputChange('description', e.target.value)}
-              placeholder="Please describe the issue you're experiencing in detail..."
+              placeholder="Please describe the issue you're experiencing in detail... (minimum 10 characters)"
               className="min-h-[100px]"
               required
               disabled={isSubmitting}
             />
+            <p className="text-xs text-gray-500 mt-1">
+              {formData.description.length}/10 characters minimum
+            </p>
           </div>
 
           <div className="flex justify-end gap-3 pt-4">
@@ -179,7 +200,7 @@ const ReportIssueDialog = ({ isOpen, onClose }: ReportIssueDialogProps) => {
             </Button>
             <Button
               type="submit"
-              disabled={isSubmitting || !formData.name || !formData.email || !formData.category || !formData.description}
+              disabled={isSubmitting || !formData.name || !formData.email || !formData.category || !formData.description || formData.description.length < 10}
               className="bg-book-600 hover:bg-book-700"
             >
               {isSubmitting ? (
