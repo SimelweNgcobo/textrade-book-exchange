@@ -32,6 +32,7 @@ import Confirm from "./pages/Confirm";
 import Verify from "./pages/Verify";
 import EditBook from "./pages/EditBook";
 import Cart from "./pages/Cart";
+import Report from "./pages/Report";
 
 import "./App.css";
 
@@ -58,6 +59,7 @@ function App() {
                   <Route path="/terms" element={<Terms />} />
                   <Route path="/privacy" element={<Privacy />} />
                   <Route path="/contact" element={<ContactUs />} />
+                  <Route path="/report" element={<Report />} />
 
                   {/* Public user profiles - no authentication required */}
                   <Route path="/user/:id" element={<UserProfile />} />
