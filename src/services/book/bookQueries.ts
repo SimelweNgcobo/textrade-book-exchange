@@ -209,5 +209,6 @@ export const getUserBooks = async (userId: string): Promise<Book[]> => {
   } catch (error) {
     console.error("Error in getUserBooks:", error);
     handleBookServiceError(error, "fetch user books");
+    return []; // This line will never be reached due to handleBookServiceError throwing, but TypeScript needs it
   }
 };
