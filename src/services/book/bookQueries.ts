@@ -133,7 +133,10 @@ export const getBookById = async (id: string): Promise<Book | null> => {
       .single();
 
     if (profileError) {
-      console.error("Error fetching seller profile:", profileError);
+      console.error(
+        "Error fetching seller profile:",
+        profileError.message || profileError,
+      );
       // Continue without profile data rather than failing
     }
 
