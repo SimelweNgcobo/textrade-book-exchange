@@ -1,28 +1,36 @@
-
-import { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '@/contexts/AuthContext';
-import Layout from '@/components/Layout';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
-import { toast } from 'sonner';
-import { Mail, Lock, Loader2 } from 'lucide-react';
+import { useState, useEffect } from "react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
+import Layout from "@/components/Layout";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { toast } from "sonner";
+import { Mail, Lock, Loader2 } from "lucide-react";
 
 const Login = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const { login, isAuthenticated } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     window.scrollTo(0, 0);
-  }, []);
+
+    // Show message from registration redirect
+    if (location.state?.message) {
+      toast.info(location.state.message);
+      if (location.state?.email) {
+        setEmail(location.state.email);
+      }
+    }
+  }, [location.state]);
 
   // Redirect if already authenticated
   if (isAuthenticated) {
-    navigate('/', { replace: true });
+    navigate("/", { replace: true });
     return null;
   }
 
@@ -38,10 +46,10 @@ const Login = () => {
       console.log("Attempting login with:", email);
       await login(email, password);
       console.log("Login successful, navigating to home");
-      navigate('/', { replace: true });
+      navigate("/", { replace: true });
     } catch (error) {
       // Error is already handled in the login function
-      console.error('Login error in component:', error);
+      console.error("Login error in component:", error);
     } finally {
       setIsLoading(false);
     }
@@ -79,7 +87,10 @@ const Login = () => {
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
                     <Label htmlFor="password">Password</Label>
-                    <Link to="/forgot-password" className="text-sm text-book-600 hover:text-book-800">
+                    <Link
+                      to="/forgot-password"
+                      className="text-sm text-book-600 hover:text-book-800"
+                    >
                       Forgot password?
                     </Link>
                   </div>
@@ -118,7 +129,10 @@ const Login = () => {
               <div className="mt-6 text-center text-sm">
                 <p className="text-gray-600">
                   Don't have an account?{" "}
-                  <Link to="/register" className="text-book-600 hover:text-book-800 font-medium">
+                  <Link
+                    to="/register"
+                    className="text-book-600 hover:text-book-800 font-medium"
+                  >
                     Sign up
                   </Link>
                 </p>
