@@ -150,6 +150,12 @@ const BookListing = () => {
 
   return (
     <Layout>
+      <SEO
+        title="Browse Textbooks - ReBooked Solutions"
+        description="Browse thousands of used textbooks from students across South Africa. Find affordable academic books for university, college, and high school."
+        keywords="browse textbooks, used books, academic books, student books, textbook marketplace"
+        url="https://www.rebookedsolutions.co.za/books"
+      />
       <div className="container mx-auto px-4 py-8">
         <SystemHealthCheck />
         <h1 className="text-3xl font-bold text-book-800 mb-8">Browse Books</h1>
