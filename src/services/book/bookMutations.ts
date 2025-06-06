@@ -152,6 +152,7 @@ export const updateBook = async (
   } catch (error) {
     console.error("Error in updateBook:", error);
     handleBookServiceError(error, "update book");
+    return null; // This line will never be reached due to handleBookServiceError throwing, but TypeScript needs it
   }
 };
 
