@@ -305,6 +305,13 @@ const Index = () => {
           </div>
         </div>
       </section>
+
+      {/* Temporary Health Check */}
+      <section className="py-8 bg-gray-50">
+        <div className="container mx-auto px-4">
+          <HealthCheck />
+        </div>
+      </section>
     </Layout>
   );
 };
