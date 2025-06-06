@@ -1,26 +1,25 @@
-
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '@/contexts/AuthContext';
-import Layout from '@/components/Layout';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
-import { toast } from 'sonner';
-import { Mail, Lock, User, Loader2 } from 'lucide-react';
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
+import Layout from "@/components/Layout";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { toast } from "sonner";
+import { Mail, Lock, User, Loader2 } from "lucide-react";
 
 const Register = () => {
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const { register, isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
   // Redirect if already authenticated
   if (isAuthenticated) {
-    navigate('/');
+    navigate("/");
     return null;
   }
 
@@ -43,7 +42,20 @@ const Register = () => {
 
       console.log("Attempting registration with:", email);
       await register(name, email, password);
-      // The navigation to home happens in the register function now
+
+      // Show confirmation message and redirect to login
+      toast.success(
+        "Confirmation email sent! Please verify before logging in.",
+      );
+      setTimeout(() => {
+        navigate("/login", {
+          state: {
+            message:
+              "Please check your email and click the confirmation link before logging in.",
+            email,
+          },
+        });
+      }, 2000);
     } catch (error: any) {
       console.error("Registration error in component:", error);
       // Error is already handled in the register function
@@ -154,7 +166,10 @@ const Register = () => {
               <div className="mt-6 text-center text-sm">
                 <p className="text-gray-600">
                   Already have an account?{" "}
-                  <Link to="/login" className="text-book-600 hover:text-book-800 font-medium">
+                  <Link
+                    to="/login"
+                    className="text-book-600 hover:text-book-800 font-medium"
+                  >
                     Log in
                   </Link>
                 </p>
