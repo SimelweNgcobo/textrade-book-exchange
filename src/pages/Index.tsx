@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Layout from "@/components/Layout";
 import SEO from "@/components/SEO";
+import HealthCheck from "@/components/HealthCheck";
 import { Button } from "@/components/ui/button";
 import { getBooks } from "@/services/book/bookQueries";
 import { Book } from "@/types/book";
