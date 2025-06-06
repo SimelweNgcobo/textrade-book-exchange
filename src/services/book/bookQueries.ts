@@ -180,12 +180,12 @@ export const getUserBooks = async (userId: string): Promise<Book[]> => {
       return [];
     }
 
-    // Get user profile
+    // Get user profile - handle case where profile might not exist
     const { data: profileData, error: profileError } = await supabase
       .from("profiles")
       .select("id, name, email")
       .eq("id", userId)
-      .single();
+      .maybeSingle();
 
     if (profileError) {
       logError("Error fetching user profile", profileError);
