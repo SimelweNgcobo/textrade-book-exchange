@@ -1,18 +1,16 @@
-
-import React from 'react';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Card, CardContent } from '@/components/ui/card';
-import { 
-  Share2, 
-  MessageCircle, 
-  AlertTriangle, 
-  Star, 
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
+import {
+  Share2,
+  MessageCircle,
+  AlertTriangle,
+  Star,
   Calendar,
   CheckCircle,
   User,
-  HelpCircle
-} from 'lucide-react';
+  HelpCircle,
+} from "lucide-react";
 
 interface UserData {
   id?: string;
@@ -34,21 +32,21 @@ interface ProfileHeaderProps {
   onBookNotSelling?: () => void;
 }
 
-const ProfileHeader = ({ 
-  userData, 
-  isOwnProfile, 
+const ProfileHeader = ({
+  userData,
+  isOwnProfile,
   onShareProfile,
   onRateUser,
   onMessageUser,
   onReportUser,
   onEditProfile,
-  onBookNotSelling
+  onBookNotSelling,
 }: ProfileHeaderProps) => {
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { 
-      year: 'numeric', 
-      month: 'long'
+    return date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
     });
   };
 
@@ -61,16 +59,18 @@ const ProfileHeader = ({
             <div className="w-16 h-16 bg-book-100 rounded-full flex items-center justify-center flex-shrink-0">
               <User className="h-8 w-8 text-book-600" />
             </div>
-            
+
             <div className="space-y-2 flex-1">
               <div className="flex flex-col sm:flex-row sm:items-center gap-2">
                 <div className="flex items-center space-x-2">
-                  <h1 className="text-2xl font-bold text-gray-900">{userData.name}</h1>
+                  <h1 className="text-2xl font-bold text-gray-900">
+                    {userData.name}
+                  </h1>
                   {userData.isVerified && (
                     <CheckCircle className="h-5 w-5 text-green-500" />
                   )}
                 </div>
-                
+
                 {/* Profile action buttons integrated here for own profile */}
                 {isOwnProfile && onEditProfile && onBookNotSelling && (
                   <div className="flex flex-wrap gap-2">
@@ -83,7 +83,7 @@ const ProfileHeader = ({
                       <User className="h-3 w-3 mr-1" />
                       Edit Profile
                     </Button>
-                    
+
                     <Button
                       onClick={onShareProfile}
                       variant="outline"
@@ -93,7 +93,7 @@ const ProfileHeader = ({
                       <Share2 className="h-3 w-3 mr-1" />
                       Share
                     </Button>
-                    
+
                     <Button
                       onClick={onBookNotSelling}
                       size="sm"
@@ -105,22 +105,27 @@ const ProfileHeader = ({
                   </div>
                 )}
               </div>
-              
+
               <div className="flex items-center space-x-4 text-sm text-gray-500">
                 <div className="flex items-center">
                   <Calendar className="h-4 w-4 mr-1" />
                   Joined {formatDate(userData.joinDate)}
                 </div>
-                
+
                 {userData.rating !== undefined && (
                   <div className="flex items-center">
                     <Star className="h-4 w-4 mr-1 fill-yellow-400 text-yellow-400" />
-                    <span className="font-medium">{userData.rating.toFixed(1)}</span>
+                    <span className="font-medium">
+                      {userData.rating.toFixed(1)}
+                    </span>
                   </div>
                 )}
-                
+
                 {userData.successfulDeliveries !== undefined && (
-                  <Badge variant="outline" className="border-book-200 text-book-700 bg-book-50">
+                  <Badge
+                    variant="outline"
+                    className="border-book-200 text-book-700 bg-book-50"
+                  >
                     {userData.successfulDeliveries} successful deliveries
                   </Badge>
                 )}
@@ -140,7 +145,7 @@ const ProfileHeader = ({
                 <Share2 className="h-4 w-4 mr-2" />
                 Share Profile
               </Button>
-              
+
               {onMessageUser && (
                 <Button
                   variant="outline"
@@ -152,7 +157,7 @@ const ProfileHeader = ({
                   Message
                 </Button>
               )}
-              
+
               {onRateUser && (
                 <Button
                   size="sm"
@@ -163,7 +168,7 @@ const ProfileHeader = ({
                   Rate User
                 </Button>
               )}
-              
+
               {onReportUser && (
                 <Button
                   variant="outline"

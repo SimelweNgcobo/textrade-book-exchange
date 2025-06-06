@@ -1,142 +1,176 @@
-
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import Layout from '@/components/Layout';
-import { useAuth } from '@/contexts/AuthContext';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { createBook, calculateCommission, calculateSellerReceives } from '@/services/bookService';
-import { BookFormData } from '@/types/book';
-import { toast } from 'sonner';
-import { ArrowLeft, School, GraduationCap } from 'lucide-react';
-import MultiImageUpload from '@/components/MultiImageUpload';
-import FirstUploadSuccessDialog from '@/components/FirstUploadSuccessDialog';
-import PostListingSuccessDialog from '@/components/PostListingSuccessDialog';
-import ShareProfileDialog from '@/components/ShareProfileDialog';
-import { hasCompletedFirstUpload, markFirstUploadCompleted } from '@/services/userPreferenceService';
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import Layout from "@/components/Layout";
+import { useAuth } from "@/contexts/AuthContext";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { createBook } from "@/services/book/bookMutations";
+import {
+  calculateCommission,
+  calculateSellerReceives,
+} from "@/services/book/bookUtils";
+import { BookFormData } from "@/types/book";
+import { toast } from "sonner";
+import { ArrowLeft, School, GraduationCap } from "lucide-react";
+import MultiImageUpload from "@/components/MultiImageUpload";
+import FirstUploadSuccessDialog from "@/components/FirstUploadSuccessDialog";
+import PostListingSuccessDialog from "@/components/PostListingSuccessDialog";
+import ShareProfileDialog from "@/components/ShareProfileDialog";
+import {
+  hasCompletedFirstUpload,
+  markFirstUploadCompleted,
+} from "@/services/userPreferenceService";
 
 const CreateListing = () => {
   const { user, profile } = useAuth();
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState<BookFormData>({
-    title: '',
-    author: '',
-    description: '',
+    title: "",
+    author: "",
+    description: "",
     price: 0,
-    condition: 'Good',
-    category: '',
-    grade: '',
-    universityYear: '',
-    imageUrl: '',
-    frontCover: '',
-    backCover: '',
-    insidePages: ''
+    condition: "Good",
+    category: "",
+    grade: "",
+    universityYear: "",
+    imageUrl: "",
+    frontCover: "",
+    backCover: "",
+    insidePages: "",
   });
 
   const [bookImages, setBookImages] = useState({
-    frontCover: '',
-    backCover: '',
-    insidePages: ''
+    frontCover: "",
+    backCover: "",
+    insidePages: "",
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [bookType, setBookType] = useState<'school' | 'university'>('school');
+  const [bookType, setBookType] = useState<"school" | "university">("school");
   const [showFirstUploadDialog, setShowFirstUploadDialog] = useState(false);
   const [showPostListingDialog, setShowPostListingDialog] = useState(false);
   const [showShareDialog, setShowShareDialog] = useState(false);
   const [createdBookId, setCreatedBookId] = useState<string | null>(null);
 
   const categories = [
-    'Computer Science',
-    'Mathematics',
-    'Biology',
-    'Chemistry',
-    'Physics',
-    'Economics',
-    'Psychology',
-    'Literature',
-    'History',
-    'Philosophy',
-    'Engineering',
-    'Medicine',
-    'Law',
-    'Business',
-    'Other'
+    "Computer Science",
+    "Mathematics",
+    "Biology",
+    "Chemistry",
+    "Physics",
+    "Economics",
+    "Psychology",
+    "Literature",
+    "History",
+    "Philosophy",
+    "Engineering",
+    "Medicine",
+    "Law",
+    "Business",
+    "Other",
   ];
 
-  const conditions = [
-    'New',
-    'Good',
-    'Better',
-    'Average',
-    'Below Average'
-  ];
+  const conditions = ["New", "Good", "Better", "Average", "Below Average"];
 
   const grades = [
-    'Grade 1', 'Grade 2', 'Grade 3', 'Grade 4', 'Grade 5', 
-    'Grade 6', 'Grade 7', 'Grade 8', 'Grade 9', 'Grade 10',
-    'Grade 11', 'Grade 12'
+    "Grade 1",
+    "Grade 2",
+    "Grade 3",
+    "Grade 4",
+    "Grade 5",
+    "Grade 6",
+    "Grade 7",
+    "Grade 8",
+    "Grade 9",
+    "Grade 10",
+    "Grade 11",
+    "Grade 12",
   ];
 
   const universityYears = [
-    '1st Year', '2nd Year', '3rd Year', '4th Year', 'Masters', 'Doctorate'
+    "1st Year",
+    "2nd Year",
+    "3rd Year",
+    "4th Year",
+    "Masters",
+    "Doctorate",
   ];
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: name === 'price' ? parseFloat(value) || 0 : value });
+    setFormData({
+      ...formData,
+      [name]: name === "price" ? parseFloat(value) || 0 : value,
+    });
   };
 
   const handleSelectChange = (name: string, value: string) => {
     setFormData({ ...formData, [name]: value });
   };
 
-  const handleBookTypeChange = (type: 'school' | 'university') => {
+  const handleBookTypeChange = (type: "school" | "university") => {
     setBookType(type);
-    if (type === 'school') {
-      setFormData({ ...formData, universityYear: '' });
+    if (type === "school") {
+      setFormData({ ...formData, universityYear: "" });
     } else {
-      setFormData({ ...formData, grade: '' });
+      setFormData({ ...formData, grade: "" });
     }
   };
 
-  const handleImagesChange = (images: { frontCover: string; backCover: string; insidePages: string }) => {
+  const handleImagesChange = (images: {
+    frontCover: string;
+    backCover: string;
+    insidePages: string;
+  }) => {
     setBookImages(images);
-    setFormData({ 
-      ...formData, 
+    setFormData({
+      ...formData,
       imageUrl: images.frontCover,
       frontCover: images.frontCover,
       backCover: images.backCover,
-      insidePages: images.insidePages
+      insidePages: images.insidePages,
     });
   };
 
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
 
-    if (!formData.title.trim()) newErrors.title = 'Title is required';
-    if (!formData.author.trim()) newErrors.author = 'Author is required';
-    if (!formData.description.trim()) newErrors.description = 'Description is required';
-    if (formData.price <= 0) newErrors.price = 'Price must be greater than 0';
-    if (!formData.category) newErrors.category = 'Category is required';
-    
-    if (bookType === 'school' && !formData.grade) {
-      newErrors.grade = 'Grade is required for school books';
-    }
-    
-    if (bookType === 'university' && !formData.universityYear) {
-      newErrors.universityYear = 'University year is required for university books';
+    if (!formData.title.trim()) newErrors.title = "Title is required";
+    if (!formData.author.trim()) newErrors.author = "Author is required";
+    if (!formData.description.trim())
+      newErrors.description = "Description is required";
+    if (formData.price <= 0) newErrors.price = "Price must be greater than 0";
+    if (!formData.category) newErrors.category = "Category is required";
+
+    if (bookType === "school" && !formData.grade) {
+      newErrors.grade = "Grade is required for school books";
     }
 
-    if (!bookImages.frontCover) newErrors.frontCover = 'Front cover photo is required';
-    if (!bookImages.backCover) newErrors.backCover = 'Back cover photo is required';
-    if (!bookImages.insidePages) newErrors.insidePages = 'Inside pages photo is required';
+    if (bookType === "university" && !formData.universityYear) {
+      newErrors.universityYear =
+        "University year is required for university books";
+    }
+
+    if (!bookImages.frontCover)
+      newErrors.frontCover = "Front cover photo is required";
+    if (!bookImages.backCover)
+      newErrors.backCover = "Back cover photo is required";
+    if (!bookImages.insidePages)
+      newErrors.insidePages = "Inside pages photo is required";
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -146,8 +180,14 @@ const CreateListing = () => {
     e.preventDefault();
 
     if (!validateForm()) {
-      if (!bookImages.frontCover || !bookImages.backCover || !bookImages.insidePages) {
-        toast.error('Please upload all three required photos before submitting');
+      if (
+        !bookImages.frontCover ||
+        !bookImages.backCover ||
+        !bookImages.insidePages
+      ) {
+        toast.error(
+          "Please upload all three required photos before submitting",
+        );
       }
       return;
     }
@@ -155,16 +195,16 @@ const CreateListing = () => {
     setIsSubmitting(true);
     try {
       if (!user || !profile) {
-        throw new Error('You must be logged in to create a listing');
+        throw new Error("You must be logged in to create a listing");
       }
 
       // Use the correct createBook function signature
       const newBook = await createBook(formData);
 
       setCreatedBookId(newBook.id);
-      toast.success('Book listing created successfully!');
-      console.log('Book created successfully:', newBook);
-      
+      toast.success("Book listing created successfully!");
+      console.log("Book created successfully:", newBook);
+
       // Check if this is the user's first upload
       if (!hasCompletedFirstUpload(user.id)) {
         markFirstUploadCompleted(user.id);
@@ -174,8 +214,10 @@ const CreateListing = () => {
         setShowPostListingDialog(true);
       }
     } catch (error) {
-      console.error('Error creating book:', error);
-      toast.error(error instanceof Error ? error.message : 'Failed to create listing');
+      console.error("Error creating book:", error);
+      toast.error(
+        error instanceof Error ? error.message : "Failed to create listing",
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -188,12 +230,12 @@ const CreateListing = () => {
 
   const handlePostListingClose = () => {
     setShowPostListingDialog(false);
-    navigate('/profile');
+    navigate("/profile");
   };
 
   const handleGoToProfile = () => {
     setShowPostListingDialog(false);
-    navigate('/profile');
+    navigate("/profile");
   };
 
   const handleShareProfile = () => {
@@ -203,36 +245,48 @@ const CreateListing = () => {
   return (
     <Layout>
       <div className="container mx-auto px-4 py-8">
-        <Button 
-          variant="ghost" 
-          onClick={() => navigate(-1)} 
+        <Button
+          variant="ghost"
+          onClick={() => navigate(-1)}
           className="mb-6 text-book-600 min-h-[44px]"
         >
           <ArrowLeft className="mr-2 h-4 w-4" /> Back
         </Button>
 
         <div className="bg-white rounded-lg shadow-md p-6 md:p-8">
-          <h1 className="text-3xl font-bold text-book-800 mb-6">Sell Your Book</h1>
+          <h1 className="text-3xl font-bold text-book-800 mb-6">
+            Sell Your Book
+          </h1>
 
           <form onSubmit={handleSubmit} className="space-y-8">
             <div className="bg-gray-50 p-4 rounded-lg">
-              <Label className="text-base font-medium mb-4 block">Book Type</Label>
-              <RadioGroup 
-                className="flex flex-col sm:flex-row gap-6" 
+              <Label className="text-base font-medium mb-4 block">
+                Book Type
+              </Label>
+              <RadioGroup
+                className="flex flex-col sm:flex-row gap-6"
                 defaultValue="school"
                 value={bookType}
-                onValueChange={(value) => handleBookTypeChange(value as 'school' | 'university')}
+                onValueChange={(value) =>
+                  handleBookTypeChange(value as "school" | "university")
+                }
               >
                 <div className="flex items-center space-x-3">
                   <RadioGroupItem value="school" id="school" />
-                  <Label htmlFor="school" className="flex items-center cursor-pointer">
+                  <Label
+                    htmlFor="school"
+                    className="flex items-center cursor-pointer"
+                  >
                     <School className="mr-2 h-4 w-4" />
                     School Book
                   </Label>
                 </div>
                 <div className="flex items-center space-x-3">
                   <RadioGroupItem value="university" id="university" />
-                  <Label htmlFor="university" className="flex items-center cursor-pointer">
+                  <Label
+                    htmlFor="university"
+                    className="flex items-center cursor-pointer"
+                  >
                     <GraduationCap className="mr-2 h-4 w-4" />
                     University Book
                   </Label>
@@ -255,9 +309,11 @@ const CreateListing = () => {
                     value={formData.title}
                     onChange={handleInputChange}
                     placeholder="Enter the title of your book"
-                    className={errors.title ? 'border-red-500' : ''}
+                    className={errors.title ? "border-red-500" : ""}
                   />
-                  {errors.title && <p className="text-sm text-red-500 mt-1">{errors.title}</p>}
+                  {errors.title && (
+                    <p className="text-sm text-red-500 mt-1">{errors.title}</p>
+                  )}
                 </div>
 
                 <div>
@@ -270,9 +326,11 @@ const CreateListing = () => {
                     value={formData.author}
                     onChange={handleInputChange}
                     placeholder="Enter the author's name"
-                    className={errors.author ? 'border-red-500' : ''}
+                    className={errors.author ? "border-red-500" : ""}
                   />
-                  {errors.author && <p className="text-sm text-red-500 mt-1">{errors.author}</p>}
+                  {errors.author && (
+                    <p className="text-sm text-red-500 mt-1">{errors.author}</p>
+                  )}
                 </div>
 
                 <div>
@@ -280,20 +338,24 @@ const CreateListing = () => {
                     Price (R) <span className="text-red-500">*</span>
                   </Label>
                   <div className="relative">
-                    <span className="absolute left-3 top-3 text-gray-500">R</span>
+                    <span className="absolute left-3 top-3 text-gray-500">
+                      R
+                    </span>
                     <Input
                       id="price"
                       name="price"
                       type="number"
                       min="0"
                       step="0.01"
-                      value={formData.price || ''}
+                      value={formData.price || ""}
                       onChange={handleInputChange}
                       placeholder="0.00"
-                      className={`pl-8 ${errors.price ? 'border-red-500' : ''}`}
+                      className={`pl-8 ${errors.price ? "border-red-500" : ""}`}
                     />
                   </div>
-                  {errors.price && <p className="text-sm text-red-500 mt-1">{errors.price}</p>}
+                  {errors.price && (
+                    <p className="text-sm text-red-500 mt-1">{errors.price}</p>
+                  )}
                 </div>
 
                 <div>
@@ -302,9 +364,13 @@ const CreateListing = () => {
                   </Label>
                   <Select
                     value={formData.category}
-                    onValueChange={(value) => handleSelectChange('category', value)}
+                    onValueChange={(value) =>
+                      handleSelectChange("category", value)
+                    }
                   >
-                    <SelectTrigger className={errors.category ? 'border-red-500' : ''}>
+                    <SelectTrigger
+                      className={errors.category ? "border-red-500" : ""}
+                    >
                       <SelectValue placeholder="Select a category" />
                     </SelectTrigger>
                     <SelectContent>
@@ -315,19 +381,27 @@ const CreateListing = () => {
                       ))}
                     </SelectContent>
                   </Select>
-                  {errors.category && <p className="text-sm text-red-500 mt-1">{errors.category}</p>}
+                  {errors.category && (
+                    <p className="text-sm text-red-500 mt-1">
+                      {errors.category}
+                    </p>
+                  )}
                 </div>
 
-                {bookType === 'school' ? (
+                {bookType === "school" ? (
                   <div>
                     <Label htmlFor="grade" className="text-base font-medium">
                       Grade <span className="text-red-500">*</span>
                     </Label>
                     <Select
                       value={formData.grade}
-                      onValueChange={(value) => handleSelectChange('grade', value)}
+                      onValueChange={(value) =>
+                        handleSelectChange("grade", value)
+                      }
                     >
-                      <SelectTrigger className={errors.grade ? 'border-red-500' : ''}>
+                      <SelectTrigger
+                        className={errors.grade ? "border-red-500" : ""}
+                      >
                         <SelectValue placeholder="Select a grade" />
                       </SelectTrigger>
                       <SelectContent>
@@ -338,18 +412,31 @@ const CreateListing = () => {
                         ))}
                       </SelectContent>
                     </Select>
-                    {errors.grade && <p className="text-sm text-red-500 mt-1">{errors.grade}</p>}
+                    {errors.grade && (
+                      <p className="text-sm text-red-500 mt-1">
+                        {errors.grade}
+                      </p>
+                    )}
                   </div>
                 ) : (
                   <div>
-                    <Label htmlFor="universityYear" className="text-base font-medium">
+                    <Label
+                      htmlFor="universityYear"
+                      className="text-base font-medium"
+                    >
                       University Year <span className="text-red-500">*</span>
                     </Label>
                     <Select
-                      value={formData.universityYear || ''}
-                      onValueChange={(value) => handleSelectChange('universityYear', value)}
+                      value={formData.universityYear || ""}
+                      onValueChange={(value) =>
+                        handleSelectChange("universityYear", value)
+                      }
                     >
-                      <SelectTrigger className={errors.universityYear ? 'border-red-500' : ''}>
+                      <SelectTrigger
+                        className={
+                          errors.universityYear ? "border-red-500" : ""
+                        }
+                      >
                         <SelectValue placeholder="Select university year" />
                       </SelectTrigger>
                       <SelectContent>
@@ -360,14 +447,21 @@ const CreateListing = () => {
                         ))}
                       </SelectContent>
                     </Select>
-                    {errors.universityYear && <p className="text-sm text-red-500 mt-1">{errors.universityYear}</p>}
+                    {errors.universityYear && (
+                      <p className="text-sm text-red-500 mt-1">
+                        {errors.universityYear}
+                      </p>
+                    )}
                   </div>
                 )}
               </div>
 
               <div className="space-y-6">
                 <div>
-                  <Label htmlFor="description" className="text-base font-medium">
+                  <Label
+                    htmlFor="description"
+                    className="text-base font-medium"
+                  >
                     Description <span className="text-red-500">*</span>
                   </Label>
                   <Textarea
@@ -376,9 +470,13 @@ const CreateListing = () => {
                     value={formData.description}
                     onChange={handleInputChange}
                     placeholder="Provide details about the book's condition, any marks or highlights, edition, etc."
-                    className={`min-h-[150px] ${errors.description ? 'border-red-500' : ''}`}
+                    className={`min-h-[150px] ${errors.description ? "border-red-500" : ""}`}
                   />
-                  {errors.description && <p className="text-sm text-red-500 mt-1">{errors.description}</p>}
+                  {errors.description && (
+                    <p className="text-sm text-red-500 mt-1">
+                      {errors.description}
+                    </p>
+                  )}
                 </div>
 
                 <div>
@@ -387,7 +485,9 @@ const CreateListing = () => {
                   </Label>
                   <Select
                     value={formData.condition}
-                    onValueChange={(value) => handleSelectChange('condition', value as any)}
+                    onValueChange={(value) =>
+                      handleSelectChange("condition", value as any)
+                    }
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Select condition" />
@@ -416,24 +516,34 @@ const CreateListing = () => {
               className="border rounded-lg p-6"
             />
             {(errors.frontCover || errors.backCover || errors.insidePages) && (
-              <p className="text-sm text-red-500 mt-2">All three photos are required</p>
+              <p className="text-sm text-red-500 mt-2">
+                All three photos are required
+              </p>
             )}
 
             <div className="p-6 bg-book-50 rounded-lg border border-book-200">
-              <h3 className="font-semibold text-book-800 mb-4 text-center">Commission & Earnings</h3>
+              <h3 className="font-semibold text-book-800 mb-4 text-center">
+                Commission & Earnings
+              </h3>
               <div className="space-y-3 text-center">
                 <p className="text-book-700">
-                  <strong>Book Price:</strong> <span className="text-green-600">R{formData.price.toFixed(2)}</span>
+                  <strong>Book Price:</strong>{" "}
+                  <span className="text-green-600">
+                    R{formData.price.toFixed(2)}
+                  </span>
                 </p>
                 <p className="text-orange-600">
-                  <strong>ReBooked Commission (10%):</strong> -R{calculateCommission(formData.price).toFixed(2)}
+                  <strong>ReBooked Commission (10%):</strong> -R
+                  {calculateCommission(formData.price).toFixed(2)}
                 </p>
                 <p className="text-green-600 font-semibold text-lg">
-                  <strong>You will receive:</strong> R{calculateSellerReceives(formData.price).toFixed(2)}
+                  <strong>You will receive:</strong> R
+                  {calculateSellerReceives(formData.price).toFixed(2)}
                 </p>
               </div>
               <p className="text-book-600 mt-4 text-sm text-center">
-                ReBooked takes a 10% commission from each sale to maintain the platform and provide secure transactions.
+                ReBooked takes a 10% commission from each sale to maintain the
+                platform and provide secure transactions.
               </p>
             </div>
 
@@ -446,14 +556,30 @@ const CreateListing = () => {
               >
                 {isSubmitting ? (
                   <span className="flex items-center">
-                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    <svg
+                      className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      ></circle>
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      ></path>
                     </svg>
                     Creating Listing...
                   </span>
                 ) : (
-                  'Create Listing'
+                  "Create Listing"
                 )}
               </Button>
             </div>
@@ -478,7 +604,7 @@ const CreateListing = () => {
           isOpen={showShareDialog}
           onClose={() => setShowShareDialog(false)}
           userId={user.id}
-          userName={profile.name || 'User'}
+          userName={profile.name || "User"}
           isOwnProfile={true}
         />
       )}

@@ -1,13 +1,25 @@
-
-import { useState } from 'react';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useAuth } from '@/contexts/AuthContext';
-import { submitReport } from '@/services/reportService';
-import { toast } from 'sonner';
+import { useState } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { useAuth } from "@/contexts/AuthContext";
+import { submitBookReport } from "@/services/reportService";
+import { toast } from "sonner";
 
 interface ReportBookDialogProps {
   isOpen: boolean;
@@ -18,46 +30,53 @@ interface ReportBookDialogProps {
   sellerName?: string;
 }
 
-const ReportBookDialog = ({ isOpen, onClose, bookId, bookTitle, sellerId, sellerName }: ReportBookDialogProps) => {
+const ReportBookDialog = ({
+  isOpen,
+  onClose,
+  bookId,
+  bookTitle,
+  sellerId,
+  sellerName,
+}: ReportBookDialogProps) => {
   const { user } = useAuth();
-  const [reason, setReason] = useState('');
-  const [category, setCategory] = useState('');
+  const [reason, setReason] = useState("");
+  const [category, setCategory] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async () => {
     if (!user) {
-      toast.error('You must be logged in to report a listing');
+      toast.error("You must be logged in to report a listing");
       return;
     }
 
     if (!category || !reason.trim()) {
-      toast.error('Please select a category and provide a reason');
+      toast.error("Please select a category and provide a reason");
       return;
     }
 
     if (!sellerId || !sellerName) {
-      toast.error('Seller information not available');
+      toast.error("Seller information not available");
       return;
     }
 
     setIsSubmitting(true);
     try {
-      await submitReport({
+      await submitBookReport({
         reportedUserId: sellerId,
         reporterUserId: user.id,
         bookId,
         bookTitle,
         sellerName,
-        reason: `${category}: ${reason}`
+        reason: `${category}: ${reason}`,
       });
 
-      toast.success('Report submitted successfully');
+      toast.success("Report submitted successfully");
       onClose();
-      setReason('');
-      setCategory('');
+      setReason("");
+      setCategory("");
     } catch (error) {
-      console.error('Error submitting report:', error);
-      toast.error('Failed to submit report');
+      console.error("Error submitting report:", error);
+      toast.error("Failed to submit report");
     } finally {
       setIsSubmitting(false);
     }
@@ -69,21 +88,22 @@ const ReportBookDialog = ({ isOpen, onClose, bookId, bookTitle, sellerId, seller
         <DialogHeader>
           <DialogTitle>Report Book Listing</DialogTitle>
           <DialogDescription>
-            Help us maintain a safe marketplace by reporting inappropriate content or suspicious activity.
+            Help us maintain a safe marketplace by reporting inappropriate
+            content or suspicious activity.
           </DialogDescription>
         </DialogHeader>
-        
+
         <div className="space-y-4">
           <div>
             <Label>Book Title</Label>
             <p className="text-sm text-gray-600">{bookTitle}</p>
           </div>
-          
+
           <div>
             <Label>Seller</Label>
-            <p className="text-sm text-gray-600">{sellerName || 'Unknown'}</p>
+            <p className="text-sm text-gray-600">{sellerName || "Unknown"}</p>
           </div>
-          
+
           <div>
             <Label htmlFor="category">Category</Label>
             <Select value={category} onValueChange={setCategory}>
@@ -91,17 +111,25 @@ const ReportBookDialog = ({ isOpen, onClose, bookId, bookTitle, sellerId, seller
                 <SelectValue placeholder="Select a reason category" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="inappropriate-content">Inappropriate Content</SelectItem>
-                <SelectItem value="misleading-info">Misleading Information</SelectItem>
-                <SelectItem value="counterfeit">Counterfeit/Fake Book</SelectItem>
-                <SelectItem value="overpriced">Unreasonably Overpriced</SelectItem>
+                <SelectItem value="inappropriate-content">
+                  Inappropriate Content
+                </SelectItem>
+                <SelectItem value="misleading-info">
+                  Misleading Information
+                </SelectItem>
+                <SelectItem value="counterfeit">
+                  Counterfeit/Fake Book
+                </SelectItem>
+                <SelectItem value="overpriced">
+                  Unreasonably Overpriced
+                </SelectItem>
                 <SelectItem value="duplicate">Duplicate Listing</SelectItem>
                 <SelectItem value="spam">Spam</SelectItem>
                 <SelectItem value="other">Other</SelectItem>
               </SelectContent>
             </Select>
           </div>
-          
+
           <div>
             <Label htmlFor="reason">Additional Details</Label>
             <Textarea
@@ -113,16 +141,16 @@ const ReportBookDialog = ({ isOpen, onClose, bookId, bookTitle, sellerId, seller
             />
           </div>
         </div>
-        
+
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>
             Cancel
           </Button>
-          <Button 
-            onClick={handleSubmit} 
+          <Button
+            onClick={handleSubmit}
             disabled={!category || !reason.trim() || isSubmitting}
           >
-            {isSubmitting ? 'Submitting...' : 'Submit Report'}
+            {isSubmitting ? "Submitting..." : "Submit Report"}
           </Button>
         </DialogFooter>
       </DialogContent>

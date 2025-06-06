@@ -1,18 +1,18 @@
-
-import { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
-import Layout from '@/components/Layout';
-import ProfileHeader from '@/components/ProfileHeader';
-import ShareProfileDialog from '@/components/ShareProfileDialog';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { supabase } from '@/integrations/supabase/client';
-import { getUserBooks } from '@/services/bookService';
-import { Book } from '@/types/book';
-import { ArrowLeft, Eye } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-import { toast } from 'sonner';
-import { useIsMobile } from '@/hooks/use-mobile';
+import { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
+import Layout from "@/components/Layout";
+import ProfileHeader from "@/components/ProfileHeader";
+import ShareProfileDialog from "@/components/ShareProfileDialog";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { supabase } from "@/integrations/supabase/client";
+import { getUserBooks } from "@/services/book/bookQueries";
+import { Book } from "@/types/book";
+import { ArrowLeft, Eye } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { logError, getUserErrorMessage } from "@/utils/errorUtils";
 
 interface UserProfile {
   id: string;
@@ -42,21 +42,21 @@ const UserProfile = () => {
 
     try {
       const { data, error } = await supabase
-        .from('profiles')
-        .select('id, name, email, created_at')
-        .eq('id', userId)
-        .single();
+        .from("profiles")
+        .select("id, name, email, created_at")
+        .eq("id", userId)
+        .maybeSingle();
 
       if (error) {
-        console.error('Error fetching user profile:', error);
-        toast.error('Failed to load user profile');
+        logError("Error fetching user profile", error);
+        toast.error(getUserErrorMessage(error, "Failed to load user profile"));
         return;
       }
 
       setProfile(data);
     } catch (error) {
-      console.error('Error loading profile:', error);
-      toast.error('Failed to load user profile');
+      logError("Error loading profile", error);
+      toast.error(getUserErrorMessage(error, "Failed to load user profile"));
     }
   };
 
@@ -66,11 +66,11 @@ const UserProfile = () => {
     try {
       setIsLoading(true);
       const books = await getUserBooks(userId);
-      const activeBooks = books.filter(book => !book.sold);
+      const activeBooks = books.filter((book) => !book.sold);
       setUserBooks(activeBooks);
     } catch (error) {
-      console.error('Error loading user books:', error);
-      toast.error('Failed to load user books');
+      logError("Error loading user books", error);
+      toast.error(getUserErrorMessage(error, "Failed to load user books"));
     } finally {
       setIsLoading(false);
     }
@@ -88,12 +88,18 @@ const UserProfile = () => {
     return (
       <Layout>
         <div className="container mx-auto px-4 py-8">
-          <Button variant="ghost" onClick={() => navigate(-1)} className="mb-6 text-book-600">
+          <Button
+            variant="ghost"
+            onClick={() => navigate(-1)}
+            className="mb-6 text-book-600"
+          >
             <ArrowLeft className="mr-2 h-4 w-4" /> Back
           </Button>
           <div className="text-center">
             <h2 className="text-2xl font-semibold mb-4">User not found</h2>
-            <p className="text-gray-600">The user profile you're looking for doesn't exist.</p>
+            <p className="text-gray-600">
+              The user profile you're looking for doesn't exist.
+            </p>
           </div>
         </div>
       </Layout>
@@ -114,33 +120,33 @@ const UserProfile = () => {
   }
 
   const userData = {
-    id: profile?.id || '',
-    name: profile?.name || 'Anonymous User',
+    id: profile?.id || "",
+    name: profile?.name || "Anonymous User",
     joinDate: profile?.created_at || new Date().toISOString(),
-    isVerified: false
+    isVerified: false,
   };
 
   return (
     <Layout>
       <div className="container mx-auto px-4 py-4 md:py-8 max-w-6xl">
-        <Button 
-          variant="ghost" 
-          onClick={() => navigate(-1)} 
+        <Button
+          variant="ghost"
+          onClick={() => navigate(-1)}
           className="mb-4 md:mb-6 text-book-600 p-2"
         >
-          <ArrowLeft className="mr-2 h-4 w-4" /> 
+          <ArrowLeft className="mr-2 h-4 w-4" />
           <span className="hidden sm:inline">Back</span>
         </Button>
 
         {/* Profile Header */}
         <div className="mb-6 md:mb-8">
-          <ProfileHeader 
+          <ProfileHeader
             userData={userData}
             isOwnProfile={false}
             onShareProfile={handleShareProfile}
           />
         </div>
-        
+
         {/* Active Listings */}
         <Card>
           <CardHeader>
@@ -151,20 +157,31 @@ const UserProfile = () => {
           <CardContent>
             {userBooks.length === 0 ? (
               <div className="text-center py-8">
-                <p className="text-gray-600">This user has no active listings.</p>
+                <p className="text-gray-600">
+                  This user has no active listings.
+                </p>
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                 {userBooks.map((book) => (
-                  <div key={book.id} className="border rounded-lg p-3 sm:p-4 hover:shadow-md transition-shadow">
+                  <div
+                    key={book.id}
+                    className="border rounded-lg p-3 sm:p-4 hover:shadow-md transition-shadow"
+                  >
                     <img
                       src={book.frontCover || book.imageUrl}
                       alt={book.title}
                       className="w-full h-24 sm:h-32 object-cover rounded mb-3"
                     />
-                    <h4 className="font-semibold text-sm truncate">{book.title}</h4>
-                    <p className="text-xs text-gray-600 truncate">by {book.author}</p>
-                    <p className="text-sm font-bold text-book-600 mt-2">R{book.price}</p>
+                    <h4 className="font-semibold text-sm truncate">
+                      {book.title}
+                    </h4>
+                    <p className="text-xs text-gray-600 truncate">
+                      by {book.author}
+                    </p>
+                    <p className="text-sm font-bold text-book-600 mt-2">
+                      R{book.price}
+                    </p>
                     <Button
                       onClick={() => handleViewBook(book.id)}
                       variant="outline"
@@ -184,8 +201,8 @@ const UserProfile = () => {
         <ShareProfileDialog
           isOpen={isShareDialogOpen}
           onClose={() => setIsShareDialogOpen(false)}
-          userId={profile?.id || ''}
-          userName={profile?.name || 'Anonymous User'}
+          userId={profile?.id || ""}
+          userName={profile?.name || "Anonymous User"}
           isOwnProfile={false}
         />
       </div>

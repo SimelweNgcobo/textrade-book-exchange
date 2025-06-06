@@ -1,86 +1,75 @@
-
-# Dependency folders
-node_modules/
-bun.lockb
-package-lock.json
-
-# Environment files
-.env
-.env.local
-.env.production
-.env.development
-
-# Build output folders
-build/
+# Build outputs
 dist/
+build/
 .next/
 out/
 
-# Test folders
-tests/
-test/
-__tests__/
-*.test.ts
-*.test.tsx
-*.spec.ts
-*.spec.tsx
+# Dependencies
+node_modules/
+bun.lockb
+package-lock.json
+yarn.lock
 
-# Static asset folders (unless editing assets)
-public/
-assets/static/
+# Environment and config
+.env*
+*.env
 
-# Version control
-.git/
-.gitignore
-.gitattributes
-
-# Editor config folders
+# IDE and editor files
 .vscode/
 .idea/
 *.swp
 *.swo
 *~
 
-# OS files
+# OS generated files
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
 Thumbs.db
 
-# The .bolt folder itself
-.bolt/
+# Logs
+*.log
+logs/
 
-# Config files that don't affect frontend
-tsconfig.json
-tsconfig.app.json
-tsconfig.node.json
-vite.config.ts
-tailwind.config.ts
-postcss.config.js
-eslint.config.js
-components.json
+# Temporary files
+tmp/
+temp/
+
+# Testing
+coverage/
+.nyc_output/
+
+# Cache
+.cache/
+.parcel-cache/
+
+# Static assets (can be large)
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.svg
+*.ico
+*.webp
 
 # Documentation
 README.md
 CHANGELOG.md
 LICENSE
 
-# Database and backend config
+# Config files that don't need editing
+postcss.config.js
+tailwind.config.ts
+vite.config.ts*
+tsconfig*.json
+eslint.config.js
+components.json
+
+# Supabase
 supabase/
-migrations/
-*.sql
 
-# Lock files and package management
-yarn.lock
-pnpm-lock.yaml
-
-# Logs
-*.log
-logs/
-
-# Coverage reports
-coverage/
-.nyc_output/
-
-# Temporary files
-tmp/
-temp/
-.tmp/
+# Misc
+robots.txt
