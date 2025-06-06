@@ -12,7 +12,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { AlertTriangle, Send } from 'lucide-react';
+import { AlertTriangle, Send, X } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface ReportIssueDialogProps {
@@ -43,6 +43,10 @@ const ReportIssueDialog = ({ isOpen, onClose }: ReportIssueDialogProps) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
+  const resetForm = () => {
+    setFormData({ name: '', email: '', category: '', description: '' });
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -51,31 +55,55 @@ const ReportIssueDialog = ({ isOpen, onClose }: ReportIssueDialogProps) => {
       return;
     }
 
+    if (!formData.email.includes('@')) {
+      toast.error('Please enter a valid email address');
+      return;
+    }
+
     setIsSubmitting(true);
     
     try {
-      // Here you would typically send the report to your backend
-      // For now, we'll just simulate a successful submission
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Simulate API call - replace with actual implementation
+      console.log('Submitting report:', formData);
+      await new Promise(resolve => setTimeout(resolve, 1500));
       
       toast.success('Report submitted successfully! We\'ll get back to you soon.');
-      setFormData({ name: '', email: '', category: '', description: '' });
+      resetForm();
       onClose();
     } catch (error) {
+      console.error('Error submitting report:', error);
       toast.error('Failed to submit report. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
   };
 
+  const handleClose = () => {
+    if (!isSubmitting) {
+      resetForm();
+      onClose();
+    }
+  };
+
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <AlertTriangle className="h-5 w-5 text-orange-600" />
-            Report an Issue
-          </DialogTitle>
+          <div className="flex items-center justify-between">
+            <DialogTitle className="flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5 text-orange-600" />
+              Report an Issue
+            </DialogTitle>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleClose}
+              disabled={isSubmitting}
+              className="h-8 w-8 p-0"
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
           <DialogDescription>
             Let us know about any problems you're experiencing and we'll help resolve them.
           </DialogDescription>
@@ -90,6 +118,7 @@ const ReportIssueDialog = ({ isOpen, onClose }: ReportIssueDialogProps) => {
               onChange={(e) => handleInputChange('name', e.target.value)}
               placeholder="Your full name"
               required
+              disabled={isSubmitting}
             />
           </div>
 
@@ -102,12 +131,17 @@ const ReportIssueDialog = ({ isOpen, onClose }: ReportIssueDialogProps) => {
               onChange={(e) => handleInputChange('email', e.target.value)}
               placeholder="your.email@example.com"
               required
+              disabled={isSubmitting}
             />
           </div>
 
           <div>
             <Label htmlFor="category">Issue Category *</Label>
-            <Select value={formData.category} onValueChange={(value) => handleInputChange('category', value)}>
+            <Select 
+              value={formData.category} 
+              onValueChange={(value) => handleInputChange('category', value)}
+              disabled={isSubmitting}
+            >
               <SelectTrigger>
                 <SelectValue placeholder="Select a category" />
               </SelectTrigger>
@@ -130,6 +164,7 @@ const ReportIssueDialog = ({ isOpen, onClose }: ReportIssueDialogProps) => {
               placeholder="Please describe the issue you're experiencing in detail..."
               className="min-h-[100px]"
               required
+              disabled={isSubmitting}
             />
           </div>
 
@@ -137,14 +172,14 @@ const ReportIssueDialog = ({ isOpen, onClose }: ReportIssueDialogProps) => {
             <Button
               type="button"
               variant="outline"
-              onClick={onClose}
+              onClick={handleClose}
               disabled={isSubmitting}
             >
               Cancel
             </Button>
             <Button
               type="submit"
-              disabled={isSubmitting}
+              disabled={isSubmitting || !formData.name || !formData.email || !formData.category || !formData.description}
               className="bg-book-600 hover:bg-book-700"
             >
               {isSubmitting ? (
