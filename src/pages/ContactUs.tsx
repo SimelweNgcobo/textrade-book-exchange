@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
-import { ArrowLeft, Mail, Send, CheckCircle } from 'lucide-react';
+import { ArrowLeft, Mail, Send } from 'lucide-react';
 import { submitContactMessage } from '@/services/contactService';
 
 const ContactUs = () => {
@@ -20,26 +20,9 @@ const ContactUs = () => {
   const [subject, setSubject] = useState('');
   const [message, setMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isSubmitted, setIsSubmitted] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!name || !email || !subject || !message) {
-      toast.error('Please fill in all fields');
-      return;
-    }
-
-    if (!email.includes('@')) {
-      toast.error('Please enter a valid email address');
-      return;
-    }
-
-    if (message.length < 10) {
-      toast.error('Please provide a more detailed message (at least 10 characters)');
-      return;
-    }
-
     setIsSubmitting(true);
 
     try {
@@ -50,8 +33,9 @@ const ContactUs = () => {
         message
       });
       
-      setIsSubmitted(true);
       toast.success('Your message has been sent! We\'ll get back to you soon.');
+      setSubject('');
+      setMessage('');
     } catch (error) {
       console.error('Failed to send message:', error);
       toast.error('Failed to send message. Please try again later.');
@@ -59,40 +43,6 @@ const ContactUs = () => {
       setIsSubmitting(false);
     }
   };
-
-  if (isSubmitted) {
-    return (
-      <Layout>
-        <div className="container mx-auto px-4 py-8 max-w-2xl">
-          <div className="text-center bg-green-50 border border-green-200 rounded-lg p-8">
-            <CheckCircle className="h-16 w-16 text-green-600 mx-auto mb-4" />
-            <h2 className="text-2xl font-bold text-green-800 mb-2">Message Sent Successfully!</h2>
-            <p className="text-green-600 mb-6">
-              Thank you for contacting us. We've received your message and will get back to you within 24-48 hours.
-            </p>
-            <div className="space-y-3">
-              <Button 
-                onClick={() => navigate('/')}
-                className="bg-book-600 hover:bg-book-700"
-              >
-                Return Home
-              </Button>
-              <Button 
-                variant="outline"
-                onClick={() => {
-                  setIsSubmitted(false);
-                  setSubject('');
-                  setMessage('');
-                }}
-              >
-                Send Another Message
-              </Button>
-            </div>
-          </div>
-        </div>
-      </Layout>
-    );
-  }
 
   return (
     <Layout>
@@ -111,19 +61,18 @@ const ContactUs = () => {
 
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="space-y-2">
-                <Label htmlFor="name">Your Name *</Label>
+                <Label htmlFor="name">Your Name</Label>
                 <Input
                   id="name"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="Enter your name"
                   required
-                  disabled={isSubmitting}
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="email">Your Email *</Label>
+                <Label htmlFor="email">Your Email</Label>
                 <Input
                   id="email"
                   type="email"
@@ -131,42 +80,36 @@ const ContactUs = () => {
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="you@example.com"
                   required
-                  disabled={isSubmitting}
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="subject">Subject *</Label>
+                <Label htmlFor="subject">Subject</Label>
                 <Input
                   id="subject"
                   value={subject}
                   onChange={(e) => setSubject(e.target.value)}
                   placeholder="How can we help?"
                   required
-                  disabled={isSubmitting}
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="message">Message *</Label>
+                <Label htmlFor="message">Message</Label>
                 <Textarea
                   id="message"
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
-                  placeholder="Type your message here... (minimum 10 characters)"
+                  placeholder="Type your message here..."
                   className="min-h-[150px]"
                   required
-                  disabled={isSubmitting}
                 />
-                <p className="text-xs text-gray-500">
-                  {message.length}/10 characters minimum
-                </p>
               </div>
 
               <Button
                 type="submit"
                 className="w-full bg-book-600 hover:bg-book-700"
-                disabled={isSubmitting || !name || !email || !subject || !message || message.length < 10}
+                disabled={isSubmitting}
               >
                 {isSubmitting ? (
                   <span className="flex items-center">
