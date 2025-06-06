@@ -1,10 +1,16 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { User, Session } from '@supabase/supabase-js';
-import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
-import { useErrorHandler } from '@/hooks/useErrorHandler';
-import { getUserStats, updateLastActive } from '@/services/userStatsService';
-import { isAdminUser } from '@/services/admin/adminAuthService';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  ReactNode,
+} from "react";
+import { User, Session } from "@supabase/supabase-js";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
+import { useErrorHandler } from "@/hooks/useErrorHandler";
+import { getUserStats, updateLastActive } from "@/services/userStatsService";
+import { isAdminUser } from "@/services/admin/adminAuthService";
 
 interface Profile {
   id: string;
@@ -37,7 +43,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
 };
@@ -58,20 +64,25 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const isAuthenticated = !!user;
   const isAdmin = profile?.isAdmin ?? false;
 
-  const fetchProfile = async (userId: string, retryCount = 0): Promise<Profile | null> => {
+  const fetchProfile = async (
+    userId: string,
+    retryCount = 0,
+  ): Promise<Profile | null> => {
     try {
       setProfileLoading(true);
-      console.log(`Fetching profile for user: ${userId} (attempt ${retryCount + 1})`);
-      
+      console.log(
+        `Fetching profile for user: ${userId} (attempt ${retryCount + 1})`,
+      );
+
       const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', userId)
+        .from("profiles")
+        .select("*")
+        .eq("id", userId)
         .single();
 
       if (error) {
-        if (error.code === 'PGRST116') {
-          console.log('Profile not found for user:', userId);
+        if (error.code === "PGRST116") {
+          console.log("Profile not found for user:", userId);
           return null;
         }
         throw error;
@@ -79,26 +90,28 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
       const profileData = {
         id: data.id,
-        name: data.name || '',
-        email: data.email || '',
+        name: data.name || "",
+        email: data.email || "",
         isAdmin: data.is_admin || false,
-        status: data.status || 'active',
+        status: data.status || "active",
         profile_picture_url: data.profile_picture_url,
         bio: data.bio,
       };
 
-      console.log('Profile fetched successfully:', profileData);
+      console.log("Profile fetched successfully:", profileData);
       return profileData;
     } catch (error) {
-      console.error('Error fetching profile:', error);
-      
+      console.error("Error fetching profile:", error);
+
       // Retry logic for transient errors
       if (retryCount < 2) {
         console.log(`Retrying profile fetch (${retryCount + 1}/3)...`);
-        await new Promise(resolve => setTimeout(resolve, 1000 * (retryCount + 1)));
+        await new Promise((resolve) =>
+          setTimeout(resolve, 1000 * (retryCount + 1)),
+        );
         return fetchProfile(userId, retryCount + 1);
       }
-      
+
       return null;
     } finally {
       setProfileLoading(false);
@@ -118,55 +131,58 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     const initializeAuth = async () => {
       try {
-        console.log('Initializing auth...');
+        console.log("Initializing auth...");
         setIsLoading(true);
-        
+
         // Set up auth state listener
-        const { data: { subscription } } = supabase.auth.onAuthStateChange(
-          async (event, currentSession) => {
-            console.log('Auth state changed:', event, currentSession?.user?.id);
-            
-            if (!mounted) return;
+        const {
+          data: { subscription },
+        } = supabase.auth.onAuthStateChange(async (event, currentSession) => {
+          console.log("Auth state changed:", event, currentSession?.user?.id);
 
-            setSession(currentSession);
-            setUser(currentSession?.user ?? null);
+          if (!mounted) return;
 
-            if (currentSession?.user) {
-              // Clear any existing timeout
-              if (profileFetchTimeout) {
-                clearTimeout(profileFetchTimeout);
-              }
-              
-              // Delay profile fetch to avoid race conditions
-              profileFetchTimeout = setTimeout(async () => {
+          setSession(currentSession);
+          setUser(currentSession?.user ?? null);
+
+          if (currentSession?.user) {
+            // Clear any existing timeout
+            if (profileFetchTimeout) {
+              clearTimeout(profileFetchTimeout);
+            }
+
+            // Delay profile fetch to avoid race conditions
+            profileFetchTimeout = setTimeout(async () => {
+              if (mounted) {
+                const profileData = await fetchProfile(currentSession.user.id);
                 if (mounted) {
-                  const profileData = await fetchProfile(currentSession.user.id);
-                  if (mounted) {
-                    setProfile(profileData);
-                  }
+                  setProfile(profileData);
                 }
-              }, 100);
-            } else {
-              setProfile(null);
-              setProfileLoading(false);
-            }
-
-            if (mounted && !profileLoading) {
-              setIsLoading(false);
-            }
+              }
+            }, 100);
+          } else {
+            setProfile(null);
+            setProfileLoading(false);
           }
-        );
+
+          if (mounted && !profileLoading) {
+            setIsLoading(false);
+          }
+        });
 
         // Check for existing session
-        const { data: { session: initialSession }, error } = await supabase.auth.getSession();
-        
+        const {
+          data: { session: initialSession },
+          error,
+        } = await supabase.auth.getSession();
+
         if (error) {
-          console.error('Error getting initial session:', error);
+          console.error("Error getting initial session:", error);
         } else if (initialSession && mounted) {
-          console.log('Found existing session');
+          console.log("Found existing session");
           setSession(initialSession);
           setUser(initialSession.user);
-          
+
           const profileData = await fetchProfile(initialSession.user.id);
           if (mounted) {
             setProfile(profileData);
@@ -184,7 +200,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           }
         };
       } catch (error) {
-        console.error('Error initializing auth:', error);
+        console.error("Error initializing auth:", error);
         if (mounted) {
           setIsLoading(false);
         }
@@ -204,7 +220,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const login = async (email: string, password: string) => {
     try {
       setIsLoading(true);
-      console.log('Attempting login for:', email);
+      console.log("Attempting login for:", email);
 
       const { data, error } = await supabase.auth.signInWithPassword({
         email: email.trim(),
@@ -212,31 +228,43 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       });
 
       if (error) {
-        console.error('Login error:', error);
-        
-        let errorMessage = 'Login failed';
-        if (error.message.includes('Invalid login credentials')) {
-          errorMessage = 'Invalid email or password';
-        } else if (error.message.includes('Email not confirmed')) {
-          errorMessage = 'Please check your email and click the confirmation link';
-        } else if (error.message.includes('Too many requests')) {
-          errorMessage = 'Too many login attempts. Please try again later.';
+        console.error("Login error:", error);
+
+        let errorMessage = "Login failed";
+        if (error.message.includes("Invalid login credentials")) {
+          errorMessage = "Invalid email or password";
+        } else if (error.message.includes("Email not confirmed")) {
+          errorMessage =
+            "Please check your email and click the confirmation link before logging in. Check your spam folder if you don't see it.";
+        } else if (error.message.includes("signup_disabled")) {
+          errorMessage =
+            "Registration is currently disabled. Please contact support.";
+        } else if (error.message.includes("Too many requests")) {
+          errorMessage = "Too many login attempts. Please try again later.";
         } else {
           errorMessage = error.message;
         }
-        
+
+        toast.error(errorMessage);
+        throw new Error(errorMessage);
+      }
+
+      // Additional check for email verification
+      if (data.user && !data.user.email_confirmed_at) {
+        const errorMessage =
+          "Please verify your email address before logging in. Check your email for a confirmation link.";
         toast.error(errorMessage);
         throw new Error(errorMessage);
       }
 
       if (!data.user) {
-        throw new Error('Login failed - no user data returned');
+        throw new Error("Login failed - no user data returned");
       }
 
-      console.log('Login successful');
-      toast.success('Login successful!');
+      console.log("Login successful");
+      toast.success("Login successful!");
     } catch (error) {
-      handleError(error, 'Login');
+      handleError(error, "Login");
       throw error;
     } finally {
       setIsLoading(false);
@@ -246,7 +274,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const register = async (name: string, email: string, password: string) => {
     try {
       setIsLoading(true);
-      console.log('Attempting registration for:', email);
+      console.log("Attempting registration for:", email);
 
       const { data, error } = await supabase.auth.signUp({
         email: email.trim(),
@@ -260,30 +288,35 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       });
 
       if (error) {
-        console.error('Registration error:', error);
-        
-        let errorMessage = 'Registration failed';
-        if (error.message.includes('already registered')) {
-          errorMessage = 'This email is already registered. Please try logging in instead.';
-        } else if (error.message.includes('Password should be')) {
-          errorMessage = 'Password must be at least 6 characters long';
+        console.error("Registration error:", error);
+
+        let errorMessage = "Registration failed";
+        if (error.message.includes("already registered")) {
+          errorMessage =
+            "This email is already registered. Please try logging in instead.";
+        } else if (error.message.includes("Password should be")) {
+          errorMessage = "Password must be at least 6 characters long";
         } else {
           errorMessage = error.message;
         }
-        
+
         toast.error(errorMessage);
         throw new Error(errorMessage);
       }
 
       if (data.user && !data.session) {
-        console.log('Registration successful, confirmation email sent');
-        toast.success('Registration successful! Please check your email to confirm your account.');
+        console.log("Registration successful, confirmation email sent");
+        toast.success(
+          "Registration successful! Please check your email to confirm your account.",
+        );
       } else if (data.session) {
-        console.log('Registration successful with immediate login');
-        toast.success('Registration successful! Welcome to ReBooked Solutions!');
+        console.log("Registration successful with immediate login");
+        toast.success(
+          "Registration successful! Welcome to ReBooked Solutions!",
+        );
       }
     } catch (error) {
-      handleError(error, 'Registration');
+      handleError(error, "Registration");
       throw error;
     } finally {
       setIsLoading(false);
@@ -293,25 +326,25 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const logout = async () => {
     try {
       setIsLoading(true);
-      console.log('Attempting logout');
+      console.log("Attempting logout");
 
       const { error } = await supabase.auth.signOut();
-      
+
       if (error) {
-        console.error('Logout error:', error);
-        toast.error('Logout failed');
+        console.error("Logout error:", error);
+        toast.error("Logout failed");
         throw error;
       }
 
-      console.log('Logout successful');
-      toast.success('Logged out successfully');
-      
+      console.log("Logout successful");
+      toast.success("Logged out successfully");
+
       // Clear state immediately
       setUser(null);
       setProfile(null);
       setSession(null);
     } catch (error) {
-      handleError(error, 'Logout');
+      handleError(error, "Logout");
       throw error;
     } finally {
       setIsLoading(false);
@@ -320,12 +353,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const loadUserStats = async () => {
     if (!user) return;
-    
+
     try {
       const stats = await getUserStats(user.id);
       setUserStats(stats);
     } catch (error) {
-      console.error('Error loading user stats:', error);
+      console.error("Error loading user stats:", error);
     }
   };
 
@@ -333,7 +366,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       return await isAdminUser(userId);
     } catch (error) {
-      console.error('Error checking admin status:', error);
+      console.error("Error checking admin status:", error);
       return false;
     }
   };
@@ -342,7 +375,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     if (user && profile) {
       // Update last active timestamp
       updateLastActive(user.id);
-      
+
       // Load user stats
       loadUserStats();
     }
