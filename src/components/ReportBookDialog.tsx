@@ -61,7 +61,7 @@ const ReportBookDialog = ({
 
     setIsSubmitting(true);
     try {
-      await submitReport({
+      await submitBookReport({
         reportedUserId: sellerId,
         reporterUserId: user.id,
         bookId,
