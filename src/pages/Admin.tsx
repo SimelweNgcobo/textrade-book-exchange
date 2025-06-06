@@ -1,13 +1,12 @@
-
-import { useNavigate } from 'react-router-dom';
-import Layout from '@/components/Layout';
-import { useAuth } from '@/contexts/AuthContext';
-import { Button } from '@/components/ui/button';
-import AdminDashboard from '@/components/AdminDashboard';
-import { ArrowLeft, Flag, Shield } from 'lucide-react';
-import { useIsMobile } from '@/hooks/use-mobile';
-import LoadingSpinner from '@/components/LoadingSpinner';
-import AppErrorBoundary from '@/components/AppErrorBoundary';
+import { useNavigate } from "react-router-dom";
+import Layout from "@/components/Layout";
+import { useAuth } from "@/contexts/AuthContext";
+import { Button } from "@/components/ui/button";
+import AdminDashboard from "@/components/AdminDashboard";
+import { ArrowLeft, Flag, Shield } from "lucide-react";
+import { useIsMobile } from "@/hooks/use-mobile";
+import LoadingSpinner from "@/components/LoadingSpinner";
+import ErrorBoundary from "@/components/ErrorBoundary";
 
 const Admin = () => {
   const { user, profile, isLoading, isAuthenticated, isAdmin } = useAuth();
@@ -34,19 +33,23 @@ const Admin = () => {
             <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <Shield className="h-8 w-8 text-red-600" />
             </div>
-            <h2 className="text-2xl font-semibold mb-4">Authentication Required</h2>
-            <p className="text-gray-600 mb-6">You must be logged in to access the admin dashboard.</p>
+            <h2 className="text-2xl font-semibold mb-4">
+              Authentication Required
+            </h2>
+            <p className="text-gray-600 mb-6">
+              You must be logged in to access the admin dashboard.
+            </p>
             <div className="space-y-3">
-              <Button 
-                onClick={() => navigate('/login')}
+              <Button
+                onClick={() => navigate("/login")}
                 className="w-full min-h-[48px]"
                 size="lg"
               >
                 Log In
               </Button>
-              <Button 
+              <Button
                 variant="outline"
-                onClick={() => navigate('/')}
+                onClick={() => navigate("/")}
                 className="w-full min-h-[48px]"
                 size="lg"
               >
@@ -68,21 +71,23 @@ const Admin = () => {
             <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <Shield className="h-8 w-8 text-orange-600" />
             </div>
-            <h2 className="text-2xl font-semibold mb-4">Admin Access Required</h2>
+            <h2 className="text-2xl font-semibold mb-4">
+              Admin Access Required
+            </h2>
             <p className="text-gray-600 mb-6">
               You do not have administrator privileges to access this page.
             </p>
             <div className="space-y-3">
-              <Button 
-                onClick={() => navigate('/profile')}
+              <Button
+                onClick={() => navigate("/profile")}
                 className="w-full min-h-[48px]"
                 size="lg"
               >
                 Go to Profile
               </Button>
-              <Button 
+              <Button
                 variant="outline"
-                onClick={() => navigate('/')}
+                onClick={() => navigate("/")}
                 className="w-full min-h-[48px]"
                 size="lg"
               >
@@ -101,25 +106,27 @@ const Admin = () => {
         {/* Improved Header Layout for Mobile */}
         <div className="space-y-4">
           <div className="flex items-center space-x-3">
-            <Button 
-              variant="ghost" 
-              onClick={() => navigate('/')}
+            <Button
+              variant="ghost"
+              onClick={() => navigate("/")}
               className="text-book-600 min-h-[44px]"
               size={isMobile ? "sm" : "default"}
             >
               <ArrowLeft className="mr-2 h-4 w-4" /> Back to Home
             </Button>
           </div>
-          
+
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div className="flex items-center space-x-3">
               <Shield className="h-6 w-6 text-book-600" />
-              <h1 className="text-2xl md:text-3xl font-bold text-book-800">Admin Dashboard</h1>
+              <h1 className="text-2xl md:text-3xl font-bold text-book-800">
+                Admin Dashboard
+              </h1>
             </div>
-            
-            <Button 
+
+            <Button
               variant="outline"
-              onClick={() => navigate('/admin/reports')}
+              onClick={() => navigate("/admin/reports")}
               className="flex items-center w-full sm:w-auto min-h-[48px]"
               size={isMobile ? "lg" : "default"}
             >
