@@ -45,7 +45,7 @@ const UserProfile = () => {
         .from("profiles")
         .select("id, name, email, created_at")
         .eq("id", userId)
-        .single();
+        .maybeSingle();
 
       if (error) {
         logError("Error fetching user profile", error);
