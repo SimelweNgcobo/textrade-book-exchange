@@ -1,21 +1,21 @@
-
-import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { useAuth } from '@/contexts/AuthContext';
-import { useCart } from '@/contexts/CartContext';
-import Layout from '@/components/Layout';
-import BookImageSection from '@/components/book-details/BookImageSection';
-import BookInfo from '@/components/book-details/BookInfo';
-import BookDescription from '@/components/book-details/BookDescription';
-import BookActions from '@/components/book-details/BookActions';
-import BookPricing from '@/components/book-details/BookPricing';
-import SellerInfo from '@/components/book-details/SellerInfo';
-import ReportBookDialog from '@/components/ReportBookDialog';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { ArrowLeft, AlertTriangle, BookOpen } from 'lucide-react';
-import { useBookDetails } from '@/hooks/useBookDetails';
-import { toast } from 'sonner';
+import { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
+import { useCart } from "@/contexts/CartContext";
+import Layout from "@/components/Layout";
+import BookImageSection from "@/components/book-details/BookImageSection";
+import BookInfo from "@/components/book-details/BookInfo";
+import BookDescription from "@/components/book-details/BookDescription";
+import BookActions from "@/components/book-details/BookActions";
+import BookPricing from "@/components/book-details/BookPricing";
+import SellerInfo from "@/components/book-details/SellerInfo";
+import ReportBookDialog from "@/components/ReportBookDialog";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { ArrowLeft, AlertTriangle, BookOpen } from "lucide-react";
+import { useBookDetails } from "@/hooks/useBookDetails";
+import { debugBookId, extractBookId } from "@/utils/bookUtils";
+import { toast } from "sonner";
 
 const BookDetails = () => {
   const { id } = useParams<{ id: string }>();
@@ -24,33 +24,36 @@ const BookDetails = () => {
   const { addToCart } = useCart();
   const [isReportDialogOpen, setIsReportDialogOpen] = useState(false);
 
-  // Redirect to books page if no ID is provided
+  // Validate and debug book ID
   useEffect(() => {
-    if (!id) {
-      console.error('No book ID provided in URL');
-      toast.error('Invalid book link');
-      navigate('/books');
+    debugBookId(id);
+    const validId = extractBookId(id);
+
+    if (!validId) {
+      console.error("Invalid or missing book ID in URL:", id);
+      toast.error("Invalid book link - redirecting to browse books");
+      navigate("/books");
     }
   }, [id, navigate]);
 
-  const { book, isLoading, error } = useBookDetails(id || '');
+  const { book, isLoading, error } = useBookDetails(id || "");
 
   const handleBuyNow = () => {
     if (!user) {
-      toast.error('Please log in to purchase books');
-      navigate('/login');
+      toast.error("Please log in to purchase books");
+      navigate("/login");
       return;
     }
 
     if (!book) return;
 
     if (book.sold) {
-      toast.error('This book has already been sold');
+      toast.error("This book has already been sold");
       return;
     }
 
     if (user.id === book.seller?.id) {
-      toast.error('You cannot buy your own book');
+      toast.error("You cannot buy your own book");
       return;
     }
 
@@ -59,20 +62,20 @@ const BookDetails = () => {
 
   const handleAddToCart = () => {
     if (!user) {
-      toast.error('Please log in to add books to cart');
-      navigate('/login');
+      toast.error("Please log in to add books to cart");
+      navigate("/login");
       return;
     }
 
     if (!book) return;
 
     if (book.sold) {
-      toast.error('This book has already been sold');
+      toast.error("This book has already been sold");
       return;
     }
 
     if (user.id === book.seller?.id) {
-      toast.error('You cannot add your own book to cart');
+      toast.error("You cannot add your own book to cart");
       return;
     }
 
@@ -83,11 +86,11 @@ const BookDetails = () => {
       author: book.author,
       price: book.price,
       imageUrl: book.frontCover || book.imageUrl,
-      sellerId: book.seller?.id || '',
-      sellerName: book.seller?.name || 'Unknown Seller'
+      sellerId: book.seller?.id || "",
+      sellerName: book.seller?.name || "Unknown Seller",
     });
 
-    toast.success('Book added to cart!');
+    toast.success("Book added to cart!");
   };
 
   const handleEditBook = () => {
@@ -108,7 +111,7 @@ const BookDetails = () => {
       try {
         await navigator.share(shareData);
       } catch (error) {
-        console.log('Error sharing:', error);
+        console.log("Error sharing:", error);
         fallbackShare();
       }
     } else {
@@ -118,12 +121,12 @@ const BookDetails = () => {
 
   const fallbackShare = () => {
     navigator.clipboard.writeText(window.location.href);
-    toast.success('Link copied to clipboard!');
+    toast.success("Link copied to clipboard!");
   };
 
   const handleViewSellerProfile = () => {
     if (!book?.seller?.id) {
-      toast.error('Seller profile not available');
+      toast.error("Seller profile not available");
       return;
     }
     navigate(`/user/${book.seller.id}`);
@@ -131,8 +134,8 @@ const BookDetails = () => {
 
   const handleReportBook = () => {
     if (!user) {
-      toast.error('Please log in to report a book');
-      navigate('/login');
+      toast.error("Please log in to report a book");
+      navigate("/login");
       return;
     }
     setIsReportDialogOpen(true);
@@ -154,8 +157,8 @@ const BookDetails = () => {
 
   // Error state with better error handling
   if (error || !book) {
-    const errorMessage = error || 'Book not found or may have been removed';
-    
+    const errorMessage = error || "Book not found or may have been removed";
+
     return (
       <Layout>
         <div className="container mx-auto px-4 py-8">
@@ -163,20 +166,22 @@ const BookDetails = () => {
             <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4">
               <AlertTriangle className="h-8 w-8 text-red-600" />
             </div>
-            <h2 className="text-2xl font-semibold mb-2 text-gray-800">Book Not Available</h2>
+            <h2 className="text-2xl font-semibold mb-2 text-gray-800">
+              Book Not Available
+            </h2>
             <p className="text-gray-600 mb-6">{errorMessage}</p>
             <div className="space-y-3 w-full">
-              <Button 
-                onClick={() => navigate('/books')} 
+              <Button
+                onClick={() => navigate("/books")}
                 className="bg-book-600 hover:bg-book-700 w-full min-h-[48px]"
                 size="lg"
               >
                 <BookOpen className="mr-2 h-4 w-4" />
                 Browse All Books
               </Button>
-              <Button 
+              <Button
                 variant="outline"
-                onClick={() => navigate(-1)} 
+                onClick={() => navigate(-1)}
                 className="w-full min-h-[48px]"
                 size="lg"
               >
@@ -195,15 +200,15 @@ const BookDetails = () => {
     return (
       <Layout>
         <div className="container mx-auto px-4 py-8">
-          <Button 
-            variant="ghost" 
-            onClick={() => navigate(-1)} 
+          <Button
+            variant="ghost"
+            onClick={() => navigate(-1)}
             className="mb-6 text-book-600 hover:bg-book-50 min-h-[44px]"
           >
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back
           </Button>
-          
+
           <div className="text-center max-w-md mx-auto">
             <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <BookOpen className="h-8 w-8 text-orange-600" />
@@ -213,14 +218,14 @@ const BookDetails = () => {
               This book has already been purchased by another buyer.
             </p>
             <div className="space-y-3">
-              <Button 
-                onClick={() => navigate('/books')}
+              <Button
+                onClick={() => navigate("/books")}
                 className="bg-book-600 hover:bg-book-700 w-full min-h-[48px]"
                 size="lg"
               >
                 Find Similar Books
               </Button>
-              <Button 
+              <Button
                 variant="outline"
                 onClick={() => navigate(-1)}
                 className="w-full min-h-[48px]"
@@ -243,9 +248,9 @@ const BookDetails = () => {
       <div className="container mx-auto px-4 py-4 sm:py-8 max-w-6xl">
         {/* Mobile back button */}
         <div className="mb-4 sm:mb-6">
-          <Button 
-            variant="ghost" 
-            onClick={() => navigate(-1)} 
+          <Button
+            variant="ghost"
+            onClick={() => navigate(-1)}
             className="text-book-600 hover:bg-book-50 p-2 sm:p-3 min-h-[44px]"
           >
             <ArrowLeft className="mr-2 h-4 w-4" />
@@ -259,7 +264,7 @@ const BookDetails = () => {
             <BookImageSection book={book} />
             <BookInfo book={book} />
             <BookDescription book={book} />
-            
+
             {/* Mobile-only pricing card */}
             <div className="lg:hidden">
               <Card>
@@ -294,7 +299,7 @@ const BookDetails = () => {
               onShare={handleShare}
               onViewSellerProfile={handleViewSellerProfile}
             />
-            
+
             {showCommissionDetails && (
               <BookPricing
                 price={book.price}
@@ -303,9 +308,9 @@ const BookDetails = () => {
                 showCommissionDetails={showCommissionDetails}
               />
             )}
-            
-            <SellerInfo 
-              seller={book.seller} 
+
+            <SellerInfo
+              seller={book.seller}
               onViewProfile={handleViewSellerProfile}
             />
           </div>
@@ -313,11 +318,11 @@ const BookDetails = () => {
 
         {/* Mobile seller info and report button */}
         <div className="lg:hidden mt-6 space-y-4">
-          <SellerInfo 
-            seller={book.seller} 
+          <SellerInfo
+            seller={book.seller}
             onViewProfile={handleViewSellerProfile}
           />
-          
+
           {!isOwner && (
             <div className="flex justify-center">
               <Button
