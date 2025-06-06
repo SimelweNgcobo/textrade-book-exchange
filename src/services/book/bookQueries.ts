@@ -126,12 +126,12 @@ export const getBookById = async (id: string): Promise<Book | null> => {
       return null;
     }
 
-    // Get seller profile separately
+    // Get seller profile separately - handle case where profile might not exist
     const { data: profileData, error: profileError } = await supabase
       .from("profiles")
       .select("id, name, email")
       .eq("id", bookData.seller_id)
-      .single();
+      .maybeSingle();
 
     if (profileError) {
       logError("Error fetching seller profile", profileError);
