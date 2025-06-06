@@ -237,5 +237,6 @@ export const deleteBook = async (bookId: string): Promise<void> => {
   } catch (error) {
     console.error("Error in deleteBook:", error);
     handleBookServiceError(error, "delete book");
+    throw error; // This line will never be reached due to handleBookServiceError throwing, but TypeScript needs it
   }
 };
