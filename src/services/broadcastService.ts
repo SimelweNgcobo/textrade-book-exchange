@@ -29,16 +29,15 @@ export const createBroadcastMessage = async (messageData: BroadcastMessageData):
       throw new Error('User must be authenticated to create broadcasts');
     }
 
+    // For now, store in notifications table as a workaround
     const { error } = await supabase
-      .from('broadcast_messages')
+      .from('notifications')
       .insert({
+        user_id: user.id,
         title: messageData.title || 'Announcement',
         message: messageData.message,
-        is_global: messageData.is_global ?? true,
-        target_user_ids: messageData.target_user_ids || [],
-        created_by: user.id,
-        expires_at: messageData.expires_at || null,
-        is_active: true
+        type: 'broadcast',
+        read: false
       });
 
     if (error) {
@@ -54,10 +53,10 @@ export const createBroadcastMessage = async (messageData: BroadcastMessageData):
 export const getActiveBroadcastMessages = async (): Promise<BroadcastMessage[]> => {
   try {
     const { data, error } = await supabase
-      .from('broadcast_messages')
+      .from('notifications')
       .select('*')
-      .eq('is_active', true)
-      .or(`expires_at.is.null,expires_at.gt.${new Date().toISOString()}`)
+      .eq('type', 'broadcast')
+      .eq('read', false)
       .order('created_at', { ascending: false });
 
     if (error) {
@@ -65,7 +64,18 @@ export const getActiveBroadcastMessages = async (): Promise<BroadcastMessage[]> 
       throw error;
     }
 
-    return data || [];
+    // Transform notifications to broadcast message format
+    return (data || []).map(notification => ({
+      id: notification.id,
+      title: notification.title,
+      message: notification.message,
+      is_global: true,
+      target_user_ids: [],
+      created_by: notification.user_id,
+      created_at: notification.created_at,
+      expires_at: null,
+      is_active: !notification.read
+    }));
   } catch (error) {
     console.error('Error in getActiveBroadcastMessages:', error);
     return [];
@@ -75,8 +85,8 @@ export const getActiveBroadcastMessages = async (): Promise<BroadcastMessage[]> 
 export const dismissBroadcastMessage = async (messageId: string): Promise<void> => {
   try {
     const { error } = await supabase
-      .from('broadcast_messages')
-      .update({ is_active: false })
+      .from('notifications')
+      .update({ read: true })
       .eq('id', messageId);
 
     if (error) {

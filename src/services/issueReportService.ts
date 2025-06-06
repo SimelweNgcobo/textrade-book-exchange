@@ -26,15 +26,17 @@ export const submitIssueReport = async (reportData: IssueReportData): Promise<vo
   try {
     const { data: { user } } = await supabase.auth.getUser();
     
+    // For now, store in reports table as a workaround
     const { error } = await supabase
-      .from('issue_reports')
+      .from('reports')
       .insert({
-        user_id: user?.id || null,
-        name: reportData.name,
-        email: reportData.email,
-        category: reportData.category,
-        description: reportData.description,
-        status: 'open'
+        reporter_user_id: user?.id || null,
+        reported_user_id: user?.id || null, // Temporary field
+        book_id: null,
+        book_title: reportData.category,
+        seller_name: reportData.name,
+        reason: reportData.description,
+        status: 'pending'
       });
 
     if (error) {
@@ -50,7 +52,7 @@ export const submitIssueReport = async (reportData: IssueReportData): Promise<vo
 export const getAllIssueReports = async (): Promise<IssueReport[]> => {
   try {
     const { data, error } = await supabase
-      .from('issue_reports')
+      .from('reports')
       .select('*')
       .order('created_at', { ascending: false });
 
@@ -59,7 +61,19 @@ export const getAllIssueReports = async (): Promise<IssueReport[]> => {
       throw error;
     }
 
-    return data || [];
+    // Transform reports to issue report format
+    return (data || []).map(report => ({
+      id: report.id,
+      user_id: report.reporter_user_id,
+      name: report.seller_name,
+      email: '', // Not available in reports table
+      category: report.book_title,
+      description: report.reason,
+      status: report.status === 'pending' ? 'open' : 'resolved',
+      created_at: report.created_at,
+      updated_at: report.updated_at,
+      admin_notes: ''
+    }));
   } catch (error) {
     console.error('Error in getAllIssueReports:', error);
     throw new Error('Failed to fetch issue reports');
@@ -72,12 +86,11 @@ export const updateIssueReportStatus = async (
   adminNotes?: string
 ): Promise<void> => {
   try {
-    const updateData: any = { status };
-    if (adminNotes) updateData.admin_notes = adminNotes;
+    const reportStatus = status === 'resolved' ? 'resolved' : 'pending';
 
     const { error } = await supabase
-      .from('issue_reports')
-      .update(updateData)
+      .from('reports')
+      .update({ status: reportStatus })
       .eq('id', reportId);
 
     if (error) {
