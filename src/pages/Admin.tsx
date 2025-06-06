@@ -137,9 +137,9 @@ const Admin = () => {
         </div>
 
         <div className="bg-white rounded-lg shadow-md p-4 md:p-6">
-          <AppErrorBoundary>
+          <ErrorBoundary level="component">
             <AdminDashboard />
-          </AppErrorBoundary>
+          </ErrorBoundary>
         </div>
       </div>
     </Layout>
