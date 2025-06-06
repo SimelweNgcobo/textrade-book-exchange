@@ -190,7 +190,10 @@ export const getUserBooks = async (userId: string): Promise<Book[]> => {
       .single();
 
     if (profileError) {
-      console.error("Error fetching user profile:", profileError);
+      console.error(
+        "Error fetching user profile:",
+        profileError.message || profileError,
+      );
       // Continue without profile data
     }
 
