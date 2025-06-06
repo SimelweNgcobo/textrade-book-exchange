@@ -18,7 +18,7 @@ export const getUserStats = async (
       .from("profiles")
       .select("addresses_same")
       .eq("id", userId)
-      .single();
+      .maybeSingle();
 
     if (profileError) {
       logError("Error fetching user profile", profileError);
