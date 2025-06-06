@@ -1,12 +1,13 @@
-import { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
-import Layout from '@/components/Layout';
-import BookFilters from '@/components/book-listing/BookFilters';
-import BookGrid from '@/components/book-listing/BookGrid';
-import SystemHealthCheck from '@/components/SystemHealthCheck';
-import { getBooks } from '@/services/book/bookQueries';
-import { Book } from '@/types/book';
-import { toast } from 'sonner';
+import { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
+import Layout from "@/components/Layout";
+import SEO from "@/components/SEO";
+import BookFilters from "@/components/book-listing/BookFilters";
+import BookGrid from "@/components/book-listing/BookGrid";
+import SystemHealthCheck from "@/components/SystemHealthCheck";
+import { getBooks } from "@/services/book/bookQueries";
+import { Book } from "@/types/book";
+import { toast } from "sonner";
 
 const BookListing = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -14,37 +15,43 @@ const BookListing = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [showFilters, setShowFilters] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  
+
   // Filter states
-  const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || '');
-  const [selectedCategory, setSelectedCategory] = useState(searchParams.get('category') || '');
-  const [selectedCondition, setSelectedCondition] = useState('');
-  const [selectedGrade, setSelectedGrade] = useState('');
-  const [selectedUniversityYear, setSelectedUniversityYear] = useState('');
+  const [searchQuery, setSearchQuery] = useState(
+    searchParams.get("search") || "",
+  );
+  const [selectedCategory, setSelectedCategory] = useState(
+    searchParams.get("category") || "",
+  );
+  const [selectedCondition, setSelectedCondition] = useState("");
+  const [selectedGrade, setSelectedGrade] = useState("");
+  const [selectedUniversityYear, setSelectedUniversityYear] = useState("");
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 1000]);
-  const [bookType, setBookType] = useState<'all' | 'school' | 'university'>('all');
-  
+  const [bookType, setBookType] = useState<"all" | "school" | "university">(
+    "all",
+  );
+
   useEffect(() => {
-    console.log('BookListing component mounted');
+    console.log("BookListing component mounted");
     loadBooks();
   }, []);
 
   useEffect(() => {
-    console.log('Search params changed:', Object.fromEntries(searchParams));
+    console.log("Search params changed:", Object.fromEntries(searchParams));
     loadBooks();
   }, [searchParams]);
-  
+
   const loadBooks = async () => {
-    console.log('Loading books...');
+    console.log("Loading books...");
     setIsLoading(true);
     setError(null);
-    
+
     try {
-      const searchQuery = searchParams.get('search') || '';
-      const category = searchParams.get('category') || '';
-      const grade = searchParams.get('grade') || '';
-      const universityYear = searchParams.get('universityYear') || '';
-      
+      const searchQuery = searchParams.get("search") || "";
+      const category = searchParams.get("category") || "";
+      const grade = searchParams.get("grade") || "";
+      const universityYear = searchParams.get("universityYear") || "";
+
       const filters: {
         search?: string;
         category?: string;
@@ -54,63 +61,67 @@ const BookListing = () => {
         minPrice?: number;
         maxPrice?: number;
       } = {};
-      
+
       if (searchQuery) filters.search = searchQuery;
       if (category) filters.category = category;
       if (selectedCondition) filters.condition = selectedCondition;
       if (grade) filters.grade = grade;
       if (universityYear) filters.universityYear = universityYear;
-      
+
       if (priceRange[0] > 0) filters.minPrice = priceRange[0];
       if (priceRange[1] < 1000) filters.maxPrice = priceRange[1];
-      
-      console.log('Applied filters:', filters);
-      
+
+      console.log("Applied filters:", filters);
+
       const loadedBooks = await getBooks(filters);
-      console.log('Loaded books count:', loadedBooks.length);
+      console.log("Loaded books count:", loadedBooks.length);
       setBooks(loadedBooks);
-      
+
       if (loadedBooks.length === 0) {
-        console.log('No books found with current filters');
+        console.log("No books found with current filters");
       }
     } catch (error) {
-      console.error('Error loading books:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Failed to load books. Please try again.';
+      console.error("Error loading books:", error);
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : "Failed to load books. Please try again.";
       setError(errorMessage);
       toast.error(errorMessage);
     } finally {
       setIsLoading(false);
     }
   };
-  
+
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Search submitted with query:', searchQuery);
+    console.log("Search submitted with query:", searchQuery);
     updateFilters();
   };
-  
+
   const updateFilters = () => {
-    console.log('Updating filters...');
+    console.log("Updating filters...");
     const params = new URLSearchParams();
-    
-    if (searchQuery) params.set('search', searchQuery);
-    if (selectedCategory) params.set('category', selectedCategory);
-    if (selectedGrade) params.set('grade', selectedGrade);
-    if (selectedUniversityYear) params.set('universityYear', selectedUniversityYear);
-    
+
+    if (searchQuery) params.set("search", searchQuery);
+    if (selectedCategory) params.set("category", selectedCategory);
+    if (selectedGrade) params.set("grade", selectedGrade);
+    if (selectedUniversityYear)
+      params.set("universityYear", selectedUniversityYear);
+
     setSearchParams(params);
     loadBooks();
   };
-  
+
   const clearFilters = () => {
-    console.log('Clearing all filters');
-    setSearchQuery('');
-    setSelectedCategory('');
-    setSelectedCondition('');
-    setSelectedGrade('');
-    setSelectedUniversityYear('');
+    console.log("Clearing all filters");
+    setSearchQuery("");
+    setSelectedCategory("");
+    setSelectedCondition("");
+    setSelectedGrade("");
+    setSelectedUniversityYear("");
     setPriceRange([0, 1000]);
-    setBookType('all');
+    setBookType("all");
     setSearchParams({});
     loadBooks();
   };
@@ -121,9 +132,11 @@ const BookListing = () => {
         <div className="container mx-auto px-4 py-8">
           <SystemHealthCheck />
           <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
-            <h2 className="text-xl font-semibold text-red-800 mb-2">Error Loading Books</h2>
+            <h2 className="text-xl font-semibold text-red-800 mb-2">
+              Error Loading Books
+            </h2>
             <p className="text-red-600 mb-4">{error}</p>
-            <button 
+            <button
               onClick={loadBooks}
               className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
             >
@@ -134,13 +147,13 @@ const BookListing = () => {
       </Layout>
     );
   }
-  
+
   return (
     <Layout>
       <div className="container mx-auto px-4 py-8">
         <SystemHealthCheck />
         <h1 className="text-3xl font-bold text-book-800 mb-8">Browse Books</h1>
-        
+
         <div className="flex flex-col lg:flex-row gap-8">
           <BookFilters
             searchQuery={searchQuery}
@@ -161,51 +174,53 @@ const BookListing = () => {
             setShowFilters={setShowFilters}
             onSearch={(e) => {
               e.preventDefault();
-              console.log('Search submitted with query:', searchQuery);
+              console.log("Search submitted with query:", searchQuery);
               const params = new URLSearchParams();
-              if (searchQuery) params.set('search', searchQuery);
-              if (selectedCategory) params.set('category', selectedCategory);
-              if (selectedGrade) params.set('grade', selectedGrade);
-              if (selectedUniversityYear) params.set('universityYear', selectedUniversityYear);
+              if (searchQuery) params.set("search", searchQuery);
+              if (selectedCategory) params.set("category", selectedCategory);
+              if (selectedGrade) params.set("grade", selectedGrade);
+              if (selectedUniversityYear)
+                params.set("universityYear", selectedUniversityYear);
               setSearchParams(params);
               loadBooks();
             }}
             onUpdateFilters={() => {
-              console.log('Updating filters...');
+              console.log("Updating filters...");
               const params = new URLSearchParams();
-              if (searchQuery) params.set('search', searchQuery);
-              if (selectedCategory) params.set('category', selectedCategory);
-              if (selectedGrade) params.set('grade', selectedGrade);
-              if (selectedUniversityYear) params.set('universityYear', selectedUniversityYear);
+              if (searchQuery) params.set("search", searchQuery);
+              if (selectedCategory) params.set("category", selectedCategory);
+              if (selectedGrade) params.set("grade", selectedGrade);
+              if (selectedUniversityYear)
+                params.set("universityYear", selectedUniversityYear);
               setSearchParams(params);
               loadBooks();
             }}
             onClearFilters={() => {
-              console.log('Clearing all filters');
-              setSearchQuery('');
-              setSelectedCategory('');
-              setSelectedCondition('');
-              setSelectedGrade('');
-              setSelectedUniversityYear('');
+              console.log("Clearing all filters");
+              setSearchQuery("");
+              setSelectedCategory("");
+              setSelectedCondition("");
+              setSelectedGrade("");
+              setSelectedUniversityYear("");
               setPriceRange([0, 1000]);
-              setBookType('all');
+              setBookType("all");
               setSearchParams({});
               loadBooks();
             }}
           />
-          
+
           <BookGrid
             books={books}
             isLoading={isLoading}
             onClearFilters={() => {
-              console.log('Clearing all filters');
-              setSearchQuery('');
-              setSelectedCategory('');
-              setSelectedCondition('');
-              setSelectedGrade('');
-              setSelectedUniversityYear('');
+              console.log("Clearing all filters");
+              setSearchQuery("");
+              setSelectedCategory("");
+              setSelectedCondition("");
+              setSelectedGrade("");
+              setSelectedUniversityYear("");
               setPriceRange([0, 1000]);
-              setBookType('all');
+              setBookType("all");
               setSearchParams({});
               loadBooks();
             }}
