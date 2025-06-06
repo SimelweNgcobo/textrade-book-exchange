@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Layout from "@/components/Layout";
 import SEO from "@/components/SEO";
-import HealthCheck from "@/components/HealthCheck";
 import { Button } from "@/components/ui/button";
 import { getBooks } from "@/services/book/bookQueries";
 import { Book } from "@/types/book";
@@ -303,13 +302,6 @@ const Index = () => {
               Browse Books
             </Button>
           </div>
-        </div>
-      </section>
-
-      {/* Temporary Health Check */}
-      <section className="py-8 bg-gray-50">
-        <div className="container mx-auto px-4">
-          <HealthCheck />
         </div>
       </section>
     </Layout>
