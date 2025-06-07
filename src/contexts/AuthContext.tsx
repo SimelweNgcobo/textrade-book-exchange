@@ -60,6 +60,26 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
   const isAuthenticated = !!user;
   const isAdmin = profile?.isAdmin || false;
 
+  // Define handleAuthStateChange first since other functions depend on it
+  const handleAuthStateChange = useCallback(
+    async (session: Session) => {
+      try {
+        setSession(session);
+        setUser(session.user);
+
+        if (session.user) {
+          const userProfile = await fetchUserProfile(session.user);
+          setProfile(userProfile);
+          console.log("Auth state updated successfully");
+        }
+      } catch (error) {
+        console.error("Error handling auth state change:", error);
+        handleError(error, "Authentication State Change");
+      }
+    },
+    [handleError],
+  );
+
   const initializeAuth = useCallback(async () => {
     try {
       const {
@@ -79,7 +99,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
     } finally {
       setIsLoading(false);
     }
-  }, [handleError]);
+  }, [handleError, handleAuthStateChange]);
 
   const setupAuthListener = useCallback(() => {
     const {
@@ -105,25 +125,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
       subscription.unsubscribe();
     };
   }, [handleAuthStateChange]);
-
-  const handleAuthStateChange = useCallback(
-    async (session: Session) => {
-      try {
-        setSession(session);
-        setUser(session.user);
-
-        if (session.user) {
-          const userProfile = await fetchUserProfile(session.user);
-          setProfile(userProfile);
-          console.log("Auth state updated successfully");
-        }
-      } catch (error) {
-        console.error("Error handling auth state change:", error);
-        handleError(error, "Authentication State Change");
-      }
-    },
-    [handleError],
-  );
 
   const handleSignOut = () => {
     console.log("Handling sign out");
