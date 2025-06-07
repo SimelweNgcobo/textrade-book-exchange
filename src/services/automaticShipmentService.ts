@@ -53,7 +53,6 @@ export const getUserProfileWithAddresses = async (
         id,
         name,
         email,
-        phone,
         pickup_address,
         shipping_address,
         addresses_same
