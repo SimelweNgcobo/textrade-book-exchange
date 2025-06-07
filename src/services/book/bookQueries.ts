@@ -211,7 +211,7 @@ export const getUserBooks = async (userId: string): Promise<Book[]> => {
     return booksData.map((book: any) => {
       const bookData: BookQueryResult = {
         ...book,
-        profiles: book.profiles || {
+        profiles: book.seller || {
           id: userId,
           name: "Anonymous",
           email: "",
