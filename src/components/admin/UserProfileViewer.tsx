@@ -97,6 +97,18 @@ const UserProfileViewer = ({
         {isLoading ? (
           <div className="flex items-center justify-center py-8">
             <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div>
+            <span className="ml-2">Loading user profile...</span>
+          </div>
+        ) : error ? (
+          <div className="text-center py-8">
+            <p className="text-red-500 mb-2">{error}</p>
+            <Button
+              onClick={() => userId && loadUserProfile(userId)}
+              variant="outline"
+              size="sm"
+            >
+              Try Again
+            </Button>
           </div>
         ) : user ? (
           <div className="space-y-6">
