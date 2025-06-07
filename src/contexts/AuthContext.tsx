@@ -203,7 +203,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
     }
   };
 
-  const loadUserStats = async () => {
+  const loadUserStats = useCallback(async () => {
     if (!user) return;
 
     try {
@@ -212,9 +212,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
     } catch (error) {
       console.error("Error loading user stats:", error);
     }
-  };
+  }, [user]);
 
-  const updateUserActivity = async () => {
+  const updateUserActivity = useCallback(async () => {
     if (!user) return;
 
     try {
@@ -222,7 +222,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
     } catch (error) {
       console.error("Error updating last active:", error);
     }
-  };
+  }, [user]);
 
   const checkAdminStatus = async (userId: string): Promise<boolean> => {
     try {
