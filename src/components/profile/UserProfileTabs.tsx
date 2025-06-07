@@ -78,64 +78,83 @@ const UserProfileTabs = ({
                 </div>
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                  {activeListings.map((book) => (
-                    <div
-                      key={book.id}
-                      className="border rounded-lg p-4 hover:shadow-md transition-shadow"
-                    >
-                      <img
-                        src={book.frontCover || book.imageUrl}
-                        alt={book.title}
-                        className="w-full h-32 object-cover rounded mb-3"
-                      />
-                      <h4 className="font-semibold text-sm truncate">
-                        {book.title}
-                      </h4>
-                      <p className="text-xs text-gray-600 truncate">
-                        by {book.author}
-                      </p>
-                      <p className="text-sm font-bold text-book-600 mt-2">
-                        R{book.price}
-                      </p>
+                  {activeListings.map((book) => {
+                    const isUnavailable =
+                      (book as any).status === "unavailable";
 
-                      <div className="mt-3 space-y-2">
-                        <Button
-                          onClick={() =>
-                            window.open(`/books/${book.id}`, "_blank")
-                          }
-                          variant="outline"
-                          size="sm"
-                          className="w-full text-xs"
-                        >
-                          <Eye className="h-3 w-3 mr-1" />
-                          View Book
-                        </Button>
+                    if (isUnavailable) {
+                      return (
+                        <UnavailableBookCard
+                          key={book.id}
+                          book={book}
+                          onEdit={isOwnProfile ? onEditBook : undefined}
+                          onDelete={isOwnProfile ? onDeleteBook : undefined}
+                          isOwnProfile={isOwnProfile}
+                        />
+                      );
+                    }
 
-                        {isOwnProfile && (
-                          <div className="grid grid-cols-2 gap-2">
-                            <Button
-                              onClick={() => onEditBook(book.id)}
-                              variant="outline"
-                              size="sm"
-                              className="text-xs"
-                            >
-                              <Edit className="h-3 w-3 mr-1" />
-                              Edit
-                            </Button>
-                            <Button
-                              onClick={() => onDeleteBook(book.id, book.title)}
-                              variant="destructive"
-                              size="sm"
-                              className="text-xs"
-                            >
-                              <Trash2 className="h-3 w-3 mr-1" />
-                              Delete
-                            </Button>
-                          </div>
-                        )}
+                    return (
+                      <div
+                        key={book.id}
+                        className="border rounded-lg p-4 hover:shadow-md transition-shadow"
+                      >
+                        <img
+                          src={book.frontCover || book.imageUrl}
+                          alt={book.title}
+                          className="w-full h-32 object-cover rounded mb-3"
+                        />
+                        <h4 className="font-semibold text-sm truncate">
+                          {book.title}
+                        </h4>
+                        <p className="text-xs text-gray-600 truncate">
+                          by {book.author}
+                        </p>
+                        <p className="text-sm font-bold text-book-600 mt-2">
+                          R{book.price}
+                        </p>
+
+                        <div className="mt-3 space-y-2">
+                          <Button
+                            onClick={() =>
+                              window.open(`/books/${book.id}`, "_blank")
+                            }
+                            variant="outline"
+                            size="sm"
+                            className="w-full text-xs"
+                          >
+                            <Eye className="h-3 w-3 mr-1" />
+                            View Book
+                          </Button>
+
+                          {isOwnProfile && (
+                            <div className="grid grid-cols-2 gap-2">
+                              <Button
+                                onClick={() => onEditBook(book.id)}
+                                variant="outline"
+                                size="sm"
+                                className="text-xs"
+                              >
+                                <Edit className="h-3 w-3 mr-1" />
+                                Edit
+                              </Button>
+                              <Button
+                                onClick={() =>
+                                  onDeleteBook(book.id, book.title)
+                                }
+                                variant="destructive"
+                                size="sm"
+                                className="text-xs"
+                              >
+                                <Trash2 className="h-3 w-3 mr-1" />
+                                Delete
+                              </Button>
+                            </div>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </CardContent>
