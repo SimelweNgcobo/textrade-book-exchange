@@ -151,14 +151,26 @@ const Profile = () => {
       return;
     }
 
+    // Add book to deleting set
+    setDeletingBooks((prev) => new Set(prev).add(bookId));
+
     try {
       console.log("Deleting book:", bookId);
       await deleteBook(bookId);
       toast.success("Book deleted successfully");
       await loadActiveListings();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error deleting book:", error);
-      toast.error(error.message || "Failed to delete book");
+      const errorMsg =
+        error instanceof Error ? error.message : "Failed to delete book";
+      toast.error(errorMsg);
+    } finally {
+      // Remove book from deleting set
+      setDeletingBooks((prev) => {
+        const newSet = new Set(prev);
+        newSet.delete(bookId);
+        return newSet;
+      });
     }
   };
 
