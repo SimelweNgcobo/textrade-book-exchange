@@ -4,6 +4,7 @@ import { BookFilters, BookQueryResult } from "./bookTypes";
 import { mapBookFromDatabase } from "./bookMapper";
 import { handleBookServiceError } from "./bookErrorHandler";
 import { logError, getErrorMessage } from "@/utils/errorUtils";
+import { logDatabaseError, logQueryDebug } from "@/utils/debugUtils";
 
 export const getBooks = async (filters?: BookFilters): Promise<Book[]> => {
   try {
