@@ -79,18 +79,7 @@ const BookDetails = () => {
       return;
     }
 
-    addToCart({
-      id: book.id,
-      bookId: book.id,
-      title: book.title,
-      author: book.author,
-      price: book.price,
-      imageUrl: book.frontCover || book.imageUrl,
-      sellerId: book.seller?.id || "",
-      sellerName: book.seller?.name || "Unknown Seller",
-    });
-
-    toast.success("Book added to cart!");
+    addToCart(book);
   };
 
   const handleEditBook = () => {
