@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
-interface UseOAuthRedirectOptions {
+interface OAuthRedirectHandlerProps {
   /** Optional redirect path after successful OAuth authentication */
   redirectTo?: string;
   /** Whether to show toast notifications */
@@ -15,17 +15,15 @@ interface UseOAuthRedirectOptions {
 }
 
 /**
- * Custom hook to handle OAuth redirect with token hash fragment
- * Extracts access_token and refresh_token from URL hash and sets the session
+ * Component to handle OAuth redirect with token hash fragment
+ * Extracts tokens from URL hash and sets the Supabase session
  */
-export const useOAuthRedirect = (options: UseOAuthRedirectOptions = {}) => {
-  const {
-    redirectTo = "/",
-    showNotifications = true,
-    successMessage = "Login successful! Welcome to ReBooked Solutions!",
-    errorMessage = "Authentication failed. Please try again.",
-  } = options;
-
+export const OAuthRedirectHandler: React.FC<OAuthRedirectHandlerProps> = ({
+  redirectTo = "/",
+  showNotifications = true,
+  successMessage = "Login successful! Welcome to ReBooked Solutions!",
+  errorMessage = "Authentication failed. Please try again.",
+}) => {
   const navigate = useNavigate();
   const hasProcessed = useRef(false);
 
@@ -126,3 +124,5 @@ export const useOAuthRedirect = (options: UseOAuthRedirectOptions = {}) => {
 
   return null;
 };
+
+export default OAuthRedirectHandler;
