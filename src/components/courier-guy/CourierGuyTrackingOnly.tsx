@@ -194,87 +194,25 @@ const CourierGuyTrackingOnly = () => {
         </Card>
       )}
 
-      {/* User's Shipments */}
-      {user && userShipments.length > 0 && (
+      {/* User's Shipments - Will be implemented when shipments table is created */}
+      {user && (
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center">
               <Package className="mr-2 h-5 w-5" />
-              Your Recent Shipments
+              Your Shipments
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              {userShipments.map((shipment, index) => (
-                <div key={index} className="border rounded-lg p-4">
-                  <div className="flex items-start justify-between mb-3">
-                    <div>
-                      <h4 className="font-medium">{shipment.book?.title}</h4>
-                      <p className="text-sm text-gray-600">
-                        by {shipment.book?.author}
-                      </p>
-                    </div>
-                    <Badge className={getStatusColor(shipment.status)}>
-                      {getStatusIcon(shipment.status)}
-                      <span className="ml-1">
-                        {shipment.status || "Unknown"}
-                      </span>
-                    </Badge>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-                    <div>
-                      <span className="font-medium">Tracking:</span>
-                      <p className="text-gray-600">
-                        {shipment.tracking_number}
-                      </p>
-                    </div>
-                    <div>
-                      <span className="font-medium">Reference:</span>
-                      <p className="text-gray-600">{shipment.reference}</p>
-                    </div>
-                    <div>
-                      <span className="font-medium">Created:</span>
-                      <p className="text-gray-600">
-                        {new Date(shipment.created_at).toLocaleDateString()}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="mt-3 pt-3 border-t">
-                    <div className="flex items-center justify-between text-sm">
-                      <span>
-                        {shipment.seller_id === user.id
-                          ? "Selling to"
-                          : "Buying from"}
-                        :
-                        <strong className="ml-1">
-                          {shipment.seller_id === user.id
-                            ? shipment.buyer?.name
-                            : shipment.seller?.name}
-                        </strong>
-                      </span>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => {
-                          // Scroll to tracking section or open tracking with this number
-                          const trackingSection = document.getElementById(
-                            "courier-guy-tracker",
-                          );
-                          if (trackingSection) {
-                            trackingSection.scrollIntoView({
-                              behavior: "smooth",
-                            });
-                          }
-                        }}
-                      >
-                        Track Package
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              ))}
+            <div className="text-center py-8">
+              <Package className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+              <p className="text-gray-600 mb-2">
+                Shipment history will appear here
+              </p>
+              <p className="text-sm text-gray-500">
+                When automatic shipment creation is enabled, your sent and
+                received packages will be displayed here.
+              </p>
             </div>
           </CardContent>
         </Card>
