@@ -25,6 +25,7 @@ const BookListing = () => {
   const [selectedCondition, setSelectedCondition] = useState("");
   const [selectedGrade, setSelectedGrade] = useState("");
   const [selectedUniversityYear, setSelectedUniversityYear] = useState("");
+  const [selectedUniversity, setSelectedUniversity] = useState("");
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 1000]);
   const [bookType, setBookType] = useState<"all" | "school" | "university">(
     "all",
@@ -119,6 +120,7 @@ const BookListing = () => {
     setSelectedCondition("");
     setSelectedGrade("");
     setSelectedUniversityYear("");
+    setSelectedUniversity("");
     setPriceRange([0, 1000]);
     setBookType("all");
     setSearchParams({});
@@ -169,6 +171,8 @@ const BookListing = () => {
             setSelectedGrade={setSelectedGrade}
             selectedUniversityYear={selectedUniversityYear}
             setSelectedUniversityYear={setSelectedUniversityYear}
+            selectedUniversity={selectedUniversity}
+            setSelectedUniversity={setSelectedUniversity}
             priceRange={priceRange}
             setPriceRange={setPriceRange}
             bookType={bookType}
@@ -205,6 +209,7 @@ const BookListing = () => {
               setSelectedCondition("");
               setSelectedGrade("");
               setSelectedUniversityYear("");
+              setSelectedUniversity("");
               setPriceRange([0, 1000]);
               setBookType("all");
               setSearchParams({});
@@ -222,6 +227,7 @@ const BookListing = () => {
               setSelectedCondition("");
               setSelectedGrade("");
               setSelectedUniversityYear("");
+              setSelectedUniversity("");
               setPriceRange([0, 1000]);
               setBookType("all");
               setSearchParams({});
