@@ -281,7 +281,12 @@ const getAllListingsFallback = async (): Promise<AdminListing[]> => {
       .in("id", sellerIds);
 
     if (profilesError) {
-      console.error("Error fetching profiles:", profilesError);
+      console.error("Error fetching profiles:", {
+        message: profilesError.message,
+        code: profilesError.code,
+        details: profilesError.details,
+        hint: profilesError.hint,
+      });
       // Continue without profiles rather than failing completely
     }
 
