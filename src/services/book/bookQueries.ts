@@ -174,46 +174,11 @@ export const getUserBooks = async (userId: string): Promise<Book[]> => {
       return [];
     }
 
-    // Get books for user with profile in one query using join
-    const { data: booksData, error: booksError } = await supabase
-      .from("books")
-      .select(
-        `
-        *,
-        profiles!seller_id (
-          id,
-          name,
-          email
-        )
-      `,
-      )
-      .eq("seller_id", userId)
-      .order("created_at", { ascending: false });
-
-    if (booksError) {
-      logDatabaseError("getUserBooks - join query", booksError, { userId });
-      // Fallback to separate queries if join fails
-      return await getUserBooksWithFallback(userId);
-    }
-
-    if (!booksData || booksData.length === 0) {
-      console.log("No books found for user:", userId);
-      return [];
-    }
-
-    console.log("User books data:", booksData.length);
-
-    return booksData.map((book: any) => {
-      const bookData: BookQueryResult = {
-        ...book,
-        profiles: book.profiles || {
-          id: userId,
-          name: "Anonymous",
-          email: "",
-        },
-      };
-      return mapBookFromDatabase(bookData);
-    });
+    // Since there's no foreign key relationship, use separate queries directly
+    console.log(
+      "Using separate queries (no foreign key relationship available)",
+    );
+    return await getUserBooksWithFallback(userId);
   } catch (error) {
     console.error("Error in getUserBooks", error);
     // Return fallback data instead of throwing
