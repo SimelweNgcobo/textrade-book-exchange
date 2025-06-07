@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 
 export interface ReportData {
@@ -9,6 +8,39 @@ export interface ReportData {
   sellerName: string;
   reason: string;
 }
+
+export interface GeneralReportData {
+  userId: string | null;
+  name: string;
+  email: string;
+  category: string;
+  subject: string;
+  description: string;
+  priority: string;
+  status: string;
+}
+
+export const submitReport = async (
+  reportData: GeneralReportData,
+): Promise<void> => {
+  try {
+    const { error } = await supabase.from("contact_messages").insert({
+      name: reportData.name,
+      email: reportData.email,
+      subject: `${reportData.category}: ${reportData.subject}`,
+      message: reportData.description,
+      status: reportData.status === "open" ? "unread" : reportData.status,
+    });
+
+    if (error) {
+      console.error("Error submitting general report:", error);
+      throw error;
+    }
+  } catch (error) {
+    console.error("Error in submitReport:", error);
+    throw error;
+  }
+};
 
 export const submitBookReport = async (
   reportData: ReportData,
