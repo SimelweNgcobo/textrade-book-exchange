@@ -20,6 +20,7 @@ import {
   UserX,
 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useState } from "react";
 
 interface Report {
   id: string;
@@ -55,6 +56,9 @@ const ReportActions = ({
   onUserAction,
 }: ReportActionsProps) => {
   const isMobile = useIsMobile();
+  const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
+  const [isBanDialogOpen, setIsBanDialogOpen] = useState(false);
+  const [isSuspendDialogOpen, setIsSuspendDialogOpen] = useState(false);
 
   const getStatusIcon = (status: string) => {
     switch (status) {
@@ -89,22 +93,207 @@ const ReportActions = ({
     );
   }
 
+  const handleDismiss = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    onUpdateStatus(report.id, "dismissed");
+  };
+
+  const handleBanUser = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (actionReason.trim()) {
+      onUserAction(report.reported_user_id, "ban", actionReason);
+      setIsBanDialogOpen(false);
+    }
+  };
+
+  const handleSuspendUser = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (actionReason.trim()) {
+      onUserAction(report.reported_user_id, "suspend", actionReason);
+      setIsSuspendDialogOpen(false);
+    }
+  };
+
+  if (isMobile) {
+    return (
+      <div className="space-y-2 w-full">
+        {/* View Details Button */}
+        <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
+          <DialogTrigger asChild>
+            <Button
+              size="sm"
+              variant="outline"
+              className="w-full"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <Eye className="h-4 w-4 mr-2" />
+              View Details
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="w-[95vw] max-w-none mx-2">
+            <DialogHeader>
+              <DialogTitle>Report Details</DialogTitle>
+              <DialogDescription>
+                Review the report and take appropriate action
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div>
+                <strong>Reported:</strong>{" "}
+                {report.book_id ? report.book_title : report.seller_name}
+              </div>
+              <div>
+                <strong>Reason:</strong>
+                <div className="mt-1 text-sm bg-gray-50 p-2 rounded">
+                  {report.reason}
+                </div>
+              </div>
+              <div>
+                <strong>Date:</strong>{" "}
+                {new Date(report.created_at).toLocaleString()}
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Action Buttons Row */}
+        <div className="grid grid-cols-3 gap-2">
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={handleDismiss}
+            disabled={isSubmitting}
+            className="text-xs"
+          >
+            <X className="h-3 w-3 mr-1" />
+            Dismiss
+          </Button>
+
+          <Dialog open={isBanDialogOpen} onOpenChange={setIsBanDialogOpen}>
+            <DialogTrigger asChild>
+              <Button
+                size="sm"
+                variant="destructive"
+                className="text-xs"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <Ban className="h-3 w-3 mr-1" />
+                Ban
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="w-[95vw] max-w-none mx-2">
+              <DialogHeader>
+                <DialogTitle>Ban User</DialogTitle>
+                <DialogDescription>
+                  Provide a reason for banning this user. This action cannot be
+                  undone.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4">
+                <Textarea
+                  placeholder="Enter reason for banning..."
+                  value={actionReason}
+                  onChange={(e) => setActionReason(e.target.value)}
+                  className="min-h-[100px]"
+                />
+              </div>
+              <DialogFooter className="flex-col gap-2">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setActionReason("");
+                    setIsBanDialogOpen(false);
+                  }}
+                  className="w-full"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  variant="destructive"
+                  disabled={!actionReason.trim() || isSubmitting}
+                  onClick={handleBanUser}
+                  className="w-full"
+                >
+                  {isSubmitting ? "Banning..." : "Ban User"}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+
+          <Dialog
+            open={isSuspendDialogOpen}
+            onOpenChange={setIsSuspendDialogOpen}
+          >
+            <DialogTrigger asChild>
+              <Button
+                size="sm"
+                className="bg-orange-600 hover:bg-orange-700 text-xs"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <UserX className="h-3 w-3 mr-1" />
+                Suspend
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="w-[95vw] max-w-none mx-2">
+              <DialogHeader>
+                <DialogTitle>Suspend User</DialogTitle>
+                <DialogDescription>
+                  Provide a reason for suspending this user. They can be
+                  reinstated later.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4">
+                <Textarea
+                  placeholder="Enter reason for suspension..."
+                  value={actionReason}
+                  onChange={(e) => setActionReason(e.target.value)}
+                  className="min-h-[100px]"
+                />
+              </div>
+              <DialogFooter className="flex-col gap-2">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setActionReason("");
+                    setIsSuspendDialogOpen(false);
+                  }}
+                  className="w-full"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  className="bg-orange-600 hover:bg-orange-700 w-full"
+                  disabled={!actionReason.trim() || isSubmitting}
+                  onClick={handleSuspendUser}
+                >
+                  {isSubmitting ? "Suspending..." : "Suspend User"}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        </div>
+      </div>
+    );
+  }
+
+  // Desktop layout
   return (
-    <div
-      className={`flex ${isMobile ? "flex-col gap-2" : "gap-2"} ${isMobile ? "w-full" : ""}`}
-    >
-      <Dialog>
+    <div className="flex gap-2 items-center">
+      <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
         <DialogTrigger asChild>
           <Button
             size="sm"
             variant="outline"
-            className={isMobile ? "w-full" : ""}
+            onClick={(e) => e.stopPropagation()}
           >
             <Eye className="h-4 w-4 mr-1" />
-            {isMobile ? "View Details" : "View"}
+            View
           </Button>
         </DialogTrigger>
-        <DialogContent className={isMobile ? "w-[95vw] max-w-none" : ""}>
+        <DialogContent>
           <DialogHeader>
             <DialogTitle>Report Details</DialogTitle>
             <DialogDescription>
@@ -117,7 +306,10 @@ const ReportActions = ({
               {report.book_id ? report.book_title : report.seller_name}
             </div>
             <div>
-              <strong>Reason:</strong> {report.reason}
+              <strong>Reason:</strong>
+              <div className="mt-1 text-sm bg-gray-50 p-2 rounded">
+                {report.reason}
+              </div>
             </div>
             <div>
               <strong>Date:</strong>{" "}
@@ -127,78 +319,76 @@ const ReportActions = ({
         </DialogContent>
       </Dialog>
 
-      <div className={`flex ${isMobile ? "gap-2" : "gap-2"}`}>
-        <Button
-          size="sm"
-          variant="outline"
-          onClick={() => onUpdateStatus(report.id, "dismissed")}
-          className={isMobile ? "flex-1" : ""}
-        >
-          <X className="h-4 w-4 mr-1" />
-          {isMobile ? "Dismiss" : "Dismiss"}
-        </Button>
+      <Button
+        size="sm"
+        variant="outline"
+        onClick={handleDismiss}
+        disabled={isSubmitting}
+      >
+        <X className="h-4 w-4 mr-1" />
+        Dismiss
+      </Button>
 
-        <Dialog>
-          <DialogTrigger asChild>
-            <Button
-              size="sm"
-              variant="destructive"
-              className={isMobile ? "flex-1" : ""}
-            >
-              <Ban className="h-4 w-4 mr-1" />
-              {isMobile ? "Ban" : "Ban"}
-            </Button>
-          </DialogTrigger>
-          <DialogContent className={isMobile ? "w-[95vw] max-w-none" : ""}>
-            <DialogHeader>
-              <DialogTitle>Ban User</DialogTitle>
-              <DialogDescription>
-                Provide a reason for banning this user. This action cannot be
-                undone.
-              </DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4">
-              <Textarea
-                placeholder="Enter reason for banning..."
-                value={actionReason}
-                onChange={(e) => setActionReason(e.target.value)}
-                className="min-h-[100px]"
-              />
-            </div>
-            <DialogFooter className={isMobile ? "flex-col gap-2" : ""}>
-              <Button
-                variant="outline"
-                onClick={() => setActionReason("")}
-                className={isMobile ? "w-full" : ""}
-              >
-                Cancel
-              </Button>
-              <Button
-                variant="destructive"
-                disabled={!actionReason.trim() || isSubmitting}
-                onClick={() =>
-                  onUserAction(report.reported_user_id, "ban", actionReason)
-                }
-                className={isMobile ? "w-full" : ""}
-              >
-                {isSubmitting ? "Banning..." : "Ban User"}
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-      </div>
-
-      <Dialog>
+      <Dialog open={isBanDialogOpen} onOpenChange={setIsBanDialogOpen}>
         <DialogTrigger asChild>
           <Button
             size="sm"
-            className={`bg-orange-600 hover:bg-orange-700 ${isMobile ? "w-full" : ""}`}
+            variant="destructive"
+            onClick={(e) => e.stopPropagation()}
           >
-            <UserX className="h-4 w-4 mr-1" />
-            {isMobile ? "Suspend User" : "Suspend"}
+            <Ban className="h-4 w-4 mr-1" />
+            Ban
           </Button>
         </DialogTrigger>
-        <DialogContent className={isMobile ? "w-[95vw] max-w-none" : ""}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Ban User</DialogTitle>
+            <DialogDescription>
+              Provide a reason for banning this user. This action cannot be
+              undone.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <Textarea
+              placeholder="Enter reason for banning..."
+              value={actionReason}
+              onChange={(e) => setActionReason(e.target.value)}
+              className="min-h-[100px]"
+            />
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setActionReason("");
+                setIsBanDialogOpen(false);
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              disabled={!actionReason.trim() || isSubmitting}
+              onClick={handleBanUser}
+            >
+              {isSubmitting ? "Banning..." : "Ban User"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isSuspendDialogOpen} onOpenChange={setIsSuspendDialogOpen}>
+        <DialogTrigger asChild>
+          <Button
+            size="sm"
+            className="bg-orange-600 hover:bg-orange-700"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <UserX className="h-4 w-4 mr-1" />
+            Suspend
+          </Button>
+        </DialogTrigger>
+        <DialogContent>
           <DialogHeader>
             <DialogTitle>Suspend User</DialogTitle>
             <DialogDescription>
@@ -214,20 +404,20 @@ const ReportActions = ({
               className="min-h-[100px]"
             />
           </div>
-          <DialogFooter className={isMobile ? "flex-col gap-2" : ""}>
+          <DialogFooter>
             <Button
               variant="outline"
-              onClick={() => setActionReason("")}
-              className={isMobile ? "w-full" : ""}
+              onClick={() => {
+                setActionReason("");
+                setIsSuspendDialogOpen(false);
+              }}
             >
               Cancel
             </Button>
             <Button
-              className={`bg-orange-600 hover:bg-orange-700 ${isMobile ? "w-full" : ""}`}
+              className="bg-orange-600 hover:bg-orange-700"
               disabled={!actionReason.trim() || isSubmitting}
-              onClick={() =>
-                onUserAction(report.reported_user_id, "suspend", actionReason)
-              }
+              onClick={handleSuspendUser}
             >
               {isSubmitting ? "Suspending..." : "Suspend User"}
             </Button>
