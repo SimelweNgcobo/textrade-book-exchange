@@ -212,7 +212,7 @@ const AddressEditDialog = ({
                 <Label htmlFor="pickup-postal">Postal Code</Label>
                 <Input
                   id="pickup-postal"
-                  value={pickupAddress.postalCode}
+                  value={pickupAddress.postalCode || ""}
                   onChange={(e) =>
                     setPickupAddress((prev) => ({
                       ...prev,
