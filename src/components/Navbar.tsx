@@ -139,6 +139,14 @@ const Navbar = () => {
               >
                 Browse Books
               </Link>
+              <Link
+                to="/shipping"
+                className="flex items-center text-gray-700 hover:text-book-600 px-3 py-2 transition-colors"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                <Truck className="h-4 w-4 mr-1" />
+                Shipping
+              </Link>
 
               {isAuthenticated ? (
                 <>
