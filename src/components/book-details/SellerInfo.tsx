@@ -13,12 +13,14 @@ interface SellerInfoProps {
 }
 
 const SellerInfo = ({ seller, onViewProfile }: SellerInfoProps) => {
+  console.log("SellerInfo received seller data:", seller);
+  
   return (
     <Card>
       <CardContent className="p-4">
         <div className="flex items-center justify-between">
           <div>
-            <p className="font-semibold">Seller: {seller?.name || 'Anonymous'}</p>
+            <p className="font-semibold">Seller: {seller?.name || 'Loading...'}</p>
             <p className="text-sm text-gray-600">
               Member since {new Date().getFullYear()}
             </p>

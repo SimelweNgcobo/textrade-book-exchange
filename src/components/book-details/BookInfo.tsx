@@ -46,19 +46,8 @@ const BookInfo = ({ book }: BookInfoProps) => {
               </div>
             )}
           </div>
-          {book.description && (
-            <div>
-              <span className="font-medium">Description:</span>
-              <p className="text-gray-600 mt-1">{book.description}</p>
-            </div>
-          )}
         </CardContent>
       </Card>
-
-      {/* Price */}
-      <div className="bg-book-50 p-4 rounded-lg">
-        <p className="text-2xl md:text-3xl font-bold text-book-600">R{book.price}</p>
-      </div>
     </div>
   );
 };

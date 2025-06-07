@@ -9,6 +9,30 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      api_keys: {
+        Row: {
+          api_key: string
+          created_at: string | null
+          id: number
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          api_key: string
+          created_at?: string | null
+          id?: never
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          api_key?: string
+          created_at?: string | null
+          id?: never
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       books: {
         Row: {
           author: string
@@ -294,6 +318,10 @@ export type Database = {
       delete_user_profile: {
         Args: { user_id: string }
         Returns: undefined
+      }
+      generate_api_key: {
+        Args: { user_id: string }
+        Returns: string
       }
       get_user_profile: {
         Args: { user_id: string }

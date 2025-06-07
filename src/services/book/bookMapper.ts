@@ -5,6 +5,9 @@ import { BookQueryResult } from './bookTypes';
 export const mapBookFromDatabase = (bookData: BookQueryResult): Book => {
   const profile = bookData.profiles;
   
+  console.log("Mapping book data:", bookData);
+  console.log("Profile data:", profile);
+  
   return {
     id: bookData.id,
     title: bookData.title,
@@ -23,7 +26,7 @@ export const mapBookFromDatabase = (bookData: BookQueryResult): Book => {
     universityYear: bookData.university_year,
     seller: {
       id: bookData.seller_id,
-      name: profile?.name || 'Anonymous',
+      name: profile?.name || `User ${bookData.seller_id.slice(0, 8)}`,
       email: profile?.email || ''
     }
   };

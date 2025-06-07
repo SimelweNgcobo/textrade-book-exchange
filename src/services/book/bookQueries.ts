@@ -3,7 +3,7 @@ import { Book } from "@/types/book";
 import { BookFilters, BookQueryResult } from "./bookTypes";
 import { mapBookFromDatabase } from "./bookMapper";
 import { handleBookServiceError } from "./bookErrorHandler";
-import { logError } from "@/utils/errorUtils";
+import { logError, getErrorMessage } from "@/utils/errorUtils";
 
 export const getBooks = async (filters?: BookFilters): Promise<Book[]> => {
   try {
@@ -46,7 +46,7 @@ export const getBooks = async (filters?: BookFilters): Promise<Book[]> => {
     const { data: booksData, error: booksError } = await query;
 
     if (booksError) {
-      console.error("Error fetching books:", booksError);
+      logError("Error fetching books", booksError);
       handleBookServiceError(booksError, "fetch books");
     }
 
@@ -65,7 +65,7 @@ export const getBooks = async (filters?: BookFilters): Promise<Book[]> => {
       .in("id", sellerIds);
 
     if (profilesError) {
-      console.error("Error fetching profiles:", profilesError);
+      logError("Error fetching profiles", profilesError);
       // Continue without profile data rather than failing completely
     }
 
@@ -96,7 +96,7 @@ export const getBooks = async (filters?: BookFilters): Promise<Book[]> => {
     console.log("Processed books:", books.length);
     return books;
   } catch (error) {
-    console.error("Error in getBooks:", error);
+    logError("Error in getBooks", error);
     handleBookServiceError(error, "fetch books");
     return []; // This line will never be reached due to handleBookServiceError throwing, but TypeScript needs it
   }
@@ -114,7 +114,7 @@ export const getBookById = async (id: string): Promise<Book | null> => {
       .single();
 
     if (bookError) {
-      console.error("Error fetching book:", bookError);
+      logError("Error fetching book", bookError);
       if (bookError.code === "PGRST116") {
         return null; // Book not found
       }
@@ -125,6 +125,8 @@ export const getBookById = async (id: string): Promise<Book | null> => {
       console.log("No book found with ID:", id);
       return null;
     }
+
+    console.log("Found book data:", bookData);
 
     // Get seller profile separately - handle case where profile might not exist
     const { data: profileData, error: profileError } = await supabase
@@ -138,7 +140,7 @@ export const getBookById = async (id: string): Promise<Book | null> => {
       // Continue without profile data rather than failing
     }
 
-    console.log("Found book:", bookData);
+    console.log("Found profile data:", profileData);
 
     const bookWithProfile: BookQueryResult = {
       ...bookData,
@@ -151,9 +153,12 @@ export const getBookById = async (id: string): Promise<Book | null> => {
         : null,
     };
 
-    return mapBookFromDatabase(bookWithProfile);
+    const mappedBook = mapBookFromDatabase(bookWithProfile);
+    console.log("Final mapped book:", mappedBook);
+    
+    return mappedBook;
   } catch (error) {
-    console.error("Error in getBookById:", error);
+    logError("Error in getBookById", error);
     handleBookServiceError(error, "fetch book by ID");
     return null; // This line will never be reached due to handleBookServiceError throwing, but TypeScript needs it
   }
@@ -171,7 +176,7 @@ export const getUserBooks = async (userId: string): Promise<Book[]> => {
       .order("created_at", { ascending: false });
 
     if (booksError) {
-      console.error("Error fetching user books:", booksError);
+      logError("Error fetching user books", booksError);
       handleBookServiceError(booksError, "fetch user books");
     }
 
@@ -208,7 +213,7 @@ export const getUserBooks = async (userId: string): Promise<Book[]> => {
       return mapBookFromDatabase(bookData);
     });
   } catch (error) {
-    console.error("Error in getUserBooks:", error);
+    logError("Error in getUserBooks", error);
     handleBookServiceError(error, "fetch user books");
     return []; // This line will never be reached due to handleBookServiceError throwing, but TypeScript needs it
   }
