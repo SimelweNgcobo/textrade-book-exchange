@@ -74,6 +74,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         `Fetching profile for user: ${userId} (attempt ${retryCount + 1})`,
       );
 
+      // First check if we have a valid session
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      if (!session) {
+        console.log("No valid session found while fetching profile");
+        return null;
+      }
+
       const { data, error } = await supabase
         .from("profiles")
         .select("*")
@@ -83,7 +92,36 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       if (error) {
         if (error.code === "PGRST116") {
           console.log("Profile not found for user:", userId);
-          return null;
+          // Create profile if it doesn't exist
+          const { data: newProfile, error: createError } = await supabase
+            .from("profiles")
+            .insert({
+              id: userId,
+              name:
+                session.user?.user_metadata?.name ||
+                session.user?.email?.split("@")[0] ||
+                "Anonymous",
+              email: session.user?.email || "",
+              status: "active",
+            })
+            .select()
+            .single();
+
+          if (createError) {
+            console.error("Error creating profile:", createError);
+            return null;
+          }
+
+          console.log("Created new profile:", newProfile);
+          return {
+            id: newProfile.id,
+            name: newProfile.name || "Anonymous",
+            email: newProfile.email || "",
+            isAdmin: newProfile.is_admin || false,
+            status: newProfile.status || "active",
+            profile_picture_url: newProfile.profile_picture_url,
+            bio: newProfile.bio,
+          };
         }
         throw error;
       }
