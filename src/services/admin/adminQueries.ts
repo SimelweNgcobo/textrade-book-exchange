@@ -255,12 +255,7 @@ const getAllListingsFallback = async (): Promise<AdminListing[]> => {
       .order("created_at", { ascending: false });
 
     if (booksError) {
-      console.error("Error fetching books (fallback):", {
-        message: booksError.message,
-        code: booksError.code,
-        details: booksError.details,
-        hint: booksError.hint,
-      });
+      logDatabaseError("getAllListingsFallback - books query", booksError);
       throw booksError;
     }
 
