@@ -1,4 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { useEffect } from "react";
 import { Toaster } from "sonner";
 import { AuthProvider } from "./contexts/AuthContext";
 import { CartProvider } from "./contexts/CartContext";
@@ -9,6 +10,10 @@ import ErrorBoundary from "./components/ErrorBoundary";
 import OAuthRedirectHandler from "./components/OAuthRedirectHandler";
 import OAuthDebugInfo from "./components/OAuthDebugInfo";
 import DatabaseDebugTest from "./components/DatabaseDebugTest";
+import {
+  addEmergencyResetButton,
+  monitorLoadingStates,
+} from "./utils/emergencyLoadingReset";
 
 // Pages
 import Index from "./pages/Index";
