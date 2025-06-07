@@ -59,7 +59,7 @@ export const logDatabaseError = (
   }
 
   // Log the full error object for complete debugging
-  console.error("Full Error Object:", error);
+  console.error("Full Error Object:", safeStringify(error));
 
   console.groupEnd();
 };
