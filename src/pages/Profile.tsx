@@ -31,6 +31,7 @@ const Profile = () => {
   const [activeListings, setActiveListings] = useState<Book[]>([]);
   const [isLoadingAddress, setIsLoadingAddress] = useState(false);
   const [isLoadingListings, setIsLoadingListings] = useState(true);
+  const [deletingBooks, setDeletingBooks] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     if (user?.id) {
