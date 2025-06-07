@@ -149,9 +149,19 @@ const UserProfileTabs = ({
                                 variant="destructive"
                                 size="sm"
                                 className="text-xs"
+                                disabled={deletingBooks.has(book.id)}
                               >
-                                <Trash2 className="h-3 w-3 mr-1" />
-                                Delete
+                                {deletingBooks.has(book.id) ? (
+                                  <>
+                                    <div className="h-3 w-3 mr-1 animate-spin rounded-full border border-white border-t-transparent" />
+                                    Deleting...
+                                  </>
+                                ) : (
+                                  <>
+                                    <Trash2 className="h-3 w-3 mr-1" />
+                                    Delete
+                                  </>
+                                )}
                               </Button>
                             </div>
                           )}
