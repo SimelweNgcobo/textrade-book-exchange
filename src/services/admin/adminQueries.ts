@@ -201,43 +201,12 @@ export const getAllUsers = async (): Promise<AdminUser[]> => {
 
 export const getAllListings = async (): Promise<AdminListing[]> => {
   try {
-    // First, get all books with seller information in one query
-    const { data: booksWithProfiles, error: booksError } = await supabase
-      .from("books")
-      .select(
-        `
-        id,
-        title,
-        author,
-        price,
-        sold,
-        seller_id,
-        profiles!seller_id (
-          id,
-          name
-        )
-      `,
-      )
-      .order("created_at", { ascending: false });
+    console.log(
+      "Getting all listings with separate queries (no foreign key available)",
+    );
 
-    if (booksError) {
-      logDatabaseError("getAllListings - books with profiles join", booksError);
-      // Fallback to separate queries if the join fails
-      return await getAllListingsFallback();
-    }
-
-    if (!booksWithProfiles || booksWithProfiles.length === 0) return [];
-
-    // Map the results to the expected format
-    return booksWithProfiles.map((book: any) => ({
-      id: book.id,
-      title: book.title,
-      author: book.author,
-      price: book.price,
-      status: book.sold ? "sold" : "active",
-      user: book.profiles?.name || "Anonymous",
-      sellerId: book.seller_id,
-    }));
+    // Since there's no foreign key relationship, use separate queries directly
+    return await getAllListingsFallback();
   } catch (error) {
     console.error("Error in getAllListings:", error);
     // Fallback to separate queries
