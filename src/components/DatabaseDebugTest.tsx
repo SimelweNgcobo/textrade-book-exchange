@@ -242,6 +242,13 @@ export const DatabaseDebugTest = () => {
           >
             Test Join Query
           </Button>
+          <Button
+            onClick={testTableStructure}
+            disabled={isLoading}
+            variant="outline"
+          >
+            Test Table Structure
+          </Button>
         </div>
 
         {isLoading && (
