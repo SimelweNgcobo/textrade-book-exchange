@@ -147,6 +147,7 @@ export const getAllUsers = async (): Promise<AdminUser[]> => {
     const { data: users, error: usersError } = await supabase
       .from("profiles")
       .select("id, name, email, status, created_at")
+      .neq("status", "deleted")
       .order("created_at", { ascending: false });
 
     if (usersError) {
