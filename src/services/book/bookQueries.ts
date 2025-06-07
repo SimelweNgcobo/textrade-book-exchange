@@ -2,7 +2,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { Book } from "@/types/book";
 import { BookFilters, BookQueryResult } from "./bookTypes";
 import { mapBookFromDatabase } from "./bookMapper";
-import { handleBookServiceError } from "./bookErrorHandler";
+import {
+  handleBookServiceError,
+  logBookServiceError,
+} from "./bookErrorHandler";
 import { logError, getErrorMessage } from "@/utils/errorUtils";
 import { logDatabaseError, logQueryDebug } from "@/utils/debugUtils";
 
