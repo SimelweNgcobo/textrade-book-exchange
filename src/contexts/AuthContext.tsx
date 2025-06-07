@@ -170,34 +170,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           }
         });
 
-        // Check for OAuth redirect hash first
-        const hash = window.location.hash.substring(1);
-        if (hash) {
-          const params = new URLSearchParams(hash);
-          const access_token = params.get("access_token");
-          const refresh_token = params.get("refresh_token");
-
-          if (access_token && refresh_token) {
-            console.log("OAuth redirect detected in AuthContext");
-            try {
-              const { data, error } = await supabase.auth.setSession({
-                access_token,
-                refresh_token,
-              });
-
-              if (!error && data.session) {
-                console.log("OAuth session set successfully in AuthContext");
-                // The onAuthStateChange listener will handle the rest
-                // Clean up the hash fragment
-                window.history.replaceState(null, "", window.location.pathname);
-                return;
-              }
-            } catch (oauthError) {
-              console.error("OAuth session error:", oauthError);
-            }
-          }
-        }
-
         // Check for existing session
         const {
           data: { session: initialSession },
