@@ -1,16 +1,15 @@
-
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { UserX, CheckCircle, Eye } from 'lucide-react';
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
 } from '@/components/ui/table';
 import UserProfileViewer from './UserProfileViewer';
 import { AdminUser } from '@/services/admin/adminQueries';
@@ -36,6 +35,65 @@ const AdminUsersTab = ({ users, onUserAction }: AdminUsersTabProps) => {
     setSelectedUserId(null);
   };
 
+  // Mobile Card Component for Users
+  const MobileUserCard = ({ user }: { user: AdminUser }) => (
+    <Card className="mb-4">
+      <CardContent className="p-4">
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <div className="font-medium text-gray-900">{user.name}</div>
+            <Badge variant={user.status === 'active' ? 'default' : 'destructive'} className="text-xs">
+              {user.status}
+            </Badge>
+          </div>
+
+          <div className="text-sm text-gray-600 truncate">
+            {user.email}
+          </div>
+
+          <div className="flex items-center justify-between text-sm text-gray-500">
+            <span>{user.listingsCount} listings</span>
+            <span>Joined: {new Date(user.createdAt).toLocaleDateString()}</span>
+          </div>
+
+          <div className="flex gap-2 pt-2 border-t">
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => handleViewProfile(user.id)}
+              className="flex-1"
+            >
+              <Eye className="h-3 w-3 mr-1" />
+              View Profile
+            </Button>
+
+            {user.status === 'active' ? (
+              <Button
+                size="sm"
+                variant="destructive"
+                onClick={() => onUserAction(user.id, 'suspend')}
+                className="flex-1"
+              >
+                <UserX className="h-3 w-3 mr-1" />
+                Suspend
+              </Button>
+            ) : (
+              <Button
+                size="sm"
+                variant="default"
+                onClick={() => onUserAction(user.id, 'activate')}
+                className="flex-1"
+              >
+                <CheckCircle className="h-3 w-3 mr-1" />
+                Activate
+              </Button>
+            )}
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+
   return (
     <>
       <Card>
@@ -43,9 +101,16 @@ const AdminUsersTab = ({ users, onUserAction }: AdminUsersTabProps) => {
           <CardTitle className="text-lg md:text-xl">User Management</CardTitle>
           <CardDescription className="text-sm">Manage registered users and their accounts</CardDescription>
         </CardHeader>
-        <CardContent className="p-0 md:p-6">
-          <div className="overflow-x-auto">
-            <Table>
+        <CardContent className={isMobile ? "p-4" : "p-0 md:p-6"}>
+          {isMobile ? (
+            <div className="space-y-4">
+              {users.map((user) => (
+                <MobileUserCard key={user.id} user={user} />
+              ))}
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <Table>
               <TableHeader>
                 <TableRow>
                   <TableHead className="text-xs md:text-sm min-w-[100px]">Name</TableHead>
@@ -85,7 +150,7 @@ const AdminUsersTab = ({ users, onUserAction }: AdminUsersTabProps) => {
                           <Eye className="h-3 w-3 md:h-4 md:w-4" />
                           {!isMobile && <span className="ml-1">View</span>}
                         </Button>
-                        
+
                         {user.status === 'active' ? (
                           <Button
                             size="sm"
@@ -117,7 +182,7 @@ const AdminUsersTab = ({ users, onUserAction }: AdminUsersTabProps) => {
         </CardContent>
       </Card>
 
-      <UserProfileViewer 
+      <UserProfileViewer
         userId={selectedUserId}
         isOpen={isProfileViewerOpen}
         onClose={closeProfileViewer}
