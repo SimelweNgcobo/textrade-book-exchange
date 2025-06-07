@@ -3,6 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Flag, UserX, Copy } from "lucide-react";
 import ReportActions from "./ReportActions";
+import { copyEmailToClipboard } from "@/utils/emailCopyUtils";
 
 interface Report {
   id: string;
@@ -41,7 +42,6 @@ interface ModerationTableRowProps {
     reason: string,
   ) => void;
   onUnsuspendUser: (userId: string) => void;
-  copyEmailToClipboard: (email: string) => void;
   getSeverityColor: (reportCount: number) => string;
   getSeverityText: (reportCount: number) => string;
 }
@@ -56,7 +56,6 @@ export const ModerationTableRow = ({
   onUpdateStatus,
   onUserAction,
   onUnsuspendUser,
-  copyEmailToClipboard,
   getSeverityColor,
   getSeverityText,
 }: ModerationTableRowProps) => {
