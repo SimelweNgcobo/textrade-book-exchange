@@ -40,6 +40,7 @@ interface BookDetails {
 
 /**
  * Get user profile with address information
+ * Note: Phone numbers are not currently available in the profiles schema
  */
 export const getUserProfileWithAddresses = async (
   userId: string,
