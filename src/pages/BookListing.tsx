@@ -51,6 +51,7 @@ const BookListing = () => {
       const category = searchParams.get("category") || "";
       const grade = searchParams.get("grade") || "";
       const universityYear = searchParams.get("universityYear") || "";
+      const university = searchParams.get("university") || "";
 
       const filters: {
         search?: string;
@@ -110,6 +111,7 @@ const BookListing = () => {
     if (selectedGrade) params.set("grade", selectedGrade);
     if (selectedUniversityYear)
       params.set("universityYear", selectedUniversityYear);
+    if (selectedUniversity) params.set("university", selectedUniversity);
 
     setSearchParams(params);
     loadBooks();
