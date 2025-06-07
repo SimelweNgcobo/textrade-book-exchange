@@ -139,10 +139,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
       console.error("Login failed:", error);
 
       let errorMessage = "Login failed. Please try again.";
-      if (error.message?.includes("Invalid login credentials")) {
+      const errorMsg = error instanceof Error ? error.message : String(error);
+
+      if (errorMsg.includes("Invalid login credentials")) {
         errorMessage =
           "Invalid email or password. Please check your credentials.";
-      } else if (error.message?.includes("Email not confirmed")) {
+      } else if (errorMsg.includes("Email not confirmed")) {
         errorMessage =
           "Please check your email and click the confirmation link.";
       }
