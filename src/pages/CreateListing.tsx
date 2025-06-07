@@ -30,6 +30,7 @@ import {
   hasCompletedFirstUpload,
   markFirstUploadCompleted,
 } from "@/services/userPreferenceService";
+import { BookDeletionService } from "@/services/bookDeletionService";
 
 const CreateListing = () => {
   const { user, profile } = useAuth();
