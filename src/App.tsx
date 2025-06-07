@@ -44,6 +44,7 @@ function App() {
         <CartProvider>
           <Router>
             <ScrollToTop />
+            <OAuthRedirectHandler />
             <div className="min-h-screen bg-gray-50">
               <ErrorBoundary level="page">
                 <Routes>
