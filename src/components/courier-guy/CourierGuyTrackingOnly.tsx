@@ -31,7 +31,7 @@ const CourierGuyTrackingOnly = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (user) {
+    if (user?.id) {
       loadUserData();
     } else {
       setIsLoading(false);
