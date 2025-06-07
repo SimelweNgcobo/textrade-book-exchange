@@ -173,7 +173,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
       toast.success(
         "Registration successful! Please check your email to confirm your account.",
       );
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Registration failed:", error);
 
       let errorMessage = "Registration failed. Please try again.";
