@@ -265,7 +265,7 @@ const AddressEditDialog = ({
                   <Label htmlFor="shipping-city">City</Label>
                   <Input
                     id="shipping-city"
-                    value={shippingAddress.city}
+                    value={shippingAddress.city || ""}
                     onChange={(e) =>
                       setShippingAddress((prev) => ({
                         ...prev,
@@ -281,7 +281,7 @@ const AddressEditDialog = ({
                   <Label htmlFor="shipping-province">Province</Label>
                   <Input
                     id="shipping-province"
-                    value={shippingAddress.province}
+                    value={shippingAddress.province || ""}
                     onChange={(e) =>
                       setShippingAddress((prev) => ({
                         ...prev,
@@ -297,7 +297,7 @@ const AddressEditDialog = ({
                   <Label htmlFor="shipping-postal">Postal Code</Label>
                   <Input
                     id="shipping-postal"
-                    value={shippingAddress.postalCode}
+                    value={shippingAddress.postalCode || ""}
                     onChange={(e) =>
                       setShippingAddress((prev) => ({
                         ...prev,
