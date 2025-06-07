@@ -6,48 +6,33 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Table,
   TableBody,
-  TableCell,
   TableHead,
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Flag, UserX, RefreshCw, Copy } from "lucide-react";
+import { RefreshCw } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import ReportFilters from "./reports/ReportFilters";
-import ReportActions from "./reports/ReportActions";
 import ErrorFallback from "@/components/ErrorFallback";
 import { Button } from "@/components/ui/button";
 import { useErrorHandler } from "@/hooks/useErrorHandler";
 import { useIsMobile } from "@/hooks/use-mobile";
-
-interface Report {
-  id: string;
-  book_title: string;
-  seller_name: string;
-  reason: string;
-  status: "pending" | "resolved" | "dismissed";
-  created_at: string;
-  reporter_user_id: string;
-  reported_user_id: string;
-  book_id?: string;
-  reporter_email?: string;
-  reporter_name?: string;
-}
-
-interface SuspendedUser {
-  id: string;
-  name: string;
-  email: string;
-  status: string;
-  suspended_at: string;
-  suspension_reason: string;
-}
+import { ModerationReportCard } from "./reports/ModerationReportCard";
+import { ModerationTableRow } from "./reports/ModerationTableRow";
+import {
+  loadModerationData,
+  updateReportStatus,
+  updateUserStatus,
+  unsuspendUser,
+  Report,
+  SuspendedUser,
+  ModerationData,
+} from "@/services/admin/moderationDataService";
 
 const EnhancedModerationDashboard = () => {
   const isMobile = useIsMobile();
@@ -118,144 +103,38 @@ const EnhancedModerationDashboard = () => {
       setError(null);
       setIsLoading(true);
 
-      // First, get reports and suspended users
-      const [reportsResponse, usersResponse] = await Promise.all([
-        supabase
-          .from("reports")
-          .select("*")
-          .order("created_at", { ascending: false }),
-        supabase
-          .from("profiles")
-          .select("id, name, email, status, suspended_at, suspension_reason")
-          .in("status", ["suspended", "banned"])
-          .order("created_at", { ascending: false }),
-      ]);
-
-      if (reportsResponse.error) {
-        throw new Error(
-          `Failed to load reports: ${reportsResponse.error.message}`,
-        );
-      }
-
-      if (usersResponse.error) {
-        throw new Error(
-          `Failed to load suspended users: ${usersResponse.error.message}`,
-        );
-      }
-
-      // Get unique reporter user IDs to minimize profile queries
-      const reporterUserIds = Array.from(
-        new Set(
-          (reportsResponse.data || []).map(
-            (report: any) => report.reporter_user_id,
-          ),
-        ),
-      );
-
-      // Fetch reporter profiles only for users who have made reports
-      let reporterProfilesResponse = { data: [], error: null };
-      if (reporterUserIds.length > 0) {
-        reporterProfilesResponse = await supabase
-          .from("profiles")
-          .select("id, name, email")
-          .in("id", reporterUserIds);
-      }
-
-      if (reporterProfilesResponse.error) {
-        console.warn(
-          "Failed to load reporter profiles:",
-          reporterProfilesResponse.error.message,
-        );
-        // Continue without reporter profiles rather than failing
-      }
-
-      // Create a map of profiles for quick lookup
-      const profilesMap = new Map();
-      if (reporterProfilesResponse.data) {
-        reporterProfilesResponse.data.forEach((profile) => {
-          profilesMap.set(profile.id, profile);
-        });
-      }
-
-      const typedReports: Report[] = (reportsResponse.data || []).map(
-        (report: any) => {
-          const reporterProfile = profilesMap.get(report.reporter_user_id);
-          return {
-            ...report,
-            status: report.status as "pending" | "resolved" | "dismissed",
-            reporter_email: reporterProfile?.email,
-            reporter_name: reporterProfile?.name,
-          };
-        },
-      );
-
-      // Properly handle the suspended users data with better type safety
-      const typedUsers: SuspendedUser[] = (usersResponse.data || [])
-        .filter(
-          (user): user is NonNullable<typeof user> =>
-            user !== null &&
-            user !== undefined &&
-            typeof user === "object" &&
-            "id" in user,
-        )
-        .map((user) => ({
-          id: user.id || "",
-          name: user.name || "Anonymous",
-          email: user.email || "No email",
-          status: user.status || "suspended",
-          suspended_at: user.suspended_at || new Date().toISOString(),
-          suspension_reason: user.suspension_reason || "No reason provided",
-        }));
-
-      setReports(typedReports);
-      setSuspendedUsers(typedUsers);
+      const data: ModerationData = await loadModerationData();
+      setReports(data.reports);
+      setSuspendedUsers(data.suspendedUsers);
     } catch (error) {
-      console.error("Error loading moderation data:", error);
       const errorMessage =
         error instanceof Error
           ? error.message
           : "Failed to load moderation data";
+      console.error("Error loading moderation data:", error);
       setError(errorMessage);
-      handleError(error, "Moderation Dashboard");
+      handleError(error, "Load Moderation Data");
     } finally {
       setIsLoading(false);
     }
   };
 
   const filterData = () => {
-    switch (activeTab) {
-      case "pending":
-        setFilteredData(reports.filter((r) => r.status === "pending"));
-        break;
-      case "resolved":
-        setFilteredData(reports.filter((r) => r.status === "resolved"));
-        break;
-      case "dismissed":
-        setFilteredData(reports.filter((r) => r.status === "dismissed"));
-        break;
-      case "suspended":
-        setFilteredData(suspendedUsers);
-        break;
-      case "all":
-        setFilteredData(reports);
-        break;
+    if (activeTab === "suspended") {
+      setFilteredData(suspendedUsers);
+    } else if (activeTab === "all") {
+      setFilteredData(reports);
+    } else {
+      setFilteredData(reports.filter((report) => report.status === activeTab));
     }
   };
 
-  const updateReportStatus = async (
+  const handleUpdateReportStatus = async (
     reportId: string,
     status: "resolved" | "dismissed",
   ) => {
     try {
-      const { error } = await supabase
-        .from("reports")
-        .update({ status, updated_at: new Date().toISOString() })
-        .eq("id", reportId);
-
-      if (error) {
-        throw new Error(`Failed to update report: ${error.message}`);
-      }
-
+      await updateReportStatus(reportId, status);
       toast.success(`Report ${status} successfully`);
       loadData();
     } catch (error) {
@@ -270,21 +149,7 @@ const EnhancedModerationDashboard = () => {
   ) => {
     try {
       setIsSubmitting(true);
-
-      const status = action === "ban" ? "banned" : "suspended";
-      const { error: profileError } = await supabase
-        .from("profiles")
-        .update({
-          status,
-          suspension_reason: reason,
-          suspended_at: new Date().toISOString(),
-        })
-        .eq("id", userId);
-
-      if (profileError) {
-        throw new Error(`Failed to ${action} user: ${profileError.message}`);
-      }
-
+      await updateUserStatus(userId, action, reason);
       toast.success(
         `User ${action === "ban" ? "banned" : "suspended"} successfully`,
       );
@@ -297,21 +162,9 @@ const EnhancedModerationDashboard = () => {
     }
   };
 
-  const unsuspendUser = async (userId: string) => {
+  const handleUnsuspendUser = async (userId: string) => {
     try {
-      const { error } = await supabase
-        .from("profiles")
-        .update({
-          status: "active",
-          suspension_reason: null,
-          suspended_at: null,
-        })
-        .eq("id", userId);
-
-      if (error) {
-        throw new Error(`Failed to unsuspend user: ${error.message}`);
-      }
-
+      await unsuspendUser(userId);
       toast.success("User unsuspended successfully");
       loadData();
     } catch (error) {
@@ -347,201 +200,6 @@ const EnhancedModerationDashboard = () => {
     }
   };
 
-  // Mobile Card Component for Reports
-  const MobileReportCard = ({ item }: { item: Report | SuspendedUser }) => {
-    if (activeTab === "suspended") {
-      const user = item as SuspendedUser;
-      return (
-        <Card className="mb-4">
-          <CardContent className="p-4">
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <div className="font-medium text-gray-900">{user.name}</div>
-                <div className="flex items-center gap-2">
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={() => copyEmailToClipboard(user.email)}
-                    className="h-6 w-6 p-0"
-                    title="Copy Email Address"
-                  >
-                    <Copy className="h-3 w-3" />
-                  </Button>
-                  <Badge
-                    className={
-                      user.status === "banned"
-                        ? "bg-red-100 text-red-800"
-                        : "bg-orange-100 text-orange-800"
-                    }
-                  >
-                    {user.status === "banned" ? "Banned" : "Suspended"}
-                  </Badge>
-                </div>
-              </div>
-
-              <div className="text-sm text-gray-600">{user.email}</div>
-
-              <div>
-                <div className="text-sm font-medium text-gray-700">Reason:</div>
-                <div className="text-sm text-gray-600">
-                  {user.suspension_reason}
-                </div>
-              </div>
-
-              <div className="text-sm text-gray-500">
-                Suspended: {new Date(user.suspended_at).toLocaleDateString()}
-              </div>
-
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => unsuspendUser(user.id)}
-                className="w-full text-green-600 hover:text-green-700"
-              >
-                Unsuspend User
-              </Button>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2 text-orange-600">
-                  <UserX className="h-4 w-4" />
-                  <span className="font-medium">
-                    {user.status === "banned" ? "Banned" : "Suspended"}
-                  </span>
-                </div>
-                <Badge
-                  className={
-                    user.status === "banned"
-                      ? "bg-red-100 text-red-800"
-                      : "bg-orange-100 text-orange-800"
-                  }
-                >
-                  {user.status === "banned" ? "Banned" : "Suspended"}
-                </Badge>
-              </div>
-
-              <div>
-                <div className="font-medium text-gray-900">{user.name}</div>
-                <div className="text-sm text-gray-500">{user.email}</div>
-              </div>
-
-              <div>
-                <div className="text-sm font-medium text-gray-700">Reason:</div>
-                <div className="text-sm text-gray-600 break-words overflow-hidden">
-                  <div className="line-clamp-3">{user.suspension_reason}</div>
-                </div>
-              </div>
-
-              <div className="flex items-center justify-between">
-                <div className="text-sm text-gray-500">
-                  Suspended: {new Date(user.suspended_at).toLocaleDateString()}
-                </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => unsuspendUser(user.id)}
-                  className="text-green-600 hover:text-green-700"
-                >
-                  Unsuspend
-                </Button>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      );
-    } else {
-      const report = item as Report;
-      const reportCount = reports.filter(
-        (r) => r.reported_user_id === report.reported_user_id,
-      ).length;
-      return (
-        <Card className="mb-4">
-          <CardContent className="p-4">
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  {report.book_id ? (
-                    <div className="flex items-center gap-1 text-blue-600">
-                      <Flag className="h-4 w-4" />
-                      <span className="font-medium">Listing</span>
-                    </div>
-                  ) : (
-                    <div className="flex items-center gap-1 text-purple-600">
-                      <UserX className="h-4 w-4" />
-                      <span className="font-medium">User</span>
-                    </div>
-                  )}
-                </div>
-                <Badge className={getSeverityColor(reportCount)}>
-                  {getSeverityText(reportCount)}
-                </Badge>
-              </div>
-
-              <div>
-                <div className="font-medium text-gray-900">
-                  {report.book_id ? report.book_title : report.seller_name}
-                </div>
-                <div className="text-sm text-gray-500 flex items-center justify-between">
-                  <span>
-                    Reporter:{" "}
-                    {report.reporter_name ||
-                      `User #${report.reporter_user_id.slice(-8)}`}
-                    {report.reporter_email && (
-                      <span className="block text-xs text-gray-400">
-                        {report.reporter_email}
-                      </span>
-                    )}
-                  </span>
-                  {report.reporter_email && (
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() =>
-                        copyEmailToClipboard(report.reporter_email!)
-                      }
-                      className="h-6 w-6 p-0"
-                      title="Copy Email Address"
-                    >
-                      <Copy className="h-3 w-3" />
-                    </Button>
-                  )}
-                </div>
-              </div>
-
-              <div>
-                <div className="text-sm font-medium text-gray-700">Reason:</div>
-                <div className="text-sm text-gray-600 break-words overflow-hidden">
-                  <div className="line-clamp-3">{report.reason}</div>
-                </div>
-              </div>
-
-              <div className="flex items-center justify-between">
-                <div className="text-sm text-gray-500">
-                  {new Date(report.created_at).toLocaleDateString("en-US", {
-                    month: "short",
-                    day: "numeric",
-                    year: "numeric",
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })}
-                </div>
-              </div>
-
-              <div className="pt-2 border-t">
-                <ReportActions
-                  report={report}
-                  actionReason={actionReason}
-                  setActionReason={setActionReason}
-                  isSubmitting={isSubmitting}
-                  onUpdateStatus={updateReportStatus}
-                  onUserAction={handleUserAction}
-                />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      );
-    }
-  };
-
   if (error) {
     return (
       <ErrorFallback
@@ -570,261 +228,136 @@ const EnhancedModerationDashboard = () => {
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div className="flex items-center gap-2">
-            <Flag className="h-5 w-5 text-red-600" />
-            <div>
-              <CardTitle className="text-lg">
-                Enhanced Moderation Dashboard
-              </CardTitle>
-              <CardDescription className="text-sm">
-                Manage user reports and moderation actions with real-time
-                updates
-              </CardDescription>
-            </div>
-          </div>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={loadData}
-            disabled={isLoading}
-            className="w-full sm:w-auto"
-          >
-            <RefreshCw
-              className={`h-4 w-4 mr-2 ${isLoading ? "animate-spin" : ""}`}
-            />
-            Refresh
-          </Button>
+    <div className="space-y-6">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">
+            Enhanced Moderation Dashboard
+          </h1>
+          <p className="text-gray-600 mt-1">
+            Manage user reports and moderation actions with real-time
+            notifications
+          </p>
         </div>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <ReportFilters activeTab={activeTab} onTabChange={setActiveTab} />
+        <Button
+          onClick={loadData}
+          disabled={isLoading}
+          variant="outline"
+          size="sm"
+        >
+          <RefreshCw
+            className={`h-4 w-4 mr-2 ${isLoading ? "animate-spin" : ""}`}
+          />
+          Refresh Data
+        </Button>
+      </div>
 
-        {filteredData.length === 0 ? (
-          <div className="text-center py-8">
-            <p className="text-gray-500">
-              {activeTab === "suspended"
-                ? "No suspended users"
-                : "No reports to review"}
-            </p>
-          </div>
-        ) : (
-          <>
-            {/* Mobile View */}
-            {isMobile ? (
-              <div className="space-y-4">
-                {filteredData.map((item, index) => (
-                  <MobileReportCard
-                    key={
-                      activeTab === "suspended"
-                        ? (item as SuspendedUser).id
-                        : (item as Report).id
-                    }
-                    item={item}
-                  />
-                ))}
-              </div>
-            ) : (
-              /* Desktop View */
-              <ScrollArea className="w-full">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Type</TableHead>
-                      <TableHead>Entity</TableHead>
-                      <TableHead>
-                        {activeTab === "suspended" ? "Reason" : "Reason"}
-                      </TableHead>
-                      <TableHead>
-                        {activeTab === "suspended" ? "Suspended" : "Reporter"}
-                      </TableHead>
-                      <TableHead>Date</TableHead>
-                      <TableHead>Severity</TableHead>
-                      <TableHead className="w-[200px]">Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {filteredData.map((item) => {
-                      if (activeTab === "suspended") {
-                        const user = item as SuspendedUser;
-                        return (
-                          <TableRow key={user.id}>
-                            <TableCell>
-                              <div className="flex items-center gap-1 text-orange-600">
-                                <UserX className="h-4 w-4" />
-                                <span>
-                                  {user.status === "banned"
-                                    ? "Banned"
-                                    : "Suspended"}
-                                </span>
-                              </div>
-                            </TableCell>
-                            <TableCell className="font-medium">
-                              <div className="flex items-center gap-2">
-                                <div className="max-w-[150px]">
-                                  <div className="truncate">{user.name}</div>
-                                  <div className="text-xs text-gray-500 truncate">
-                                    {user.email}
-                                  </div>
-                                </div>
-                                <Button
-                                  size="sm"
-                                  variant="ghost"
-                                  onClick={() =>
-                                    copyEmailToClipboard(user.email)
-                                  }
-                                  className="h-6 w-6 p-0"
-                                  title="Copy Email Address"
-                                >
-                                  <Copy className="h-3 w-3" />
-                                </Button>
-                              </div>
-                            </TableCell>
-                            <TableCell className="max-w-[200px] truncate">
-                              {user.suspension_reason}
-                            </TableCell>
-                            <TableCell>
-                              {new Date(user.suspended_at).toLocaleDateString()}
-                            </TableCell>
-                            <TableCell>
-                              {new Date(user.suspended_at).toLocaleDateString(
-                                "en-US",
-                                {
-                                  month: "short",
-                                  day: "numeric",
-                                  year: "numeric",
-                                },
-                              )}
-                            </TableCell>
-                            <TableCell>
-                              <Badge
-                                className={
-                                  user.status === "banned"
-                                    ? "bg-red-100 text-red-800"
-                                    : "bg-orange-100 text-orange-800"
-                                }
-                              >
-                                {user.status === "banned"
-                                  ? "Banned"
-                                  : "Suspended"}
-                              </Badge>
-                            </TableCell>
-                            <TableCell>
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => unsuspendUser(user.id)}
-                                className="text-green-600 hover:text-green-700"
-                              >
-                                Unsuspend
-                              </Button>
-                            </TableCell>
-                          </TableRow>
-                        );
-                      } else {
-                        const report = item as Report;
-                        const reportCount = reports.filter(
-                          (r) => r.reported_user_id === report.reported_user_id,
-                        ).length;
-                        return (
-                          <TableRow key={report.id}>
-                            <TableCell>
-                              <div className="flex items-center gap-2">
-                                {report.book_id ? (
-                                  <div className="flex items-center gap-1 text-blue-600">
-                                    <Flag className="h-4 w-4" />
-                                    <span>Listing</span>
-                                  </div>
-                                ) : (
-                                  <div className="flex items-center gap-1 text-purple-600">
-                                    <UserX className="h-4 w-4" />
-                                    <span>User</span>
-                                  </div>
-                                )}
-                              </div>
-                            </TableCell>
-                            <TableCell className="font-medium">
-                              <div className="max-w-[150px] truncate">
-                                {report.book_id
-                                  ? report.book_title
-                                  : report.seller_name}
-                              </div>
-                            </TableCell>
-                            <TableCell className="max-w-[200px] truncate">
-                              {report.reason}
-                            </TableCell>
-                            <TableCell>
-                              <div className="flex items-center gap-2">
-                                <div>
-                                  <div className="text-sm">
-                                    {report.reporter_name ||
-                                      `User #${report.reporter_user_id.slice(-8)}`}
-                                  </div>
-                                  {report.reporter_email && (
-                                    <div className="text-xs text-gray-500">
-                                      {report.reporter_email}
-                                    </div>
-                                  )}
-                                </div>
-                                {report.reporter_email && (
-                                  <Button
-                                    size="sm"
-                                    variant="ghost"
-                                    onClick={() =>
-                                      copyEmailToClipboard(
-                                        report.reporter_email!,
-                                      )
-                                    }
-                                    className="h-6 w-6 p-0"
-                                    title="Copy Email Address"
-                                  >
-                                    <Copy className="h-3 w-3" />
-                                  </Button>
-                                )}
-                              </div>
-                            </TableCell>
-                            <TableCell>
-                              {new Date(report.created_at).toLocaleDateString(
-                                "en-US",
-                                {
-                                  month: "short",
-                                  day: "numeric",
-                                  year: "numeric",
-                                  hour: "2-digit",
-                                  minute: "2-digit",
-                                },
-                              )}
-                            </TableCell>
-                            <TableCell>
-                              <Badge className={getSeverityColor(reportCount)}>
-                                {getSeverityText(reportCount)}
-                              </Badge>
-                            </TableCell>
-                            <TableCell>
-                              <ReportActions
-                                report={report}
-                                actionReason={actionReason}
-                                setActionReason={setActionReason}
-                                isSubmitting={isSubmitting}
-                                onUpdateStatus={updateReportStatus}
-                                onUserAction={handleUserAction}
-                              />
-                            </TableCell>
-                          </TableRow>
-                        );
+      <ReportFilters
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        reportCounts={{
+          pending: reports.filter((r) => r.status === "pending").length,
+          resolved: reports.filter((r) => r.status === "resolved").length,
+          dismissed: reports.filter((r) => r.status === "dismissed").length,
+          suspended: suspendedUsers.length,
+          all: reports.length,
+        }}
+      />
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            {activeTab === "suspended" ? "Suspended/Banned Users" : "Reports"}
+          </CardTitle>
+          <CardDescription>
+            {activeTab === "suspended"
+              ? "Manage suspended and banned user accounts"
+              : `${filteredData.length} ${activeTab} reports`}
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {filteredData.length === 0 ? (
+            <div className="text-center py-8">
+              <p className="text-gray-500">
+                No {activeTab === "suspended" ? "suspended users" : "reports"}{" "}
+                found
+              </p>
+            </div>
+          ) : (
+            <>
+              {isMobile ? (
+                <div className="space-y-4">
+                  {filteredData.map((item) => (
+                    <ModerationReportCard
+                      key={
+                        activeTab === "suspended"
+                          ? (item as SuspendedUser).id
+                          : (item as Report).id
                       }
-                    })}
-                  </TableBody>
-                </Table>
-                <ScrollBar orientation="horizontal" />
-              </ScrollArea>
-            )}
-          </>
-        )}
-      </CardContent>
-    </Card>
+                      item={item}
+                      activeTab={activeTab}
+                      reports={reports}
+                      actionReason={actionReason}
+                      setActionReason={setActionReason}
+                      isSubmitting={isSubmitting}
+                      onUpdateStatus={handleUpdateReportStatus}
+                      onUserAction={handleUserAction}
+                      onUnsuspendUser={handleUnsuspendUser}
+                      copyEmailToClipboard={copyEmailToClipboard}
+                      getSeverityColor={getSeverityColor}
+                      getSeverityText={getSeverityText}
+                    />
+                  ))}
+                </div>
+              ) : (
+                <ScrollArea className="w-full">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Type</TableHead>
+                        <TableHead>Entity</TableHead>
+                        <TableHead>
+                          {activeTab === "suspended" ? "Reason" : "Reason"}
+                        </TableHead>
+                        <TableHead>
+                          {activeTab === "suspended" ? "Suspended" : "Reporter"}
+                        </TableHead>
+                        <TableHead>Date</TableHead>
+                        <TableHead>Severity</TableHead>
+                        <TableHead className="w-[200px]">Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {filteredData.map((item) => (
+                        <ModerationTableRow
+                          key={
+                            activeTab === "suspended"
+                              ? (item as SuspendedUser).id
+                              : (item as Report).id
+                          }
+                          item={item}
+                          activeTab={activeTab}
+                          reports={reports}
+                          actionReason={actionReason}
+                          setActionReason={setActionReason}
+                          isSubmitting={isSubmitting}
+                          onUpdateStatus={handleUpdateReportStatus}
+                          onUserAction={handleUserAction}
+                          onUnsuspendUser={handleUnsuspendUser}
+                          copyEmailToClipboard={copyEmailToClipboard}
+                          getSeverityColor={getSeverityColor}
+                          getSeverityText={getSeverityText}
+                        />
+                      ))}
+                    </TableBody>
+                  </Table>
+                </ScrollArea>
+              )}
+            </>
+          )}
+        </CardContent>
+      </Card>
+    </div>
   );
 };
 
