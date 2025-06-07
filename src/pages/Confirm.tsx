@@ -1,131 +1,137 @@
-
-import { useEffect, useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
-import Layout from '@/components/Layout';
-import { Loader2, CheckCircle, XCircle, Mail } from 'lucide-react';
-import { toast } from 'sonner';
-import { Button } from '@/components/ui/button';
+import { useEffect, useState } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { useOAuthRedirect } from "@/hooks/useOAuthRedirect";
+import Layout from "@/components/Layout";
+import { Loader2, CheckCircle, XCircle, Mail } from "lucide-react";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
 
 const Confirm = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
-  const [message, setMessage] = useState('');
+  const [status, setStatus] = useState<"loading" | "success" | "error">(
+    "loading",
+  );
+  const [message, setMessage] = useState("");
 
   useEffect(() => {
     const handleConfirm = async () => {
       try {
-        console.log('Starting email confirmation process');
-        
+        console.log("Starting email confirmation process");
+
         // Get all possible parameters
-        const token_hash = searchParams.get('token_hash');
-        const type = searchParams.get('type');
-        const access_token = searchParams.get('access_token');
-        const refresh_token = searchParams.get('refresh_token');
-        const error_code = searchParams.get('error_code');
-        const error_description = searchParams.get('error_description');
-        
-        console.log('URL params:', { 
-          token_hash: !!token_hash, 
-          type, 
-          access_token: !!access_token, 
+        const token_hash = searchParams.get("token_hash");
+        const type = searchParams.get("type");
+        const access_token = searchParams.get("access_token");
+        const refresh_token = searchParams.get("refresh_token");
+        const error_code = searchParams.get("error_code");
+        const error_description = searchParams.get("error_description");
+
+        console.log("URL params:", {
+          token_hash: !!token_hash,
+          type,
+          access_token: !!access_token,
           refresh_token: !!refresh_token,
           error_code,
-          error_description 
+          error_description,
         });
 
         // Check for errors first
         if (error_code || error_description) {
-          console.error('Confirmation error from URL:', { error_code, error_description });
-          setStatus('error');
-          setMessage(error_description || 'Email confirmation failed');
-          toast.error(error_description || 'Email confirmation failed');
+          console.error("Confirmation error from URL:", {
+            error_code,
+            error_description,
+          });
+          setStatus("error");
+          setMessage(error_description || "Email confirmation failed");
+          toast.error(error_description || "Email confirmation failed");
           return;
         }
 
         // Method 1: Token hash verification (most reliable)
         if (token_hash && type) {
-          console.log('Using token hash verification');
+          console.log("Using token hash verification");
           const { data, error } = await supabase.auth.verifyOtp({
             token_hash,
             type: type as any,
           });
-          
+
           if (error) {
-            console.error('Token hash verification error:', error);
+            console.error("Token hash verification error:", error);
             throw error;
           }
 
           if (data.session) {
-            console.log('Email confirmed successfully with token hash');
-            setStatus('success');
-            setMessage('Email confirmed successfully! You are now logged in.');
-            toast.success('Email confirmed successfully!');
-            setTimeout(() => navigate('/'), 2000);
+            console.log("Email confirmed successfully with token hash");
+            setStatus("success");
+            setMessage("Email confirmed successfully! You are now logged in.");
+            toast.success("Email confirmed successfully!");
+            setTimeout(() => navigate("/"), 2000);
             return;
           }
         }
 
         // Method 2: Access/Refresh token session (fallback)
         if (access_token && refresh_token) {
-          console.log('Using session tokens');
+          console.log("Using session tokens");
           const { data, error } = await supabase.auth.setSession({
             access_token,
             refresh_token,
           });
-          
+
           if (error) {
-            console.error('Session token error:', error);
+            console.error("Session token error:", error);
             throw error;
           }
 
           if (data.session) {
-            console.log('Session set successfully');
-            setStatus('success');
-            setMessage('Email confirmed successfully! You are now logged in.');
-            toast.success('Email confirmed successfully!');
-            setTimeout(() => navigate('/'), 2000);
+            console.log("Session set successfully");
+            setStatus("success");
+            setMessage("Email confirmed successfully! You are now logged in.");
+            toast.success("Email confirmed successfully!");
+            setTimeout(() => navigate("/"), 2000);
             return;
           }
         }
 
         // Method 3: Code exchange (last resort)
-        console.log('Attempting code exchange method');
-        const { data, error } = await supabase.auth.exchangeCodeForSession(window.location.href);
-        
+        console.log("Attempting code exchange method");
+        const { data, error } = await supabase.auth.exchangeCodeForSession(
+          window.location.href,
+        );
+
         if (error) {
-          console.error('Code exchange error:', error);
+          console.error("Code exchange error:", error);
           throw error;
         }
 
         if (data.session) {
-          console.log('Code exchange successful');
-          setStatus('success');
-          setMessage('Email confirmed successfully! You are now logged in.');
-          toast.success('Email confirmed successfully!');
-          setTimeout(() => navigate('/'), 2000);
+          console.log("Code exchange successful");
+          setStatus("success");
+          setMessage("Email confirmed successfully! You are now logged in.");
+          toast.success("Email confirmed successfully!");
+          setTimeout(() => navigate("/"), 2000);
           return;
         }
 
         // If we get here, none of the methods worked
-        throw new Error('Unable to confirm email with any available method');
-
+        throw new Error("Unable to confirm email with any available method");
       } catch (error: any) {
-        console.error('Email confirmation error:', error);
-        setStatus('error');
-        
-        let errorMessage = 'Email confirmation failed. ';
-        if (error.message?.includes('expired')) {
-          errorMessage += 'The confirmation link has expired.';
-        } else if (error.message?.includes('already confirmed')) {
-          errorMessage += 'This email has already been confirmed.';
-        } else if (error.message?.includes('invalid')) {
-          errorMessage += 'The confirmation link is invalid.';
+        console.error("Email confirmation error:", error);
+        setStatus("error");
+
+        let errorMessage = "Email confirmation failed. ";
+        if (error.message?.includes("expired")) {
+          errorMessage += "The confirmation link has expired.";
+        } else if (error.message?.includes("already confirmed")) {
+          errorMessage += "This email has already been confirmed.";
+        } else if (error.message?.includes("invalid")) {
+          errorMessage += "The confirmation link is invalid.";
         } else {
-          errorMessage += 'Please try again or contact support.';
+          errorMessage += "Please try again or contact support.";
         }
-        
+
         setMessage(errorMessage);
         toast.error(errorMessage);
       }
@@ -139,7 +145,7 @@ const Confirm = () => {
       <div className="min-h-[70vh] flex items-center justify-center px-4">
         <div className="w-full max-w-md">
           <div className="bg-white rounded-lg shadow-lg p-6 md:p-8 text-center">
-            {status === 'loading' && (
+            {status === "loading" && (
               <>
                 <Loader2 className="h-12 w-12 text-book-600 mx-auto mb-4 animate-spin" />
                 <h2 className="text-xl md:text-2xl font-semibold mb-2 text-gray-800">
@@ -150,8 +156,8 @@ const Confirm = () => {
                 </p>
               </>
             )}
-            
-            {status === 'success' && (
+
+            {status === "success" && (
               <>
                 <CheckCircle className="h-12 w-12 text-green-500 mx-auto mb-4" />
                 <h2 className="text-xl md:text-2xl font-semibold mb-2 text-gray-800">
@@ -161,15 +167,16 @@ const Confirm = () => {
                   {message}
                 </p>
                 <p className="text-xs md:text-sm text-gray-500 mb-4">
-                  Welcome to ReBooked Solutions - Pre-Loved Pages, New Adventures
+                  Welcome to ReBooked Solutions - Pre-Loved Pages, New
+                  Adventures
                 </p>
                 <p className="text-xs md:text-sm text-gray-500">
                   Redirecting you to the home page...
                 </p>
               </>
             )}
-            
-            {status === 'error' && (
+
+            {status === "error" && (
               <>
                 <XCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
                 <h2 className="text-xl md:text-2xl font-semibold mb-2 text-gray-800">
@@ -180,21 +187,21 @@ const Confirm = () => {
                 </p>
                 <div className="space-y-3">
                   <Button
-                    onClick={() => navigate('/login')}
+                    onClick={() => navigate("/login")}
                     className="bg-book-600 hover:bg-book-700 text-white px-4 md:px-6 py-2 rounded-lg transition-colors text-sm md:text-base w-full"
                   >
                     Go to Login
                   </Button>
                   <Button
                     variant="outline"
-                    onClick={() => navigate('/register')}
+                    onClick={() => navigate("/register")}
                     className="px-4 md:px-6 py-2 rounded-lg transition-colors text-sm md:text-base w-full"
                   >
                     Register Again
                   </Button>
                   <Button
                     variant="ghost"
-                    onClick={() => navigate('/')}
+                    onClick={() => navigate("/")}
                     className="text-sm text-gray-500 w-full"
                   >
                     Go to Home Page
