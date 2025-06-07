@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -214,16 +213,17 @@ const BookDetails = () => {
           </Button>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
-          {/* Left column - Images and Content */}
-          <div className="lg:col-span-2 space-y-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
+          {/* Left column - Images only */}
+          <div>
             <BookImageSection book={book} />
-            <BookInfo book={book} />
-            <BookDescription book={book} />
           </div>
 
-          {/* Right column - Actions and Info */}
+          {/* Right column - All details and actions */}
           <div className="space-y-6">
+            <BookInfo book={book} />
+            <BookDescription book={book} />
+            
             <BookActions
               book={book}
               user={user}

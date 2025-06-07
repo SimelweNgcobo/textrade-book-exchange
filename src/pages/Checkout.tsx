@@ -5,12 +5,14 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useCart } from "@/contexts/CartContext";
 import { getBookById } from "@/services/book/bookQueries";
 import { getUserAddresses } from "@/services/addressService";
+import { getDeliveryQuotes, DeliveryQuote } from "@/services/deliveryService";
 import { Book } from "@/types/book";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
   Select,
   SelectContent,
@@ -23,6 +25,7 @@ import {
   CreditCard,
   AlertTriangle,
   ShoppingCart,
+  Truck,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -47,9 +50,7 @@ const Checkout = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [savedAddresses, setSavedAddresses] = useState<any>(null);
-  const [selectedAddress, setSelectedAddress] = useState<
-    "pickup" | "shipping" | "new"
-  >("new");
+  const [selectedAddress, setSelectedAddress] = useState<"pickup" | "shipping" | "new">("new");
   const [shippingAddress, setShippingAddress] = useState({
     complex: "",
     unitNumber: "",
@@ -59,6 +60,9 @@ const Checkout = () => {
     province: "",
     postalCode: "",
   });
+  const [deliveryQuotes, setDeliveryQuotes] = useState<DeliveryQuote[]>([]);
+  const [selectedDelivery, setSelectedDelivery] = useState<DeliveryQuote | null>(null);
+  const [loadingQuotes, setLoadingQuotes] = useState(false);
 
   const isCartCheckout = id === "cart";
   const cartData = location.state?.cartItems || [];
@@ -161,26 +165,54 @@ const Checkout = () => {
         postalCode: "",
       });
     }
+    
+    // Clear delivery quotes when address changes
+    setDeliveryQuotes([]);
+    setSelectedDelivery(null);
+  };
+
+  const getDeliveryQuotesForAddress = async () => {
+    if (!shippingAddress.streetAddress || !shippingAddress.city || !shippingAddress.postalCode) {
+      toast.error("Please fill in the delivery address first");
+      return;
+    }
+
+    setLoadingQuotes(true);
+    try {
+      // Use a default "from" address (seller's address or business address)
+      const fromAddress = {
+        streetAddress: "123 Business Park",
+        suburb: "Sandton",
+        city: "Johannesburg",
+        province: "Gauteng",
+        postalCode: "2196"
+      };
+
+      const quotes = await getDeliveryQuotes(fromAddress, shippingAddress, 1);
+      setDeliveryQuotes(quotes);
+      
+      if (quotes.length > 0) {
+        setSelectedDelivery(quotes[0]); // Select first quote by default
+      }
+    } catch (error) {
+      console.error("Error getting delivery quotes:", error);
+      toast.error("Failed to get delivery quotes. Please try again.");
+    } finally {
+      setLoadingQuotes(false);
+    }
   };
 
   const calculateTotal = () => {
-    if (isCartCheckout) {
-      return cartData.reduce(
-        (total: number, item: any) => total + item.price,
-        0,
-      );
-    }
-    return book?.price || 0;
+    const itemsTotal = isCartCheckout 
+      ? cartData.reduce((total: number, item: any) => total + item.price, 0)
+      : book?.price || 0;
+    
+    const deliveryTotal = selectedDelivery?.price || 0;
+    return itemsTotal + deliveryTotal;
   };
 
   const validateAddress = () => {
-    const requiredFields = [
-      "streetAddress",
-      "suburb",
-      "city",
-      "province",
-      "postalCode",
-    ];
+    const requiredFields = ["streetAddress", "suburb", "city", "province", "postalCode"];
     const missingFields = requiredFields.filter(
       (field) => !shippingAddress[field as keyof typeof shippingAddress],
     );
@@ -189,6 +221,12 @@ const Checkout = () => {
       toast.error("Please fill in all required address fields");
       return false;
     }
+    
+    if (!selectedDelivery) {
+      toast.error("Please select a delivery option");
+      return false;
+    }
+    
     return true;
   };
 
@@ -198,10 +236,7 @@ const Checkout = () => {
     }
 
     try {
-      // Simulate payment processing
       toast.loading("Processing payment...", { id: "payment" });
-
-      // Simulate payment delay
       await new Promise((resolve) => setTimeout(resolve, 2000));
 
       toast.success("Payment successful! Your order has been placed.", {
@@ -269,6 +304,9 @@ const Checkout = () => {
   }
 
   const totalAmount = calculateTotal();
+  const itemsTotal = isCartCheckout 
+    ? cartData.reduce((total: number, item: any) => total + item.price, 0)
+    : book?.price || 0;
 
   return (
     <Layout>
@@ -295,6 +333,7 @@ const Checkout = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
+                {/* ... keep existing code (address selection and fields) */}
                 {savedAddresses &&
                   (savedAddresses.pickup_address ||
                     savedAddresses.shipping_address) && (
@@ -429,23 +468,15 @@ const Checkout = () => {
                         <SelectValue placeholder="Select province" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="Eastern Cape">
-                          Eastern Cape
-                        </SelectItem>
+                        <SelectItem value="Eastern Cape">Eastern Cape</SelectItem>
                         <SelectItem value="Free State">Free State</SelectItem>
                         <SelectItem value="Gauteng">Gauteng</SelectItem>
-                        <SelectItem value="KwaZulu-Natal">
-                          KwaZulu-Natal
-                        </SelectItem>
+                        <SelectItem value="KwaZulu-Natal">KwaZulu-Natal</SelectItem>
                         <SelectItem value="Limpopo">Limpopo</SelectItem>
                         <SelectItem value="Mpumalanga">Mpumalanga</SelectItem>
-                        <SelectItem value="Northern Cape">
-                          Northern Cape
-                        </SelectItem>
+                        <SelectItem value="Northern Cape">Northern Cape</SelectItem>
                         <SelectItem value="North West">North West</SelectItem>
-                        <SelectItem value="Western Cape">
-                          Western Cape
-                        </SelectItem>
+                        <SelectItem value="Western Cape">Western Cape</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -466,8 +497,61 @@ const Checkout = () => {
                     />
                   </div>
                 </div>
+
+                <div className="pt-4">
+                  <Button
+                    onClick={getDeliveryQuotesForAddress}
+                    disabled={loadingQuotes || !shippingAddress.streetAddress}
+                    className="w-full"
+                    variant="outline"
+                  >
+                    <Truck className="mr-2 h-4 w-4" />
+                    {loadingQuotes ? "Getting Quotes..." : "Get Delivery Quotes"}
+                  </Button>
+                </div>
               </CardContent>
             </Card>
+
+            {/* Delivery Options */}
+            {deliveryQuotes.length > 0 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg md:text-xl">
+                    Delivery Options
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <RadioGroup
+                    value={selectedDelivery?.courier || ""}
+                    onValueChange={(value) => {
+                      const quote = deliveryQuotes.find(q => q.courier === value);
+                      setSelectedDelivery(quote || null);
+                    }}
+                  >
+                    {deliveryQuotes.map((quote) => (
+                      <div key={quote.courier} className="flex items-center space-x-2 p-3 border rounded-lg">
+                        <RadioGroupItem value={quote.courier} id={quote.courier} />
+                        <div className="flex-1">
+                          <Label htmlFor={quote.courier} className="cursor-pointer">
+                            <div className="flex justify-between items-center">
+                              <div>
+                                <p className="font-medium">{quote.serviceName}</p>
+                                <p className="text-sm text-gray-600">
+                                  Estimated delivery: {quote.estimatedDays} days
+                                </p>
+                              </div>
+                              <div className="text-right">
+                                <p className="font-bold">R{quote.price.toFixed(2)}</p>
+                              </div>
+                            </div>
+                          </Label>
+                        </div>
+                      </div>
+                    ))}
+                  </RadioGroup>
+                </CardContent>
+              </Card>
+            )}
           </div>
 
           {/* Order Summary */}
@@ -480,6 +564,7 @@ const Checkout = () => {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-4 max-h-96 overflow-y-auto">
+                  {/* ... keep existing code (items display) */}
                   {isCartCheckout ? (
                     cartData.map((item: any) => (
                       <div
@@ -534,6 +619,17 @@ const Checkout = () => {
 
                 <div className="space-y-2">
                   <div className="flex justify-between items-center">
+                    <span className="text-sm">Items Subtotal</span>
+                    <span className="text-sm">R{itemsTotal.toFixed(2)}</span>
+                  </div>
+                  {selectedDelivery && (
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm">Delivery ({selectedDelivery.serviceName})</span>
+                      <span className="text-sm">R{selectedDelivery.price.toFixed(2)}</span>
+                    </div>
+                  )}
+                  <Separator />
+                  <div className="flex justify-between items-center">
                     <span className="text-base md:text-lg font-bold">
                       Total
                     </span>
@@ -547,6 +643,7 @@ const Checkout = () => {
                   onClick={handlePayment}
                   className="w-full bg-book-600 hover:bg-book-700 text-sm md:text-base py-2 md:py-3 min-h-[48px]"
                   size="lg"
+                  disabled={!selectedDelivery}
                 >
                   <CreditCard className="mr-2 h-4 w-4" />
                   Pay R{totalAmount.toFixed(2)}

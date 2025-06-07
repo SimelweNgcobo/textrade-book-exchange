@@ -24,6 +24,8 @@ export const submitReport = async (
   reportData: GeneralReportData,
 ): Promise<void> => {
   try {
+    console.log("Submitting general report:", reportData);
+    
     const { error } = await supabase.from("contact_messages").insert({
       name: reportData.name,
       email: reportData.email,
@@ -36,6 +38,8 @@ export const submitReport = async (
       console.error("Error submitting general report:", error);
       throw error;
     }
+
+    console.log("General report submitted successfully");
   } catch (error) {
     console.error("Error in submitReport:", error);
     throw error;
@@ -46,6 +50,8 @@ export const submitBookReport = async (
   reportData: ReportData,
 ): Promise<void> => {
   try {
+    console.log("Submitting book report:", reportData);
+    
     const { error } = await supabase.from("reports").insert({
       reported_user_id: reportData.reportedUserId,
       reporter_user_id: reportData.reporterUserId,
@@ -60,6 +66,8 @@ export const submitBookReport = async (
       console.error("Error submitting book report:", error);
       throw error;
     }
+
+    console.log("Book report submitted successfully");
   } catch (error) {
     console.error("Error in submitBookReport:", error);
     throw error;
