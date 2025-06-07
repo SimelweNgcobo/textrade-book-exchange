@@ -180,7 +180,7 @@ const AddressEditDialog = ({
                 <Label htmlFor="pickup-city">City</Label>
                 <Input
                   id="pickup-city"
-                  value={pickupAddress.city}
+                  value={pickupAddress.city || ""}
                   onChange={(e) =>
                     setPickupAddress((prev) => ({
                       ...prev,
