@@ -31,6 +31,7 @@ export const createBook = async (bookData: BookFormData): Promise<Book> => {
           inside_pages: bookData.insidePages,
           grade: bookData.grade,
           university_year: bookData.universityYear,
+          university: bookData.university,
         },
       ])
       .select()
@@ -117,6 +118,8 @@ export const updateBook = async (
     if (bookData.grade !== undefined) updateData.grade = bookData.grade;
     if (bookData.universityYear !== undefined)
       updateData.university_year = bookData.universityYear;
+    if (bookData.university !== undefined)
+      updateData.university = bookData.university;
 
     const { data: book, error } = await supabase
       .from("books")
