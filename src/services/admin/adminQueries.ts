@@ -1,5 +1,4 @@
-
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from "@/integrations/supabase/client";
 
 export interface AdminStats {
   totalUsers: number;
@@ -36,90 +35,90 @@ export interface AdminListing {
 export const getUserProfile = async (userId: string): Promise<AdminUser> => {
   try {
     const { data: user, error: userError } = await supabase
-      .from('profiles')
-      .select('id, name, email, status, created_at')
-      .eq('id', userId)
+      .from("profiles")
+      .select("id, name, email, status, created_at")
+      .eq("id", userId)
       .single();
 
     if (userError) {
-      console.error('Error fetching user profile:', userError);
+      console.error("Error fetching user profile:", userError);
       throw userError;
     }
 
     if (!user) {
-      throw new Error('User not found');
+      throw new Error("User not found");
     }
 
     // Get book count for this user
     const { count } = await supabase
-      .from('books')
-      .select('*', { count: 'exact', head: true })
-      .eq('seller_id', userId);
+      .from("books")
+      .select("*", { count: "exact", head: true })
+      .eq("seller_id", userId);
 
     return {
       id: user.id,
-      name: user.name || 'Anonymous',
-      email: user.email || '',
-      status: user.status || 'active',
+      name: user.name || "Anonymous",
+      email: user.email || "",
+      status: user.status || "active",
       listingsCount: count || 0,
-      createdAt: user.created_at
+      createdAt: user.created_at,
     };
   } catch (error) {
-    console.error('Error in getUserProfile:', error);
-    throw new Error('Failed to fetch user profile');
+    console.error("Error in getUserProfile:", error);
+    throw new Error("Failed to fetch user profile");
   }
 };
 
 export const getAdminStats = async (): Promise<AdminStats> => {
   try {
-    // Get total ACTIVE users count (not suspended or deleted)
+    // Get total registered users count (all statuses except deleted)
     const { count: totalUsers } = await supabase
-      .from('profiles')
-      .select('*', { count: 'exact', head: true })
-      .eq('status', 'active');
+      .from("profiles")
+      .select("*", { count: "exact", head: true })
+      .neq("status", "deleted");
 
     // Get active listings count
     const { count: activeListings } = await supabase
-      .from('books')
-      .select('*', { count: 'exact', head: true })
-      .eq('sold', false);
+      .from("books")
+      .select("*", { count: "exact", head: true })
+      .eq("sold", false);
 
     // Get sold books count
     const { count: booksSold } = await supabase
-      .from('books')
-      .select('*', { count: 'exact', head: true })
-      .eq('sold', true);
+      .from("books")
+      .select("*", { count: "exact", head: true })
+      .eq("sold", true);
 
     // Get pending reports count
     const { count: pendingReports } = await supabase
-      .from('reports')
-      .select('*', { count: 'exact', head: true })
-      .eq('status', 'pending');
+      .from("reports")
+      .select("*", { count: "exact", head: true })
+      .eq("status", "pending");
 
     // Get unread contact messages count
     const { count: unreadMessages } = await supabase
-      .from('contact_messages')
-      .select('*', { count: 'exact', head: true })
-      .eq('status', 'unread');
+      .from("contact_messages")
+      .select("*", { count: "exact", head: true })
+      .eq("status", "unread");
 
     // Get new ACTIVE users this week
     const oneWeekAgo = new Date();
     oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
-    
+
     const { count: newUsersThisWeek } = await supabase
-      .from('profiles')
-      .select('*', { count: 'exact', head: true })
-      .eq('status', 'active')
-      .gte('created_at', oneWeekAgo.toISOString());
+      .from("profiles")
+      .select("*", { count: "exact", head: true })
+      .eq("status", "active")
+      .gte("created_at", oneWeekAgo.toISOString());
 
     // Get sales this month
     const startOfMonth = new Date();
     startOfMonth.setDate(1);
-    
+
     const { count: salesThisMonth } = await supabase
-      .from('transactions')
-      .select('*', { count: 'exact', head: true })
-      .gte('created_at', startOfMonth.toISOString());
+      .from("transactions")
+      .select("*", { count: "exact", head: true })
+      .gte("created_at", startOfMonth.toISOString());
 
     // Calculate commissions (mock data for now)
     const weeklyCommission = (salesThisMonth || 0) * 0.1 * 50; // 10% commission, avg R50 per book
@@ -135,23 +134,23 @@ export const getAdminStats = async (): Promise<AdminStats> => {
       weeklyCommission,
       monthlyCommission,
       pendingReports: pendingReports || 0,
-      unreadMessages: unreadMessages || 0
+      unreadMessages: unreadMessages || 0,
     };
   } catch (error) {
-    console.error('Error fetching admin stats:', error);
-    throw new Error('Failed to fetch admin statistics');
+    console.error("Error fetching admin stats:", error);
+    throw new Error("Failed to fetch admin statistics");
   }
 };
 
 export const getAllUsers = async (): Promise<AdminUser[]> => {
   try {
     const { data: users, error: usersError } = await supabase
-      .from('profiles')
-      .select('id, name, email, status, created_at')
-      .order('created_at', { ascending: false });
+      .from("profiles")
+      .select("id, name, email, status, created_at")
+      .order("created_at", { ascending: false });
 
     if (usersError) {
-      console.error('Error fetching users:', usersError);
+      console.error("Error fetching users:", usersError);
       throw usersError;
     }
 
@@ -162,36 +161,39 @@ export const getAllUsers = async (): Promise<AdminUser[]> => {
       users.map(async (user) => {
         try {
           const { count } = await supabase
-            .from('books')
-            .select('*', { count: 'exact', head: true })
-            .eq('seller_id', user.id);
+            .from("books")
+            .select("*", { count: "exact", head: true })
+            .eq("seller_id", user.id);
 
           return {
             id: user.id,
-            name: user.name || 'Anonymous',
-            email: user.email || '',
-            status: user.status || 'active',
+            name: user.name || "Anonymous",
+            email: user.email || "",
+            status: user.status || "active",
             listingsCount: count || 0,
-            createdAt: user.created_at
+            createdAt: user.created_at,
           };
         } catch (error) {
-          console.error(`Error fetching book count for user ${user.id}:`, error);
+          console.error(
+            `Error fetching book count for user ${user.id}:`,
+            error,
+          );
           return {
             id: user.id,
-            name: user.name || 'Anonymous',
-            email: user.email || '',
-            status: user.status || 'active',
+            name: user.name || "Anonymous",
+            email: user.email || "",
+            status: user.status || "active",
             listingsCount: 0,
-            createdAt: user.created_at
+            createdAt: user.created_at,
           };
         }
-      })
+      }),
     );
 
     return usersWithCounts;
   } catch (error) {
-    console.error('Error in getAllUsers:', error);
-    throw new Error('Failed to fetch users');
+    console.error("Error in getAllUsers:", error);
+    throw new Error("Failed to fetch users");
   }
 };
 
@@ -199,8 +201,9 @@ export const getAllListings = async (): Promise<AdminListing[]> => {
   try {
     // First, get all books with seller information in one query
     const { data: booksWithProfiles, error: booksError } = await supabase
-      .from('books')
-      .select(`
+      .from("books")
+      .select(
+        `
         id,
         title,
         author,
@@ -211,11 +214,12 @@ export const getAllListings = async (): Promise<AdminListing[]> => {
           id,
           name
         )
-      `)
-      .order('created_at', { ascending: false });
+      `,
+      )
+      .order("created_at", { ascending: false });
 
     if (booksError) {
-      console.error('Error fetching books with profiles:', booksError);
+      console.error("Error fetching books with profiles:", booksError);
       // Fallback to separate queries if the join fails
       return await getAllListingsFallback();
     }
@@ -228,12 +232,12 @@ export const getAllListings = async (): Promise<AdminListing[]> => {
       title: book.title,
       author: book.author,
       price: book.price,
-      status: book.sold ? 'sold' : 'active',
-      user: book.profiles?.name || 'Anonymous',
-      sellerId: book.seller_id
+      status: book.sold ? "sold" : "active",
+      user: book.profiles?.name || "Anonymous",
+      sellerId: book.seller_id,
     }));
   } catch (error) {
-    console.error('Error in getAllListings:', error);
+    console.error("Error in getAllListings:", error);
     // Fallback to separate queries
     return await getAllListingsFallback();
   }
@@ -244,36 +248,36 @@ const getAllListingsFallback = async (): Promise<AdminListing[]> => {
   try {
     // First, get all books
     const { data: books, error: booksError } = await supabase
-      .from('books')
-      .select('id, title, author, price, sold, seller_id')
-      .order('created_at', { ascending: false });
+      .from("books")
+      .select("id, title, author, price, sold, seller_id")
+      .order("created_at", { ascending: false });
 
     if (booksError) {
-      console.error('Error fetching books:', booksError);
+      console.error("Error fetching books:", booksError);
       throw booksError;
     }
 
     if (!books || books.length === 0) return [];
 
     // Get unique seller IDs
-    const sellerIds = [...new Set(books.map(book => book.seller_id))];
-    
+    const sellerIds = [...new Set(books.map((book) => book.seller_id))];
+
     // Fetch seller profiles
     const { data: profiles, error: profilesError } = await supabase
-      .from('profiles')
-      .select('id, name')
-      .in('id', sellerIds);
+      .from("profiles")
+      .select("id, name")
+      .in("id", sellerIds);
 
     if (profilesError) {
-      console.error('Error fetching profiles:', profilesError);
+      console.error("Error fetching profiles:", profilesError);
       // Continue without profiles rather than failing completely
     }
 
     // Create a map for quick profile lookup
     const profileMap = new Map();
     if (profiles) {
-      profiles.forEach(profile => {
-        profileMap.set(profile.id, profile.name || 'Anonymous');
+      profiles.forEach((profile) => {
+        profileMap.set(profile.id, profile.name || "Anonymous");
       });
     }
 
@@ -283,12 +287,12 @@ const getAllListingsFallback = async (): Promise<AdminListing[]> => {
       title: book.title,
       author: book.author,
       price: book.price,
-      status: book.sold ? 'sold' : 'active',
-      user: profileMap.get(book.seller_id) || 'Anonymous',
-      sellerId: book.seller_id
+      status: book.sold ? "sold" : "active",
+      user: profileMap.get(book.seller_id) || "Anonymous",
+      sellerId: book.seller_id,
     }));
   } catch (error) {
-    console.error('Error in getAllListingsFallback:', error);
-    throw new Error('Failed to fetch listings');
+    console.error("Error in getAllListingsFallback:", error);
+    throw new Error("Failed to fetch listings");
   }
 };
