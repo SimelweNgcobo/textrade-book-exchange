@@ -104,7 +104,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
       console.log("Cleaning up auth listener");
       subscription.unsubscribe();
     };
-  }, []);
+  }, [handleAuthStateChange]);
 
   const handleAuthStateChange = useCallback(
     async (session: Session) => {
