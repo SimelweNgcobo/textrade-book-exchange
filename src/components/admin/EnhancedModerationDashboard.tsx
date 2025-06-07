@@ -288,7 +288,6 @@ const EnhancedModerationDashboard = () => {
                       onUpdateStatus={handleUpdateReportStatus}
                       onUserAction={handleUserAction}
                       onUnsuspendUser={handleUnsuspendUser}
-                      copyEmailToClipboard={copyEmailToClipboard}
                       getSeverityColor={getSeverityColor}
                       getSeverityText={getSeverityText}
                     />
@@ -329,7 +328,6 @@ const EnhancedModerationDashboard = () => {
                           onUpdateStatus={handleUpdateReportStatus}
                           onUserAction={handleUserAction}
                           onUnsuspendUser={handleUnsuspendUser}
-                          copyEmailToClipboard={copyEmailToClipboard}
                           getSeverityColor={getSeverityColor}
                           getSeverityText={getSeverityText}
                         />
