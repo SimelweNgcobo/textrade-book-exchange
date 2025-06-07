@@ -44,11 +44,11 @@ export const useErrorHandler = () => {
   );
 
   const handleAsyncError = useCallback(
-    async (
-      asyncFn: () => Promise<any>,
+    async <T>(
+      asyncFn: () => Promise<T>,
       context: string = "Async Operation",
       options: ErrorHandlerOptions = {},
-    ) => {
+    ): Promise<T> => {
       try {
         return await asyncFn();
       } catch (error) {
