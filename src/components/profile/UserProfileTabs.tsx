@@ -43,7 +43,7 @@ const UserProfileTabs = ({
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isAddressEditDialogOpen, setIsAddressEditDialogOpen] = useState(false);
 
-  const formatAddress = (address: any) => {
+  const formatAddress = (address: Address | null | undefined) => {
     if (!address) return "Not provided";
     return `${address.street}, ${address.city}, ${address.province} ${address.postalCode}`;
   };
