@@ -64,6 +64,7 @@ function App() {
                   <Route path="/privacy" element={<Privacy />} />
                   <Route path="/contact" element={<ContactUs />} />
                   <Route path="/report" element={<Report />} />
+                  <Route path="/oauth-test" element={<OAuthTest />} />
 
                   {/* Public user profiles - no authentication required */}
                   <Route path="/user/:id" element={<UserProfile />} />
