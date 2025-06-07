@@ -234,15 +234,6 @@ const BookDetails = () => {
               onViewSellerProfile={handleViewSellerProfile}
             />
 
-            {showCommissionDetails && (
-              <BookPricing
-                price={book.price}
-                commission={book.price * 0.1}
-                sellerReceives={book.price * 0.9}
-                showCommissionDetails={showCommissionDetails}
-              />
-            )}
-
             <SellerInfo
               seller={book.seller}
               onViewProfile={handleViewSellerProfile}
