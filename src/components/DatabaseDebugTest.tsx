@@ -345,6 +345,13 @@ export const DatabaseDebugTest = () => {
           >
             Test Table Structure
           </Button>
+          <Button
+            onClick={testNotificationTypes}
+            disabled={isLoading}
+            variant="outline"
+          >
+            Test Notification Types
+          </Button>
         </div>
 
         {isLoading && (
