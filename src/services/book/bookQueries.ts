@@ -106,8 +106,9 @@ export const getBooks = async (filters?: BookFilters): Promise<Book[]> => {
     return books;
   } catch (error) {
     logError("Error in getBooks", error);
-    handleBookServiceError(error, "fetch books");
-    return []; // This line will never be reached due to handleBookServiceError throwing, but TypeScript needs it
+    const errorMessage = logBookServiceError(error, "fetch books");
+    console.warn("getBooks failed:", errorMessage);
+    return [];
   }
 };
 
