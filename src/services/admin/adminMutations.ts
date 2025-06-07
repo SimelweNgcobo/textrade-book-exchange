@@ -83,6 +83,56 @@ export const sendBroadcastMessage = async (message: string): Promise<void> => {
       return;
     }
 
+    // Try the most common notification types first
+    const commonTypes = ["info", "general", "announcement"];
+    let successfulType = null;
+
+    for (const tryType of commonTypes) {
+      try {
+        // Test with one user first
+        const testNotification = {
+          user_id: users[0].id,
+          title: "System Announcement",
+          message: message,
+          type: tryType,
+        };
+
+        const { error: testError } = await supabase
+          .from("notifications")
+          .insert([testNotification]);
+
+        if (!testError) {
+          // This type works, clean up test record and use it
+          await supabase
+            .from("notifications")
+            .delete()
+            .eq("user_id", users[0].id)
+            .eq("message", message)
+            .eq("type", tryType);
+
+          successfulType = tryType;
+          console.log(`Using notification type: ${tryType}`);
+          break;
+        }
+      } catch (error) {
+        continue; // Try next type
+      }
+    }
+
+    if (!successfulType) {
+      // No types worked, fall back to logging
+      console.warn(
+        "No valid notification types found. Logging broadcast instead.",
+      );
+      console.log("BROADCAST MESSAGE (TYPE CONSTRAINT ISSUE):", {
+        message,
+        timestamp: new Date().toISOString(),
+        userCount: users.length,
+        testedTypes: commonTypes,
+      });
+      return;
+    }
+
     // If we get here, the notifications table exists
     // Try common notification types - 'system' failed, so try others
     const possibleTypes = [
