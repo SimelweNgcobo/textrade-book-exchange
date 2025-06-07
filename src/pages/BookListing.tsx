@@ -58,6 +58,7 @@ const BookListing = () => {
         condition?: string;
         grade?: string;
         universityYear?: string;
+        university?: string;
         minPrice?: number;
         maxPrice?: number;
       } = {};
@@ -67,6 +68,7 @@ const BookListing = () => {
       if (selectedCondition) filters.condition = selectedCondition;
       if (grade) filters.grade = grade;
       if (universityYear) filters.universityYear = universityYear;
+      if (selectedUniversity) filters.university = selectedUniversity;
 
       if (priceRange[0] > 0) filters.minPrice = priceRange[0];
       if (priceRange[1] < 1000) filters.maxPrice = priceRange[1];
