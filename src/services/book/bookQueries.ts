@@ -259,7 +259,13 @@ const getUserBooksWithFallback = async (userId: string): Promise<Book[]> => {
       .maybeSingle();
 
     if (profileError) {
-      console.error("Error fetching user profile (fallback):", profileError);
+      console.error("Error fetching user profile (fallback):", {
+        message: profileError.message,
+        code: profileError.code,
+        details: profileError.details,
+        hint: profileError.hint,
+        userId: userId,
+      });
     }
 
     return booksData.map((book: any) => {
