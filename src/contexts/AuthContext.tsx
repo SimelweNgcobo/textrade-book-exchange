@@ -60,20 +60,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
   const isAuthenticated = !!user;
   const isAdmin = profile?.isAdmin || false;
 
-  useEffect(() => {
-    console.log("AuthProvider: Setting up auth state listener");
-    initializeAuth();
-    setupAuthListener();
-  }, []);
-
-  useEffect(() => {
-    if (user && profile) {
-      loadUserStats();
-      updateUserActivity();
-    }
-  }, [user, profile]);
-
-  const initializeAuth = async () => {
+  const initializeAuth = useCallback(async () => {
     try {
       const {
         data: { session: currentSession },
