@@ -55,7 +55,7 @@ export const logDatabaseError = (
   }
 
   if (additionalData) {
-    console.error("Additional Context:", additionalData);
+    console.error("Additional Context:", safeStringify(additionalData));
   }
 
   // Log the full error object for complete debugging
