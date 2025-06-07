@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { DebugInfo } from "@/types/address";
 
 /**
  * Debug component to show OAuth and session information
  * Only visible in development mode
  */
 export const OAuthDebugInfo = () => {
-  const [debugInfo, setDebugInfo] = useState<any>(null);
+  const [debugInfo, setDebugInfo] = useState<DebugInfo | null>(null);
 
   useEffect(() => {
     if (process.env.NODE_ENV !== "development") return;

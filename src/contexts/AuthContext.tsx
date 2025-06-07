@@ -18,6 +18,7 @@ import {
   fetchUserProfile,
   Profile,
 } from "@/services/authOperations";
+import { UserStats } from "@/types/address";
 
 interface AuthContextType {
   user: User | null;
@@ -26,7 +27,7 @@ interface AuthContextType {
   isLoading: boolean;
   isAuthenticated: boolean;
   isAdmin: boolean;
-  userStats: any;
+  userStats: UserStats | null;
   loadUserStats: () => Promise<void>;
   checkAdminStatus: (userId: string) => Promise<boolean>;
   login: (email: string, password: string) => Promise<void>;
@@ -52,7 +53,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
   const [profile, setProfile] = useState<Profile | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [userStats, setUserStats] = useState<any>(null);
+  const [userStats, setUserStats] = useState<UserStats | null>(null);
   const { handleError } = useErrorHandler();
 
   const isAuthenticated = !!user;
@@ -146,7 +147,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
       setIsLoading(true);
       await loginUser(email, password);
       toast.success("Login successful!");
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Login failed:", error);
 
       let errorMessage = "Login failed. Please try again.";

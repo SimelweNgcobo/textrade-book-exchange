@@ -7,20 +7,21 @@ import { Book } from "@/types/book";
 import ProfileEditDialog from "@/components/ProfileEditDialog";
 import AddressEditDialog from "@/components/AddressEditDialog";
 import UnavailableBookCard from "@/components/UnavailableBookCard";
+import { UserProfile, AddressData, Address } from "@/types/address";
 
 interface UserProfileTabsProps {
   activeListings: Book[];
   isLoading: boolean;
   onEditBook: (bookId: string) => void;
   onDeleteBook: (bookId: string, bookTitle: string) => void;
-  profile: any;
-  addressData: any;
+  profile: UserProfile | null;
+  addressData: AddressData | null;
   isOwnProfile: boolean;
   userId: string;
   userName: string;
   onSaveAddresses?: (
-    pickup: any,
-    shipping: any,
+    pickup: Address,
+    shipping: Address,
     same: boolean,
   ) => Promise<void>;
   isLoadingAddress?: boolean;
@@ -42,7 +43,7 @@ const UserProfileTabs = ({
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isAddressEditDialogOpen, setIsAddressEditDialogOpen] = useState(false);
 
-  const formatAddress = (address: any) => {
+  const formatAddress = (address: Address | null | undefined) => {
     if (!address) return "Not provided";
     return `${address.street}, ${address.city}, ${address.province} ${address.postalCode}`;
   };
@@ -80,7 +81,8 @@ const UserProfileTabs = ({
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                   {activeListings.map((book) => {
                     const isUnavailable =
-                      (book as any).status === "unavailable";
+                      (book as Book & { status?: string }).status ===
+                      "unavailable";
 
                     if (isUnavailable) {
                       return (

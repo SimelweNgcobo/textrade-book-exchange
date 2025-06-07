@@ -1,12 +1,12 @@
-
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { ShoppingCart, CreditCard, Edit, Share2, User } from 'lucide-react';
-import { Book } from '@/types/book';
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { ShoppingCart, CreditCard, Edit, Share2, User } from "lucide-react";
+import { Book } from "@/types/book";
+import { UserProfile } from "@/types/address";
 
 interface BookActionsProps {
   book: Book;
-  user: any;
+  user: UserProfile | null;
   onBuyNow: () => void;
   onAddToCart: () => void;
   onEditBook: () => void;
@@ -14,7 +14,15 @@ interface BookActionsProps {
   onViewSellerProfile: () => void;
 }
 
-const BookActions = ({ book, user, onBuyNow, onAddToCart, onEditBook, onShare, onViewSellerProfile }: BookActionsProps) => {
+const BookActions = ({
+  book,
+  user,
+  onBuyNow,
+  onAddToCart,
+  onEditBook,
+  onShare,
+  onViewSellerProfile,
+}: BookActionsProps) => {
   const isOwner = user?.id === book.seller?.id;
   const isSold = book.sold;
 
@@ -29,11 +37,13 @@ const BookActions = ({ book, user, onBuyNow, onAddToCart, onEditBook, onShare, o
             </div>
             <p className="text-sm text-gray-600">Final Price</p>
           </div>
-          
+
           {/* Action Buttons */}
           {isSold ? (
             <div className="text-center p-4 bg-gray-100 rounded-lg">
-              <p className="text-gray-600 font-medium">This book has been sold</p>
+              <p className="text-gray-600 font-medium">
+                This book has been sold
+              </p>
             </div>
           ) : isOwner ? (
             <Button

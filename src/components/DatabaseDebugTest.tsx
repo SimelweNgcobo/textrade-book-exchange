@@ -3,13 +3,14 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { logDatabaseError } from "@/utils/debugUtils";
+import { DatabaseTestResult } from "@/types/address";
 
 /**
  * Debug component to test database queries and identify issues
  * Only visible in development mode
  */
 export const DatabaseDebugTest = () => {
-  const [results, setResults] = useState<any[]>([]);
+  const [results, setResults] = useState<DatabaseTestResult[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
   const testSimpleBookQuery = async () => {
