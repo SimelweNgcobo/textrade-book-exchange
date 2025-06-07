@@ -15,8 +15,8 @@ interface UseOAuthRedirectOptions {
 }
 
 /**
- * Custom hook to handle OAuth redirect with token hash fragment
- * Extracts access_token and refresh_token from URL hash and sets the session
+ * Custom hook to handle OAuth redirect using Supabase's built-in session handling
+ * This works with both OAuth flows and PKCE flows
  */
 export const useOAuthRedirect = (options: UseOAuthRedirectOptions = {}) => {
   const {
@@ -28,84 +28,138 @@ export const useOAuthRedirect = (options: UseOAuthRedirectOptions = {}) => {
 
   const navigate = useNavigate();
   const hasProcessed = useRef(false);
+  const hasSetupListener = useRef(false);
 
   useEffect(() => {
     // Prevent processing multiple times
-    if (hasProcessed.current) return;
+    if (hasProcessed.current || hasSetupListener.current) return;
+    hasSetupListener.current = true;
 
     const handleOAuthRedirect = async () => {
       try {
-        // Get the hash fragment from the URL
-        const hash = window.location.hash.substring(1);
+        // Check if we're on an OAuth redirect page (has hash or code parameter)
+        const hash = window.location.hash;
+        const searchParams = new URLSearchParams(window.location.search);
+        const code = searchParams.get("code");
+        const error = searchParams.get("error");
+        const error_description = searchParams.get("error_description");
 
-        if (!hash) return;
-
-        console.log("Processing OAuth redirect with hash:", hash);
-
-        // Parse the hash parameters
-        const params = new URLSearchParams(hash);
-        const access_token = params.get("access_token");
-        const refresh_token = params.get("refresh_token");
-        const expires_in = params.get("expires_in");
-        const token_type = params.get("token_type");
-        const type = params.get("type");
-        const error = params.get("error");
-        const error_description = params.get("error_description");
-
-        // Handle OAuth errors first
+        // Handle OAuth errors from query params
         if (error) {
-          console.error("OAuth error:", error, error_description);
+          console.error(
+            "OAuth error from query params:",
+            error,
+            error_description,
+          );
           hasProcessed.current = true;
 
           if (showNotifications) {
             toast.error(error_description || errorMessage);
           }
 
-          // Clean up URL and redirect to login
-          window.history.replaceState(null, "", window.location.pathname);
           navigate("/login", { replace: true });
           return;
         }
 
-        // Check if we have the required tokens
-        if (!access_token || !refresh_token) {
-          return;
-        }
+        // If we have a hash or code, this might be an OAuth redirect
+        if (hash || code) {
+          console.log(
+            "Potential OAuth redirect detected, letting Supabase handle it...",
+          );
 
-        console.log("OAuth tokens found, setting session...");
-        hasProcessed.current = true;
+          // Set up a one-time listener for auth state changes
+          const {
+            data: { subscription },
+          } = supabase.auth.onAuthStateChange(async (event, session) => {
+            console.log("Auth state change during OAuth:", event, !!session);
 
-        // Set the session with Supabase
-        const { data, error: sessionError } = await supabase.auth.setSession({
-          access_token,
-          refresh_token,
-        });
+            if (hasProcessed.current) return;
 
-        if (sessionError) {
-          console.error("Error setting OAuth session:", sessionError);
+            if (event === "SIGNED_IN" && session) {
+              hasProcessed.current = true;
+              console.log("OAuth sign-in successful");
 
-          if (showNotifications) {
-            toast.error(errorMessage);
-          }
+              if (showNotifications) {
+                toast.success(successMessage);
+              }
 
-          // Clean up URL and redirect to login
-          window.history.replaceState(null, "", window.location.pathname);
-          navigate("/login", { replace: true });
-          return;
-        }
+              // Clean up URL
+              window.history.replaceState(null, "", window.location.pathname);
 
-        if (data.session && data.user) {
-          console.log("OAuth session set successfully");
+              // Redirect to specified path
+              navigate(redirectTo, { replace: true });
 
-          if (showNotifications) {
-            toast.success(successMessage);
-          }
+              // Unsubscribe after successful handling
+              subscription.unsubscribe();
+            } else if (
+              event === "SIGNED_OUT" ||
+              (event === "TOKEN_REFRESHED" && !session)
+            ) {
+              // Handle sign out or failed refresh
+              console.log("OAuth flow resulted in sign out or failed session");
+              hasProcessed.current = true;
 
-          // Clean up the hash fragment from the URL
-          window.history.replaceState(null, "", window.location.pathname);
+              if (showNotifications) {
+                toast.error(errorMessage);
+              }
 
-          // Redirect to specified path
-          navigate(redirectTo, { replace: true });
+              window.history.replaceState(null, "", window.location.pathname);
+              navigate("/login", { replace: true });
+              subscription.unsubscribe();
+            }
+          });
+
+          // Also try to get the current session in case it's already available
+          setTimeout(async () => {
+            if (hasProcessed.current) return;
+
+            try {
+              const {
+                data: { session },
+                error: sessionError,
+              } = await supabase.auth.getSession();
+
+              if (sessionError) {
+                console.error(
+                  "Error getting session after OAuth:",
+                  sessionError,
+                );
+                hasProcessed.current = true;
+
+                if (showNotifications) {
+                  toast.error(errorMessage);
+                }
+
+                window.history.replaceState(null, "", window.location.pathname);
+                navigate("/login", { replace: true });
+                subscription.unsubscribe();
+                return;
+              }
+
+              if (session && !hasProcessed.current) {
+                hasProcessed.current = true;
+                console.log("Found existing session after OAuth redirect");
+
+                if (showNotifications) {
+                  toast.success(successMessage);
+                }
+
+                window.history.replaceState(null, "", window.location.pathname);
+                navigate(redirectTo, { replace: true });
+                subscription.unsubscribe();
+              }
+            } catch (error) {
+              console.error("Error checking session after OAuth:", error);
+            }
+          }, 100);
+
+          // Cleanup subscription after a timeout if nothing happened
+          setTimeout(() => {
+            if (!hasProcessed.current) {
+              console.log("OAuth handling timeout, cleaning up...");
+              subscription.unsubscribe();
+            }
+          }, 10000);
         }
       } catch (error) {
         console.error("OAuth redirect handling error:", error);
@@ -115,7 +169,6 @@ export const useOAuthRedirect = (options: UseOAuthRedirectOptions = {}) => {
           toast.error(errorMessage);
         }
 
-        // Clean up URL and redirect to login
         window.history.replaceState(null, "", window.location.pathname);
         navigate("/login", { replace: true });
       }
