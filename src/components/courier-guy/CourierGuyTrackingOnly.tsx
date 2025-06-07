@@ -37,7 +37,10 @@ const CourierGuyTrackingOnly = () => {
   }, [user]);
 
   const loadUserData = async () => {
-    if (!user) return;
+    if (!user) {
+      setIsLoading(false);
+      return;
+    }
 
     setIsLoading(true);
     try {
@@ -46,10 +49,23 @@ const CourierGuyTrackingOnly = () => {
         validateUserShipmentEligibility(user.id),
       ]);
 
-      setUserShipments(shipments);
-      setEligibility(userEligibility);
+      setUserShipments(shipments || []);
+      setEligibility(
+        userEligibility || {
+          canSell: false,
+          canBuy: false,
+          errors: ["Error loading eligibility"],
+        },
+      );
     } catch (error) {
       console.error("Error loading user data:", error);
+      // Set fallback values to prevent infinite loading
+      setUserShipments([]);
+      setEligibility({
+        canSell: false,
+        canBuy: false,
+        errors: ["Error loading user information"],
+      });
     } finally {
       setIsLoading(false);
     }
