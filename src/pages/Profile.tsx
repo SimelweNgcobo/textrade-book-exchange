@@ -261,6 +261,7 @@ const Profile = () => {
             userName={profile.name || "Anonymous User"}
             onSaveAddresses={handleSaveAddresses}
             isLoadingAddress={isLoadingAddress}
+            deletingBooks={deletingBooks}
           />
         </div>
 
