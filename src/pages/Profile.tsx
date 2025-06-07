@@ -1,22 +1,21 @@
-
-import { useState, useEffect } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
-import Layout from '@/components/Layout';
-import ProfileHeader from '@/components/ProfileHeader';
-import ShareProfileDialog from '@/components/ShareProfileDialog';
-import BookNotSellingDialog from '@/components/BookNotSellingDialog';
-import ReportIssueDialog from '@/components/ReportIssueDialog';
-import { Button } from '@/components/ui/button';
-import { Plus, AlertTriangle } from 'lucide-react';
-import ProfileEditDialog from '@/components/ProfileEditDialog';
-import UserProfileTabs from '@/components/profile/UserProfileTabs';
-import { saveUserAddresses, getUserAddresses } from '@/services/addressService';
-import { getUserBooks } from '@/services/book/bookQueries';
-import { deleteBook } from '@/services/book/bookMutations';
-import { Book } from '@/types/book';
-import { toast } from 'sonner';
-import { useNavigate } from 'react-router-dom';
-import { useIsMobile } from '@/hooks/use-mobile';
+import { useState, useEffect } from "react";
+import { useAuth } from "@/contexts/AuthContext";
+import Layout from "@/components/Layout";
+import ProfileHeader from "@/components/ProfileHeader";
+import ShareProfileDialog from "@/components/ShareProfileDialog";
+import BookNotSellingDialog from "@/components/BookNotSellingDialog";
+import ReportIssueDialog from "@/components/ReportIssueDialog";
+import { Button } from "@/components/ui/button";
+import { Plus, AlertTriangle } from "lucide-react";
+import ProfileEditDialog from "@/components/ProfileEditDialog";
+import UserProfileTabs from "@/components/profile/UserProfileTabs";
+import { saveUserAddresses, getUserAddresses } from "@/services/addressService";
+import { getUserBooks, deleteBook } from "@/services/book/bookQueries";
+import { Book } from "@/types/book";
+import { BookDeletionService } from "@/services/bookDeletionService";
+import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const Profile = () => {
   const { profile, user } = useAuth();
@@ -24,7 +23,8 @@ const Profile = () => {
   const isMobile = useIsMobile();
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isShareDialogOpen, setIsShareDialogOpen] = useState(false);
-  const [isBookNotSellingDialogOpen, setIsBookNotSellingDialogOpen] = useState(false);
+  const [isBookNotSellingDialogOpen, setIsBookNotSellingDialogOpen] =
+    useState(false);
   const [isReportIssueDialogOpen, setIsReportIssueDialogOpen] = useState(false);
   const [addressData, setAddressData] = useState<any>(null);
   const [activeListings, setActiveListings] = useState<Book[]>([]);
@@ -40,44 +40,48 @@ const Profile = () => {
 
   const loadUserAddresses = async () => {
     if (!user?.id) return;
-    
+
     try {
       const data = await getUserAddresses(user.id);
       setAddressData(data);
     } catch (error) {
-      console.error('Error loading addresses:', error);
+      console.error("Error loading addresses:", error);
     }
   };
 
   const loadActiveListings = async () => {
     if (!user?.id) return;
-    
+
     try {
       setIsLoadingListings(true);
-      console.log('Loading books for user:', user.id);
+      console.log("Loading books for user:", user.id);
       const books = await getUserBooks(user.id);
-      console.log('User books loaded:', books);
-      const activeBooks = books.filter(book => !book.sold);
+      console.log("User books loaded:", books);
+      const activeBooks = books.filter((book) => !book.sold);
       setActiveListings(activeBooks);
     } catch (error) {
-      console.error('Error loading active listings:', error);
-      toast.error('Failed to load active listings');
+      console.error("Error loading active listings:", error);
+      toast.error("Failed to load active listings");
     } finally {
       setIsLoadingListings(false);
     }
   };
 
-  const handleSaveAddresses = async (pickup: any, shipping: any, same: boolean) => {
+  const handleSaveAddresses = async (
+    pickup: any,
+    shipping: any,
+    same: boolean,
+  ) => {
     if (!user?.id) return;
-    
+
     setIsLoadingAddress(true);
     try {
       await saveUserAddresses(user.id, pickup, shipping, same);
       await loadUserAddresses();
-      toast.success('Addresses saved successfully');
+      toast.success("Addresses saved successfully");
     } catch (error) {
-      console.error('Error saving addresses:', error);
-      toast.error('Failed to save addresses');
+      console.error("Error saving addresses:", error);
+      toast.error("Failed to save addresses");
       throw error;
     } finally {
       setIsLoadingAddress(false);
@@ -86,31 +90,35 @@ const Profile = () => {
 
   const handleEditBook = (bookId: string) => {
     if (!bookId) {
-      toast.error('Book ID is missing');
+      toast.error("Book ID is missing");
       return;
     }
-    console.log('Navigating to edit book:', bookId);
+    console.log("Navigating to edit book:", bookId);
     navigate(`/edit-book/${bookId}`);
   };
 
   const handleDeleteBook = async (bookId: string, bookTitle: string) => {
     if (!bookId) {
-      toast.error('Book ID is missing');
+      toast.error("Book ID is missing");
       return;
     }
 
-    if (!confirm(`Are you sure you want to delete "${bookTitle}"? This action cannot be undone.`)) {
+    if (
+      !confirm(
+        `Are you sure you want to delete "${bookTitle}"? This action cannot be undone.`,
+      )
+    ) {
       return;
     }
 
     try {
-      console.log('Deleting book:', bookId);
+      console.log("Deleting book:", bookId);
       await deleteBook(bookId);
-      toast.success('Book deleted successfully');
+      toast.success("Book deleted successfully");
       await loadActiveListings();
     } catch (error: any) {
-      console.error('Error deleting book:', error);
-      toast.error(error.message || 'Failed to delete book');
+      console.error("Error deleting book:", error);
+      toast.error(error.message || "Failed to delete book");
     }
   };
 
@@ -145,9 +153,9 @@ const Profile = () => {
 
   const userData = {
     id: user.id,
-    name: profile.name || 'Anonymous User',
+    name: profile.name || "Anonymous User",
     joinDate: new Date().toISOString(),
-    isVerified: false
+    isVerified: false,
   };
 
   return (
@@ -166,7 +174,7 @@ const Profile = () => {
 
         {/* Profile Header with integrated action buttons */}
         <div className="mb-6">
-          <ProfileHeader 
+          <ProfileHeader
             userData={userData}
             isOwnProfile={true}
             onShareProfile={handleShareProfile}
@@ -178,7 +186,7 @@ const Profile = () => {
         {/* Create New Listing Button */}
         <div className="mb-6">
           <Button
-            onClick={() => navigate('/create-listing')}
+            onClick={() => navigate("/create-listing")}
             className="bg-book-600 hover:bg-book-700 text-white w-full sm:w-auto"
             size="lg"
           >
@@ -186,7 +194,7 @@ const Profile = () => {
             Create New Listing
           </Button>
         </div>
-        
+
         {/* Main Content - Only Tabbed Layout */}
         <div className="w-full">
           <UserProfileTabs
@@ -198,7 +206,7 @@ const Profile = () => {
             addressData={addressData}
             isOwnProfile={true}
             userId={user.id}
-            userName={profile.name || 'Anonymous User'}
+            userName={profile.name || "Anonymous User"}
             onSaveAddresses={handleSaveAddresses}
             isLoadingAddress={isLoadingAddress}
           />
@@ -214,7 +222,7 @@ const Profile = () => {
           isOpen={isShareDialogOpen}
           onClose={() => setIsShareDialogOpen(false)}
           userId={user.id}
-          userName={profile.name || 'Anonymous User'}
+          userName={profile.name || "Anonymous User"}
           isOwnProfile={true}
         />
 
