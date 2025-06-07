@@ -133,81 +133,12 @@ export const sendBroadcastMessage = async (message: string): Promise<void> => {
       return;
     }
 
-    // If we get here, the notifications table exists
-    // Try common notification types - 'system' failed, so try others
-    const possibleTypes = [
-      "info",
-      "announcement",
-      "admin",
-      "broadcast",
-      "general",
-      "success",
-      "warning",
-      "error",
-    ];
-
-    let notifications = [];
-    let workingType = null;
-
-    // Try each type until we find one that works
-    for (const tryType of possibleTypes) {
-      try {
-        notifications = users.slice(0, 1).map((user) => ({
-          user_id: user.id,
-          title: "System Announcement",
-          message: message,
-          type: tryType,
-          created_at: new Date().toISOString(),
-        }));
-
-        // Test with just the first user
-        const { error: testError } = await supabase
-          .from("notifications")
-          .insert([notifications[0]]);
-
-        if (!testError) {
-          workingType = tryType;
-          console.log(
-            `Successfully found working notification type: ${tryType}`,
-          );
-
-          // Delete the test notification
-          await supabase
-            .from("notifications")
-            .delete()
-            .eq("user_id", notifications[0].user_id)
-            .eq("message", message)
-            .eq("type", tryType);
-
-          break;
-        }
-      } catch (error) {
-        // Continue trying other types
-        continue;
-      }
-    }
-
-    if (!workingType) {
-      // If no type works, fall back to logging
-      console.warn(
-        "No valid notification type found. Logging broadcast message instead.",
-      );
-      console.log("BROADCAST MESSAGE:", {
-        message,
-        timestamp: new Date().toISOString(),
-        userCount: users.length,
-        attemptedTypes: possibleTypes,
-      });
-      return;
-    }
-
-    // Create notifications for all users with the working type
-    notifications = users.map((user) => ({
+    // Create notifications for all users with the successful type
+    const notifications = users.map((user) => ({
       user_id: user.id,
       title: "System Announcement",
       message: message,
-      type: workingType,
-      created_at: new Date().toISOString(),
+      type: successfulType,
     }));
 
     // Insert in batches to avoid overwhelming the database
