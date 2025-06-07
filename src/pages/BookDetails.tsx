@@ -67,19 +67,32 @@ const BookDetails = () => {
       return;
     }
 
-    if (!book) return;
+    if (!book) {
+      toast.error("Book information is not available");
+      return;
+    }
+
+    if (!book.seller || !book.seller.id) {
+      toast.error("Seller information is not available");
+      return;
+    }
 
     if (book.sold) {
       toast.error("This book has already been sold");
       return;
     }
 
-    if (user.id === book.seller?.id) {
+    if (user.id === book.seller.id) {
       toast.error("You cannot add your own book to cart");
       return;
     }
 
-    addToCart(book);
+    try {
+      addToCart(book);
+    } catch (error) {
+      console.error("Error adding book to cart:", error);
+      toast.error("Failed to add book to cart. Please try again.");
+    }
   };
 
   const handleEditBook = () => {
