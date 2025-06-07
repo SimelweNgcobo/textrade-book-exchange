@@ -1,8 +1,8 @@
-
-import { Link } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { BookOpen, School, GraduationCap } from 'lucide-react';
-import { Book } from '@/types/book';
+import { Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { BookOpen, School, GraduationCap, MapPin } from "lucide-react";
+import { Book } from "@/types/book";
 
 interface BookGridProps {
   books: Book[];
@@ -11,7 +11,10 @@ interface BookGridProps {
 }
 
 const BookGrid = ({ books, isLoading, onClearFilters }: BookGridProps) => {
-  console.log('BookGrid rendering with:', { booksCount: books.length, isLoading });
+  console.log("BookGrid rendering with:", {
+    booksCount: books.length,
+    isLoading,
+  });
 
   if (isLoading) {
     return (
@@ -29,8 +32,10 @@ const BookGrid = ({ books, isLoading, onClearFilters }: BookGridProps) => {
         <div className="bg-white rounded-lg shadow-md p-8 text-center">
           <BookOpen className="mx-auto h-12 w-12 text-book-300 mb-4" />
           <h3 className="text-xl font-semibold mb-2">No books found</h3>
-          <p className="text-gray-500 mb-6">Try adjusting your filters or search criteria</p>
-          <Button 
+          <p className="text-gray-500 mb-6">
+            Try adjusting your filters or search criteria
+          </p>
+          <Button
             onClick={onClearFilters}
             variant="outline"
             className="border-book-600 text-book-600"
@@ -45,33 +50,36 @@ const BookGrid = ({ books, isLoading, onClearFilters }: BookGridProps) => {
   return (
     <div className="lg:w-3/4">
       <div className="mb-4">
-        <p className="text-gray-600">Found {books.length} book{books.length !== 1 ? 's' : ''}</p>
+        <p className="text-gray-600">
+          Found {books.length} book{books.length !== 1 ? "s" : ""}
+        </p>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {books.map((book) => {
-          console.log('Rendering book:', book.id, book.title);
+          console.log("Rendering book:", book.id, book.title);
           return (
-            <Link 
+            <Link
               key={book.id}
               to={`/books/${book.id}`}
               className="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-shadow duration-200 book-card-hover flex flex-col"
               onClick={(e) => {
                 if (!book.id) {
                   e.preventDefault();
-                  console.error('Book ID is missing for book:', book.title);
+                  console.error("Book ID is missing for book:", book.title);
                   return;
                 }
-                console.log('Navigating to book:', book.id);
+                console.log("Navigating to book:", book.id);
               }}
             >
               <div className="relative h-48 overflow-hidden">
-                <img 
-                  src={book.imageUrl} 
+                <img
+                  src={book.imageUrl}
                   alt={book.title}
                   className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
                   onError={(e) => {
-                    console.log('Image failed to load for book:', book.id);
-                    e.currentTarget.src = 'https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=400&h=300&fit=crop&auto=format&q=80';
+                    console.log("Image failed to load for book:", book.id);
+                    e.currentTarget.src =
+                      "https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=400&h=300&fit=crop&auto=format&q=80";
                   }}
                 />
                 <div className="absolute top-2 right-2 bg-white px-2 py-1 rounded-full text-sm font-semibold text-book-800">
@@ -79,14 +87,20 @@ const BookGrid = ({ books, isLoading, onClearFilters }: BookGridProps) => {
                 </div>
                 {book.sold && (
                   <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-                    <span className="bg-red-500 text-white px-3 py-1 rounded-full text-sm font-semibold">SOLD</span>
+                    <span className="bg-red-500 text-white px-3 py-1 rounded-full text-sm font-semibold">
+                      SOLD
+                    </span>
                   </div>
                 )}
               </div>
               <div className="p-4 flex-grow flex flex-col">
-                <h3 className="font-bold text-lg mb-1 text-book-800 line-clamp-1">{book.title}</h3>
+                <h3 className="font-bold text-lg mb-1 text-book-800 line-clamp-1">
+                  {book.title}
+                </h3>
                 <p className="text-gray-600 mb-2">{book.author}</p>
-                <p className="text-gray-500 text-sm mb-auto line-clamp-2">{book.description}</p>
+                <p className="text-gray-500 text-sm mb-auto line-clamp-2">
+                  {book.description}
+                </p>
                 <div className="flex flex-wrap items-center justify-between mt-4 gap-1">
                   <span className="bg-book-100 text-book-800 px-2 py-1 rounded text-xs font-medium">
                     {book.condition}
