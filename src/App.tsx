@@ -8,6 +8,7 @@ import ScrollToTop from "./components/ScrollToTop";
 import ErrorBoundary from "./components/ErrorBoundary";
 import OAuthRedirectHandler from "./components/OAuthRedirectHandler";
 import OAuthDebugInfo from "./components/OAuthDebugInfo";
+import DatabaseDebugTest from "./components/DatabaseDebugTest";
 
 // Pages
 import Index from "./pages/Index";
