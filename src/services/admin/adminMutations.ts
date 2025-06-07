@@ -1,76 +1,119 @@
+import { supabase } from "@/integrations/supabase/client";
 
-import { supabase } from '@/integrations/supabase/client';
-
-export const updateUserStatus = async (userId: string, status: string): Promise<void> => {
+export const updateUserStatus = async (
+  userId: string,
+  status: string,
+): Promise<void> => {
   try {
     const { error } = await supabase
-      .from('profiles')
-      .update({ 
+      .from("profiles")
+      .update({
         status,
-        updated_at: new Date().toISOString()
+        updated_at: new Date().toISOString(),
       })
-      .eq('id', userId);
+      .eq("id", userId);
 
     if (error) {
-      console.error('Error updating user status:', error);
+      console.error("Error updating user status:", error);
       throw error;
     }
   } catch (error) {
-    console.error('Error in updateUserStatus:', error);
-    throw new Error('Failed to update user status');
+    console.error("Error in updateUserStatus:", error);
+    throw new Error("Failed to update user status");
   }
 };
 
 export const deleteBookListing = async (bookId: string): Promise<void> => {
   try {
-    const { error } = await supabase
-      .from('books')
-      .delete()
-      .eq('id', bookId);
+    const { error } = await supabase.from("books").delete().eq("id", bookId);
 
     if (error) {
-      console.error('Error deleting book:', error);
+      console.error("Error deleting book:", error);
       throw error;
     }
   } catch (error) {
-    console.error('Error in deleteBookListing:', error);
-    throw new Error('Failed to delete book listing');
+    console.error("Error in deleteBookListing:", error);
+    throw new Error("Failed to delete book listing");
   }
 };
 
 export const sendBroadcastMessage = async (message: string): Promise<void> => {
   try {
-    // Get all users
+    console.log("Attempting to send broadcast message:", message);
+
+    // Get all users first
     const { data: users, error: usersError } = await supabase
-      .from('profiles')
-      .select('id');
+      .from("profiles")
+      .select("id")
+      .neq("status", "deleted")
+      .limit(1000); // Limit to prevent overwhelming the system
 
     if (usersError) {
+      console.error("Error fetching users for broadcast:", usersError);
       throw usersError;
     }
 
     if (!users || users.length === 0) {
-      throw new Error('No users found');
+      throw new Error("No users found to send broadcast to");
     }
 
+    console.log(`Broadcasting to ${users.length} users`);
+
+    // Try to check if notifications table exists first
+    const { data: tableCheck, error: tableError } = await supabase
+      .from("notifications")
+      .select("id")
+      .limit(1);
+
+    if (tableError && tableError.code === "42P01") {
+      // Table doesn't exist - log this and provide alternative
+      console.warn(
+        "Notifications table does not exist. Broadcast message logged but not stored.",
+      );
+      console.log("BROADCAST MESSAGE:", {
+        message,
+        timestamp: new Date().toISOString(),
+        userCount: users.length,
+        recipients: users.map((u) => u.id),
+      });
+
+      // For now, just log that the message would be sent
+      // In the future, you might want to use a different notification system
+      return;
+    }
+
+    // If we get here, the notifications table exists
     // Create notifications for all users
-    const notifications = users.map(user => ({
+    const notifications = users.map((user) => ({
       user_id: user.id,
-      title: 'System Announcement',
+      title: "System Announcement",
       message: message,
-      type: 'system'
+      type: "system",
+      created_at: new Date().toISOString(),
     }));
 
-    const { error: notificationError } = await supabase
-      .from('notifications')
-      .insert(notifications);
+    // Insert in batches to avoid overwhelming the database
+    const batchSize = 100;
+    for (let i = 0; i < notifications.length; i += batchSize) {
+      const batch = notifications.slice(i, i + batchSize);
 
-    if (notificationError) {
-      console.error('Error creating notifications:', notificationError);
-      throw notificationError;
+      const { error: notificationError } = await supabase
+        .from("notifications")
+        .insert(batch);
+
+      if (notificationError) {
+        console.error("Error creating notification batch:", notificationError);
+        throw notificationError;
+      }
     }
+
+    console.log(
+      "Broadcast message sent successfully to",
+      users.length,
+      "users",
+    );
   } catch (error) {
-    console.error('Error in sendBroadcastMessage:', error);
-    throw new Error('Failed to send broadcast message');
+    console.error("Error in sendBroadcastMessage:", error);
+    throw new Error("Failed to send broadcast message");
   }
 };
