@@ -127,9 +127,9 @@ export const trackCourierGuyShipment = async (
     console.log("Tracking Courier Guy shipment:", trackingNumber);
 
     const { data, error } = await supabase.functions.invoke(
-      "courier-guy-track",
+      `courier-guy-track/${trackingNumber}`,
       {
-        body: { trackingNumber },
+        method: "GET",
       },
     );
 
