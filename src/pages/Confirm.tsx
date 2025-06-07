@@ -78,27 +78,13 @@ const Confirm = () => {
           }
         }
 
-        // Method 2: Access/Refresh token session (fallback)
+        // Method 2: Check if OAuth redirect is being handled
         if (access_token && refresh_token) {
-          console.log("Using session tokens");
-          const { data, error } = await supabase.auth.setSession({
-            access_token,
-            refresh_token,
-          });
-
-          if (error) {
-            console.error("Session token error:", error);
-            throw error;
-          }
-
-          if (data.session) {
-            console.log("Session set successfully");
-            setStatus("success");
-            setMessage("Email confirmed successfully! You are now logged in.");
-            toast.success("Email confirmed successfully!");
-            setTimeout(() => navigate("/"), 2000);
-            return;
-          }
+          console.log(
+            "OAuth tokens detected - letting OAuth handler process this",
+          );
+          // Let the useOAuthRedirect hook handle this
+          return;
         }
 
         // Method 3: Code exchange (last resort)
