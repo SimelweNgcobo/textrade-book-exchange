@@ -1,6 +1,6 @@
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import {
   Dialog,
   DialogContent,
@@ -9,25 +9,17 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
-import { Textarea } from "@/components/ui/textarea";
-import {
-  CheckCircle,
-  AlertCircle,
-  Clock,
-  Eye,
-  X,
-  Ban,
-  UserX,
-} from "lucide-react";
-import { useIsMobile } from "@/hooks/use-mobile";
+} from '@/components/ui/dialog';
+import { Textarea } from '@/components/ui/textarea';
+import { CheckCircle, AlertCircle, Clock, Eye, X, Ban, UserX } from 'lucide-react';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface Report {
   id: string;
   book_title: string;
   seller_name: string;
   reason: string;
-  status: "pending" | "resolved" | "dismissed";
+  status: 'pending' | 'resolved' | 'dismissed';
   created_at: string;
   reporter_user_id: string;
   reported_user_id: string;
@@ -39,12 +31,8 @@ interface ReportActionsProps {
   actionReason: string;
   setActionReason: (reason: string) => void;
   isSubmitting: boolean;
-  onUpdateStatus: (reportId: string, status: "resolved" | "dismissed") => void;
-  onUserAction: (
-    userId: string,
-    action: "ban" | "suspend",
-    reason: string,
-  ) => void;
+  onUpdateStatus: (reportId: string, status: 'resolved' | 'dismissed') => void;
+  onUserAction: (userId: string, action: 'ban' | 'suspend', reason: string) => void;
 }
 
 const ReportActions = ({
@@ -53,14 +41,14 @@ const ReportActions = ({
   setActionReason,
   isSubmitting,
   onUpdateStatus,
-  onUserAction,
+  onUserAction
 }: ReportActionsProps) => {
   const isMobile = useIsMobile();
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case "resolved":
+      case 'resolved':
         return <CheckCircle className="h-4 w-4 text-green-600" />;
-      case "dismissed":
+      case 'dismissed':
         return <AlertCircle className="h-4 w-4 text-gray-600" />;
       default:
         return <Clock className="h-4 w-4 text-yellow-600" />;
@@ -69,16 +57,16 @@ const ReportActions = ({
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "resolved":
-        return "bg-green-100 text-green-800";
-      case "dismissed":
-        return "bg-gray-100 text-gray-800";
+      case 'resolved':
+        return 'bg-green-100 text-green-800';
+      case 'dismissed':
+        return 'bg-gray-100 text-gray-800';
       default:
-        return "bg-yellow-100 text-yellow-800";
+        return 'bg-yellow-100 text-yellow-800';
     }
   };
 
-  if (report.status !== "pending") {
+  if (report.status !== 'pending') {
     return (
       <Badge className={getStatusColor(report.status)}>
         <span className="flex items-center gap-1">
@@ -90,11 +78,11 @@ const ReportActions = ({
   }
 
   return (
-    <ScrollArea className="w-full">
-      <div className="flex gap-2 min-w-max">
+    <div className={isMobile ? 'space-y-2' : ''}>
+      <div className={`flex ${isMobile ? 'flex-col' : 'gap-2 min-w-max'}`}>
         <Dialog>
           <DialogTrigger asChild>
-            <Button size="sm" variant="outline">
+            <Button size="sm" variant="outline" className={isMobile ? 'w-full' : ''}>
               <Eye className="h-4 w-4 mr-1" />
               View
             </Button>
@@ -108,15 +96,13 @@ const ReportActions = ({
             </DialogHeader>
             <div className="space-y-4">
               <div>
-                <strong>Reported:</strong>{" "}
-                {report.book_id ? report.book_title : report.seller_name}
+                <strong>Reported:</strong> {report.book_id ? report.book_title : report.seller_name}
               </div>
               <div>
                 <strong>Reason:</strong> {report.reason}
               </div>
               <div>
-                <strong>Date:</strong>{" "}
-                {new Date(report.created_at).toLocaleString()}
+                <strong>Date:</strong> {new Date(report.created_at).toLocaleString()}
               </div>
             </div>
           </DialogContent>
@@ -125,7 +111,7 @@ const ReportActions = ({
         <Button
           size="sm"
           variant="outline"
-          onClick={() => onUpdateStatus(report.id, "dismissed")}
+          onClick={() => onUpdateStatus(report.id, 'dismissed')}
         >
           <X className="h-4 w-4 mr-1" />
           Dismiss
@@ -142,8 +128,7 @@ const ReportActions = ({
             <DialogHeader>
               <DialogTitle>Ban User</DialogTitle>
               <DialogDescription>
-                Provide a reason for banning this user. This action cannot be
-                undone.
+                Provide a reason for banning this user. This action cannot be undone.
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-4">
@@ -155,17 +140,15 @@ const ReportActions = ({
               />
             </div>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setActionReason("")}>
+              <Button variant="outline" onClick={() => setActionReason('')}>
                 Cancel
               </Button>
               <Button
                 variant="destructive"
                 disabled={!actionReason.trim() || isSubmitting}
-                onClick={() =>
-                  onUserAction(report.reported_user_id, "ban", actionReason)
-                }
+                onClick={() => onUserAction(report.reported_user_id, 'ban', actionReason)}
               >
-                {isSubmitting ? "Banning..." : "Ban User"}
+                {isSubmitting ? 'Banning...' : 'Ban User'}
               </Button>
             </DialogFooter>
           </DialogContent>
@@ -182,8 +165,7 @@ const ReportActions = ({
             <DialogHeader>
               <DialogTitle>Suspend User</DialogTitle>
               <DialogDescription>
-                Provide a reason for suspending this user. They can be
-                reinstated later.
+                Provide a reason for suspending this user. They can be reinstated later.
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-4">
@@ -195,17 +177,15 @@ const ReportActions = ({
               />
             </div>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setActionReason("")}>
+              <Button variant="outline" onClick={() => setActionReason('')}>
                 Cancel
               </Button>
               <Button
                 className="bg-orange-600 hover:bg-orange-700"
                 disabled={!actionReason.trim() || isSubmitting}
-                onClick={() =>
-                  onUserAction(report.reported_user_id, "suspend", actionReason)
-                }
+                onClick={() => onUserAction(report.reported_user_id, 'suspend', actionReason)}
               >
-                {isSubmitting ? "Suspending..." : "Suspend User"}
+                {isSubmitting ? 'Suspending...' : 'Suspend User'}
               </Button>
             </DialogFooter>
           </DialogContent>
