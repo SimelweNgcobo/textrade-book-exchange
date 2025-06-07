@@ -118,19 +118,18 @@ const EnhancedModerationDashboard = () => {
       setError(null);
       setIsLoading(true);
 
-      const [reportsResponse, usersResponse, reporterProfilesResponse] =
-        await Promise.all([
-          supabase
-            .from("reports")
-            .select("*")
-            .order("created_at", { ascending: false }),
-          supabase
-            .from("profiles")
-            .select("id, name, email, status, suspended_at, suspension_reason")
-            .in("status", ["suspended", "banned"])
-            .order("created_at", { ascending: false }),
-          supabase.from("profiles").select("id, name, email"),
-        ]);
+      // First, get reports and suspended users
+      const [reportsResponse, usersResponse] = await Promise.all([
+        supabase
+          .from("reports")
+          .select("*")
+          .order("created_at", { ascending: false }),
+        supabase
+          .from("profiles")
+          .select("id, name, email, status, suspended_at, suspension_reason")
+          .in("status", ["suspended", "banned"])
+          .order("created_at", { ascending: false }),
+      ]);
 
       if (reportsResponse.error) {
         throw new Error(
@@ -142,6 +141,24 @@ const EnhancedModerationDashboard = () => {
         throw new Error(
           `Failed to load suspended users: ${usersResponse.error.message}`,
         );
+      }
+
+      // Get unique reporter user IDs to minimize profile queries
+      const reporterUserIds = Array.from(
+        new Set(
+          (reportsResponse.data || []).map(
+            (report: any) => report.reporter_user_id,
+          ),
+        ),
+      );
+
+      // Fetch reporter profiles only for users who have made reports
+      let reporterProfilesResponse = { data: [], error: null };
+      if (reporterUserIds.length > 0) {
+        reporterProfilesResponse = await supabase
+          .from("profiles")
+          .select("id, name, email")
+          .in("id", reporterUserIds);
       }
 
       if (reporterProfilesResponse.error) {
