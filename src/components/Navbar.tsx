@@ -52,6 +52,13 @@ const Navbar = () => {
             >
               Browse Books
             </Link>
+            <Link
+              to="/shipping"
+              className="text-gray-700 hover:text-book-600 px-3 py-2 transition-colors flex items-center"
+            >
+              <Truck className="h-4 w-4 mr-1" />
+              Shipping
+            </Link>
 
             {isAuthenticated ? (
               <>
