@@ -192,6 +192,8 @@ const BookListing = () => {
               if (selectedGrade) params.set("grade", selectedGrade);
               if (selectedUniversityYear)
                 params.set("universityYear", selectedUniversityYear);
+              if (selectedUniversity)
+                params.set("university", selectedUniversity);
               setSearchParams(params);
               loadBooks();
             }}
@@ -203,6 +205,8 @@ const BookListing = () => {
               if (selectedGrade) params.set("grade", selectedGrade);
               if (selectedUniversityYear)
                 params.set("universityYear", selectedUniversityYear);
+              if (selectedUniversity)
+                params.set("university", selectedUniversity);
               setSearchParams(params);
               loadBooks();
             }}
