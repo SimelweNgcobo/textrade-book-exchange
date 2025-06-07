@@ -20,6 +20,7 @@ import ResetPassword from "./pages/ResetPassword";
 import Profile from "./pages/Profile";
 import UserProfile from "./pages/UserProfile";
 import NotFound from "./pages/NotFound";
+import OAuthTest from "./pages/OAuthTest";
 import CreateListing from "./pages/CreateListing";
 import Checkout from "./pages/Checkout";
 import Admin from "./pages/Admin";
