@@ -1,13 +1,25 @@
-import { useState, useEffect } from 'react';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { User, Book, Calendar, Mail, MapPin } from 'lucide-react';
-import { getUserProfile, AdminUser } from '@/services/admin/adminQueries';
-import { getUserBooks } from '@/services/book/bookQueries';
-import { Book as BookType } from '@/types/book';
+import { useState, useEffect } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { User, Book, Calendar, Mail, MapPin } from "lucide-react";
+import { getUserProfile, AdminUser } from "@/services/admin/adminQueries";
+import { getUserBooks } from "@/services/book/bookQueries";
+import { Book as BookType } from "@/types/book";
 
 interface UserProfileViewerProps {
   userId: string | null;
@@ -15,10 +27,15 @@ interface UserProfileViewerProps {
   onClose: () => void;
 }
 
-const UserProfileViewer = ({ userId, isOpen, onClose }: UserProfileViewerProps) => {
+const UserProfileViewer = ({
+  userId,
+  isOpen,
+  onClose,
+}: UserProfileViewerProps) => {
   const [user, setUser] = useState<AdminUser | null>(null);
   const [userBooks, setUserBooks] = useState<BookType[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (userId && isOpen) {
@@ -31,13 +48,13 @@ const UserProfileViewer = ({ userId, isOpen, onClose }: UserProfileViewerProps) 
     try {
       const [profileData, booksData] = await Promise.all([
         getUserProfile(id),
-        getUserBooks(id)
+        getUserBooks(id),
       ]);
-      
+
       setUser(profileData);
       setUserBooks(booksData);
     } catch (error) {
-      console.error('Error loading user profile:', error);
+      console.error("Error loading user profile:", error);
     } finally {
       setIsLoading(false);
     }
@@ -80,7 +97,11 @@ const UserProfileViewer = ({ userId, isOpen, onClose }: UserProfileViewerProps) 
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div className="flex items-center gap-2">
-                    <Badge variant={user.status === 'active' ? 'default' : 'destructive'}>
+                    <Badge
+                      variant={
+                        user.status === "active" ? "default" : "destructive"
+                      }
+                    >
                       {user.status}
                     </Badge>
                   </div>
@@ -103,32 +124,39 @@ const UserProfileViewer = ({ userId, isOpen, onClose }: UserProfileViewerProps) 
                   <Book className="h-5 w-5" />
                   Book Listings ({userBooks.length})
                 </CardTitle>
-                <CardDescription>
-                  All books listed by this user
-                </CardDescription>
+                <CardDescription>All books listed by this user</CardDescription>
               </CardHeader>
               <CardContent>
                 {userBooks.length === 0 ? (
-                  <p className="text-gray-500 text-center py-4">No books listed yet</p>
+                  <p className="text-gray-500 text-center py-4">
+                    No books listed yet
+                  </p>
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {userBooks.map((book) => (
                       <div key={book.id} className="border rounded-lg p-4">
                         <div className="flex items-start gap-3">
-                          <img 
-                            src={book.frontCover || book.imageUrl} 
+                          <img
+                            src={book.frontCover || book.imageUrl}
                             alt={book.title}
                             className="w-16 h-20 object-cover rounded"
                           />
                           <div className="flex-1">
-                            <h4 className="font-medium text-sm">{book.title}</h4>
-                            <p className="text-xs text-gray-600">{book.author}</p>
+                            <h4 className="font-medium text-sm">
+                              {book.title}
+                            </h4>
+                            <p className="text-xs text-gray-600">
+                              {book.author}
+                            </p>
                             <div className="flex items-center justify-between mt-2">
                               <span className="font-semibold text-green-600">
                                 R{book.price.toFixed(2)}
                               </span>
-                              <Badge variant={book.sold ? 'destructive' : 'default'} className="text-xs">
-                                {book.sold ? 'Sold' : 'Active'}
+                              <Badge
+                                variant={book.sold ? "destructive" : "default"}
+                                className="text-xs"
+                              >
+                                {book.sold ? "Sold" : "Active"}
                               </Badge>
                             </div>
                           </div>
