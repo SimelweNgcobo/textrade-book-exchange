@@ -91,6 +91,9 @@ const BookListing = () => {
           : "Failed to load books. Please try again.";
       setError(errorMessage);
       toast.error(errorMessage);
+
+      // Set empty books array on error to prevent infinite loading
+      setBooks([]);
     } finally {
       setIsLoading(false);
     }
