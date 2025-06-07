@@ -15,6 +15,12 @@ const Confirm = () => {
   );
   const [message, setMessage] = useState("");
 
+  // Handle OAuth redirect with custom success message for confirmation page
+  useOAuthRedirect({
+    successMessage: "Account confirmed and logged in successfully!",
+    redirectTo: "/",
+  });
+
   useEffect(() => {
     const handleConfirm = async () => {
       try {
