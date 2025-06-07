@@ -1,4 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
+import { logDatabaseError, logQueryDebug } from "@/utils/debugUtils";
 
 export interface AdminStats {
   totalUsers: number;
