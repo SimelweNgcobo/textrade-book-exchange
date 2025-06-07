@@ -1,6 +1,5 @@
-
-import { useCallback } from 'react';
-import { toast } from 'sonner';
+import { useCallback } from "react";
+import { toast } from "sonner";
 
 interface ErrorHandlerOptions {
   showToast?: boolean;
@@ -9,50 +8,56 @@ interface ErrorHandlerOptions {
 }
 
 export const useErrorHandler = () => {
-  const handleError = useCallback((
-    error: unknown, 
-    context: string = 'Application',
-    options: ErrorHandlerOptions = {}
-  ) => {
-    const {
-      showToast = true,
-      logError = true,
-      fallbackMessage = 'An unexpected error occurred'
-    } = options;
+  const handleError = useCallback(
+    (
+      error: unknown,
+      context: string = "Application",
+      options: ErrorHandlerOptions = {},
+    ) => {
+      const {
+        showToast = true,
+        logError = true,
+        fallbackMessage = "An unexpected error occurred",
+      } = options;
 
-    let errorMessage = fallbackMessage;
-    
-    if (error instanceof Error) {
-      errorMessage = error.message;
-    } else if (typeof error === 'string') {
-      errorMessage = error;
-    } else if (error && typeof error === 'object' && 'message' in error) {
-      errorMessage = (error as any).message;
-    }
+      let errorMessage = fallbackMessage;
 
-    if (logError) {
-      console.error(`[${context}] Error:`, error);
-    }
+      if (error instanceof Error) {
+        errorMessage = error.message;
+      } else if (typeof error === "string") {
+        errorMessage = error;
+      } else if (error && typeof error === "object" && "message" in error) {
+        errorMessage = (error as { message: string }).message;
+      }
 
-    if (showToast) {
-      toast.error(errorMessage);
-    }
+      if (logError) {
+        console.error(`[${context}] Error:`, error);
+      }
 
-    return errorMessage;
-  }, []);
+      if (showToast) {
+        toast.error(errorMessage);
+      }
 
-  const handleAsyncError = useCallback(async (
-    asyncFn: () => Promise<any>,
-    context: string = 'Async Operation',
-    options: ErrorHandlerOptions = {}
-  ) => {
-    try {
-      return await asyncFn();
-    } catch (error) {
-      handleError(error, context, options);
-      throw error;
-    }
-  }, [handleError]);
+      return errorMessage;
+    },
+    [],
+  );
+
+  const handleAsyncError = useCallback(
+    async (
+      asyncFn: () => Promise<any>,
+      context: string = "Async Operation",
+      options: ErrorHandlerOptions = {},
+    ) => {
+      try {
+        return await asyncFn();
+      } catch (error) {
+        handleError(error, context, options);
+        throw error;
+      }
+    },
+    [handleError],
+  );
 
   return { handleError, handleAsyncError };
 };
