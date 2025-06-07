@@ -483,7 +483,7 @@ const EnhancedModerationDashboard = () => {
                   <span>
                     Reporter:{" "}
                     {report.reporter_name ||
-                      `#${report.reporter_user_id.slice(-8)}`}
+                      `User #${report.reporter_user_id.slice(-8)}`}
                     {report.reporter_email && (
                       <span className="block text-xs text-gray-400">
                         {report.reporter_email}
@@ -760,7 +760,7 @@ const EnhancedModerationDashboard = () => {
                                 <div>
                                   <div className="text-sm">
                                     {report.reporter_name ||
-                                      `Reporter #${report.reporter_user_id.slice(-8)}`}
+                                      `User #${report.reporter_user_id.slice(-8)}`}
                                   </div>
                                   {report.reporter_email && (
                                     <div className="text-xs text-gray-500">
