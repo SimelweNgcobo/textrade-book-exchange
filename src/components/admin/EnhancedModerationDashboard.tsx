@@ -33,6 +33,7 @@ import {
   SuspendedUser,
   ModerationData,
 } from "@/services/admin/moderationDataService";
+import { copyEmailToClipboard } from "@/utils/emailCopyUtils";
 
 const EnhancedModerationDashboard = () => {
   const isMobile = useIsMobile();
@@ -182,22 +183,6 @@ const EnhancedModerationDashboard = () => {
     if (reportCount >= 3) return "High";
     if (reportCount >= 2) return "Medium";
     return "Low";
-  };
-
-  const copyEmailToClipboard = async (email: string) => {
-    try {
-      await navigator.clipboard.writeText(email);
-      toast.success("Email address copied to clipboard");
-    } catch (error) {
-      // Fallback for older browsers
-      const textArea = document.createElement("textarea");
-      textArea.value = email;
-      document.body.appendChild(textArea);
-      textArea.select();
-      document.execCommand("copy");
-      document.body.removeChild(textArea);
-      toast.success("Email address copied to clipboard");
-    }
   };
 
   if (error) {
