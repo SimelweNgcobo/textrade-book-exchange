@@ -232,12 +232,8 @@ const getUserBooksWithFallback = async (userId: string): Promise<Book[]> => {
       .order("created_at", { ascending: false });
 
     if (booksError) {
-      console.error("Error fetching user books (fallback):", {
-        message: booksError.message,
-        code: booksError.code,
-        details: booksError.details,
-        hint: booksError.hint,
-        userId: userId,
+      logDatabaseError("getUserBooksWithFallback - books query", booksError, {
+        userId,
       });
       return [];
     }
