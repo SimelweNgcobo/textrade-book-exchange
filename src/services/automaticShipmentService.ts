@@ -9,7 +9,6 @@ interface UserProfile {
   id: string;
   name: string;
   email: string;
-  phone?: string;
   pickup_address?: {
     complex?: string;
     unitNumber?: string;
