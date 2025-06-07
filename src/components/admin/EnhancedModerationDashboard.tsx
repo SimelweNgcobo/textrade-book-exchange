@@ -118,22 +118,19 @@ const EnhancedModerationDashboard = () => {
       setError(null);
       setIsLoading(true);
 
-      const [reportsResponse, usersResponse] = await Promise.all([
-        supabase
-          .from("reports")
-          .select(
-            `
-            *,
-            reporter_profile:profiles!reports_reporter_user_id_fkey(name, email)
-          `,
-          )
-          .order("created_at", { ascending: false }),
-        supabase
-          .from("profiles")
-          .select("id, name, email, status, suspended_at, suspension_reason")
-          .in("status", ["suspended", "banned"])
-          .order("created_at", { ascending: false }),
-      ]);
+      const [reportsResponse, usersResponse, reporterProfilesResponse] =
+        await Promise.all([
+          supabase
+            .from("reports")
+            .select("*")
+            .order("created_at", { ascending: false }),
+          supabase
+            .from("profiles")
+            .select("id, name, email, status, suspended_at, suspension_reason")
+            .in("status", ["suspended", "banned"])
+            .order("created_at", { ascending: false }),
+          supabase.from("profiles").select("id, name, email"),
+        ]);
 
       if (reportsResponse.error) {
         throw new Error(
@@ -147,13 +144,32 @@ const EnhancedModerationDashboard = () => {
         );
       }
 
+      if (reporterProfilesResponse.error) {
+        console.warn(
+          "Failed to load reporter profiles:",
+          reporterProfilesResponse.error.message,
+        );
+        // Continue without reporter profiles rather than failing
+      }
+
+      // Create a map of profiles for quick lookup
+      const profilesMap = new Map();
+      if (reporterProfilesResponse.data) {
+        reporterProfilesResponse.data.forEach((profile) => {
+          profilesMap.set(profile.id, profile);
+        });
+      }
+
       const typedReports: Report[] = (reportsResponse.data || []).map(
-        (report: any) => ({
-          ...report,
-          status: report.status as "pending" | "resolved" | "dismissed",
-          reporter_email: report.reporter_profile?.email,
-          reporter_name: report.reporter_profile?.name,
-        }),
+        (report: any) => {
+          const reporterProfile = profilesMap.get(report.reporter_user_id);
+          return {
+            ...report,
+            status: report.status as "pending" | "resolved" | "dismissed",
+            reporter_email: reporterProfile?.email,
+            reporter_name: reporterProfile?.name,
+          };
+        },
       );
 
       // Properly handle the suspended users data with better type safety
