@@ -249,7 +249,7 @@ const AddressEditDialog = ({
                   <Label htmlFor="shipping-street">Street Address</Label>
                   <Input
                     id="shipping-street"
-                    value={shippingAddress.street}
+                    value={shippingAddress.street || ""}
                     onChange={(e) =>
                       setShippingAddress((prev) => ({
                         ...prev,
