@@ -191,13 +191,7 @@ export const getUserBooks = async (userId: string): Promise<Book[]> => {
       .order("created_at", { ascending: false });
 
     if (booksError) {
-      console.error("Error fetching user books:", {
-        message: booksError.message,
-        code: booksError.code,
-        details: booksError.details,
-        hint: booksError.hint,
-        userId: userId,
-      });
+      logDatabaseError("getUserBooks - join query", booksError, { userId });
       // Fallback to separate queries if join fails
       return await getUserBooksWithFallback(userId);
     }
