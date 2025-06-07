@@ -45,16 +45,38 @@ const UserProfileViewer = ({
 
   const loadUserProfile = async (id: string) => {
     setIsLoading(true);
+    setError(null);
     try {
+      console.log("Loading profile for user ID:", id);
+
+      // Load profile and books separately to handle errors better
+      const profilePromise = getUserProfile(id).catch((err) => {
+        console.error("Error loading profile:", err);
+        return null;
+      });
+
+      const booksPromise = getUserBooks(id).catch((err) => {
+        console.error("Error loading books:", err);
+        return [];
+      });
+
       const [profileData, booksData] = await Promise.all([
-        getUserProfile(id),
-        getUserBooks(id),
+        profilePromise,
+        booksPromise,
       ]);
 
+      console.log("Profile data loaded:", profileData);
+      console.log("Books data loaded:", booksData?.length || 0, "books");
+
       setUser(profileData);
-      setUserBooks(booksData);
+      setUserBooks(booksData || []);
+
+      if (!profileData) {
+        setError("User profile not found");
+      }
     } catch (error) {
       console.error("Error loading user profile:", error);
+      setError("Failed to load user profile");
     } finally {
       setIsLoading(false);
     }
