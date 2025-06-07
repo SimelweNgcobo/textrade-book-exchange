@@ -212,7 +212,7 @@ export const getAllListings = async (): Promise<AdminListing[]> => {
         price,
         sold,
         seller_id,
-        seller:profiles!seller_id (
+        profiles!seller_id (
           id,
           name
         )
