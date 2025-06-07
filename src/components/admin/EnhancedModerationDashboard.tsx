@@ -16,7 +16,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Flag, UserX, RefreshCw } from "lucide-react";
+import { Flag, UserX, RefreshCw, Copy } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import ReportFilters from "./reports/ReportFilters";
@@ -36,6 +36,8 @@ interface Report {
   reporter_user_id: string;
   reported_user_id: string;
   book_id?: string;
+  reporter_email?: string;
+  reporter_name?: string;
 }
 
 interface SuspendedUser {
@@ -119,7 +121,12 @@ const EnhancedModerationDashboard = () => {
       const [reportsResponse, usersResponse] = await Promise.all([
         supabase
           .from("reports")
-          .select("*")
+          .select(
+            `
+            *,
+            reporter_profile:profiles!reports_reporter_user_id_fkey(name, email)
+          `,
+          )
           .order("created_at", { ascending: false }),
         supabase
           .from("profiles")
@@ -141,9 +148,11 @@ const EnhancedModerationDashboard = () => {
       }
 
       const typedReports: Report[] = (reportsResponse.data || []).map(
-        (report) => ({
+        (report: any) => ({
           ...report,
           status: report.status as "pending" | "resolved" | "dismissed",
+          reporter_email: report.reporter_profile?.email,
+          reporter_name: report.reporter_profile?.name,
         }),
       );
 
