@@ -62,13 +62,13 @@ export const getUserProfileWithAddresses = async (
       .single();
 
     if (error) {
-      console.error("Error fetching user profile:", error);
+      logError("Error fetching user profile", error);
       return null;
     }
 
     return data;
   } catch (error) {
-    console.error("Error in getUserProfileWithAddresses:", error);
+    logError("Error in getUserProfileWithAddresses", error);
     return null;
   }
 };
