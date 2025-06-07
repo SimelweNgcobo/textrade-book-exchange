@@ -7,19 +7,25 @@ export const mapBookFromDatabase = (bookData: BookQueryResult): Book => {
   console.log("Mapping book data:", bookData);
   console.log("Profile data:", profile);
 
+  // Ensure we have required fields
+  if (!bookData.id || !bookData.seller_id) {
+    throw new Error("Invalid book data: missing required fields");
+  }
+
   return {
     id: bookData.id,
-    title: bookData.title,
-    author: bookData.author,
-    description: bookData.description,
-    price: bookData.price,
-    category: bookData.category,
-    condition: bookData.condition as
-      | "New"
-      | "Good"
-      | "Better"
-      | "Average"
-      | "Below Average",
+    title: bookData.title || "Unknown Title",
+    author: bookData.author || "Unknown Author",
+    description: bookData.description || "",
+    price: bookData.price || 0,
+    category: bookData.category || "Other",
+    condition:
+      (bookData.condition as
+        | "New"
+        | "Good"
+        | "Better"
+        | "Average"
+        | "Below Average") || "Good",
     imageUrl:
       bookData.front_cover ||
       bookData.image_url ||
@@ -27,8 +33,8 @@ export const mapBookFromDatabase = (bookData: BookQueryResult): Book => {
     frontCover: bookData.front_cover,
     backCover: bookData.back_cover,
     insidePages: bookData.inside_pages,
-    sold: bookData.sold,
-    createdAt: bookData.created_at,
+    sold: bookData.sold || false,
+    createdAt: bookData.created_at || new Date().toISOString(),
     grade: bookData.grade,
     universityYear: bookData.university_year,
     university: bookData.university,
