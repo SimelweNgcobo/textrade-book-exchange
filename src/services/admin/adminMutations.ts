@@ -50,7 +50,7 @@ export const sendBroadcastMessage = async (message: string): Promise<void> => {
       .limit(1000); // Limit to prevent overwhelming the system
 
     if (usersError) {
-      console.error("Error fetching users for broadcast:", usersError);
+      logDatabaseError("sendBroadcastMessage - fetch users", usersError);
       throw usersError;
     }
 
