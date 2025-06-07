@@ -224,6 +224,19 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
     }
   }, [user]);
 
+  useEffect(() => {
+    console.log("AuthProvider: Setting up auth state listener");
+    initializeAuth();
+    setupAuthListener();
+  }, [initializeAuth, setupAuthListener]);
+
+  useEffect(() => {
+    if (user && profile) {
+      loadUserStats();
+      updateUserActivity();
+    }
+  }, [user, profile, loadUserStats, updateUserActivity]);
+
   const checkAdminStatus = async (userId: string): Promise<boolean> => {
     try {
       return await isAdminUser(userId);
