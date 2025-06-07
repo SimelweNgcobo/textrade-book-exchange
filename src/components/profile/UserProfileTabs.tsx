@@ -7,20 +7,21 @@ import { Book } from "@/types/book";
 import ProfileEditDialog from "@/components/ProfileEditDialog";
 import AddressEditDialog from "@/components/AddressEditDialog";
 import UnavailableBookCard from "@/components/UnavailableBookCard";
+import { UserProfile, AddressData, Address } from "@/types/address";
 
 interface UserProfileTabsProps {
   activeListings: Book[];
   isLoading: boolean;
   onEditBook: (bookId: string) => void;
   onDeleteBook: (bookId: string, bookTitle: string) => void;
-  profile: any;
-  addressData: any;
+  profile: UserProfile | null;
+  addressData: AddressData | null;
   isOwnProfile: boolean;
   userId: string;
   userName: string;
   onSaveAddresses?: (
-    pickup: any,
-    shipping: any,
+    pickup: Address,
+    shipping: Address,
     same: boolean,
   ) => Promise<void>;
   isLoadingAddress?: boolean;
