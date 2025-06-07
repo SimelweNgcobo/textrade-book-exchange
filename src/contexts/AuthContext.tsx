@@ -18,6 +18,7 @@ import {
   fetchUserProfile,
   Profile,
 } from "@/services/authOperations";
+import { UserStats } from "@/types/address";
 
 interface AuthContextType {
   user: User | null;
@@ -26,7 +27,7 @@ interface AuthContextType {
   isLoading: boolean;
   isAuthenticated: boolean;
   isAdmin: boolean;
-  userStats: any;
+  userStats: UserStats | null;
   loadUserStats: () => Promise<void>;
   checkAdminStatus: (userId: string) => Promise<boolean>;
   login: (email: string, password: string) => Promise<void>;
