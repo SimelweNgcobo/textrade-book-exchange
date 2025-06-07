@@ -33,14 +33,7 @@ const Profile = () => {
   const [isLoadingListings, setIsLoadingListings] = useState(true);
   const [deletingBooks, setDeletingBooks] = useState<Set<string>>(new Set());
 
-  useEffect(() => {
-    if (user?.id) {
-      loadUserAddresses();
-      loadActiveListings();
-    }
-  }, [user?.id]);
-
-  const loadUserAddresses = async () => {
+  const loadUserAddresses = useCallback(async () => {
     if (!user?.id) return;
 
     try {
@@ -48,10 +41,11 @@ const Profile = () => {
       setAddressData(data);
     } catch (error) {
       console.error("Error loading addresses:", error);
+      toast.error("Failed to load addresses");
     }
-  };
+  }, [user?.id]);
 
-  const loadActiveListings = async () => {
+  const loadActiveListings = useCallback(async () => {
     if (!user?.id) return;
 
     try {
@@ -59,15 +53,30 @@ const Profile = () => {
       console.log("Loading books for user:", user.id);
       const books = await getUserBooks(user.id);
       console.log("User books loaded:", books);
-      const activeBooks = books.filter((book) => !book.sold);
+      const activeBooks = Array.isArray(books)
+        ? books.filter((book) => !book.sold)
+        : [];
       setActiveListings(activeBooks);
     } catch (error) {
       console.error("Error loading active listings:", error);
       toast.error("Failed to load active listings");
+      setActiveListings([]); // Set empty array on error
     } finally {
       setIsLoadingListings(false);
     }
-  };
+  }, [user?.id]);
+
+  useEffect(() => {
+    if (user?.id) {
+      loadUserAddresses();
+      loadActiveListings();
+    } else {
+      // Reset state when no user
+      setAddressData(null);
+      setActiveListings([]);
+      setIsLoadingListings(false);
+    }
+  }, [user?.id, loadUserAddresses, loadActiveListings]);
 
   const handleSaveAddresses = async (
     pickup: any,
