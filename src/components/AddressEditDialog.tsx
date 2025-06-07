@@ -128,9 +128,22 @@ const AddressEditDialog = ({
     }
 
     try {
+      // Ensure we're passing the correct format with streetAddress field
+      const formattedPickupAddress = {
+        ...pickupAddress,
+        streetAddress: pickupAddress.street, // Map street to streetAddress for backend compatibility
+      };
+
+      const formattedShippingAddress = sameAsPickup
+        ? formattedPickupAddress
+        : {
+            ...shippingAddress,
+            streetAddress: shippingAddress.street, // Map street to streetAddress for backend compatibility
+          };
+
       await onSave(
-        pickupAddress,
-        sameAsPickup ? pickupAddress : shippingAddress,
+        formattedPickupAddress,
+        formattedShippingAddress,
         sameAsPickup,
       );
       onClose();
