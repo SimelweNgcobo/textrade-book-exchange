@@ -47,6 +47,16 @@ import Shipping from "./pages/Shipping";
 import "./App.css";
 
 function App() {
+  // Set up emergency loading reset monitoring in development
+  useEffect(() => {
+    if (process.env.NODE_ENV === "development") {
+      console.log("🔧 Setting up emergency loading state monitoring");
+      addEmergencyResetButton();
+      const cleanup = monitorLoadingStates();
+      return cleanup;
+    }
+  }, []);
+
   return (
     <ErrorBoundary level="app">
       <AuthProvider>
