@@ -106,21 +106,24 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
     };
   }, []);
 
-  const handleAuthStateChange = async (session: Session) => {
-    try {
-      setSession(session);
-      setUser(session.user);
+  const handleAuthStateChange = useCallback(
+    async (session: Session) => {
+      try {
+        setSession(session);
+        setUser(session.user);
 
-      if (session.user) {
-        const userProfile = await fetchUserProfile(session.user);
-        setProfile(userProfile);
-        console.log("Auth state updated successfully");
+        if (session.user) {
+          const userProfile = await fetchUserProfile(session.user);
+          setProfile(userProfile);
+          console.log("Auth state updated successfully");
+        }
+      } catch (error) {
+        console.error("Error handling auth state change:", error);
+        handleError(error, "Authentication State Change");
       }
-    } catch (error) {
-      console.error("Error handling auth state change:", error);
-      handleError(error, "Authentication State Change");
-    }
-  };
+    },
+    [handleError],
+  );
 
   const handleSignOut = () => {
     console.log("Handling sign out");
