@@ -322,8 +322,8 @@ const EnhancedModerationDashboard = () => {
 
               <div>
                 <div className="text-sm font-medium text-gray-700">Reason:</div>
-                <div className="text-sm text-gray-600">
-                  {user.suspension_reason}
+                <div className="text-sm text-gray-600 break-words overflow-hidden">
+                  <div className="line-clamp-3">{user.suspension_reason}</div>
                 </div>
               </div>
 
