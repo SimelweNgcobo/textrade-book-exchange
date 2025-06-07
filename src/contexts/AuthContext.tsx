@@ -81,7 +81,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
     }
   }, [handleError]);
 
-  const setupAuthListener = () => {
+  const setupAuthListener = useCallback(() => {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
