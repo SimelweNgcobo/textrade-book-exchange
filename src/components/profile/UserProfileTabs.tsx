@@ -122,9 +122,7 @@ const UserProfileTabs = ({
 
                         <div className="mt-3 space-y-2">
                           <Button
-                            onClick={() =>
-                              window.open(`/books/${book.id}`, "_blank")
-                            }
+                            onClick={() => navigate(`/books/${book.id}`)}
                             variant="outline"
                             size="sm"
                             className="w-full text-xs"
