@@ -25,14 +25,17 @@ export const updateUserStatus = async (
   }
 };
 
-export const deleteBookListing = async (bookId: string): Promise<void> => {
+export const deleteBookListing = async (
+  bookId: string,
+  adminId?: string,
+): Promise<void> => {
   try {
-    const { error } = await supabase.from("books").delete().eq("id", bookId);
-
-    if (error) {
-      console.error("Error deleting book:", error);
-      throw error;
-    }
+    // Use the enhanced deletion service that sends notifications
+    await BookDeletionService.deleteBookWithNotification(
+      bookId,
+      "admin_action",
+      adminId,
+    );
   } catch (error) {
     console.error("Error in deleteBookListing:", error);
     throw new Error("Failed to delete book listing");
