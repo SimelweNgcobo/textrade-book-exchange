@@ -4,6 +4,7 @@ import { BookFilters, BookQueryResult } from "./bookTypes";
 import { mapBookFromDatabase } from "./bookMapper";
 import { handleBookServiceError } from "./bookErrorHandler";
 import { logError, getErrorMessage } from "@/utils/errorUtils";
+import { logDatabaseError, logQueryDebug } from "@/utils/debugUtils";
 
 export const getBooks = async (filters?: BookFilters): Promise<Book[]> => {
   try {
@@ -155,7 +156,7 @@ export const getBookById = async (id: string): Promise<Book | null> => {
 
     const mappedBook = mapBookFromDatabase(bookWithProfile);
     console.log("Final mapped book:", mappedBook);
-    
+
     return mappedBook;
   } catch (error) {
     logError("Error in getBookById", error);
@@ -168,6 +169,26 @@ export const getUserBooks = async (userId: string): Promise<Book[]> => {
   try {
     console.log("Fetching user books for ID:", userId);
 
+    if (!userId) {
+      console.log("No userId provided");
+      return [];
+    }
+
+    // Since there's no foreign key relationship, use separate queries directly
+    console.log(
+      "Using separate queries (no foreign key relationship available)",
+    );
+    return await getUserBooksWithFallback(userId);
+  } catch (error) {
+    console.error("Error in getUserBooks", error);
+    // Return fallback data instead of throwing
+    return await getUserBooksWithFallback(userId);
+  }
+};
+
+// Fallback function when join query fails
+const getUserBooksWithFallback = async (userId: string): Promise<Book[]> => {
+  try {
     // Get books for user
     const { data: booksData, error: booksError } = await supabase
       .from("books")
@@ -176,16 +197,17 @@ export const getUserBooks = async (userId: string): Promise<Book[]> => {
       .order("created_at", { ascending: false });
 
     if (booksError) {
-      logError("Error fetching user books", booksError);
-      handleBookServiceError(booksError, "fetch user books");
-    }
-
-    if (!booksData || booksData.length === 0) {
-      console.log("No books found for user:", userId);
+      logDatabaseError("getUserBooksWithFallback - books query", booksError, {
+        userId,
+      });
       return [];
     }
 
-    // Get user profile - handle case where profile might not exist
+    if (!booksData || booksData.length === 0) {
+      return [];
+    }
+
+    // Get user profile separately
     const { data: profileData, error: profileError } = await supabase
       .from("profiles")
       .select("id, name, email")
@@ -193,28 +215,26 @@ export const getUserBooks = async (userId: string): Promise<Book[]> => {
       .maybeSingle();
 
     if (profileError) {
-      logError("Error fetching user profile", profileError);
-      // Continue without profile data
+      logDatabaseError(
+        "getUserBooksWithFallback - profile query",
+        profileError,
+        { userId },
+      );
     }
-
-    console.log("User books data:", booksData.length);
 
     return booksData.map((book: any) => {
       const bookData: BookQueryResult = {
         ...book,
-        profiles: profileData
-          ? {
-              id: profileData.id,
-              name: profileData.name,
-              email: profileData.email,
-            }
-          : null,
+        profiles: profileData || {
+          id: userId,
+          name: "Anonymous",
+          email: "",
+        },
       };
       return mapBookFromDatabase(bookData);
     });
   } catch (error) {
-    logError("Error in getUserBooks", error);
-    handleBookServiceError(error, "fetch user books");
-    return []; // This line will never be reached due to handleBookServiceError throwing, but TypeScript needs it
+    console.error("Error in getUserBooksWithFallback", error);
+    return [];
   }
 };

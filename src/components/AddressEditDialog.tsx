@@ -1,18 +1,17 @@
-
-import { useState, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Checkbox } from '@/components/ui/checkbox';
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogHeader, 
-  DialogTitle, 
-  DialogFooter 
-} from '@/components/ui/dialog';
-import { MapPin, Loader2 } from 'lucide-react';
-import { toast } from 'sonner';
+import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { MapPin, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 interface AddressEditDialogProps {
   isOpen: boolean;
@@ -22,56 +21,131 @@ interface AddressEditDialogProps {
   isLoading: boolean;
 }
 
-const AddressEditDialog = ({ 
-  isOpen, 
-  onClose, 
-  addressData, 
-  onSave, 
-  isLoading 
+const AddressEditDialog = ({
+  isOpen,
+  onClose,
+  addressData,
+  onSave,
+  isLoading,
 }: AddressEditDialogProps) => {
   const [pickupAddress, setPickupAddress] = useState({
-    street: '',
-    city: '',
-    province: '',
-    postalCode: ''
+    street: "",
+    city: "",
+    province: "",
+    postalCode: "",
   });
-  
+
   const [shippingAddress, setShippingAddress] = useState({
-    street: '',
-    city: '',
-    province: '',
-    postalCode: ''
+    street: "",
+    city: "",
+    province: "",
+    postalCode: "",
   });
-  
+
   const [sameAsPickup, setSameAsPickup] = useState(false);
 
   useEffect(() => {
     if (isOpen && addressData) {
+      // Handle pickup address with proper field mapping and defaults
       if (addressData.pickup_address) {
-        setPickupAddress(addressData.pickup_address);
+        const pickupData = addressData.pickup_address;
+        setPickupAddress({
+          street: pickupData.street || pickupData.streetAddress || "",
+          city: pickupData.city || "",
+          province: pickupData.province || "",
+          postalCode: pickupData.postalCode || "",
+        });
+      } else {
+        // Reset to empty values if no pickup address
+        setPickupAddress({
+          street: "",
+          city: "",
+          province: "",
+          postalCode: "",
+        });
       }
+
+      // Handle shipping address with proper field mapping and defaults
       if (addressData.shipping_address) {
-        setShippingAddress(addressData.shipping_address);
+        const shippingData = addressData.shipping_address;
+        setShippingAddress({
+          street: shippingData.street || shippingData.streetAddress || "",
+          city: shippingData.city || "",
+          province: shippingData.province || "",
+          postalCode: shippingData.postalCode || "",
+        });
+      } else {
+        // Reset to empty values if no shipping address
+        setShippingAddress({
+          street: "",
+          city: "",
+          province: "",
+          postalCode: "",
+        });
       }
+
       setSameAsPickup(addressData.addresses_same || false);
+    } else {
+      // Reset all values when dialog is closed or no address data
+      setPickupAddress({
+        street: "",
+        city: "",
+        province: "",
+        postalCode: "",
+      });
+      setShippingAddress({
+        street: "",
+        city: "",
+        province: "",
+        postalCode: "",
+      });
+      setSameAsPickup(false);
     }
   }, [isOpen, addressData]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!pickupAddress.street || !pickupAddress.city || !pickupAddress.province || !pickupAddress.postalCode) {
-      toast.error('Please fill in all pickup address fields');
+
+    if (
+      !pickupAddress.street ||
+      !pickupAddress.city ||
+      !pickupAddress.province ||
+      !pickupAddress.postalCode
+    ) {
+      toast.error("Please fill in all pickup address fields");
       return;
     }
 
-    if (!sameAsPickup && (!shippingAddress.street || !shippingAddress.city || !shippingAddress.province || !shippingAddress.postalCode)) {
-      toast.error('Please fill in all shipping address fields');
+    if (
+      !sameAsPickup &&
+      (!shippingAddress.street ||
+        !shippingAddress.city ||
+        !shippingAddress.province ||
+        !shippingAddress.postalCode)
+    ) {
+      toast.error("Please fill in all shipping address fields");
       return;
     }
 
     try {
-      await onSave(pickupAddress, sameAsPickup ? pickupAddress : shippingAddress, sameAsPickup);
+      // Ensure we're passing the correct format with streetAddress field
+      const formattedPickupAddress = {
+        ...pickupAddress,
+        streetAddress: pickupAddress.street, // Map street to streetAddress for backend compatibility
+      };
+
+      const formattedShippingAddress = sameAsPickup
+        ? formattedPickupAddress
+        : {
+            ...shippingAddress,
+            streetAddress: shippingAddress.street, // Map street to streetAddress for backend compatibility
+          };
+
+      await onSave(
+        formattedPickupAddress,
+        formattedShippingAddress,
+        sameAsPickup,
+      );
       onClose();
     } catch (error) {
       // Error handling is done in the parent component
@@ -93,7 +167,7 @@ const AddressEditDialog = ({
             Edit Addresses
           </DialogTitle>
         </DialogHeader>
-        
+
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Pickup Address */}
           <div className="space-y-4">
@@ -103,8 +177,13 @@ const AddressEditDialog = ({
                 <Label htmlFor="pickup-street">Street Address</Label>
                 <Input
                   id="pickup-street"
-                  value={pickupAddress.street}
-                  onChange={(e) => setPickupAddress(prev => ({ ...prev, street: e.target.value }))}
+                  value={pickupAddress.street || ""}
+                  onChange={(e) =>
+                    setPickupAddress((prev) => ({
+                      ...prev,
+                      street: e.target.value,
+                    }))
+                  }
                   placeholder="Enter street address"
                   required
                   disabled={isLoading}
@@ -114,8 +193,13 @@ const AddressEditDialog = ({
                 <Label htmlFor="pickup-city">City</Label>
                 <Input
                   id="pickup-city"
-                  value={pickupAddress.city}
-                  onChange={(e) => setPickupAddress(prev => ({ ...prev, city: e.target.value }))}
+                  value={pickupAddress.city || ""}
+                  onChange={(e) =>
+                    setPickupAddress((prev) => ({
+                      ...prev,
+                      city: e.target.value,
+                    }))
+                  }
                   placeholder="Enter city"
                   required
                   disabled={isLoading}
@@ -125,8 +209,13 @@ const AddressEditDialog = ({
                 <Label htmlFor="pickup-province">Province</Label>
                 <Input
                   id="pickup-province"
-                  value={pickupAddress.province}
-                  onChange={(e) => setPickupAddress(prev => ({ ...prev, province: e.target.value }))}
+                  value={pickupAddress.province || ""}
+                  onChange={(e) =>
+                    setPickupAddress((prev) => ({
+                      ...prev,
+                      province: e.target.value,
+                    }))
+                  }
                   placeholder="Enter province"
                   required
                   disabled={isLoading}
@@ -136,8 +225,13 @@ const AddressEditDialog = ({
                 <Label htmlFor="pickup-postal">Postal Code</Label>
                 <Input
                   id="pickup-postal"
-                  value={pickupAddress.postalCode}
-                  onChange={(e) => setPickupAddress(prev => ({ ...prev, postalCode: e.target.value }))}
+                  value={pickupAddress.postalCode || ""}
+                  onChange={(e) =>
+                    setPickupAddress((prev) => ({
+                      ...prev,
+                      postalCode: e.target.value,
+                    }))
+                  }
                   placeholder="Enter postal code"
                   required
                   disabled={isLoading}
@@ -154,7 +248,9 @@ const AddressEditDialog = ({
               onCheckedChange={(checked) => setSameAsPickup(checked as boolean)}
               disabled={isLoading}
             />
-            <Label htmlFor="same-address">Shipping address is the same as pickup address</Label>
+            <Label htmlFor="same-address">
+              Shipping address is the same as pickup address
+            </Label>
           </div>
 
           {/* Shipping Address */}
@@ -166,8 +262,13 @@ const AddressEditDialog = ({
                   <Label htmlFor="shipping-street">Street Address</Label>
                   <Input
                     id="shipping-street"
-                    value={shippingAddress.street}
-                    onChange={(e) => setShippingAddress(prev => ({ ...prev, street: e.target.value }))}
+                    value={shippingAddress.street || ""}
+                    onChange={(e) =>
+                      setShippingAddress((prev) => ({
+                        ...prev,
+                        street: e.target.value,
+                      }))
+                    }
                     placeholder="Enter street address"
                     required
                     disabled={isLoading}
@@ -177,8 +278,13 @@ const AddressEditDialog = ({
                   <Label htmlFor="shipping-city">City</Label>
                   <Input
                     id="shipping-city"
-                    value={shippingAddress.city}
-                    onChange={(e) => setShippingAddress(prev => ({ ...prev, city: e.target.value }))}
+                    value={shippingAddress.city || ""}
+                    onChange={(e) =>
+                      setShippingAddress((prev) => ({
+                        ...prev,
+                        city: e.target.value,
+                      }))
+                    }
                     placeholder="Enter city"
                     required
                     disabled={isLoading}
@@ -188,8 +294,13 @@ const AddressEditDialog = ({
                   <Label htmlFor="shipping-province">Province</Label>
                   <Input
                     id="shipping-province"
-                    value={shippingAddress.province}
-                    onChange={(e) => setShippingAddress(prev => ({ ...prev, province: e.target.value }))}
+                    value={shippingAddress.province || ""}
+                    onChange={(e) =>
+                      setShippingAddress((prev) => ({
+                        ...prev,
+                        province: e.target.value,
+                      }))
+                    }
                     placeholder="Enter province"
                     required
                     disabled={isLoading}
@@ -199,8 +310,13 @@ const AddressEditDialog = ({
                   <Label htmlFor="shipping-postal">Postal Code</Label>
                   <Input
                     id="shipping-postal"
-                    value={shippingAddress.postalCode}
-                    onChange={(e) => setShippingAddress(prev => ({ ...prev, postalCode: e.target.value }))}
+                    value={shippingAddress.postalCode || ""}
+                    onChange={(e) =>
+                      setShippingAddress((prev) => ({
+                        ...prev,
+                        postalCode: e.target.value,
+                      }))
+                    }
                     placeholder="Enter postal code"
                     required
                     disabled={isLoading}
@@ -210,17 +326,13 @@ const AddressEditDialog = ({
             </div>
           )}
         </form>
-        
+
         <DialogFooter>
-          <Button 
-            variant="outline" 
-            onClick={handleClose} 
-            disabled={isLoading}
-          >
+          <Button variant="outline" onClick={handleClose} disabled={isLoading}>
             Cancel
           </Button>
-          <Button 
-            onClick={handleSubmit} 
+          <Button
+            onClick={handleSubmit}
             disabled={isLoading}
             className="bg-book-600 hover:bg-book-700"
           >
@@ -230,7 +342,7 @@ const AddressEditDialog = ({
                 Saving...
               </>
             ) : (
-              'Save Addresses'
+              "Save Addresses"
             )}
           </Button>
         </DialogFooter>

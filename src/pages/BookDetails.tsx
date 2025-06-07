@@ -196,7 +196,7 @@ const BookDetails = () => {
   }
 
   const isOwner = user?.id === book.seller?.id;
-  const showCommissionDetails = isOwner || isAdmin;
+  const showCommissionDetails = false; // Never show commission details to anyone
 
   return (
     <Layout>
@@ -223,7 +223,7 @@ const BookDetails = () => {
           <div className="space-y-6">
             <BookInfo book={book} />
             <BookDescription book={book} />
-            
+
             <BookActions
               book={book}
               user={user}
@@ -233,15 +233,6 @@ const BookDetails = () => {
               onShare={handleShare}
               onViewSellerProfile={handleViewSellerProfile}
             />
-
-            {showCommissionDetails && (
-              <BookPricing
-                price={book.price}
-                commission={book.price * 0.1}
-                sellerReceives={book.price * 0.9}
-                showCommissionDetails={showCommissionDetails}
-              />
-            )}
 
             <SellerInfo
               seller={book.seller}

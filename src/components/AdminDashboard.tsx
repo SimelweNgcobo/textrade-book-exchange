@@ -1,35 +1,35 @@
-import { useState, useEffect } from 'react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { toast } from 'sonner';
-import { 
-  getAdminStats, 
-  getAllUsers, 
+import { useState, useEffect } from "react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { toast } from "sonner";
+import {
+  getAdminStats,
+  getAllUsers,
   getAllListings,
   AdminStats as AdminStatsType,
   AdminUser,
-  AdminListing
-} from '@/services/admin/adminQueries';
-import { 
+  AdminListing,
+} from "@/services/admin/adminQueries";
+import {
   updateUserStatus,
   deleteBookListing,
-  sendBroadcastMessage
-} from '@/services/admin/adminMutations';
-import { useIsMobile } from '@/hooks/use-mobile';
-import AdminStats from '@/components/admin/AdminStats';
-import AdminEarningsTab from '@/components/admin/AdminEarningsTab';
-import AdminUsersTab from '@/components/admin/AdminUsersTab';
-import AdminListingsTab from '@/components/admin/AdminListingsTab';
-import AdminSettingsTab from '@/components/admin/AdminSettingsTab';
-import AdminContactTab from '@/components/admin/AdminContactTab';
-import AdminOnlySystemHealth from '@/components/admin/AdminOnlySystemHealth';
-import ErrorFallback from '@/components/ErrorFallback';
-import LoadingSpinner from '@/components/LoadingSpinner';
-import { useErrorHandler } from '@/hooks/useErrorHandler';
+  sendBroadcastMessage,
+} from "@/services/admin/adminMutations";
+import { useIsMobile } from "@/hooks/use-mobile";
+import AdminStats from "@/components/admin/AdminStats";
+import AdminEarningsTab from "@/components/admin/AdminEarningsTab";
+import AdminUsersTab from "@/components/admin/AdminUsersTab";
+import AdminListingsTab from "@/components/admin/AdminListingsTab";
+import AdminSettingsTab from "@/components/admin/AdminSettingsTab";
+import AdminContactTab from "@/components/admin/AdminContactTab";
+
+import ErrorFallback from "@/components/ErrorFallback";
+import LoadingSpinner from "@/components/LoadingSpinner";
+import { useErrorHandler } from "@/hooks/useErrorHandler";
 
 const AdminDashboard = () => {
   const isMobile = useIsMobile();
   const { handleError } = useErrorHandler();
-  
+
   const [stats, setStats] = useState<AdminStatsType>({
     totalUsers: 0,
     activeListings: 0,
@@ -40,14 +40,14 @@ const AdminDashboard = () => {
     weeklyCommission: 0,
     monthlyCommission: 0,
     pendingReports: 0,
-    unreadMessages: 0
+    unreadMessages: 0,
   });
 
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [listings, setListings] = useState<AdminListing[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [broadcastMessage, setBroadcastMessage] = useState('');
+  const [broadcastMessage, setBroadcastMessage] = useState("");
   const [retryCount, setRetryCount] = useState(0);
 
   useEffect(() => {
@@ -57,91 +57,101 @@ const AdminDashboard = () => {
   const loadDashboardData = async () => {
     setIsLoading(true);
     setError(null);
-    
+
     try {
-      console.log('Loading admin dashboard data...');
-      
+      console.log("Loading admin dashboard data...");
+
       // Load data with individual error handling to prevent cascading failures
       const results = await Promise.allSettled([
         getAdminStats(),
         getAllUsers(),
-        getAllListings()
+        getAllListings(),
       ]);
 
       // Handle stats
-      if (results[0].status === 'fulfilled') {
+      if (results[0].status === "fulfilled") {
         setStats(results[0].value);
-        console.log('Stats loaded successfully');
+        console.log("Stats loaded successfully");
       } else {
-        console.error('Failed to load stats:', results[0].reason);
-        handleError(results[0].reason, 'Load Admin Stats', { showToast: false });
+        console.error("Failed to load stats:", results[0].reason);
+        handleError(results[0].reason, "Load Admin Stats", {
+          showToast: false,
+        });
       }
 
       // Handle users
-      if (results[1].status === 'fulfilled') {
+      if (results[1].status === "fulfilled") {
         setUsers(results[1].value);
-        console.log('Users loaded successfully:', results[1].value.length);
+        console.log("Users loaded successfully:", results[1].value.length);
       } else {
-        console.error('Failed to load users:', results[1].reason);
-        handleError(results[1].reason, 'Load Users', { showToast: false });
+        console.error("Failed to load users:", results[1].reason);
+        handleError(results[1].reason, "Load Users", { showToast: false });
         setUsers([]); // Set empty array as fallback
       }
 
       // Handle listings
-      if (results[2].status === 'fulfilled') {
+      if (results[2].status === "fulfilled") {
         setListings(results[2].value);
-        console.log('Listings loaded successfully:', results[2].value.length);
+        console.log("Listings loaded successfully:", results[2].value.length);
       } else {
-        console.error('Failed to load listings:', results[2].reason);
-        handleError(results[2].reason, 'Load Listings', { showToast: false });
+        console.error("Failed to load listings:", results[2].reason);
+        handleError(results[2].reason, "Load Listings", { showToast: false });
         setListings([]); // Set empty array as fallback
       }
 
       // Check if all operations failed
-      const allFailed = results.every(result => result.status === 'rejected');
+      const allFailed = results.every((result) => result.status === "rejected");
       if (allFailed) {
-        throw new Error('Failed to load all dashboard data');
+        throw new Error("Failed to load all dashboard data");
       }
 
       // Show warning if some operations failed
-      const failedCount = results.filter(result => result.status === 'rejected').length;
+      const failedCount = results.filter(
+        (result) => result.status === "rejected",
+      ).length;
       if (failedCount > 0) {
         toast.warning(`${failedCount} out of 3 data sections failed to load`);
       }
 
       setRetryCount(0); // Reset retry count on success
     } catch (error) {
-      console.error('Error loading dashboard data:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Failed to load dashboard data';
+      console.error("Error loading dashboard data:", error);
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : "Failed to load dashboard data";
       setError(errorMessage);
-      handleError(error, 'Admin Dashboard');
+      handleError(error, "Admin Dashboard");
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleRetry = () => {
-    setRetryCount(prev => prev + 1);
+    setRetryCount((prev) => prev + 1);
     loadDashboardData();
   };
 
-  const handleUserAction = async (userId: string, action: 'suspend' | 'activate') => {
+  const handleUserAction = async (
+    userId: string,
+    action: "suspend" | "activate",
+  ) => {
     try {
-      const status = action === 'suspend' ? 'suspended' : 'active';
+      const status = action === "suspend" ? "suspended" : "active";
       await updateUserStatus(userId, status);
-      
-      setUsers(users.map(user => 
-        user.id === userId ? { ...user, status } : user
-      ));
-      
+
+      setUsers(
+        users.map((user) => (user.id === userId ? { ...user, status } : user)),
+      );
+
       toast.success(`User ${action}d successfully`);
-      
+
       // Reload stats to reflect the change
       try {
         const newStats = await getAdminStats();
         setStats(newStats);
       } catch (error) {
-        console.error('Failed to reload stats after user action:', error);
+        console.error("Failed to reload stats after user action:", error);
       }
     } catch (error) {
       console.error(`Error ${action}ing user:`, error);
@@ -149,25 +159,25 @@ const AdminDashboard = () => {
     }
   };
 
-  const handleListingAction = async (listingId: string, action: 'delete') => {
+  const handleListingAction = async (listingId: string, action: "delete") => {
     try {
-      if (action === 'delete') {
+      if (action === "delete") {
         await deleteBookListing(listingId);
-        
+
         // Remove from local state immediately for better UX
-        setListings(listings.filter(listing => listing.id !== listingId));
-        toast.success('Listing deleted successfully');
-        
+        setListings(listings.filter((listing) => listing.id !== listingId));
+        toast.success("Listing deleted successfully");
+
         // Reload stats and full listings to ensure accuracy
         try {
           const [newStats, updatedListings] = await Promise.all([
             getAdminStats(),
-            getAllListings()
+            getAllListings(),
           ]);
           setStats(newStats);
           setListings(updatedListings);
         } catch (error) {
-          console.error('Failed to reload data after listing deletion:', error);
+          console.error("Failed to reload data after listing deletion:", error);
           // Reload the page data to ensure consistency
           loadDashboardData();
         }
@@ -180,30 +190,30 @@ const AdminDashboard = () => {
         const updatedListings = await getAllListings();
         setListings(updatedListings);
       } catch (reloadError) {
-        console.error('Failed to reload listings after error:', reloadError);
+        console.error("Failed to reload listings after error:", reloadError);
       }
     }
   };
 
   const handleSendBroadcast = async () => {
     if (!broadcastMessage.trim()) {
-      toast.error('Please enter a message');
+      toast.error("Please enter a message");
       return;
     }
 
     try {
       await sendBroadcastMessage(broadcastMessage);
       toast.success(`Broadcast message sent to all ${stats.totalUsers} users`);
-      setBroadcastMessage('');
+      setBroadcastMessage("");
     } catch (error) {
-      console.error('Error sending broadcast:', error);
-      handleError(error, 'Send Broadcast');
+      console.error("Error sending broadcast:", error);
+      handleError(error, "Send Broadcast");
     }
   };
 
   if (error && retryCount < 3) {
     return (
-      <ErrorFallback 
+      <ErrorFallback
         error={new Error(error)}
         resetError={handleRetry}
         title="Dashboard Error"
@@ -225,39 +235,53 @@ const AdminDashboard = () => {
       <AdminStats stats={stats} />
 
       <Tabs defaultValue="earnings" className="space-y-4">
-        <TabsList className={`${isMobile ? 'grid grid-cols-3 h-auto' : 'grid grid-cols-6'} w-full`}>
-          <TabsTrigger value="earnings" className={isMobile ? 'text-xs px-2 py-2' : ''}>
-            {isMobile ? 'Earnings' : 'Earnings'}
+        <TabsList
+          className={`${isMobile ? "grid grid-cols-3 h-auto" : "grid grid-cols-5"} w-full`}
+        >
+          <TabsTrigger
+            value="earnings"
+            className={isMobile ? "text-xs px-2 py-2" : ""}
+          >
+            {isMobile ? "Earnings" : "Earnings"}
           </TabsTrigger>
-          <TabsTrigger value="users" className={isMobile ? 'text-xs px-2 py-2' : ''}>
-            {isMobile ? 'Users' : 'Users'}
+          <TabsTrigger
+            value="users"
+            className={isMobile ? "text-xs px-2 py-2" : ""}
+          >
+            {isMobile ? "Users" : "Users"}
             {stats.totalUsers > 0 && (
               <span className="ml-1 bg-blue-500 text-white text-xs rounded-full px-1">
                 {stats.totalUsers}
               </span>
             )}
           </TabsTrigger>
-          <TabsTrigger value="listings" className={isMobile ? 'text-xs px-2 py-2' : ''}>
-            {isMobile ? 'Listings' : 'Listings'}
+          <TabsTrigger
+            value="listings"
+            className={isMobile ? "text-xs px-2 py-2" : ""}
+          >
+            {isMobile ? "Listings" : "Listings"}
             {listings.length > 0 && (
               <span className="ml-1 bg-green-500 text-white text-xs rounded-full px-1">
                 {listings.length}
               </span>
             )}
           </TabsTrigger>
-          <TabsTrigger value="contact" className={isMobile ? 'text-xs px-2 py-2' : ''}>
-            {isMobile ? 'Contact' : 'Contact Messages'}
+          <TabsTrigger
+            value="contact"
+            className={isMobile ? "text-xs px-2 py-2" : ""}
+          >
+            {isMobile ? "Contact" : "Contact Messages"}
             {stats.unreadMessages > 0 && (
               <span className="ml-1 bg-orange-500 text-white text-xs rounded-full px-1">
                 {stats.unreadMessages}
               </span>
             )}
           </TabsTrigger>
-          <TabsTrigger value="health" className={isMobile ? 'text-xs px-2 py-2' : ''}>
-            {isMobile ? 'Health' : 'System Health'}
-          </TabsTrigger>
-          <TabsTrigger value="settings" className={isMobile ? 'text-xs px-2 py-2' : ''}>
-            {isMobile ? 'Settings' : 'Settings'}
+          <TabsTrigger
+            value="settings"
+            className={isMobile ? "text-xs px-2 py-2" : ""}
+          >
+            {isMobile ? "Settings" : "Settings"}
           </TabsTrigger>
         </TabsList>
 
@@ -270,19 +294,18 @@ const AdminDashboard = () => {
         </TabsContent>
 
         <TabsContent value="listings" className="space-y-4">
-          <AdminListingsTab listings={listings} onListingAction={handleListingAction} />
+          <AdminListingsTab
+            listings={listings}
+            onListingAction={handleListingAction}
+          />
         </TabsContent>
 
         <TabsContent value="contact" className="space-y-4">
           <AdminContactTab />
         </TabsContent>
 
-        <TabsContent value="health" className="space-y-4">
-          <AdminOnlySystemHealth />
-        </TabsContent>
-
         <TabsContent value="settings" className="space-y-4">
-          <AdminSettingsTab 
+          <AdminSettingsTab
             broadcastMessage={broadcastMessage}
             setBroadcastMessage={setBroadcastMessage}
             onSendBroadcast={handleSendBroadcast}

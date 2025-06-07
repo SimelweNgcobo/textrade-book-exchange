@@ -1,12 +1,12 @@
-
-import React, { useState } from 'react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Edit, Trash2, Eye, MapPin, User } from 'lucide-react';
-import { Book } from '@/types/book';
-import ProfileEditDialog from '@/components/ProfileEditDialog';
-import AddressEditDialog from '@/components/AddressEditDialog';
+import React, { useState } from "react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Edit, Trash2, Eye, MapPin, User } from "lucide-react";
+import { Book } from "@/types/book";
+import ProfileEditDialog from "@/components/ProfileEditDialog";
+import AddressEditDialog from "@/components/AddressEditDialog";
+import UnavailableBookCard from "@/components/UnavailableBookCard";
 
 interface UserProfileTabsProps {
   activeListings: Book[];
@@ -18,7 +18,11 @@ interface UserProfileTabsProps {
   isOwnProfile: boolean;
   userId: string;
   userName: string;
-  onSaveAddresses?: (pickup: any, shipping: any, same: boolean) => Promise<void>;
+  onSaveAddresses?: (
+    pickup: any,
+    shipping: any,
+    same: boolean,
+  ) => Promise<void>;
   isLoadingAddress?: boolean;
 }
 
@@ -33,13 +37,13 @@ const UserProfileTabs = ({
   userId,
   userName,
   onSaveAddresses,
-  isLoadingAddress = false
+  isLoadingAddress = false,
 }: UserProfileTabsProps) => {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isAddressEditDialogOpen, setIsAddressEditDialogOpen] = useState(false);
 
   const formatAddress = (address: any) => {
-    if (!address) return 'Not provided';
+    if (!address) return "Not provided";
     return `${address.street}, ${address.city}, ${address.province} ${address.postalCode}`;
   };
 
@@ -67,58 +71,90 @@ const UserProfileTabs = ({
               ) : activeListings.length === 0 ? (
                 <div className="text-center py-8">
                   <p className="text-gray-600">
-                    {isOwnProfile ? 'You have no active listings.' : 'This user has no active listings.'}
+                    {isOwnProfile
+                      ? "You have no active listings."
+                      : "This user has no active listings."}
                   </p>
                 </div>
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                  {activeListings.map((book) => (
-                    <div key={book.id} className="border rounded-lg p-4 hover:shadow-md transition-shadow">
-                      <img
-                        src={book.frontCover || book.imageUrl}
-                        alt={book.title}
-                        className="w-full h-32 object-cover rounded mb-3"
-                      />
-                      <h4 className="font-semibold text-sm truncate">{book.title}</h4>
-                      <p className="text-xs text-gray-600 truncate">by {book.author}</p>
-                      <p className="text-sm font-bold text-book-600 mt-2">R{book.price}</p>
-                      
-                      <div className="mt-3 space-y-2">
-                        <Button
-                          onClick={() => window.open(`/books/${book.id}`, '_blank')}
-                          variant="outline"
-                          size="sm"
-                          className="w-full text-xs"
-                        >
-                          <Eye className="h-3 w-3 mr-1" />
-                          View Book
-                        </Button>
-                        
-                        {isOwnProfile && (
-                          <div className="grid grid-cols-2 gap-2">
-                            <Button
-                              onClick={() => onEditBook(book.id)}
-                              variant="outline"
-                              size="sm"
-                              className="text-xs"
-                            >
-                              <Edit className="h-3 w-3 mr-1" />
-                              Edit
-                            </Button>
-                            <Button
-                              onClick={() => onDeleteBook(book.id, book.title)}
-                              variant="destructive"
-                              size="sm"
-                              className="text-xs"
-                            >
-                              <Trash2 className="h-3 w-3 mr-1" />
-                              Delete
-                            </Button>
-                          </div>
-                        )}
+                  {activeListings.map((book) => {
+                    const isUnavailable =
+                      (book as any).status === "unavailable";
+
+                    if (isUnavailable) {
+                      return (
+                        <UnavailableBookCard
+                          key={book.id}
+                          book={book}
+                          onEdit={isOwnProfile ? onEditBook : undefined}
+                          onDelete={isOwnProfile ? onDeleteBook : undefined}
+                          isOwnProfile={isOwnProfile}
+                        />
+                      );
+                    }
+
+                    return (
+                      <div
+                        key={book.id}
+                        className="border rounded-lg p-4 hover:shadow-md transition-shadow"
+                      >
+                        <img
+                          src={book.frontCover || book.imageUrl}
+                          alt={book.title}
+                          className="w-full h-32 object-cover rounded mb-3"
+                        />
+                        <h4 className="font-semibold text-sm truncate">
+                          {book.title}
+                        </h4>
+                        <p className="text-xs text-gray-600 truncate">
+                          by {book.author}
+                        </p>
+                        <p className="text-sm font-bold text-book-600 mt-2">
+                          R{book.price}
+                        </p>
+
+                        <div className="mt-3 space-y-2">
+                          <Button
+                            onClick={() =>
+                              window.open(`/books/${book.id}`, "_blank")
+                            }
+                            variant="outline"
+                            size="sm"
+                            className="w-full text-xs"
+                          >
+                            <Eye className="h-3 w-3 mr-1" />
+                            View Book
+                          </Button>
+
+                          {isOwnProfile && (
+                            <div className="grid grid-cols-2 gap-2">
+                              <Button
+                                onClick={() => onEditBook(book.id)}
+                                variant="outline"
+                                size="sm"
+                                className="text-xs"
+                              >
+                                <Edit className="h-3 w-3 mr-1" />
+                                Edit
+                              </Button>
+                              <Button
+                                onClick={() =>
+                                  onDeleteBook(book.id, book.title)
+                                }
+                                variant="destructive"
+                                size="sm"
+                                className="text-xs"
+                              >
+                                <Trash2 className="h-3 w-3 mr-1" />
+                                Delete
+                              </Button>
+                            </div>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </CardContent>
@@ -137,12 +173,16 @@ const UserProfileTabs = ({
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="text-sm font-medium text-gray-600">Name</label>
-                    <p className="mt-1">{profile?.name || 'Not provided'}</p>
+                    <label className="text-sm font-medium text-gray-600">
+                      Name
+                    </label>
+                    <p className="mt-1">{profile?.name || "Not provided"}</p>
                   </div>
                   <div>
-                    <label className="text-sm font-medium text-gray-600">Email</label>
-                    <p className="mt-1">{profile?.email || 'Not provided'}</p>
+                    <label className="text-sm font-medium text-gray-600">
+                      Email
+                    </label>
+                    <p className="mt-1">{profile?.email || "Not provided"}</p>
                   </div>
                 </div>
                 <Button
@@ -165,16 +205,21 @@ const UserProfileTabs = ({
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <label className="text-sm font-medium text-gray-600">Pickup Address</label>
-                  <p className="mt-1 text-sm">{formatAddress(addressData?.pickup_address)}</p>
+                  <label className="text-sm font-medium text-gray-600">
+                    Pickup Address
+                  </label>
+                  <p className="mt-1 text-sm">
+                    {formatAddress(addressData?.pickup_address)}
+                  </p>
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-gray-600">Shipping Address</label>
+                  <label className="text-sm font-medium text-gray-600">
+                    Shipping Address
+                  </label>
                   <p className="mt-1 text-sm">
-                    {addressData?.addresses_same 
-                      ? 'Same as pickup address' 
-                      : formatAddress(addressData?.shipping_address)
-                    }
+                    {addressData?.addresses_same
+                      ? "Same as pickup address"
+                      : formatAddress(addressData?.shipping_address)}
                   </p>
                 </div>
                 <Button

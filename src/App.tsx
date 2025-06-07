@@ -6,6 +6,9 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import AdminProtectedRoute from "./components/AdminProtectedRoute";
 import ScrollToTop from "./components/ScrollToTop";
 import ErrorBoundary from "./components/ErrorBoundary";
+import OAuthRedirectHandler from "./components/OAuthRedirectHandler";
+import OAuthDebugInfo from "./components/OAuthDebugInfo";
+import DatabaseDebugTest from "./components/DatabaseDebugTest";
 
 // Pages
 import Index from "./pages/Index";
@@ -18,6 +21,7 @@ import ResetPassword from "./pages/ResetPassword";
 import Profile from "./pages/Profile";
 import UserProfile from "./pages/UserProfile";
 import NotFound from "./pages/NotFound";
+import OAuthTest from "./pages/OAuthTest";
 import CreateListing from "./pages/CreateListing";
 import Checkout from "./pages/Checkout";
 import Admin from "./pages/Admin";
@@ -43,6 +47,7 @@ function App() {
         <CartProvider>
           <Router>
             <ScrollToTop />
+            <OAuthRedirectHandler />
             <div className="min-h-screen bg-gray-50">
               <ErrorBoundary level="page">
                 <Routes>
@@ -60,6 +65,8 @@ function App() {
                   <Route path="/privacy" element={<Privacy />} />
                   <Route path="/contact" element={<ContactUs />} />
                   <Route path="/report" element={<Report />} />
+                  <Route path="/oauth-test" element={<OAuthTest />} />
+                  <Route path="/debug-test" element={<DatabaseDebugTest />} />
 
                   {/* Public user profiles - no authentication required */}
                   <Route path="/user/:id" element={<UserProfile />} />
@@ -145,6 +152,7 @@ function App() {
               </ErrorBoundary>
             </div>
             <Toaster />
+            <OAuthDebugInfo />
           </Router>
         </CartProvider>
       </AuthProvider>
