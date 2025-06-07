@@ -33,8 +33,12 @@ const CourierGuyTrackingOnly = () => {
   useEffect(() => {
     if (user) {
       loadUserData();
+    } else {
+      setIsLoading(false);
+      setUserShipments([]);
+      setEligibility({ canSell: false, canBuy: false, errors: [] });
     }
-  }, [user]);
+  }, [user?.id]); // Use user.id instead of user object to prevent unnecessary rerenders
 
   const loadUserData = async () => {
     if (!user) {
