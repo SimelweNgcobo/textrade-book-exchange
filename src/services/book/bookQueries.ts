@@ -54,7 +54,9 @@ export const getBooks = async (filters?: BookFilters): Promise<Book[]> => {
 
     if (booksError) {
       logError("Error fetching books", booksError);
-      handleBookServiceError(booksError, "fetch books");
+      const errorMessage = logBookServiceError(booksError, "fetch books");
+      console.warn("Books query failed:", errorMessage);
+      return [];
     }
 
     if (!booksData || booksData.length === 0) {
