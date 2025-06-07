@@ -199,6 +199,20 @@ const CreateListing = () => {
         throw new Error("You must be logged in to create a listing");
       }
 
+      // Validate pickup address before allowing listing
+      const pickupValidation =
+        await BookDeletionService.validateUserCanListBooks(user.id);
+      if (!pickupValidation.canList) {
+        toast.error(
+          pickupValidation.message ||
+            "You need to add a pickup address before listing a book.",
+        );
+        setIsSubmitting(false);
+        // Redirect to profile to add address
+        navigate("/profile");
+        return;
+      }
+
       // Use the correct createBook function signature
       const newBook = await createBook(formData);
 
