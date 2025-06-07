@@ -17,6 +17,9 @@ const Login = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
+  // Handle OAuth redirect with token hash fragment
+  useOAuthRedirect();
+
   useEffect(() => {
     window.scrollTo(0, 0);
 
