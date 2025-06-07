@@ -63,67 +63,77 @@ export class OAuthService {
   }
 
   /**
-   * Parse OAuth parameters from URL hash fragment
-   * @param hash - URL hash string (without #)
+   * Check if current URL contains OAuth callback parameters
    */
-  static parseOAuthHash(hash: string) {
-    const params = new URLSearchParams(hash);
+  static isOAuthCallback(): boolean {
+    if (typeof window === "undefined") return false;
 
-    return {
-      access_token: params.get("access_token"),
-      refresh_token: params.get("refresh_token"),
-      expires_in: params.get("expires_in"),
-      token_type: params.get("token_type"),
-      type: params.get("type"),
-      error: params.get("error"),
-      error_description: params.get("error_description"),
-      error_code: params.get("error_code"),
-    };
+    const hash = window.location.hash;
+    const searchParams = new URLSearchParams(window.location.search);
+    const code = searchParams.get("code");
+    const error = searchParams.get("error");
+
+    // Check for either hash-based tokens or code-based PKCE flow
+    return !!(hash || code || error);
   }
 
   /**
-   * Validate OAuth tokens
-   * @param tokens - OAuth tokens object
+   * Get current Supabase session
    */
-  static validateOAuthTokens(tokens: {
-    access_token: string | null;
-    refresh_token: string | null;
-  }): boolean {
-    return !!(tokens.access_token && tokens.refresh_token);
+  static async getCurrentSession() {
+    try {
+      const {
+        data: { session },
+        error,
+      } = await supabase.auth.getSession();
+
+      if (error) {
+        console.error("Error getting current session:", error);
+        return null;
+      }
+
+      return session;
+    } catch (error) {
+      console.error("Failed to get current session:", error);
+      return null;
+    }
   }
 
   /**
-   * Clean up OAuth hash from URL
+   * Clean up OAuth parameters from URL
    */
-  static cleanupOAuthHash(): void {
+  static cleanupOAuthUrl(): void {
     if (typeof window !== "undefined") {
       window.history.replaceState(null, "", window.location.pathname);
     }
   }
 
   /**
-   * Set Supabase session with OAuth tokens
-   * @param access_token - OAuth access token
-   * @param refresh_token - OAuth refresh token
+   * Wait for authentication state to settle after OAuth redirect
+   * @param timeoutMs - Maximum time to wait in milliseconds
    */
-  static async setOAuthSession(access_token: string, refresh_token: string) {
-    try {
-      const { data, error } = await supabase.auth.setSession({
-        access_token,
-        refresh_token,
+  static async waitForAuthState(timeoutMs: number = 5000): Promise<boolean> {
+    return new Promise((resolve) => {
+      let resolved = false;
+      const timeout = setTimeout(() => {
+        if (!resolved) {
+          resolved = true;
+          subscription.unsubscribe();
+          resolve(false);
+        }
+      }, timeoutMs);
+
+      const {
+        data: { subscription },
+      } = supabase.auth.onAuthStateChange((event, session) => {
+        if (!resolved && (event === "SIGNED_IN" || event === "SIGNED_OUT")) {
+          resolved = true;
+          clearTimeout(timeout);
+          subscription.unsubscribe();
+          resolve(!!session);
+        }
       });
-
-      if (error) {
-        console.error("Error setting OAuth session:", error);
-        throw error;
-      }
-
-      console.log("OAuth session set successfully");
-      return data;
-    } catch (error) {
-      console.error("Failed to set OAuth session:", error);
-      throw error;
-    }
+    });
   }
 }
 
