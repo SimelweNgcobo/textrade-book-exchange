@@ -221,13 +221,7 @@ export const getAllListings = async (): Promise<AdminListing[]> => {
       .order("created_at", { ascending: false });
 
     if (booksError) {
-      console.error("Error fetching books with profiles:", {
-        message: booksError.message,
-        code: booksError.code,
-        details: booksError.details,
-        hint: booksError.hint,
-        full_error: booksError,
-      });
+      logDatabaseError("getAllListings - books with profiles join", booksError);
       // Fallback to separate queries if the join fails
       return await getAllListingsFallback();
     }
