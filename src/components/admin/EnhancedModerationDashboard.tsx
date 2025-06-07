@@ -629,11 +629,24 @@ const EnhancedModerationDashboard = () => {
                               </div>
                             </TableCell>
                             <TableCell className="font-medium">
-                              <div className="max-w-[150px] truncate">
-                                {user.name}
-                              </div>
-                              <div className="text-xs text-gray-500">
-                                {user.email}
+                              <div className="flex items-center gap-2">
+                                <div className="max-w-[150px]">
+                                  <div className="truncate">{user.name}</div>
+                                  <div className="text-xs text-gray-500 truncate">
+                                    {user.email}
+                                  </div>
+                                </div>
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  onClick={() =>
+                                    copyEmailToClipboard(user.email)
+                                  }
+                                  className="h-6 w-6 p-0"
+                                  title="Copy Email Address"
+                                >
+                                  <Copy className="h-3 w-3" />
+                                </Button>
                               </div>
                             </TableCell>
                             <TableCell className="max-w-[200px] truncate">
