@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -195,58 +196,13 @@ const BookDetails = () => {
     );
   }
 
-  // Book is sold state
-  if (book.sold) {
-    return (
-      <Layout>
-        <div className="container mx-auto px-4 py-8">
-          <Button
-            variant="ghost"
-            onClick={() => navigate(-1)}
-            className="mb-6 text-book-600 hover:bg-book-50 min-h-[44px]"
-          >
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back
-          </Button>
-
-          <div className="text-center max-w-md mx-auto">
-            <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <BookOpen className="h-8 w-8 text-orange-600" />
-            </div>
-            <h2 className="text-2xl font-semibold mb-2">Book Already Sold</h2>
-            <p className="text-gray-600 mb-6">
-              This book has already been purchased by another buyer.
-            </p>
-            <div className="space-y-3">
-              <Button
-                onClick={() => navigate("/books")}
-                className="bg-book-600 hover:bg-book-700 w-full min-h-[48px]"
-                size="lg"
-              >
-                Find Similar Books
-              </Button>
-              <Button
-                variant="outline"
-                onClick={() => navigate(-1)}
-                className="w-full min-h-[48px]"
-                size="lg"
-              >
-                Go Back
-              </Button>
-            </div>
-          </div>
-        </div>
-      </Layout>
-    );
-  }
-
   const isOwner = user?.id === book.seller?.id;
   const showCommissionDetails = isOwner || isAdmin;
 
   return (
     <Layout>
       <div className="container mx-auto px-4 py-4 sm:py-8 max-w-6xl">
-        {/* Mobile back button */}
+        {/* Back button */}
         <div className="mb-4 sm:mb-6">
           <Button
             variant="ghost"
@@ -259,37 +215,15 @@ const BookDetails = () => {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
-          {/* Left column - Images and Description */}
+          {/* Left column - Images and Content */}
           <div className="lg:col-span-2 space-y-6">
             <BookImageSection book={book} />
             <BookInfo book={book} />
             <BookDescription book={book} />
-
-            {/* Mobile-only pricing card */}
-            <div className="lg:hidden">
-              <Card>
-                <CardContent className="p-4 sm:p-6">
-                  <div className="text-center mb-4">
-                    <span className="text-2xl sm:text-3xl font-bold text-book-600">
-                      R{book.price?.toLocaleString()}
-                    </span>
-                  </div>
-                  <BookActions
-                    book={book}
-                    user={user}
-                    onBuyNow={handleBuyNow}
-                    onAddToCart={handleAddToCart}
-                    onEditBook={handleEditBook}
-                    onShare={handleShare}
-                    onViewSellerProfile={handleViewSellerProfile}
-                  />
-                </CardContent>
-              </Card>
-            </div>
           </div>
 
-          {/* Right column - Pricing and Actions (Desktop only) */}
-          <div className="hidden lg:block space-y-6">
+          {/* Right column - Actions and Info */}
+          <div className="space-y-6">
             <BookActions
               book={book}
               user={user}
@@ -313,43 +247,21 @@ const BookDetails = () => {
               seller={book.seller}
               onViewProfile={handleViewSellerProfile}
             />
+
+            {!isOwner && (
+              <div className="text-center">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleReportBook}
+                  className="text-red-600 border-red-600 hover:bg-red-50"
+                >
+                  Report Issue
+                </Button>
+              </div>
+            )}
           </div>
         </div>
-
-        {/* Mobile seller info and report button */}
-        <div className="lg:hidden mt-6 space-y-4">
-          <SellerInfo
-            seller={book.seller}
-            onViewProfile={handleViewSellerProfile}
-          />
-
-          {!isOwner && (
-            <div className="flex justify-center">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleReportBook}
-                className="text-red-600 border-red-600 hover:bg-red-50 min-h-[44px]"
-              >
-                Report Issue
-              </Button>
-            </div>
-          )}
-        </div>
-
-        {/* Desktop report button */}
-        {!isOwner && (
-          <div className="hidden lg:flex justify-center mt-8">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleReportBook}
-              className="text-red-600 border-red-600 hover:bg-red-50 min-h-[44px]"
-            >
-              Report Issue with this Book
-            </Button>
-          </div>
-        )}
 
         <ReportBookDialog
           isOpen={isReportDialogOpen}

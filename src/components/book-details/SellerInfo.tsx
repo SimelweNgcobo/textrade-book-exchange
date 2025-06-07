@@ -1,7 +1,6 @@
 
-import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { User } from 'lucide-react';
+import { User, Calendar } from 'lucide-react';
 
 interface SellerInfoProps {
   seller: {
@@ -18,26 +17,22 @@ const SellerInfo = ({ seller, onViewProfile }: SellerInfoProps) => {
   return (
     <Card>
       <CardContent className="p-4">
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="font-semibold">Seller: {seller?.name || 'Loading...'}</p>
-            <p className="text-sm text-gray-600">
-              Member since {new Date().getFullYear()}
-            </p>
+        <h3 className="font-semibold text-lg mb-3">About the Seller</h3>
+        <div className="space-y-3">
+          <div className="flex items-center gap-2">
+            <User className="h-4 w-4 text-gray-500" />
+            <span className="font-medium">{seller?.name || 'Loading...'}</span>
           </div>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={onViewProfile}
-            className="flex items-center gap-2"
-          >
-            <User className="h-4 w-4" />
-            View Profile
-          </Button>
+          <div className="flex items-center gap-2">
+            <Calendar className="h-4 w-4 text-gray-500" />
+            <span className="text-sm text-gray-600">
+              Member since {new Date().getFullYear()}
+            </span>
+          </div>
         </div>
-        <div className="mt-3 p-3 bg-blue-50 rounded-lg">
-          <p className="text-sm text-blue-800 font-medium">
-            Like what you see? Check their profile for more books like this.
+        <div className="mt-4 p-3 bg-blue-50 rounded-lg">
+          <p className="text-sm text-blue-800">
+            💡 Check their profile for more books and seller information
           </p>
         </div>
       </CardContent>
