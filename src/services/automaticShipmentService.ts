@@ -161,10 +161,10 @@ export const createAutomaticShipment = async (
 
     /*
     const shipment = await createCourierGuyShipment(shipmentData);
-    
+
     // Store shipment information in database for tracking
     await storeShipmentRecord(bookDetails.id, seller.id, buyer.id, shipment);
-    
+
     return {
       shipmentId: shipment.id,
       trackingNumber: shipment.tracking_number
@@ -215,28 +215,37 @@ const storeShipmentRecord = async (
 
 /**
  * Get shipment records for a user (as buyer or seller)
+ * Note: Returns empty array since shipments table is not yet created
  */
 export const getUserShipments = async (userId: string) => {
   try {
+    // Note: Shipments table not created yet, return empty array
+    console.log(
+      "getUserShipments called for user:",
+      userId,
+      "- returning empty array (table not created)",
+    );
+    return [];
+
+    /* Uncomment when shipments table is created:
     const { data, error } = await supabase
-      .from("shipments")
-      .select(
-        `
+      .from('shipments')
+      .select(`
         *,
         book:books(title, author, price),
         seller:profiles!seller_id(name, email),
         buyer:profiles!buyer_id(name, email)
-      `,
-      )
+      `)
       .or(`seller_id.eq.${userId},buyer_id.eq.${userId}`)
-      .order("created_at", { ascending: false });
+      .order('created_at', { ascending: false });
 
     if (error) {
-      console.error("Error fetching user shipments:", error);
+      console.error('Error fetching user shipments:', error);
       return [];
     }
 
     return data || [];
+    */
   } catch (error) {
     console.error("Error in getUserShipments:", error);
     return [];
