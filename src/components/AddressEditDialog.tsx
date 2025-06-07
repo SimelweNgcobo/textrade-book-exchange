@@ -164,7 +164,7 @@ const AddressEditDialog = ({
                 <Label htmlFor="pickup-street">Street Address</Label>
                 <Input
                   id="pickup-street"
-                  value={pickupAddress.street}
+                  value={pickupAddress.street || ""}
                   onChange={(e) =>
                     setPickupAddress((prev) => ({
                       ...prev,
