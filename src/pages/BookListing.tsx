@@ -35,12 +35,6 @@ const BookListing = () => {
   const loadBooks = useCallback(async () => {
     console.log("Loading books...");
 
-    // Prevent concurrent loading calls
-    if (isLoading) {
-      console.log("Already loading, skipping...");
-      return;
-    }
-
     setIsLoading(true);
     setError(null);
 
