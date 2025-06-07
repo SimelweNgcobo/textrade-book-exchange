@@ -304,10 +304,6 @@ const AdminDashboard = () => {
           <AdminContactTab />
         </TabsContent>
 
-        <TabsContent value="health" className="space-y-4">
-          <AdminOnlySystemHealth />
-        </TabsContent>
-
         <TabsContent value="settings" className="space-y-4">
           <AdminSettingsTab
             broadcastMessage={broadcastMessage}
