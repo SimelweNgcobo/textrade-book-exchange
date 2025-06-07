@@ -14,46 +14,32 @@ import {
   RefreshCw,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
-import {
-  getUserShipments,
-  validateUserShipmentEligibility,
-} from "@/services/automaticShipmentService";
+import { validateUserShipmentEligibility } from "@/services/automaticShipmentService";
 import CourierGuyTracker from "./CourierGuyTracker";
 
 const CourierGuyTrackingOnly = () => {
   const { user } = useAuth();
-  const [userShipments, setUserShipments] = useState<any[]>([]);
   const [eligibility, setEligibility] = useState<{
     canSell: boolean;
     canBuy: boolean;
     errors: string[];
   }>({ canSell: false, canBuy: false, errors: [] });
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     if (user?.id) {
-      loadUserData();
+      loadEligibilityData();
     } else {
-      setIsLoading(false);
-      setUserShipments([]);
       setEligibility({ canSell: false, canBuy: false, errors: [] });
     }
-  }, [user?.id]); // Use user.id instead of user object to prevent unnecessary rerenders
+  }, [user?.id]);
 
-  const loadUserData = async () => {
-    if (!user) {
-      setIsLoading(false);
-      return;
-    }
+  const loadEligibilityData = async () => {
+    if (!user?.id) return;
 
     setIsLoading(true);
     try {
-      const [shipments, userEligibility] = await Promise.all([
-        getUserShipments(user.id),
-        validateUserShipmentEligibility(user.id),
-      ]);
-
-      setUserShipments(shipments || []);
+      const userEligibility = await validateUserShipmentEligibility(user.id);
       setEligibility(
         userEligibility || {
           canSell: false,
@@ -62,9 +48,7 @@ const CourierGuyTrackingOnly = () => {
         },
       );
     } catch (error) {
-      console.error("Error loading user data:", error);
-      // Set fallback values to prevent infinite loading
-      setUserShipments([]);
+      console.error("Error loading eligibility data:", error);
       setEligibility({
         canSell: false,
         canBuy: false,
