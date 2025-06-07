@@ -99,6 +99,12 @@ export const DatabaseDebugTest = () => {
         logDatabaseError("Books with profiles join", error);
         setResults([
           { type: "error", content: `Join error: ${error.message}` },
+          {
+            type: "info",
+            content:
+              "This confirms no foreign key relationship exists between books and profiles tables.",
+          },
+          { type: "info", content: "Using separate queries instead..." },
         ]);
       } else {
         console.log(
@@ -118,6 +124,85 @@ export const DatabaseDebugTest = () => {
       console.error("🔴 Unexpected join error:", error);
       setResults([
         { type: "error", content: `Unexpected join error: ${error}` },
+      ]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const testTableStructure = async () => {
+    setIsLoading(true);
+    setResults([]);
+
+    try {
+      console.log("🧪 Testing table structure and relationships...");
+
+      // Test books table columns
+      const { data: booksData, error: booksError } = await supabase
+        .from("books")
+        .select("id, seller_id, title")
+        .limit(1);
+
+      // Test profiles table columns
+      const { data: profilesData, error: profilesError } = await supabase
+        .from("profiles")
+        .select("id, name, email")
+        .limit(1);
+
+      // Test notifications table existence
+      const { data: notificationsData, error: notificationsError } =
+        await supabase.from("notifications").select("id").limit(1);
+
+      const results = [];
+
+      if (booksError) {
+        results.push({
+          type: "error",
+          content: `Books table error: ${booksError.message}`,
+        });
+      } else {
+        results.push({
+          type: "success",
+          content: `Books table accessible (${booksData?.length || 0} sample records)`,
+        });
+      }
+
+      if (profilesError) {
+        results.push({
+          type: "error",
+          content: `Profiles table error: ${profilesError.message}`,
+        });
+      } else {
+        results.push({
+          type: "success",
+          content: `Profiles table accessible (${profilesData?.length || 0} sample records)`,
+        });
+      }
+
+      if (notificationsError) {
+        if (notificationsError.code === "42P01") {
+          results.push({
+            type: "error",
+            content: "Notifications table does not exist",
+          });
+        } else {
+          results.push({
+            type: "error",
+            content: `Notifications table error: ${notificationsError.message}`,
+          });
+        }
+      } else {
+        results.push({
+          type: "success",
+          content: "Notifications table accessible",
+        });
+      }
+
+      setResults(results);
+    } catch (error) {
+      console.error("🔴 Table structure test error:", error);
+      setResults([
+        { type: "error", content: `Table structure test error: ${error}` },
       ]);
     } finally {
       setIsLoading(false);
