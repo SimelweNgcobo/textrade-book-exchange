@@ -57,7 +57,8 @@ const BookGrid = ({ books, isLoading, onClearFilters }: BookGridProps) => {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {books.map((book) => {
           console.log("Rendering book:", book.id, book.title);
-          const isUnavailable = (book as any).status === "unavailable";
+          const isUnavailable =
+            (book as Book & { status?: string }).status === "unavailable";
 
           return (
             <div
