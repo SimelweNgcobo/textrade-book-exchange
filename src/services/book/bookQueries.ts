@@ -179,7 +179,7 @@ export const getUserBooks = async (userId: string): Promise<Book[]> => {
       .select(
         `
         *,
-        profiles!books_seller_id_fkey (
+        seller:profiles!seller_id (
           id,
           name,
           email
