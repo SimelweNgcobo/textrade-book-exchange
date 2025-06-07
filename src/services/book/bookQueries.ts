@@ -36,6 +36,9 @@ export const getBooks = async (filters?: BookFilters): Promise<Book[]> => {
       if (filters.universityYear) {
         query = query.eq("university_year", filters.universityYear);
       }
+      if (filters.university) {
+        query = query.eq("university", filters.university);
+      }
       if (filters.minPrice !== undefined) {
         query = query.gte("price", filters.minPrice);
       }

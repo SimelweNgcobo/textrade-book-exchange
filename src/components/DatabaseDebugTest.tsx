@@ -212,6 +212,7 @@ export const DatabaseDebugTest = () => {
   const testNotificationTypes = async () => {
     setIsLoading(true);
     setResults([]);
+    const createdNotificationIds = [];
 
     try {
       console.log("🧪 Testing notification types...");
@@ -275,6 +276,7 @@ export const DatabaseDebugTest = () => {
               });
             }
           } else if (insertData && insertData.length > 0) {
+            createdNotificationIds.push(insertData[0].id);
             results.push({
               type: "success",
               content: `Type "${testType}" - WORKS ✅`,
@@ -301,6 +303,13 @@ export const DatabaseDebugTest = () => {
         { type: "error", content: `Notification types test error: ${error}` },
       ]);
     } finally {
+      // Clean up any remaining test notifications
+      if (createdNotificationIds.length > 0) {
+        await supabase
+          .from("notifications")
+          .delete()
+          .in("id", createdNotificationIds);
+      }
       setIsLoading(false);
     }
   };

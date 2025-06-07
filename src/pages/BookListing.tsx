@@ -4,7 +4,6 @@ import Layout from "@/components/Layout";
 import SEO from "@/components/SEO";
 import BookFilters from "@/components/book-listing/BookFilters";
 import BookGrid from "@/components/book-listing/BookGrid";
-import SystemHealthCheck from "@/components/SystemHealthCheck";
 import { getBooks } from "@/services/book/bookQueries";
 import { Book } from "@/types/book";
 import { toast } from "sonner";
@@ -26,6 +25,7 @@ const BookListing = () => {
   const [selectedCondition, setSelectedCondition] = useState("");
   const [selectedGrade, setSelectedGrade] = useState("");
   const [selectedUniversityYear, setSelectedUniversityYear] = useState("");
+  const [selectedUniversity, setSelectedUniversity] = useState("");
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 1000]);
   const [bookType, setBookType] = useState<"all" | "school" | "university">(
     "all",
@@ -51,6 +51,7 @@ const BookListing = () => {
       const category = searchParams.get("category") || "";
       const grade = searchParams.get("grade") || "";
       const universityYear = searchParams.get("universityYear") || "";
+      const university = searchParams.get("university") || "";
 
       const filters: {
         search?: string;
@@ -58,6 +59,7 @@ const BookListing = () => {
         condition?: string;
         grade?: string;
         universityYear?: string;
+        university?: string;
         minPrice?: number;
         maxPrice?: number;
       } = {};
@@ -67,6 +69,7 @@ const BookListing = () => {
       if (selectedCondition) filters.condition = selectedCondition;
       if (grade) filters.grade = grade;
       if (universityYear) filters.universityYear = universityYear;
+      if (selectedUniversity) filters.university = selectedUniversity;
 
       if (priceRange[0] > 0) filters.minPrice = priceRange[0];
       if (priceRange[1] < 1000) filters.maxPrice = priceRange[1];
@@ -108,6 +111,7 @@ const BookListing = () => {
     if (selectedGrade) params.set("grade", selectedGrade);
     if (selectedUniversityYear)
       params.set("universityYear", selectedUniversityYear);
+    if (selectedUniversity) params.set("university", selectedUniversity);
 
     setSearchParams(params);
     loadBooks();
@@ -120,6 +124,7 @@ const BookListing = () => {
     setSelectedCondition("");
     setSelectedGrade("");
     setSelectedUniversityYear("");
+    setSelectedUniversity("");
     setPriceRange([0, 1000]);
     setBookType("all");
     setSearchParams({});
@@ -130,7 +135,6 @@ const BookListing = () => {
     return (
       <Layout>
         <div className="container mx-auto px-4 py-8">
-          <SystemHealthCheck />
           <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
             <h2 className="text-xl font-semibold text-red-800 mb-2">
               Error Loading Books
@@ -157,7 +161,6 @@ const BookListing = () => {
         url="https://www.rebookedsolutions.co.za/books"
       />
       <div className="container mx-auto px-4 py-8">
-        <SystemHealthCheck />
         <h1 className="text-3xl font-bold text-book-800 mb-8">Browse Books</h1>
 
         <div className="flex flex-col lg:flex-row gap-8">
@@ -172,6 +175,8 @@ const BookListing = () => {
             setSelectedGrade={setSelectedGrade}
             selectedUniversityYear={selectedUniversityYear}
             setSelectedUniversityYear={setSelectedUniversityYear}
+            selectedUniversity={selectedUniversity}
+            setSelectedUniversity={setSelectedUniversity}
             priceRange={priceRange}
             setPriceRange={setPriceRange}
             bookType={bookType}
@@ -187,6 +192,8 @@ const BookListing = () => {
               if (selectedGrade) params.set("grade", selectedGrade);
               if (selectedUniversityYear)
                 params.set("universityYear", selectedUniversityYear);
+              if (selectedUniversity)
+                params.set("university", selectedUniversity);
               setSearchParams(params);
               loadBooks();
             }}
@@ -198,6 +205,8 @@ const BookListing = () => {
               if (selectedGrade) params.set("grade", selectedGrade);
               if (selectedUniversityYear)
                 params.set("universityYear", selectedUniversityYear);
+              if (selectedUniversity)
+                params.set("university", selectedUniversity);
               setSearchParams(params);
               loadBooks();
             }}
@@ -208,6 +217,7 @@ const BookListing = () => {
               setSelectedCondition("");
               setSelectedGrade("");
               setSelectedUniversityYear("");
+              setSelectedUniversity("");
               setPriceRange([0, 1000]);
               setBookType("all");
               setSearchParams({});
@@ -225,6 +235,7 @@ const BookListing = () => {
               setSelectedCondition("");
               setSelectedGrade("");
               setSelectedUniversityYear("");
+              setSelectedUniversity("");
               setPriceRange([0, 1000]);
               setBookType("all");
               setSearchParams({});

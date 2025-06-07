@@ -1,10 +1,10 @@
-
 export interface BookFilters {
   search?: string;
   category?: string;
   condition?: string;
   grade?: string;
   universityYear?: string;
+  university?: string;
   minPrice?: number;
   maxPrice?: number;
 }
@@ -31,6 +31,7 @@ export interface BookQueryResult {
   created_at: string;
   grade?: string;
   university_year?: string;
+  university?: string;
   seller_id: string;
   profiles?: ProfileData | null;
 }

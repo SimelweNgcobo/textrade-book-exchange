@@ -1,9 +1,10 @@
-
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Slider } from '@/components/ui/slider';
-import { Filter, Search, School, GraduationCap, BookOpen } from 'lucide-react';
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Slider } from "@/components/ui/slider";
+import { Filter, Search, School, GraduationCap, BookOpen } from "lucide-react";
+import { UniversitySelector } from "@/components/ui/university-selector";
+import { UNIVERSITY_YEARS } from "@/constants/universities";
 
 interface BookFiltersProps {
   searchQuery: string;
@@ -16,10 +17,12 @@ interface BookFiltersProps {
   setSelectedGrade: (grade: string) => void;
   selectedUniversityYear: string;
   setSelectedUniversityYear: (year: string) => void;
+  selectedUniversity: string;
+  setSelectedUniversity: (university: string) => void;
   priceRange: [number, number];
   setPriceRange: (range: [number, number]) => void;
-  bookType: 'all' | 'school' | 'university';
-  setBookType: (type: 'all' | 'school' | 'university') => void;
+  bookType: "all" | "school" | "university";
+  setBookType: (type: "all" | "school" | "university") => void;
   showFilters: boolean;
   setShowFilters: (show: boolean) => void;
   onSearch: (e: React.FormEvent) => void;
@@ -38,6 +41,8 @@ const BookFilters = ({
   setSelectedGrade,
   selectedUniversityYear,
   setSelectedUniversityYear,
+  selectedUniversity,
+  setSelectedUniversity,
   priceRange,
   setPriceRange,
   bookType,
@@ -46,49 +51,72 @@ const BookFilters = ({
   setShowFilters,
   onSearch,
   onUpdateFilters,
-  onClearFilters
+  onClearFilters,
 }: BookFiltersProps) => {
-  const categories = ['Computer Science', 'Mathematics', 'Biology', 'Chemistry', 'Physics', 'Economics', 'Psychology'];
-  const conditions = ['New', 'Good', 'Better', 'Average', 'Below Average'];
-  const grades = [
-    'Grade 1', 'Grade 2', 'Grade 3', 'Grade 4', 'Grade 5', 
-    'Grade 6', 'Grade 7', 'Grade 8', 'Grade 9', 'Grade 10',
-    'Grade 11', 'Grade 12'
+  const categories = [
+    "Computer Science",
+    "Mathematics",
+    "Biology",
+    "Chemistry",
+    "Physics",
+    "Economics",
+    "Psychology",
   ];
-  const universityYears = [
-    '1st Year', '2nd Year', '3rd Year', '4th Year', 'Masters', 'Doctorate'
+  const conditions = ["New", "Good", "Better", "Average", "Below Average"];
+  const grades = [
+    "Grade 1",
+    "Grade 2",
+    "Grade 3",
+    "Grade 4",
+    "Grade 5",
+    "Grade 6",
+    "Grade 7",
+    "Grade 8",
+    "Grade 9",
+    "Grade 10",
+    "Grade 11",
+    "Grade 12",
   ];
 
   const handleCategoryChange = (category: string) => {
-    setSelectedCategory(category === selectedCategory ? '' : category);
+    setSelectedCategory(category === selectedCategory ? "" : category);
   };
-  
+
   const handleConditionChange = (condition: string) => {
-    setSelectedCondition(condition === selectedCondition ? '' : condition);
+    setSelectedCondition(condition === selectedCondition ? "" : condition);
   };
 
   const handleGradeChange = (grade: string) => {
-    setSelectedGrade(grade === selectedGrade ? '' : grade);
+    setSelectedGrade(grade === selectedGrade ? "" : grade);
     if (grade && grade !== selectedGrade) {
-      setSelectedUniversityYear('');
-      setBookType('school');
+      setSelectedUniversityYear("");
+      setBookType("school");
     }
   };
 
   const handleUniversityYearChange = (year: string) => {
-    setSelectedUniversityYear(year === selectedUniversityYear ? '' : year);
+    setSelectedUniversityYear(year === selectedUniversityYear ? "" : year);
     if (year && year !== selectedUniversityYear) {
-      setSelectedGrade('');
-      setBookType('university');
+      setSelectedGrade("");
+      setBookType("university");
     }
   };
 
-  const handleBookTypeChange = (type: 'all' | 'school' | 'university') => {
+  const handleUniversityChange = (university: string) => {
+    setSelectedUniversity(university);
+    if (university) {
+      setSelectedGrade("");
+      setBookType("university");
+    }
+  };
+
+  const handleBookTypeChange = (type: "all" | "school" | "university") => {
     setBookType(type);
-    if (type === 'school') {
-      setSelectedUniversityYear('');
-    } else if (type === 'university') {
-      setSelectedGrade('');
+    if (type === "school") {
+      setSelectedUniversityYear("");
+      setSelectedUniversity("");
+    } else if (type === "university") {
+      setSelectedGrade("");
     }
   };
 
@@ -96,33 +124,38 @@ const BookFilters = ({
     <>
       {/* Mobile Toggle */}
       <div className="lg:hidden mb-4">
-        <Button 
+        <Button
           onClick={() => setShowFilters(!showFilters)}
           variant="outline"
           className="w-full flex items-center justify-center"
         >
           <Filter className="mr-2 h-4 w-4" />
-          {showFilters ? 'Hide Filters' : 'Show Filters'}
+          {showFilters ? "Hide Filters" : "Show Filters"}
         </Button>
       </div>
-      
+
       {/* Filters Section */}
-      <div className={`lg:w-1/4 ${showFilters ? 'block' : 'hidden'} lg:block`}>
+      <div className={`lg:w-1/4 ${showFilters ? "block" : "hidden"} lg:block`}>
         <div className="bg-white rounded-lg shadow-md p-6">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-xl font-semibold text-book-800">Filters</h2>
-            <Button 
-              variant="link" 
+            <Button
+              variant="link"
               onClick={onClearFilters}
               className="text-book-600 p-0 h-auto"
             >
               Clear All
             </Button>
           </div>
-          
+
           {/* Search Filter */}
           <form onSubmit={onSearch} className="mb-6">
-            <Label htmlFor="search" className="block text-sm font-medium text-gray-700 mb-1">Search</Label>
+            <Label
+              htmlFor="search"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
+              Search
+            </Label>
             <div className="relative">
               <Input
                 id="search"
@@ -131,8 +164,8 @@ const BookFilters = ({
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pr-10"
               />
-              <button 
-                type="submit" 
+              <button
+                type="submit"
                 className="absolute inset-y-0 right-0 pr-3 flex items-center"
               >
                 <Search className="h-4 w-4 text-gray-400" />
@@ -142,30 +175,32 @@ const BookFilters = ({
 
           {/* Book Type Filter */}
           <div className="mb-6">
-            <h3 className="text-sm font-medium text-gray-700 mb-2">Book Type</h3>
+            <h3 className="text-sm font-medium text-gray-700 mb-2">
+              Book Type
+            </h3>
             <div className="flex flex-wrap gap-2">
-              <Button 
-                variant={bookType === 'all' ? 'default' : 'outline'} 
+              <Button
+                variant={bookType === "all" ? "default" : "outline"}
                 size="sm"
-                onClick={() => handleBookTypeChange('all')}
+                onClick={() => handleBookTypeChange("all")}
                 className="flex items-center"
               >
                 <BookOpen className="mr-1 h-4 w-4" />
                 All
               </Button>
-              <Button 
-                variant={bookType === 'school' ? 'default' : 'outline'} 
+              <Button
+                variant={bookType === "school" ? "default" : "outline"}
                 size="sm"
-                onClick={() => handleBookTypeChange('school')}
+                onClick={() => handleBookTypeChange("school")}
                 className="flex items-center"
               >
                 <School className="mr-1 h-4 w-4" />
                 School
               </Button>
-              <Button 
-                variant={bookType === 'university' ? 'default' : 'outline'} 
+              <Button
+                variant={bookType === "university" ? "default" : "outline"}
                 size="sm"
-                onClick={() => handleBookTypeChange('university')}
+                onClick={() => handleBookTypeChange("university")}
                 className="flex items-center"
               >
                 <GraduationCap className="mr-1 h-4 w-4" />
@@ -173,9 +208,9 @@ const BookFilters = ({
               </Button>
             </div>
           </div>
-          
+
           {/* Grade Filter */}
-          {(bookType === 'school' || bookType === 'all') && (
+          {(bookType === "school" || bookType === "all") && (
             <div className="mb-6">
               <h3 className="text-sm font-medium text-gray-700 mb-2">Grade</h3>
               <div className="grid grid-cols-2 gap-2">
@@ -200,12 +235,28 @@ const BookFilters = ({
             </div>
           )}
 
-          {/* University Year Filter */}
-          {(bookType === 'university' || bookType === 'all') && (
+          {/* University Selection */}
+          {(bookType === "university" || bookType === "all") && (
             <div className="mb-6">
-              <h3 className="text-sm font-medium text-gray-700 mb-2">University Year</h3>
+              <h3 className="text-sm font-medium text-gray-700 mb-2">
+                University
+              </h3>
+              <UniversitySelector
+                value={selectedUniversity}
+                onValueChange={handleUniversityChange}
+                placeholder="Select university..."
+              />
+            </div>
+          )}
+
+          {/* University Year Filter */}
+          {(bookType === "university" || bookType === "all") && (
+            <div className="mb-6">
+              <h3 className="text-sm font-medium text-gray-700 mb-2">
+                University Year
+              </h3>
               <div className="space-y-2">
-                {universityYears.map((year) => (
+                {UNIVERSITY_YEARS.map((year) => (
                   <div key={year} className="flex items-center">
                     <input
                       type="checkbox"
@@ -225,10 +276,12 @@ const BookFilters = ({
               </div>
             </div>
           )}
-          
+
           {/* Category Filter */}
           <div className="mb-6">
-            <h3 className="text-sm font-medium text-gray-700 mb-2">Categories</h3>
+            <h3 className="text-sm font-medium text-gray-700 mb-2">
+              Categories
+            </h3>
             <div className="space-y-2">
               {categories.map((category) => (
                 <div key={category} className="flex items-center">
@@ -249,10 +302,12 @@ const BookFilters = ({
               ))}
             </div>
           </div>
-          
+
           {/* Condition Filter */}
           <div className="mb-6">
-            <h3 className="text-sm font-medium text-gray-700 mb-2">Condition</h3>
+            <h3 className="text-sm font-medium text-gray-700 mb-2">
+              Condition
+            </h3>
             <div className="space-y-2">
               {conditions.map((condition) => (
                 <div key={condition} className="flex items-center">
@@ -273,17 +328,21 @@ const BookFilters = ({
               ))}
             </div>
           </div>
-          
+
           {/* Price Range Filter */}
           <div className="mb-6">
-            <h3 className="text-sm font-medium text-gray-700 mb-2">Price Range</h3>
+            <h3 className="text-sm font-medium text-gray-700 mb-2">
+              Price Range
+            </h3>
             <div className="mt-4">
               <Slider
                 defaultValue={[0, 1000]}
                 max={1000}
                 step={10}
                 value={priceRange}
-                onValueChange={(value) => setPriceRange(value as [number, number])}
+                onValueChange={(value) =>
+                  setPriceRange(value as [number, number])
+                }
                 className="mt-2"
               />
               <div className="flex justify-between mt-2 text-sm text-gray-500">
@@ -292,8 +351,8 @@ const BookFilters = ({
               </div>
             </div>
           </div>
-          
-          <Button 
+
+          <Button
             onClick={onUpdateFilters}
             className="w-full bg-book-600 hover:bg-book-700"
           >

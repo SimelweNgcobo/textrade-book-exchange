@@ -72,16 +72,22 @@ export const getUserProfile = async (userId: string): Promise<AdminUser> => {
 
 export const getAdminStats = async (): Promise<AdminStats> => {
   try {
-    // Get total registered users count (all statuses except deleted)
-    const { count: totalUsers } = await supabase
-      .from("profiles")
-      .select("*", { count: "exact", head: true })
-      .neq("status", "deleted");
+    // Get total registered users count from auth.users (actual registered accounts)
+    const { count: totalUsers, error: userCountError } = await supabase
+      .from("profiles") // We use profiles as a proxy since auth.users is not directly accessible
+      .select("id", { count: "exact", head: true });
+
+    if (userCountError) {
+      console.error("Error fetching user count:", userCountError);
+    }
+
+    // Alternative: Get count from auth admin API if available
+    // For now, we'll use profiles count which should match auth users
 
     // Get active listings count
     const { count: activeListings } = await supabase
       .from("books")
-      .select("*", { count: "exact", head: true })
+      .select("id", { count: "exact", head: true })
       .eq("sold", false);
 
     // Get sold books count
@@ -102,14 +108,13 @@ export const getAdminStats = async (): Promise<AdminStats> => {
       .select("*", { count: "exact", head: true })
       .eq("status", "unread");
 
-    // Get new registered users this week (all statuses except deleted)
+    // Get new registered users this week
     const oneWeekAgo = new Date();
     oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
 
     const { count: newUsersThisWeek } = await supabase
       .from("profiles")
       .select("*", { count: "exact", head: true })
-      .neq("status", "deleted")
       .gte("created_at", oneWeekAgo.toISOString());
 
     // Get sales this month

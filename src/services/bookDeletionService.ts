@@ -97,28 +97,23 @@ export class BookDeletionService {
         throw new Error("Book not found");
       }
 
-      // Delete the book
-      const { error: deleteError } = await supabase
-        .from("books")
-        .delete()
-        .eq("id", bookId);
+      // Use stored procedure for atomic deletion + notification
+      const { error: transactionError } = await supabase.rpc(
+        "delete_book_with_notification",
+        {
+          p_book_id: bookId,
+          p_reason: reason,
+          p_admin_id: adminId || null,
+        },
+      );
 
-      if (deleteError) {
+      if (transactionError) {
         logDatabaseError(
-          "BookDeletionService.deleteBookWithNotification - delete book",
-          deleteError,
+          "BookDeletionService.deleteBookWithNotification - transaction",
+          transactionError,
         );
-        throw new Error("Failed to delete book");
+        throw new Error("Failed to delete book with notification");
       }
-
-      // Send notification to seller
-      await this.notifyBookDeletion({
-        bookId: book.id,
-        bookTitle: book.title,
-        sellerId: book.seller_id,
-        reason,
-        adminId,
-      });
 
       console.log("Book deleted and notification sent successfully:", bookId);
     } catch (error) {

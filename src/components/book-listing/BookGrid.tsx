@@ -86,74 +86,126 @@ const BookGrid = ({ books, isLoading, onClearFilters }: BookGridProps) => {
                 </div>
               )}
 
-              <Link
-                to={isUnavailable ? "#" : `/books/${book.id}`}
-                className="block flex-1"
-                onClick={(e) => {
-                  if (isUnavailable) {
-                    e.preventDefault();
-                    return;
-                  }
-                  if (!book.id) {
-                    e.preventDefault();
-                    console.error("Book ID is missing for book:", book.title);
-                    return;
-                  }
-                  console.log("Navigating to book:", book.id);
-                }}
-              >
-                <div className="relative h-48 overflow-hidden">
-                  <img
-                    src={book.imageUrl}
-                    alt={book.title}
-                    className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
-                    onError={(e) => {
-                      console.log("Image failed to load for book:", book.id);
-                      e.currentTarget.src =
-                        "https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=400&h=300&fit=crop&auto=format&q=80";
-                    }}
-                  />
-                  <div className="absolute top-2 right-2 bg-white px-2 py-1 rounded-full text-sm font-semibold text-book-800">
-                    R{book.price.toLocaleString()}
+              {isUnavailable ? (
+                <div className="block flex-1">
+                  <div className="relative h-48 overflow-hidden">
+                    <img
+                      src={book.imageUrl}
+                      alt={book.title}
+                      className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+                      onError={(e) => {
+                        console.log("Image failed to load for book:", book.id);
+                        e.currentTarget.src =
+                          "https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=400&h=300&fit=crop&auto=format&q=80";
+                      }}
+                    />
+                    <div className="absolute top-2 right-2 bg-white px-2 py-1 rounded-full text-sm font-semibold text-book-800">
+                      R{book.price.toLocaleString()}
+                    </div>
+                    {book.sold && (
+                      <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+                        <span className="bg-red-500 text-white px-3 py-1 rounded-full text-sm font-semibold">
+                          SOLD
+                        </span>
+                      </div>
+                    )}
                   </div>
-                  {book.sold && (
-                    <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-                      <span className="bg-red-500 text-white px-3 py-1 rounded-full text-sm font-semibold">
-                        SOLD
+                  <div className="p-4 flex-grow flex flex-col">
+                    <h3 className="font-bold text-lg mb-1 text-book-800 line-clamp-1">
+                      {book.title}
+                    </h3>
+                    <p className="text-gray-600 mb-2">{book.author}</p>
+                    <p className="text-gray-500 text-sm mb-auto line-clamp-2">
+                      {book.description}
+                    </p>
+                    <div className="flex flex-wrap items-center justify-between mt-4 gap-1">
+                      <span className="bg-book-100 text-book-800 px-2 py-1 rounded text-xs font-medium">
+                        {book.condition}
+                      </span>
+                      {book.grade && (
+                        <span className="bg-indigo-100 text-indigo-800 px-2 py-1 rounded text-xs font-medium flex items-center">
+                          <School className="h-3 w-3 mr-1" />
+                          {book.grade}
+                        </span>
+                      )}
+                      {book.universityYear && (
+                        <span className="bg-purple-100 text-purple-800 px-2 py-1 rounded text-xs font-medium flex items-center">
+                          <GraduationCap className="h-3 w-3 mr-1" />
+                          {book.universityYear}
+                        </span>
+                      )}
+                      <span className="text-gray-500 text-xs">
+                        {book.category}
                       </span>
                     </div>
-                  )}
-                </div>
-                <div className="p-4 flex-grow flex flex-col">
-                  <h3 className="font-bold text-lg mb-1 text-book-800 line-clamp-1">
-                    {book.title}
-                  </h3>
-                  <p className="text-gray-600 mb-2">{book.author}</p>
-                  <p className="text-gray-500 text-sm mb-auto line-clamp-2">
-                    {book.description}
-                  </p>
-                  <div className="flex flex-wrap items-center justify-between mt-4 gap-1">
-                    <span className="bg-book-100 text-book-800 px-2 py-1 rounded text-xs font-medium">
-                      {book.condition}
-                    </span>
-                    {book.grade && (
-                      <span className="bg-indigo-100 text-indigo-800 px-2 py-1 rounded text-xs font-medium flex items-center">
-                        <School className="h-3 w-3 mr-1" />
-                        {book.grade}
-                      </span>
-                    )}
-                    {book.universityYear && (
-                      <span className="bg-purple-100 text-purple-800 px-2 py-1 rounded text-xs font-medium flex items-center">
-                        <GraduationCap className="h-3 w-3 mr-1" />
-                        {book.universityYear}
-                      </span>
-                    )}
-                    <span className="text-gray-500 text-xs">
-                      {book.category}
-                    </span>
                   </div>
                 </div>
-              </Link>
+              ) : (
+                <Link
+                  to={`/books/${book.id}`}
+                  className="block flex-1"
+                  onClick={(e) => {
+                    if (!book.id) {
+                      e.preventDefault();
+                      console.error("Book ID is missing for book:", book.title);
+                      return;
+                    }
+                    console.log("Navigating to book:", book.id);
+                  }}
+                >
+                  <div className="relative h-48 overflow-hidden">
+                    <img
+                      src={book.imageUrl}
+                      alt={book.title}
+                      className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+                      onError={(e) => {
+                        console.log("Image failed to load for book:", book.id);
+                        e.currentTarget.src =
+                          "https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=400&h=300&fit=crop&auto=format&q=80";
+                      }}
+                    />
+                    <div className="absolute top-2 right-2 bg-white px-2 py-1 rounded-full text-sm font-semibold text-book-800">
+                      R{book.price.toLocaleString()}
+                    </div>
+                    {book.sold && (
+                      <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+                        <span className="bg-red-500 text-white px-3 py-1 rounded-full text-sm font-semibold">
+                          SOLD
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                  <div className="p-4 flex-grow flex flex-col">
+                    <h3 className="font-bold text-lg mb-1 text-book-800 line-clamp-1">
+                      {book.title}
+                    </h3>
+                    <p className="text-gray-600 mb-2">{book.author}</p>
+                    <p className="text-gray-500 text-sm mb-auto line-clamp-2">
+                      {book.description}
+                    </p>
+                    <div className="flex flex-wrap items-center justify-between mt-4 gap-1">
+                      <span className="bg-book-100 text-book-800 px-2 py-1 rounded text-xs font-medium">
+                        {book.condition}
+                      </span>
+                      {book.grade && (
+                        <span className="bg-indigo-100 text-indigo-800 px-2 py-1 rounded text-xs font-medium flex items-center">
+                          <School className="h-3 w-3 mr-1" />
+                          {book.grade}
+                        </span>
+                      )}
+                      {book.universityYear && (
+                        <span className="bg-purple-100 text-purple-800 px-2 py-1 rounded text-xs font-medium flex items-center">
+                          <GraduationCap className="h-3 w-3 mr-1" />
+                          {book.universityYear}
+                        </span>
+                      )}
+                      <span className="text-gray-500 text-xs">
+                        {book.category}
+                      </span>
+                    </div>
+                  </div>
+                </Link>
+              )}
             </div>
           );
         })}
