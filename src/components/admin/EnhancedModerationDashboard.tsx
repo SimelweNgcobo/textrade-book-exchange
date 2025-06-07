@@ -323,6 +323,51 @@ const EnhancedModerationDashboard = () => {
           <CardContent className="p-4">
             <div className="space-y-3">
               <div className="flex items-center justify-between">
+                <div className="font-medium text-gray-900">{user.name}</div>
+                <div className="flex items-center gap-2">
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => copyEmailToClipboard(user.email)}
+                    className="h-6 w-6 p-0"
+                    title="Copy Email Address"
+                  >
+                    <Copy className="h-3 w-3" />
+                  </Button>
+                  <Badge
+                    className={
+                      user.status === "banned"
+                        ? "bg-red-100 text-red-800"
+                        : "bg-orange-100 text-orange-800"
+                    }
+                  >
+                    {user.status === "banned" ? "Banned" : "Suspended"}
+                  </Badge>
+                </div>
+              </div>
+
+              <div className="text-sm text-gray-600">{user.email}</div>
+
+              <div>
+                <div className="text-sm font-medium text-gray-700">Reason:</div>
+                <div className="text-sm text-gray-600">
+                  {user.suspension_reason}
+                </div>
+              </div>
+
+              <div className="text-sm text-gray-500">
+                Suspended: {new Date(user.suspended_at).toLocaleDateString()}
+              </div>
+
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => unsuspendUser(user.id)}
+                className="w-full text-green-600 hover:text-green-700"
+              >
+                Unsuspend User
+              </Button>
+              <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2 text-orange-600">
                   <UserX className="h-4 w-4" />
                   <span className="font-medium">
