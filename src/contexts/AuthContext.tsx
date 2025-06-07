@@ -20,6 +20,7 @@ import {
   Profile,
 } from "@/services/authOperations";
 import { UserStats } from "@/types/address";
+import { logError, getErrorMessage } from "@/utils/errorUtils";
 
 interface AuthContextType {
   user: User | null;
@@ -70,25 +71,22 @@ function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   // Handle auth state changes
-  const handleAuthStateChange = useCallback(
-    async (session: Session) => {
-      try {
-        console.log("Processing auth state change");
-        setSession(session);
-        setUser(session.user);
+  const handleAuthStateChange = useCallback(async (session: Session) => {
+    try {
+      console.log("Processing auth state change");
+      setSession(session);
+      setUser(session.user);
 
-        if (session.user) {
-          const userProfile = await fetchUserProfile(session.user);
-          setProfile(userProfile);
-          console.log("Auth state updated successfully");
-        }
-      } catch (error) {
-        console.error("Error handling auth state change:", error);
-        handleError(error, "Authentication State Change");
+      if (session.user) {
+        const userProfile = await fetchUserProfile(session.user);
+        setProfile(userProfile);
+        console.log("Auth state updated successfully");
       }
-    },
-    [handleError],
-  );
+    } catch (error) {
+      logError("Error handling auth state change", error);
+      handleError(error, "Authentication State Change");
+    }
+  }, [handleError]);
 
   // Initialize auth on mount
   const initializeAuth = useCallback(async () => {
@@ -105,10 +103,7 @@ function AuthProvider({ children }: { children: ReactNode }) {
         data: { session: currentSession },
       } = await supabase.auth.getSession();
 
-      console.log(
-        "Initial session check:",
-        currentSession ? "Found session" : "No session",
-      );
+      console.log("Initial session check:", currentSession ? "Found session" : "No session");
 
       if (currentSession) {
         await handleAuthStateChange(currentSession);
@@ -116,8 +111,9 @@ function AuthProvider({ children }: { children: ReactNode }) {
 
       setAuthInitialized(true);
     } catch (error) {
-      console.error("Error initializing auth:", error);
+      logError("Error initializing auth", error);
       handleError(error, "Initialize Authentication");
+    }
     } finally {
       setIsLoading(false);
     }
@@ -130,11 +126,7 @@ function AuthProvider({ children }: { children: ReactNode }) {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log(
-        "Auth state changed:",
-        event,
-        session ? "Session exists" : "No session",
-      );
+      console.log("Auth state changed:", event, session ? "Session exists" : "No session");
 
       if (event === "SIGNED_OUT") {
         handleSignOut();
@@ -160,17 +152,15 @@ function AuthProvider({ children }: { children: ReactNode }) {
       await loginUser(email, password);
       toast.success("Login successful!");
     } catch (error: unknown) {
-      console.error("Login failed:", error);
+      logError("Login failed", error);
 
       let errorMessage = "Login failed. Please try again.";
-      const errorMsg = error instanceof Error ? error.message : String(error);
+      const errorMsg = getErrorMessage(error);
 
       if (errorMsg.includes("Invalid login credentials")) {
-        errorMessage =
-          "Invalid email or password. Please check your credentials.";
+        errorMessage = "Invalid email or password. Please check your credentials.";
       } else if (errorMsg.includes("Email not confirmed")) {
-        errorMessage =
-          "Please check your email and click the confirmation link.";
+        errorMessage = "Please check your email and click the confirmation link.";
       }
 
       toast.error(errorMessage);
@@ -180,32 +170,27 @@ function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  const register = useCallback(
-    async (name: string, email: string, password: string) => {
-      try {
-        setIsLoading(true);
-        await registerUser(name, email, password);
-        toast.success(
-          "Registration successful! Please check your email to confirm your account.",
-        );
-      } catch (error: unknown) {
-        console.error("Registration failed:", error);
+  const register = useCallback(async (name: string, email: string, password: string) => {
+    try {
+      setIsLoading(true);
+      await registerUser(name, email, password);
+      toast.success("Registration successful! Please check your email to confirm your account.");
+    } catch (error: unknown) {
+      logError("Registration failed", error);
 
-        let errorMessage = "Registration failed. Please try again.";
-        const errorMsg = error instanceof Error ? error.message : String(error);
+      let errorMessage = "Registration failed. Please try again.";
+      const errorMsg = getErrorMessage(error);
 
-        if (errorMsg.includes("already registered")) {
-          errorMessage = "An account with this email already exists.";
-        }
-
-        toast.error(errorMessage);
-        throw error;
-      } finally {
-        setIsLoading(false);
+      if (errorMsg.includes("already registered")) {
+        errorMessage = "An account with this email already exists.";
       }
-    },
-    [],
-  );
+
+      toast.error(errorMessage);
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
 
   const logout = useCallback(async () => {
     try {
@@ -213,7 +198,7 @@ function AuthProvider({ children }: { children: ReactNode }) {
       await logoutUser();
       toast.success("Logged out successfully");
     } catch (error) {
-      console.error("Logout failed:", error);
+      logError("Logout failed", error);
       toast.error("Logout failed. Please try again.");
       throw error;
     } finally {
@@ -229,7 +214,7 @@ function AuthProvider({ children }: { children: ReactNode }) {
       setProfile(userProfile);
       console.log("Profile refreshed successfully");
     } catch (error) {
-      console.error("Error refreshing profile:", error);
+      logError("Error refreshing profile", error);
       handleError(error, "Refresh Profile");
     }
   }, [user, handleError]);
@@ -241,7 +226,7 @@ function AuthProvider({ children }: { children: ReactNode }) {
       const stats = await getUserStats(user.id);
       setUserStats(stats);
     } catch (error) {
-      console.error("Error loading user stats:", error);
+      logError("Error loading user stats", error);
     }
   }, [user]);
 
@@ -251,21 +236,18 @@ function AuthProvider({ children }: { children: ReactNode }) {
     try {
       await updateLastActive(user.id);
     } catch (error) {
-      console.error("Error updating last active:", error);
+      logError("Error updating last active", error);
     }
   }, [user]);
 
-  const checkAdminStatus = useCallback(
-    async (userId: string): Promise<boolean> => {
-      try {
-        return await isAdminUser(userId);
-      } catch (error) {
-        console.error("Error checking admin status:", error);
-        return false;
-      }
-    },
-    [],
-  );
+  const checkAdminStatus = useCallback(async (userId: string): Promise<boolean> => {
+    try {
+      return await isAdminUser(userId);
+    } catch (error) {
+      logError("Error checking admin status", error);
+      return false;
+    }
+  }, []);
 
   // Initialize auth and set up listener on mount
   useEffect(() => {
