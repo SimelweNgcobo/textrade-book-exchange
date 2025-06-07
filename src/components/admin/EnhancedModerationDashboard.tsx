@@ -298,6 +298,22 @@ const EnhancedModerationDashboard = () => {
     return "Low";
   };
 
+  const copyEmailToClipboard = async (email: string) => {
+    try {
+      await navigator.clipboard.writeText(email);
+      toast.success("Email address copied to clipboard");
+    } catch (error) {
+      // Fallback for older browsers
+      const textArea = document.createElement("textarea");
+      textArea.value = email;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand("copy");
+      document.body.removeChild(textArea);
+      toast.success("Email address copied to clipboard");
+    }
+  };
+
   // Mobile Card Component for Reports
   const MobileReportCard = ({ item }: { item: Report | SuspendedUser }) => {
     if (activeTab === "suspended") {
@@ -385,8 +401,30 @@ const EnhancedModerationDashboard = () => {
                 <div className="font-medium text-gray-900">
                   {report.book_id ? report.book_title : report.seller_name}
                 </div>
-                <div className="text-sm text-gray-500">
-                  Reporter #{report.reporter_user_id.slice(-8)}
+                <div className="text-sm text-gray-500 flex items-center justify-between">
+                  <span>
+                    Reporter:{" "}
+                    {report.reporter_name ||
+                      `#${report.reporter_user_id.slice(-8)}`}
+                    {report.reporter_email && (
+                      <span className="block text-xs text-gray-400">
+                        {report.reporter_email}
+                      </span>
+                    )}
+                  </span>
+                  {report.reporter_email && (
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() =>
+                        copyEmailToClipboard(report.reporter_email!)
+                      }
+                      className="h-6 w-6 p-0"
+                      title="Copy Email Address"
+                    >
+                      <Copy className="h-3 w-3" />
+                    </Button>
+                  )}
                 </div>
               </div>
 
@@ -627,9 +665,34 @@ const EnhancedModerationDashboard = () => {
                               {report.reason}
                             </TableCell>
                             <TableCell>
-                              <span className="text-sm">
-                                Reporter #{report.reporter_user_id.slice(-8)}
-                              </span>
+                              <div className="flex items-center gap-2">
+                                <div>
+                                  <div className="text-sm">
+                                    {report.reporter_name ||
+                                      `Reporter #${report.reporter_user_id.slice(-8)}`}
+                                  </div>
+                                  {report.reporter_email && (
+                                    <div className="text-xs text-gray-500">
+                                      {report.reporter_email}
+                                    </div>
+                                  )}
+                                </div>
+                                {report.reporter_email && (
+                                  <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    onClick={() =>
+                                      copyEmailToClipboard(
+                                        report.reporter_email!,
+                                      )
+                                    }
+                                    className="h-6 w-6 p-0"
+                                    title="Copy Email Address"
+                                  >
+                                    <Copy className="h-3 w-3" />
+                                  </Button>
+                                )}
+                              </div>
                             </TableCell>
                             <TableCell>
                               {new Date(report.created_at).toLocaleDateString(
