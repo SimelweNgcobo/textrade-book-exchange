@@ -37,6 +37,7 @@ import Verify from "./pages/Verify";
 import EditBook from "./pages/EditBook";
 import Cart from "./pages/Cart";
 import Report from "./pages/Report";
+import Shipping from "./pages/Shipping";
 
 import "./App.css";
 
