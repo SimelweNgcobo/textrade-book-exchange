@@ -149,7 +149,9 @@ const AddressEditDialog = ({
       );
       onClose();
     } catch (error) {
-      // Error handling is done in the parent component
+      console.error("Error in AddressEditDialog:", error);
+      // Error handling is done in the parent component, but we need to ensure
+      // the dialog stays open for the user to retry or cancel
     }
   };
 
