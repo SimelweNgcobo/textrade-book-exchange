@@ -147,7 +147,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
       setIsLoading(true);
       await loginUser(email, password);
       toast.success("Login successful!");
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Login failed:", error);
 
       let errorMessage = "Login failed. Please try again.";
