@@ -31,6 +31,8 @@ import {
   markFirstUploadCompleted,
 } from "@/services/userPreferenceService";
 import { BookDeletionService } from "@/services/bookDeletionService";
+import { UniversitySelector } from "@/components/ui/university-selector";
+import { UNIVERSITY_YEARS } from "@/constants/universities";
 
 const CreateListing = () => {
   const { user, profile } = useAuth();
@@ -101,14 +103,8 @@ const CreateListing = () => {
     "Grade 12",
   ];
 
-  const universityYears = [
-    "1st Year",
-    "2nd Year",
-    "3rd Year",
-    "4th Year",
-    "Masters",
-    "Doctorate",
-  ];
+  // Use university years from constants
+  const universityYears = UNIVERSITY_YEARS;
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
@@ -168,7 +164,8 @@ const CreateListing = () => {
     }
 
     if (bookType === "university" && !formData.university) {
-      newErrors.university = "University is required for university books";
+      newErrors.university =
+        "University is required for university books";
     }
 
     if (!bookImages.frontCover)
@@ -444,23 +441,68 @@ const CreateListing = () => {
                       htmlFor="universityYear"
                       className="text-base font-medium"
                     >
-                      University Year <span className="text-red-500">*</span>
-                    </Label>
-                    <Select
-                      value={formData.universityYear || ""}
-                      onValueChange={(value) =>
-                        handleSelectChange("universityYear", value)
-                      }
-                    >
-                      <SelectTrigger
-                        className={
-                          errors.universityYear ? "border-red-500" : ""
+                  {/* University Selection */}
+                  {bookType === "university" && (
+                    <div>
+                      <Label
+                        htmlFor="university"
+                        className="block text-sm font-medium text-gray-700 mb-1"
+                      >
+                        University <span className="text-red-500">*</span>
+                      </Label>
+                      <UniversitySelector
+                        value={formData.university || ""}
+                        onValueChange={(value) =>
+                          handleSelectChange("university", value)
+                        }
+                        placeholder="Select university..."
+                        className={errors.university ? "border-red-500" : ""}
+                      />
+                      {errors.university && (
+                        <p className="text-red-500 text-sm mt-1">
+                          {errors.university}
+                        </p>
+                      )}
+                    </div>
+                  )}
+
+                  {/* University Year Selection */}
+                  {bookType === "university" && (
+                    <div>
+                      <Label
+                        htmlFor="universityYear"
+                        className="block text-sm font-medium text-gray-700 mb-1"
+                      >
+                        University Year <span className="text-red-500">*</span>
+                      </Label>
+                      <Select
+                        value={formData.universityYear || ""}
+                        onValueChange={(value) =>
+                          handleSelectChange("universityYear", value)
                         }
                       >
-                        <SelectValue placeholder="Select university year" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {universityYears.map((year) => (
+                        <SelectTrigger
+                          className={
+                            errors.universityYear ? "border-red-500" : ""
+                          }
+                        >
+                          <SelectValue placeholder="Select university year" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {universityYears.map((year) => (
+                            <SelectItem key={year} value={year}>
+                              {year}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      {errors.universityYear && (
+                        <p className="text-red-500 text-sm mt-1">
+                          {errors.universityYear}
+                        </p>
+                      )}
+                    </div>
+                  )}
                           <SelectItem key={year} value={year}>
                             {year}
                           </SelectItem>
