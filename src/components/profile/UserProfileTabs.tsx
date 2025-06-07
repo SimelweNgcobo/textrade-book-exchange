@@ -43,6 +43,7 @@ const UserProfileTabs = ({
   isLoadingAddress = false,
   deletingBooks = new Set(),
 }: UserProfileTabsProps) => {
+  const navigate = useNavigate();
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isAddressEditDialogOpen, setIsAddressEditDialogOpen] = useState(false);
 
