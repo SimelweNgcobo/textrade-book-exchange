@@ -436,17 +436,12 @@ const CreateListing = () => {
                     )}
                   </div>
                 ) : (
-                  <div>
-                    <Label
-                      htmlFor="universityYear"
-                      className="text-base font-medium"
-                    >
-                  {/* University Selection */}
-                  {bookType === "university" && (
+                  <>
+                    {/* University Selection */}
                     <div>
                       <Label
                         htmlFor="university"
-                        className="block text-sm font-medium text-gray-700 mb-1"
+                        className="text-base font-medium"
                       >
                         University <span className="text-red-500">*</span>
                       </Label>
@@ -464,14 +459,12 @@ const CreateListing = () => {
                         </p>
                       )}
                     </div>
-                  )}
 
-                  {/* University Year Selection */}
-                  {bookType === "university" && (
+                    {/* University Year Selection */}
                     <div>
                       <Label
                         htmlFor="universityYear"
-                        className="block text-sm font-medium text-gray-700 mb-1"
+                        className="text-base font-medium"
                       >
                         University Year <span className="text-red-500">*</span>
                       </Label>
@@ -497,6 +490,13 @@ const CreateListing = () => {
                         </SelectContent>
                       </Select>
                       {errors.universityYear && (
+                        <p className="text-red-500 text-sm mt-1">
+                          {errors.universityYear}
+                        </p>
+                      )}
+                    </div>
+                  </>
+                )}
                         <p className="text-red-500 text-sm mt-1">
                           {errors.universityYear}
                         </p>
