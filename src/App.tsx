@@ -148,6 +148,7 @@ function App() {
               </ErrorBoundary>
             </div>
             <Toaster />
+            <OAuthDebugInfo />
           </Router>
         </CartProvider>
       </AuthProvider>
