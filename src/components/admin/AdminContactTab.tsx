@@ -1,35 +1,46 @@
-
-import { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
-} from '@/components/ui/table';
-import { 
+import { useState, useEffect } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog';
-import { Mail, Eye, Clock, CheckCircle } from 'lucide-react';
-import { toast } from 'sonner';
-import { getAllContactMessages, markMessageAsRead, ContactMessage } from '@/services/contactService';
-import { useIsMobile } from '@/hooks/use-mobile';
+} from "@/components/ui/dialog";
+import { Mail, Eye, Clock, CheckCircle, Copy } from "lucide-react";
+import { toast } from "sonner";
+import {
+  getAllContactMessages,
+  markMessageAsRead,
+  ContactMessage,
+} from "@/services/contactService";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const AdminContactTab = () => {
   const isMobile = useIsMobile();
   const [messages, setMessages] = useState<ContactMessage[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [selectedMessage, setSelectedMessage] = useState<ContactMessage | null>(null);
+  const [selectedMessage, setSelectedMessage] = useState<ContactMessage | null>(
+    null,
+  );
 
   useEffect(() => {
     loadMessages();
@@ -41,8 +52,8 @@ const AdminContactTab = () => {
       const data = await getAllContactMessages();
       setMessages(data);
     } catch (error) {
-      console.error('Error loading messages:', error);
-      toast.error('Failed to load contact messages');
+      console.error("Error loading messages:", error);
+      toast.error("Failed to load contact messages");
     } finally {
       setIsLoading(false);
     }
@@ -51,19 +62,37 @@ const AdminContactTab = () => {
   const handleMarkAsRead = async (messageId: string) => {
     try {
       await markMessageAsRead(messageId);
-      setMessages(messages.map(msg => 
-        msg.id === messageId ? { ...msg, status: 'read' } : msg
-      ));
-      toast.success('Message marked as read');
+      setMessages(
+        messages.map((msg) =>
+          msg.id === messageId ? { ...msg, status: "read" } : msg,
+        ),
+      );
+      toast.success("Message marked as read");
     } catch (error) {
-      console.error('Error marking message as read:', error);
-      toast.error('Failed to mark message as read');
+      console.error("Error marking message as read:", error);
+      toast.error("Failed to mark message as read");
+    }
+  };
+
+  const copyEmailToClipboard = async (email: string) => {
+    try {
+      await navigator.clipboard.writeText(email);
+      toast.success("Email address copied to clipboard");
+    } catch (error) {
+      // Fallback for older browsers
+      const textArea = document.createElement("textarea");
+      textArea.value = email;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand("copy");
+      document.body.removeChild(textArea);
+      toast.success("Email address copied to clipboard");
     }
   };
 
   const truncateMessage = (message: string, maxLength: number = 100) => {
     if (message.length <= maxLength) return message;
-    return message.substring(0, maxLength) + '...';
+    return message.substring(0, maxLength) + "...";
   };
 
   if (isLoading) {
@@ -85,9 +114,7 @@ const AdminContactTab = () => {
           <Mail className="h-5 w-5 text-blue-600" />
           <CardTitle>Contact Messages</CardTitle>
         </div>
-        <CardDescription>
-          Manage and respond to user inquiries
-        </CardDescription>
+        <CardDescription>Manage and respond to user inquiries</CardDescription>
       </CardHeader>
       <CardContent>
         {messages.length === 0 ? (
@@ -105,15 +132,23 @@ const AdminContactTab = () => {
                   <TableHead className="text-xs md:text-sm">Subject</TableHead>
                   <TableHead className="text-xs md:text-sm">Preview</TableHead>
                   <TableHead className="text-xs md:text-sm">Date</TableHead>
-                  <TableHead className="text-xs md:text-sm text-right">Actions</TableHead>
+                  <TableHead className="text-xs md:text-sm text-right">
+                    Actions
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {messages.map((message) => (
                   <TableRow key={message.id}>
                     <TableCell>
-                      <Badge variant={message.status === 'unread' ? 'destructive' : 'secondary'}>
-                        {message.status === 'unread' ? (
+                      <Badge
+                        variant={
+                          message.status === "unread"
+                            ? "destructive"
+                            : "secondary"
+                        }
+                      >
+                        {message.status === "unread" ? (
                           <Clock className="h-3 w-3 mr-1" />
                         ) : (
                           <CheckCircle className="h-3 w-3 mr-1" />
@@ -144,6 +179,18 @@ const AdminContactTab = () => {
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-2">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => copyEmailToClipboard(message.email)}
+                          title="Copy Email Address"
+                        >
+                          <Copy className="h-4 w-4" />
+                          {!isMobile && (
+                            <span className="ml-1">Copy Email</span>
+                          )}
+                        </Button>
+
                         <Dialog>
                           <DialogTrigger asChild>
                             <Button
@@ -167,7 +214,8 @@ const AdminContactTab = () => {
                                 <strong>Subject:</strong> {message.subject}
                               </div>
                               <div>
-                                <strong>Date:</strong> {new Date(message.created_at).toLocaleString()}
+                                <strong>Date:</strong>{" "}
+                                {new Date(message.created_at).toLocaleString()}
                               </div>
                               <div>
                                 <strong>Message:</strong>
@@ -177,17 +225,31 @@ const AdminContactTab = () => {
                                   </div>
                                 </ScrollArea>
                               </div>
+                              <div className="flex justify-end">
+                                <Button
+                                  variant="outline"
+                                  onClick={() =>
+                                    copyEmailToClipboard(message.email)
+                                  }
+                                  className="flex items-center gap-2"
+                                >
+                                  <Copy className="h-4 w-4" />
+                                  Copy Email Address
+                                </Button>
+                              </div>
                             </div>
                           </DialogContent>
                         </Dialog>
-                        
-                        {message.status === 'unread' && (
+
+                        {message.status === "unread" && (
                           <Button
                             size="sm"
                             onClick={() => handleMarkAsRead(message.id)}
                           >
                             <CheckCircle className="h-4 w-4" />
-                            {!isMobile && <span className="ml-1">Mark Read</span>}
+                            {!isMobile && (
+                              <span className="ml-1">Mark Read</span>
+                            )}
                           </Button>
                         )}
                       </div>
