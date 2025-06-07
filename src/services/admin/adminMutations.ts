@@ -103,7 +103,14 @@ export const sendBroadcastMessage = async (message: string): Promise<void> => {
         .insert(batch);
 
       if (notificationError) {
-        console.error("Error creating notification batch:", notificationError);
+        logDatabaseError(
+          "sendBroadcastMessage - insert notifications batch",
+          notificationError,
+          {
+            batchIndex: Math.floor(i / batchSize),
+            batchSize: batch.length,
+          },
+        );
         throw notificationError;
       }
     }
