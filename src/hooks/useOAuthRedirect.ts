@@ -154,12 +154,17 @@ export const useOAuthRedirect = (options: UseOAuthRedirectOptions = {}) => {
           }, 100);
 
           // Cleanup subscription after a timeout if nothing happened
-          setTimeout(() => {
+          const timeoutId = setTimeout(() => {
             if (!hasProcessed.current) {
               console.log("OAuth handling timeout, cleaning up...");
               subscription.unsubscribe();
             }
           }, 10000);
+
+          return () => {
+            clearTimeout(timeoutId);
+            subscription.unsubscribe();
+          };
         }
       } catch (error) {
         console.error("OAuth redirect handling error:", error);

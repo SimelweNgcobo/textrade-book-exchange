@@ -75,13 +75,13 @@ export const getAdminStats = async (): Promise<AdminStats> => {
     // Get total registered users count (all statuses except deleted)
     const { count: totalUsers } = await supabase
       .from("profiles")
-      .select("*", { count: "exact", head: true })
+      .select("id", { count: "exact", head: true })
       .neq("status", "deleted");
 
     // Get active listings count
     const { count: activeListings } = await supabase
       .from("books")
-      .select("*", { count: "exact", head: true })
+      .select("id", { count: "exact", head: true })
       .eq("sold", false);
 
     // Get sold books count

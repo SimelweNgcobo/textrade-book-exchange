@@ -68,6 +68,11 @@ const UserProfileViewer = ({
       console.log("Profile data loaded:", profileData);
       console.log("Books data loaded:", booksData?.length || 0, "books");
 
+      if (!profileData && (!booksData || booksData.length === 0)) {
+        setError("Failed to load user data. Please try again.");
+        return;
+      }
+
       setUser(profileData);
       setUserBooks(booksData || []);
 

@@ -86,22 +86,22 @@ const BookGrid = ({ books, isLoading, onClearFilters }: BookGridProps) => {
                 </div>
               )}
 
-              <Link
-                to={isUnavailable ? "#" : `/books/${book.id}`}
-                className="block flex-1"
-                onClick={(e) => {
-                  if (isUnavailable) {
-                    e.preventDefault();
-                    return;
-                  }
-                  if (!book.id) {
-                    e.preventDefault();
-                    console.error("Book ID is missing for book:", book.title);
-                    return;
-                  }
-                  console.log("Navigating to book:", book.id);
-                }}
-              >
+              {isUnavailable ? (
+                <div className="block flex-1">
+              ) : (
+                <Link
+                  to={`/books/${book.id}`}
+                  className="block flex-1"
+                  onClick={(e) => {
+                    if (!book.id) {
+                      e.preventDefault();
+                      console.error("Book ID is missing for book:", book.title);
+                      return;
+                    }
+                    console.log("Navigating to book:", book.id);
+                  }}
+                >
+              )}
                 <div className="relative h-48 overflow-hidden">
                   <img
                     src={book.imageUrl}
