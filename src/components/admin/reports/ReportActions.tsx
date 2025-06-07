@@ -55,6 +55,7 @@ const ReportActions = ({
   onUpdateStatus,
   onUserAction,
 }: ReportActionsProps) => {
+  const isMobile = useIsMobile();
   const getStatusIcon = (status: string) => {
     switch (status) {
       case "resolved":
