@@ -209,6 +209,102 @@ export const DatabaseDebugTest = () => {
     }
   };
 
+  const testNotificationTypes = async () => {
+    setIsLoading(true);
+    setResults([]);
+
+    try {
+      console.log("🧪 Testing notification types...");
+
+      // Get a test user
+      const { data: users, error: userError } = await supabase
+        .from("profiles")
+        .select("id")
+        .limit(1);
+
+      if (userError || !users || users.length === 0) {
+        setResults([
+          {
+            type: "error",
+            content: "No users available for notification type testing",
+          },
+        ]);
+        return;
+      }
+
+      const testUserId = users[0].id;
+      const possibleTypes = [
+        "info",
+        "system",
+        "announcement",
+        "admin",
+        "broadcast",
+        "general",
+        "success",
+        "warning",
+        "error",
+        "notification",
+      ];
+      const results = [];
+
+      for (const testType of possibleTypes) {
+        try {
+          const testNotification = {
+            user_id: testUserId,
+            title: "Test Notification Type",
+            message: `Testing notification type: ${testType}`,
+            type: testType,
+            created_at: new Date().toISOString(),
+          };
+
+          const { data: insertData, error: insertError } = await supabase
+            .from("notifications")
+            .insert([testNotification])
+            .select("id");
+
+          if (insertError) {
+            if (insertError.code === "23514") {
+              results.push({
+                type: "error",
+                content: `Type "${testType}" - CONSTRAINT VIOLATION`,
+              });
+            } else {
+              results.push({
+                type: "error",
+                content: `Type "${testType}" - ERROR: ${insertError.message}`,
+              });
+            }
+          } else if (insertData && insertData.length > 0) {
+            results.push({
+              type: "success",
+              content: `Type "${testType}" - WORKS ✅`,
+            });
+
+            // Clean up test notification
+            await supabase
+              .from("notifications")
+              .delete()
+              .eq("id", insertData[0].id);
+          }
+        } catch (error) {
+          results.push({
+            type: "error",
+            content: `Type "${testType}" - EXCEPTION: ${error}`,
+          });
+        }
+      }
+
+      setResults(results);
+    } catch (error) {
+      console.error("🔴 Notification types test error:", error);
+      setResults([
+        { type: "error", content: `Notification types test error: ${error}` },
+      ]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   // Only show in development
   if (process.env.NODE_ENV !== "development") {
     return null;
