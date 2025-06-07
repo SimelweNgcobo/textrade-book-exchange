@@ -84,12 +84,57 @@ export const sendBroadcastMessage = async (message: string): Promise<void> => {
     }
 
     // If we get here, the notifications table exists
-    // Create notifications for all users
+    // First, let's check what notification types are allowed
+    // Try common notification types that might be allowed
+    const allowedTypes = [
+      "info",
+      "announcement",
+      "admin",
+      "broadcast",
+      "general",
+    ];
+    let notificationType = "info"; // Default fallback
+
+    // Try to determine the correct type by testing
+    for (const testType of allowedTypes) {
+      try {
+        const testNotification = {
+          user_id: users[0].id, // Use first user for test
+          title: "Test Notification",
+          message: "Test message",
+          type: testType,
+          created_at: new Date().toISOString(),
+        };
+
+        // Try inserting and immediately deleting a test record
+        const { data: insertData, error: insertError } = await supabase
+          .from("notifications")
+          .insert([testNotification])
+          .select("id");
+
+        if (!insertError && insertData && insertData.length > 0) {
+          // Type works, delete the test record
+          await supabase
+            .from("notifications")
+            .delete()
+            .eq("id", insertData[0].id);
+
+          notificationType = testType;
+          console.log(`Found working notification type: ${testType}`);
+          break;
+        }
+      } catch (testError) {
+        // Continue to next type
+        continue;
+      }
+    }
+
+    // Create notifications for all users with the working type
     const notifications = users.map((user) => ({
       user_id: user.id,
       title: "System Announcement",
       message: message,
-      type: "system",
+      type: notificationType,
       created_at: new Date().toISOString(),
     }));
 
