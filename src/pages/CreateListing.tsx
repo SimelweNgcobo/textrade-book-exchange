@@ -45,6 +45,7 @@ const CreateListing = () => {
     category: "",
     grade: "",
     universityYear: "",
+    university: "",
     imageUrl: "",
     frontCover: "",
     backCover: "",
@@ -126,7 +127,7 @@ const CreateListing = () => {
   const handleBookTypeChange = (type: "school" | "university") => {
     setBookType(type);
     if (type === "school") {
-      setFormData({ ...formData, universityYear: "" });
+      setFormData({ ...formData, universityYear: "", university: "" });
     } else {
       setFormData({ ...formData, grade: "" });
     }
@@ -164,6 +165,10 @@ const CreateListing = () => {
     if (bookType === "university" && !formData.universityYear) {
       newErrors.universityYear =
         "University year is required for university books";
+    }
+
+    if (bookType === "university" && !formData.university) {
+      newErrors.university = "University is required for university books";
     }
 
     if (!bookImages.frontCover)
