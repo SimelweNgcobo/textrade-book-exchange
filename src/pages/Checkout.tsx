@@ -249,19 +249,90 @@ const Checkout = () => {
       return;
     }
 
+    if (!user) {
+      toast.error("Please log in to complete your purchase.");
+      return;
+    }
+
     try {
       toast.loading("Processing payment...", { id: "payment" });
+
+      // Simulate payment processing
       await new Promise((resolve) => setTimeout(resolve, 2000));
 
-      toast.success("Payment successful! Your order has been placed.", {
+      toast.success("Payment successful! Processing shipment...", {
         id: "payment",
       });
+
+      // Create automatic shipments for purchased books
+      const purchasedBooks = isCartCheckout ? cartData : book ? [book] : [];
+
+      for (const purchasedBook of purchasedBooks) {
+        try {
+          console.log(
+            "Creating automatic shipment for book:",
+            purchasedBook.title,
+          );
+
+          const bookDetails = {
+            id: purchasedBook.id,
+            title: purchasedBook.title,
+            author: purchasedBook.author,
+            price: purchasedBook.price,
+            sellerId: purchasedBook.seller?.id || purchasedBook.sellerId,
+          };
+
+          // Note: createAutomaticShipment is prepared but disabled as per requirements
+          const shipmentResult = await createAutomaticShipment(
+            bookDetails,
+            user.id,
+          );
+
+          if (shipmentResult) {
+            console.log(
+              `Shipment created for "${purchasedBook.title}":`,
+              shipmentResult,
+            );
+            toast.success(
+              `Shipment created for "${purchasedBook.title}" - Tracking: ${shipmentResult.trackingNumber}`,
+              {
+                duration: 5000,
+              },
+            );
+          } else {
+            console.log(
+              `Automatic shipment creation is disabled for "${purchasedBook.title}"`,
+            );
+          }
+        } catch (shipmentError) {
+          console.error(
+            `Error creating shipment for "${purchasedBook.title}":`,
+            shipmentError,
+          );
+          // Don't fail the entire purchase if shipment creation fails
+          toast.warning(
+            `Purchase successful, but shipment creation failed for "${purchasedBook.title}". Please contact support.`,
+            {
+              duration: 7000,
+            },
+          );
+        }
+      }
+
+      toast.success(
+        "Order completed successfully! Check the shipping page for tracking information.",
+        {
+          id: "payment",
+          duration: 5000,
+        },
+      );
 
       if (isCartCheckout) {
         clearCart();
       }
 
-      navigate("/");
+      // Redirect to shipping page instead of home to show tracking info
+      navigate("/shipping");
     } catch (error) {
       console.error("Payment error:", error);
       toast.error("Payment failed. Please try again.", { id: "payment" });
