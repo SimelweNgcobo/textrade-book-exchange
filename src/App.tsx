@@ -6,6 +6,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import AdminProtectedRoute from "./components/AdminProtectedRoute";
 import ScrollToTop from "./components/ScrollToTop";
 import ErrorBoundary from "./components/ErrorBoundary";
+import OAuthRedirectHandler from "./components/OAuthRedirectHandler";
 
 // Pages
 import Index from "./pages/Index";
