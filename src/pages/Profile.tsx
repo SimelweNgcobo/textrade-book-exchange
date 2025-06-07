@@ -76,8 +76,46 @@ const Profile = () => {
 
     setIsLoadingAddress(true);
     try {
+      // Check if user had pickup address before
+      const hadPickupAddressBefore =
+        addressData?.pickup_address &&
+        addressData.pickup_address.streetAddress &&
+        addressData.pickup_address.city &&
+        addressData.pickup_address.province &&
+        addressData.pickup_address.postalCode;
+
+      // Save the addresses
       await saveUserAddresses(user.id, pickup, shipping, same);
       await loadUserAddresses();
+
+      // Check if user has pickup address after
+      const hasPickupAddressNow =
+        pickup.streetAddress &&
+        pickup.city &&
+        pickup.province &&
+        pickup.postalCode;
+
+      // Handle listing status changes based on address changes
+      if (!hadPickupAddressBefore && hasPickupAddressNow) {
+        // User added pickup address - reactivate listings
+        try {
+          await BookDeletionService.reactivateUserListings(user.id);
+          await loadActiveListings(); // Refresh listings
+        } catch (error) {
+          console.error("Error reactivating listings:", error);
+          // Don't fail the entire operation for this
+        }
+      } else if (hadPickupAddressBefore && !hasPickupAddressNow) {
+        // User removed pickup address - deactivate listings
+        try {
+          await BookDeletionService.deactivateUserListings(user.id);
+          await loadActiveListings(); // Refresh listings
+        } catch (error) {
+          console.error("Error deactivating listings:", error);
+          // Don't fail the entire operation for this
+        }
+      }
+
       toast.success("Addresses saved successfully");
     } catch (error) {
       console.error("Error saving addresses:", error);
