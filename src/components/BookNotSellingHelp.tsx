@@ -17,7 +17,7 @@ const BookNotSellingHelp = () => {
 4. Share your listing on social media
 5. Be responsive to inquiries
 
-Visit ReBooked for great deals on textbooks! 📚`;
+Visit ReBooked Solutions for great deals on textbooks! 📚`;
 
     if (navigator.share) {
       navigator.share({
