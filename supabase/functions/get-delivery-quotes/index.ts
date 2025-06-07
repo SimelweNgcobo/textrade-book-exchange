@@ -118,22 +118,17 @@ serve(async (req) => {
 
 async function getFastwayQuote(fromAddress: DeliveryAddress, toAddress: DeliveryAddress, weight: number) {
   const apiKey = Deno.env.get('FASTWAY_API_KEY');
-  if (!apiKey) {
-    throw new Error('Fastway API key not configured');
-  }
+  if (!apiKey) throw new Error('Fastway API key not configured');
 
   console.log("Calling Fastway API with key:", apiKey.substring(0, 8) + "...");
 
-  // This is a placeholder for the actual Fastway API call
-  // You'll need to implement the actual API integration based on Fastway's documentation
-  const response = await fetch('https://au.api.fastway.org/v4/pudo/search', {
+  const response = await fetch('https://au.api.fastway.org/v4/quotes', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${apiKey}`
     },
     body: JSON.stringify({
-      // Add Fastway-specific payload here
       from_postcode: fromAddress.postalCode,
       to_postcode: toAddress.postalCode,
       weight: weight
@@ -147,11 +142,13 @@ async function getFastwayQuote(fromAddress: DeliveryAddress, toAddress: Delivery
 
   const data = await response.json();
   console.log("Fastway response:", data);
+  
+  if (!data.quotes || data.quotes.length === 0) throw new Error("No quotes returned");
 
-  // Parse Fastway response and return standardized format
+  const quote = data.quotes[0];
   return {
-    price: 85, // Parse from actual response
-    estimatedDays: 3
+    price: quote.price,
+    estimatedDays: quote.estimated_days
   };
 }
 
@@ -163,8 +160,6 @@ async function getCourierGuyQuote(fromAddress: DeliveryAddress, toAddress: Deliv
 
   console.log("Calling Courier Guy API with key:", apiKey.substring(0, 8) + "...");
 
-  // This is a placeholder for the actual Courier Guy API call
-  // You'll need to implement the actual API integration based on Courier Guy's documentation
   const response = await fetch('https://api.courierguy.co.za/v1/quotes', {
     method: 'POST',
     headers: {
@@ -172,16 +167,19 @@ async function getCourierGuyQuote(fromAddress: DeliveryAddress, toAddress: Deliv
       'Authorization': `Bearer ${apiKey}`
     },
     body: JSON.stringify({
-      // Add Courier Guy-specific payload here
       collection_address: {
         suburb: fromAddress.suburb,
         city: fromAddress.city,
-        postal_code: fromAddress.postalCode
+        province: fromAddress.province,
+        postal_code: fromAddress.postalCode,
+        street_address: fromAddress.streetAddress
       },
       delivery_address: {
         suburb: toAddress.suburb,
         city: toAddress.city,
-        postal_code: toAddress.postalCode
+        province: toAddress.province,
+        postal_code: toAddress.postalCode,
+        street_address: toAddress.streetAddress
       },
       parcel: {
         weight: weight
@@ -197,9 +195,15 @@ async function getCourierGuyQuote(fromAddress: DeliveryAddress, toAddress: Deliv
   const data = await response.json();
   console.log("Courier Guy response:", data);
 
-  // Parse Courier Guy response and return standardized format
+  // Assuming the response has a 'quotes' array or similar structure:
+  if (!data.quotes || data.quotes.length === 0) {
+    throw new Error("No quotes returned from Courier Guy");
+  }
+
+  const quote = data.quotes[0]; // Pick first quote or filter as needed
+
   return {
-    price: 95, // Parse from actual response
-    estimatedDays: 2
+    price: quote.price,
+    estimatedDays: quote.estimated_days
   };
 }
