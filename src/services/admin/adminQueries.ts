@@ -240,7 +240,7 @@ export const getAllListings = async (): Promise<AdminListing[]> => {
       author: book.author,
       price: book.price,
       status: book.sold ? "sold" : "active",
-      user: book.profiles?.name || "Anonymous",
+      user: book.seller?.name || "Anonymous",
       sellerId: book.seller_id,
     }));
   } catch (error) {
