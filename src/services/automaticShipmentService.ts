@@ -136,7 +136,7 @@ export const createAutomaticShipment = async (
       senderCity: seller.pickup_address.city,
       senderProvince: seller.pickup_address.province,
       senderPostalCode: seller.pickup_address.postalCode,
-      senderPhone: seller.phone || "",
+      senderPhone: "", // Phone not available in current schema
 
       // Recipient information (from buyer's delivery address)
       recipientName: buyer.name,
@@ -144,7 +144,7 @@ export const createAutomaticShipment = async (
       recipientCity: buyerDeliveryAddress.city,
       recipientProvince: buyerDeliveryAddress.province,
       recipientPostalCode: buyerDeliveryAddress.postalCode,
-      recipientPhone: buyer.phone || "",
+      recipientPhone: "", // Phone not available in current schema
 
       // Package information
       weight: 1.0, // Default weight for textbooks
