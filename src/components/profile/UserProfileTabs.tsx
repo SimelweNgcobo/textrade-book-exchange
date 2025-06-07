@@ -25,6 +25,7 @@ interface UserProfileTabsProps {
     same: boolean,
   ) => Promise<void>;
   isLoadingAddress?: boolean;
+  deletingBooks?: Set<string>;
 }
 
 const UserProfileTabs = ({
