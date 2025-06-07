@@ -1,21 +1,10 @@
-import React, { useState } from "react";
+import React from "react";
 import Layout from "@/components/Layout";
 import SEO from "@/components/SEO";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Package, Search } from "lucide-react";
-import CourierGuyShipmentForm from "@/components/courier-guy/CourierGuyShipmentForm";
-import CourierGuyTracker from "@/components/courier-guy/CourierGuyTracker";
-import { CourierGuyShipment } from "@/services/courierGuyService";
+import { Package } from "lucide-react";
+import CourierGuyTrackingOnly from "@/components/courier-guy/CourierGuyTrackingOnly";
 
 const Shipping = () => {
-  const [activeTab, setActiveTab] = useState("create");
-
-  const handleShipmentCreated = (shipment: CourierGuyShipment) => {
-    console.log("Shipment created:", shipment);
-    // Optionally switch to tracking tab with the new tracking number
-    setActiveTab("track");
-  };
-
   return (
     <Layout>
       <SEO
