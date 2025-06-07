@@ -108,14 +108,13 @@ export const getAdminStats = async (): Promise<AdminStats> => {
       .select("*", { count: "exact", head: true })
       .eq("status", "unread");
 
-    // Get new registered users this week (all statuses except deleted)
+    // Get new registered users this week
     const oneWeekAgo = new Date();
     oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
 
     const { count: newUsersThisWeek } = await supabase
       .from("profiles")
       .select("*", { count: "exact", head: true })
-      .neq("status", "deleted")
       .gte("created_at", oneWeekAgo.toISOString());
 
     // Get sales this month
