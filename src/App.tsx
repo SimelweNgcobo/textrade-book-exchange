@@ -91,6 +91,7 @@ function App() {
                     <Route path="/shipping" element={<Shipping />} />
                     <Route path="/oauth-test" element={<OAuthTest />} />
                     <Route path="/debug-test" element={<DatabaseDebugTest />} />
+                    <Route path="/auth-test" element={<AuthTest />} />
 
                     {/* Public user profiles - no authentication required */}
                     <Route path="/user/:id" element={<UserProfile />} />
