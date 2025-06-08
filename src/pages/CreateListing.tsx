@@ -245,14 +245,29 @@ const CreateListing = () => {
             </div>
 
             <div>
-              <Label className="text-base font-medium block mb-4">
-                Book Photos <span className="text-red-500">*</span>
-              </Label>
               <MultiImageUpload
-                bookImages={bookImages}
-                setBookImages={setBookImages}
-                errors={errors}
+                currentImages={bookImages}
+                onImagesChange={(images) =>
+                  setBookImages(images as typeof bookImages)
+                }
+                variant="object"
+                maxImages={3}
               />
+              {(errors.frontCover ||
+                errors.backCover ||
+                errors.insidePages) && (
+                <div className="mt-2 space-y-1">
+                  {errors.frontCover && (
+                    <p className="text-sm text-red-500">{errors.frontCover}</p>
+                  )}
+                  {errors.backCover && (
+                    <p className="text-sm text-red-500">{errors.backCover}</p>
+                  )}
+                  {errors.insidePages && (
+                    <p className="text-sm text-red-500">{errors.insidePages}</p>
+                  )}
+                </div>
+              )}
             </div>
 
             <Button
