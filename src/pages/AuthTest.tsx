@@ -362,6 +362,45 @@ const AuthTest = () => {
                   </AlertDescription>
                 </Alert>
               )}
+
+              {adminCheckResult && (
+                <Alert>
+                  <AlertDescription>
+                    <div className="space-y-1 text-sm">
+                      <div className="font-medium mb-2">
+                        Admin Status Check Result:
+                      </div>
+                      <div className="flex justify-between">
+                        <span>User ID:</span>
+                        <span className="font-mono text-xs">
+                          {adminCheckResult.userId}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Is Admin:</span>
+                        {adminCheckResult.isAdmin ? (
+                          <CheckCircle className="h-4 w-4 text-green-500" />
+                        ) : (
+                          <XCircle className="h-4 w-4 text-red-500" />
+                        )}
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Checked At:</span>
+                        <span className="text-xs">
+                          {new Date(
+                            adminCheckResult.timestamp,
+                          ).toLocaleTimeString()}
+                        </span>
+                      </div>
+                      {adminCheckResult.error && (
+                        <div className="text-red-600">
+                          Error: {adminCheckResult.error}
+                        </div>
+                      )}
+                    </div>
+                  </AlertDescription>
+                </Alert>
+              )}
             </CardContent>
           </Card>
         </div>
