@@ -20,6 +20,7 @@ import {
 } from "@/services/authOperations";
 import { UserStats } from "@/types/address";
 import { logError, getErrorMessage } from "@/utils/errorUtils";
+import { ActivityService } from "@/services/activityService";
 
 interface AuthContextType {
   user: User | null;
@@ -292,6 +293,14 @@ function AuthProvider({ children }: { children: ReactNode }) {
       if (data.session) {
         console.log("✅ Login successful");
         toast.success("Login successful!");
+
+        // Log the login activity
+        try {
+          await ActivityService.logLogin(data.session.user.id);
+        } catch (activityError) {
+          console.warn("Failed to log login activity:", activityError);
+        }
+
         // The auth state change handler will update the context
         return data;
       }

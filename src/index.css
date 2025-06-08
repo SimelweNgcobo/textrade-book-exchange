@@ -5,6 +5,129 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Toast Notification Styles - Centered for all devices */
+[data-sonner-toaster] {
+  position: fixed !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  z-index: 9999 !important;
+  pointer-events: none !important;
+}
+
+[data-sonner-toaster] [data-sonner-toast] {
+  pointer-events: auto !important;
+  max-width: 90vw !important;
+  min-width: 320px !important;
+  margin: 0 auto !important;
+  transform: none !important;
+  position: relative !important;
+}
+
+/* Mobile specific toast adjustments */
+@media (max-width: 640px) {
+  [data-sonner-toaster] [data-sonner-toast] {
+    min-width: 280px !important;
+    max-width: 95vw !important;
+    margin: 0 !important;
+    border-radius: 12px !important;
+    padding: 16px !important;
+    font-size: 14px !important;
+    line-height: 1.4 !important;
+  }
+
+  [data-sonner-toaster] [data-sonner-toast] [data-title] {
+    font-size: 16px !important;
+    font-weight: 600 !important;
+    margin-bottom: 4px !important;
+  }
+
+  [data-sonner-toaster] [data-sonner-toast] [data-description] {
+    font-size: 14px !important;
+    opacity: 0.9 !important;
+  }
+}
+
+/* Tablet adjustments */
+@media (min-width: 641px) and (max-width: 1024px) {
+  [data-sonner-toaster] [data-sonner-toast] {
+    min-width: 360px !important;
+    max-width: 480px !important;
+  }
+}
+
+/* Desktop adjustments */
+@media (min-width: 1025px) {
+  [data-sonner-toaster] [data-sonner-toast] {
+    min-width: 400px !important;
+    max-width: 520px !important;
+  }
+}
+
+/* Success toast styling */
+[data-sonner-toaster] [data-sonner-toast][data-type="success"] {
+  border: 2px solid #10b981 !important;
+  background: #f0fdf4 !important;
+  color: #065f46 !important;
+}
+
+/* Error toast styling */
+[data-sonner-toaster] [data-sonner-toast][data-type="error"] {
+  border: 2px solid #ef4444 !important;
+  background: #fef2f2 !important;
+  color: #991b1b !important;
+}
+
+/* Info toast styling */
+[data-sonner-toaster] [data-sonner-toast][data-type="info"] {
+  border: 2px solid #3b82f6 !important;
+  background: #eff6ff !important;
+  color: #1e40af !important;
+}
+
+/* Warning toast styling */
+[data-sonner-toaster] [data-sonner-toast][data-type="warning"] {
+  border: 2px solid #f59e0b !important;
+  background: #fffbeb !important;
+  color: #92400e !important;
+}
+
+/* Loading toast styling */
+[data-sonner-toaster] [data-sonner-toast][data-type="loading"] {
+  border: 2px solid #6b7280 !important;
+  background: #f9fafb !important;
+  color: #374151 !important;
+}
+
+/* Toast animation improvements */
+[data-sonner-toaster] [data-sonner-toast] {
+  animation: toast-slide-in 0.3s ease-out !important;
+  box-shadow:
+    0 10px 25px -5px rgba(0, 0, 0, 0.1),
+    0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+}
+
+@keyframes toast-slide-in {
+  from {
+    transform: scale(0.9) translateY(-10px);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Email confirmation specific styling */
+[data-sonner-toaster] [data-sonner-toast][data-title*="Email"] {
+  border-left: 4px solid #3b82f6 !important;
+  padding-left: 20px !important;
+}
+
+[data-sonner-toaster] [data-sonner-toast][data-title*="📧"] {
+  background: linear-gradient(135deg, #eff6ff 0%, #f0f9ff 100%) !important;
+}
+
 @layer base {
   :root {
     --background: 150 30% 98%;
