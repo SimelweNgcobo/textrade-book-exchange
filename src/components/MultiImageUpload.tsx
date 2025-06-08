@@ -255,15 +255,11 @@ const MultiImageUpload = ({
                           className={`w-full ${isMobile ? 'h-12 text-sm' : 'min-h-[44px]'} touch-manipulation`}
                         >
                           {isCurrentlyUploading ? (
-                          <img
-                            src={hasImage}
-                            alt={`${label} preview`}
-                            width="200"
-                            height="200"
-                            className="w-full h-full object-cover"
-                            loading="lazy"
-                            decoding="async"
-                          />
+                            <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                          ) : (
+                            <Camera className="h-4 w-4 mr-2" />
+                          )}
+                          {isCurrentlyUploading ? 'Uploading...' : `Add ${slot.label}`}
                         </Button>
 
                         <p className={`${isMobile ? 'text-xs' : 'text-xs'} text-gray-500 text-center`}>
