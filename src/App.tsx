@@ -9,8 +9,6 @@ import ScrollToTop from "./components/ScrollToTop";
 import ErrorBoundary from "./components/ErrorBoundary";
 import AuthErrorBoundary from "./components/AuthErrorBoundary";
 import OAuthRedirectHandler from "./components/OAuthRedirectHandler";
-import OAuthDebugInfo from "./components/OAuthDebugInfo";
-import DatabaseDebugTest from "./components/DatabaseDebugTest";
 import BroadcastManager from "./components/BroadcastManager";
 
 // Pages
@@ -81,9 +79,12 @@ function App() {
                     <Route path="/contact" element={<ContactUs />} />
                     <Route path="/report" element={<Report />} />
                     <Route path="/shipping" element={<Shipping />} />
-                    <Route path="/oauth-test" element={<OAuthTest />} />
-                    <Route path="/debug-test" element={<DatabaseDebugTest />} />
-                    <Route path="/auth-test" element={<AuthTest />} />
+                    {process.env.NODE_ENV === "development" && (
+                      <>
+                        <Route path="/oauth-test" element={<OAuthTest />} />
+                        <Route path="/auth-test" element={<AuthTest />} />
+                      </>
+                    )}
 
                     {/* Public user profiles - no authentication required */}
                     <Route path="/user/:id" element={<UserProfile />} />
@@ -170,7 +171,9 @@ function App() {
               </div>
               <Toaster />
               <BroadcastManager />
-              <OAuthDebugInfo />
+              {process.env.NODE_ENV === "development" && (
+                <>{/* Debug components removed from production */}</>
+              )}
             </Router>
           </CartProvider>
         </AuthProvider>
