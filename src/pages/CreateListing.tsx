@@ -87,12 +87,12 @@ const CreateListing = () => {
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
 
-    if (!formData.title) newErrors.title = "Title is required";
-    if (!formData.author) newErrors.author = "Author is required";
-    if (!formData.description)
+    if (!formData.title.trim()) newErrors.title = "Title is required";
+    if (!formData.author.trim()) newErrors.author = "Author is required";
+    if (!formData.description.trim())
       newErrors.description = "Description is required";
     if (!formData.price || formData.price <= 0)
-      newErrors.price = "Valid price is required";
+      newErrors.price = "Valid price is required (must be greater than 0)";
     if (!formData.category) newErrors.category = "Category is required";
     if (!formData.condition) newErrors.condition = "Condition is required";
 
@@ -117,6 +117,14 @@ const CreateListing = () => {
       newErrors.insidePages = "Inside pages photo is required";
 
     setErrors(newErrors);
+
+    // Log validation results for debugging
+    if (Object.keys(newErrors).length > 0) {
+      console.log("Form validation failed with errors:", newErrors);
+    } else {
+      console.log("Form validation passed");
+    }
+
     return Object.keys(newErrors).length === 0;
   };
 
