@@ -1,117 +1,181 @@
-
-import { useEffect, useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
-import Layout from '@/components/Layout';
-import { Loader2, CheckCircle, XCircle } from 'lucide-react';
-import { toast } from 'sonner';
-import { Button } from '@/components/ui/button';
+import { useEffect, useState } from "react";
+import { useNavigate, useSearchParams, useLocation } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import Layout from "@/components/Layout";
+import { Loader2, CheckCircle, XCircle, Info } from "lucide-react";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 
 const Verify = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
-  const [message, setMessage] = useState('');
+  const location = useLocation();
+  const [status, setStatus] = useState<
+    "loading" | "success" | "error" | "debug"
+  >("loading");
+  const [message, setMessage] = useState("");
+  const [debugInfo, setDebugInfo] = useState<any>(null);
 
   useEffect(() => {
     const handleVerification = async () => {
       try {
-        console.log('Starting email verification process');
-        
-        const token_hash = searchParams.get('token_hash');
-        const type = searchParams.get('type');
-        const error_code = searchParams.get('error_code');
-        const error_description = searchParams.get('error_description');
-        
-        console.log('Verification params:', { 
-          token_hash: !!token_hash,
-          type,
-          error_code,
-          error_description 
-        });
+        console.log("🔍 Starting email verification process");
+        console.log("📍 Current URL:", window.location.href);
+        console.log("📍 Location:", location);
+
+        // Get all possible URL parameters
+        const token_hash = searchParams.get("token_hash");
+        const token = searchParams.get("token"); // Legacy token parameter
+        const type = searchParams.get("type");
+        const error_code = searchParams.get("error_code");
+        const error_description = searchParams.get("error_description");
+        const code = searchParams.get("code"); // OAuth/PKCE code
+
+        const urlParams = {
+          token_hash: token_hash || null,
+          token: token || null,
+          type: type || null,
+          error_code: error_code || null,
+          error_description: error_description || null,
+          code: code || null,
+          fullUrl: window.location.href,
+          searchString: window.location.search,
+          hash: window.location.hash,
+        };
+
+        console.log("🔍 All URL parameters:", urlParams);
+        setDebugInfo(urlParams);
 
         // Check for errors first
         if (error_code || error_description) {
-          console.error('Verification error from URL:', { error_code, error_description });
-          setStatus('error');
-          setMessage(error_description || 'Email verification failed');
-          toast.error(error_description || 'Email verification failed');
+          console.error("❌ Verification error from URL:", {
+            error_code,
+            error_description,
+          });
+          setStatus("error");
+          setMessage(error_description || "Email verification failed");
+          toast.error(error_description || "Email verification failed");
           return;
         }
 
-        // Primary verification method using token hash
+        // Method 1: Try token_hash verification (new Supabase auth)
         if (token_hash && type) {
-          console.log('Using token hash verification');
+          console.log("🔐 Attempting token_hash verification");
           const { data, error } = await supabase.auth.verifyOtp({
             token_hash,
             type: type as any,
           });
-          
+
           if (error) {
-            console.error('Token hash verification error:', error);
+            console.error("❌ Token hash verification error:", error);
             throw error;
           }
 
           if (data.session) {
-            console.log('Email verified successfully');
-            setStatus('success');
-            setMessage('Email verified successfully! You are now logged in.');
-            toast.success('Email verified successfully!');
-            setTimeout(() => navigate('/'), 2000);
+            console.log("✅ Token hash verification successful");
+            setStatus("success");
+            setMessage("Email verified successfully! You are now logged in.");
+            toast.success("Email verified successfully!");
+            setTimeout(() => navigate("/"), 2000);
             return;
           }
         }
 
-        // If no token_hash, try code exchange as fallback
-        console.log('Attempting code exchange method');
-        const { data, error } = await supabase.auth.exchangeCodeForSession(window.location.href);
-        
-        if (error) {
-          console.error('Code exchange error:', error);
-          throw error;
+        // Method 2: Try legacy token verification
+        if (token && type) {
+          console.log("🔐 Attempting legacy token verification");
+          const { data, error } = await supabase.auth.verifyOtp({
+            token,
+            type: type as any,
+          });
+
+          if (error) {
+            console.error("❌ Legacy token verification error:", error);
+          } else if (data.session) {
+            console.log("✅ Legacy token verification successful");
+            setStatus("success");
+            setMessage("Email verified successfully! You are now logged in.");
+            toast.success("Email verified successfully!");
+            setTimeout(() => navigate("/"), 2000);
+            return;
+          }
         }
 
-        if (data.session) {
-          console.log('Code exchange successful');
-          setStatus('success');
-          setMessage('Email verified successfully! You are now logged in.');
-          toast.success('Email verified successfully!');
-          setTimeout(() => navigate('/'), 2000);
+        // Method 3: Try code exchange (PKCE flow)
+        if (code || window.location.href.includes("code=")) {
+          console.log("🔐 Attempting PKCE code exchange");
+          const { data, error } = await supabase.auth.exchangeCodeForSession(
+            window.location.href,
+          );
+
+          if (error) {
+            console.error("❌ Code exchange error:", error);
+          } else if (data.session) {
+            console.log("✅ Code exchange successful");
+            setStatus("success");
+            setMessage("Email verified successfully! You are now logged in.");
+            toast.success("Email verified successfully!");
+            setTimeout(() => navigate("/"), 2000);
+            return;
+          }
+        }
+
+        // Method 4: Check current session (user might already be verified)
+        console.log("🔍 Checking current session");
+        const { data: sessionData } = await supabase.auth.getSession();
+
+        if (sessionData.session) {
+          console.log("✅ User already has active session");
+          setStatus("success");
+          setMessage("You are already verified and logged in!");
+          toast.success("You are already verified and logged in!");
+          setTimeout(() => navigate("/"), 2000);
           return;
         }
 
-        // If we get here, verification failed
-        throw new Error('Unable to verify email. Please try again or contact support.');
-
+        // If we get here, show debug information
+        console.log("🐛 No verification method worked, showing debug info");
+        setStatus("debug");
+        setMessage(
+          "Unable to verify email automatically. Please see debug information below.",
+        );
       } catch (error: any) {
-        console.error('Email verification error:', error);
-        setStatus('error');
-        
-        let errorMessage = 'Email verification failed. ';
-        if (error.message?.includes('expired')) {
-          errorMessage += 'The verification link has expired. Please register again.';
-        } else if (error.message?.includes('already confirmed')) {
-          errorMessage += 'This email has already been verified. You can now log in.';
-        } else if (error.message?.includes('invalid')) {
-          errorMessage += 'The verification link is invalid. Please register again.';
+        console.error("❌ Email verification error:", error);
+        setStatus("error");
+
+        let errorMessage = "Email verification failed. ";
+        if (error.message?.includes("expired")) {
+          errorMessage +=
+            "The verification link has expired. Please register again.";
+        } else if (error.message?.includes("already confirmed")) {
+          errorMessage +=
+            "This email has already been verified. You can now log in.";
+        } else if (error.message?.includes("invalid")) {
+          errorMessage +=
+            "The verification link is invalid. Please register again.";
+        } else if (error.message?.includes("Email not confirmed")) {
+          errorMessage +=
+            "Your email is not yet confirmed. Please check your email for the confirmation link.";
         } else {
-          errorMessage += 'Please try again or contact support.';
+          errorMessage +=
+            error.message || "Please try again or contact support.";
         }
-        
+
         setMessage(errorMessage);
         toast.error(errorMessage);
       }
     };
 
     handleVerification();
-  }, [navigate, searchParams]);
+  }, [navigate, searchParams, location]);
 
   return (
     <Layout>
       <div className="min-h-[70vh] flex items-center justify-center px-4">
         <div className="w-full max-w-md">
           <div className="bg-white rounded-lg shadow-lg p-6 md:p-8 text-center">
-            {status === 'loading' && (
+            {status === "loading" && (
               <>
                 <Loader2 className="h-12 w-12 text-book-600 mx-auto mb-4 animate-spin" />
                 <h2 className="text-xl md:text-2xl font-semibold mb-2 text-gray-800">
@@ -122,8 +186,8 @@ const Verify = () => {
                 </p>
               </>
             )}
-            
-            {status === 'success' && (
+
+            {status === "success" && (
               <>
                 <CheckCircle className="h-12 w-12 text-green-500 mx-auto mb-4" />
                 <h2 className="text-xl md:text-2xl font-semibold mb-2 text-gray-800">
@@ -133,15 +197,16 @@ const Verify = () => {
                   {message}
                 </p>
                 <p className="text-xs md:text-sm text-gray-500 mb-4">
-                  Welcome to ReBooked Solutions - Pre-Loved Pages, New Adventures
+                  Welcome to ReBooked Solutions - Pre-Loved Pages, New
+                  Adventures
                 </p>
                 <p className="text-xs md:text-sm text-gray-500">
                   Redirecting you to the home page...
                 </p>
               </>
             )}
-            
-            {status === 'error' && (
+
+            {status === "error" && (
               <>
                 <XCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
                 <h2 className="text-xl md:text-2xl font-semibold mb-2 text-gray-800">
@@ -152,21 +217,21 @@ const Verify = () => {
                 </p>
                 <div className="space-y-3">
                   <Button
-                    onClick={() => navigate('/login')}
+                    onClick={() => navigate("/login")}
                     className="bg-book-600 hover:bg-book-700 text-white px-4 md:px-6 py-2 rounded-lg transition-colors text-sm md:text-base w-full"
                   >
                     Go to Login
                   </Button>
                   <Button
                     variant="outline"
-                    onClick={() => navigate('/register')}
+                    onClick={() => navigate("/register")}
                     className="px-4 md:px-6 py-2 rounded-lg transition-colors text-sm md:text-base w-full"
                   >
                     Register Again
                   </Button>
                   <Button
                     variant="ghost"
-                    onClick={() => navigate('/')}
+                    onClick={() => navigate("/")}
                     className="text-sm text-gray-500 w-full"
                   >
                     Go to Home Page
