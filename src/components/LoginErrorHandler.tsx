@@ -17,6 +17,7 @@ import {
   HelpCircle,
   CheckCircle,
 } from "lucide-react";
+import VerificationStatusDebug from "@/components/VerificationStatusDebug";
 
 interface LoginErrorHandlerProps {
   error: any;
