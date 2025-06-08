@@ -32,11 +32,12 @@ const Login = () => {
     }
   }, [location.state]);
 
-  // Redirect if already authenticated
-  if (isAuthenticated) {
-    navigate("/", { replace: true });
-    return null;
-  }
+  // Redirect if already authenticated - moved to useEffect to avoid setState during render
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate("/", { replace: true });
+    }
+  }, [isAuthenticated, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
