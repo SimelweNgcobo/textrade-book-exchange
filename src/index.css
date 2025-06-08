@@ -2,6 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Email Change Mobile Styles */
+@import "./styles/email-change-mobile.css";
+
 @layer base {
   :root {
     --background: 150 30% 98%;
