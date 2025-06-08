@@ -317,6 +317,20 @@ const AuthTest = () => {
                   )}
                   Resend Verification
                 </Button>
+
+                <Button
+                  onClick={handleCheckAdminStatus}
+                  disabled={isCheckingAdmin || !currentContext?.user}
+                  variant="outline"
+                  className="w-full"
+                >
+                  {isCheckingAdmin ? (
+                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                  ) : (
+                    <Shield className="h-4 w-4 mr-2" />
+                  )}
+                  Check Admin Status
+                </Button>
               </div>
 
               {userCheckResult && (
