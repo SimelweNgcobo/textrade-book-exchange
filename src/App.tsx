@@ -1,4 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { useEffect } from "react";
 import { Toaster } from "sonner";
 import { AuthProvider } from "./contexts/AuthContext";
 import { CartProvider } from "./contexts/CartContext";
@@ -9,6 +10,10 @@ import ErrorBoundary from "./components/ErrorBoundary";
 import OAuthRedirectHandler from "./components/OAuthRedirectHandler";
 import OAuthDebugInfo from "./components/OAuthDebugInfo";
 import DatabaseDebugTest from "./components/DatabaseDebugTest";
+import {
+  addEmergencyResetButton,
+  monitorLoadingStates,
+} from "./utils/emergencyLoadingReset";
 
 // Pages
 import Index from "./pages/Index";
@@ -37,10 +42,22 @@ import Verify from "./pages/Verify";
 import EditBook from "./pages/EditBook";
 import Cart from "./pages/Cart";
 import Report from "./pages/Report";
+import Shipping from "./pages/Shipping";
 
 import "./App.css";
+import "./styles/mobile-fixes.css";
 
 function App() {
+  // Set up emergency loading reset monitoring in development
+  useEffect(() => {
+    if (process.env.NODE_ENV === "development") {
+      console.log("🔧 Setting up emergency loading state monitoring");
+      addEmergencyResetButton();
+      const cleanup = monitorLoadingStates();
+      return cleanup;
+    }
+  }, []);
+
   return (
     <ErrorBoundary level="app">
       <AuthProvider>
@@ -65,6 +82,7 @@ function App() {
                   <Route path="/privacy" element={<Privacy />} />
                   <Route path="/contact" element={<ContactUs />} />
                   <Route path="/report" element={<Report />} />
+                  <Route path="/shipping" element={<Shipping />} />
                   <Route path="/oauth-test" element={<OAuthTest />} />
                   <Route path="/debug-test" element={<DatabaseDebugTest />} />
 

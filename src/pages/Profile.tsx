@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import Layout from "@/components/Layout";
 import ProfileHeader from "@/components/ProfileHeader";
@@ -31,15 +31,9 @@ const Profile = () => {
   const [activeListings, setActiveListings] = useState<Book[]>([]);
   const [isLoadingAddress, setIsLoadingAddress] = useState(false);
   const [isLoadingListings, setIsLoadingListings] = useState(true);
+  const [deletingBooks, setDeletingBooks] = useState<Set<string>>(new Set());
 
-  useEffect(() => {
-    if (user?.id) {
-      loadUserAddresses();
-      loadActiveListings();
-    }
-  }, [user?.id]);
-
-  const loadUserAddresses = async () => {
+  const loadUserAddresses = useCallback(async () => {
     if (!user?.id) return;
 
     try {
@@ -47,10 +41,11 @@ const Profile = () => {
       setAddressData(data);
     } catch (error) {
       console.error("Error loading addresses:", error);
+      toast.error("Failed to load addresses");
     }
-  };
+  }, [user?.id]);
 
-  const loadActiveListings = async () => {
+  const loadActiveListings = useCallback(async () => {
     if (!user?.id) return;
 
     try {
@@ -58,15 +53,30 @@ const Profile = () => {
       console.log("Loading books for user:", user.id);
       const books = await getUserBooks(user.id);
       console.log("User books loaded:", books);
-      const activeBooks = books.filter((book) => !book.sold);
+      const activeBooks = Array.isArray(books)
+        ? books.filter((book) => !book.sold)
+        : [];
       setActiveListings(activeBooks);
     } catch (error) {
       console.error("Error loading active listings:", error);
       toast.error("Failed to load active listings");
+      setActiveListings([]); // Set empty array on error
     } finally {
       setIsLoadingListings(false);
     }
-  };
+  }, [user?.id]);
+
+  useEffect(() => {
+    if (user?.id) {
+      loadUserAddresses();
+      loadActiveListings();
+    } else {
+      // Reset state when no user
+      setAddressData(null);
+      setActiveListings([]);
+      setIsLoadingListings(false);
+    }
+  }, [user?.id, loadUserAddresses, loadActiveListings]);
 
   const handleSaveAddresses = async (
     pickup: any,
@@ -150,14 +160,26 @@ const Profile = () => {
       return;
     }
 
+    // Add book to deleting set
+    setDeletingBooks((prev) => new Set(prev).add(bookId));
+
     try {
       console.log("Deleting book:", bookId);
       await deleteBook(bookId);
       toast.success("Book deleted successfully");
       await loadActiveListings();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error deleting book:", error);
-      toast.error(error.message || "Failed to delete book");
+      const errorMsg =
+        error instanceof Error ? error.message : "Failed to delete book";
+      toast.error(errorMsg);
+    } finally {
+      // Remove book from deleting set
+      setDeletingBooks((prev) => {
+        const newSet = new Set(prev);
+        newSet.delete(bookId);
+        return newSet;
+      });
     }
   };
 
@@ -248,6 +270,7 @@ const Profile = () => {
             userName={profile.name || "Anonymous User"}
             onSaveAddresses={handleSaveAddresses}
             isLoadingAddress={isLoadingAddress}
+            deletingBooks={deletingBooks}
           />
         </div>
 

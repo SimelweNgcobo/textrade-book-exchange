@@ -2,7 +2,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { Book } from "@/types/book";
 import { BookFilters, BookQueryResult } from "./bookTypes";
 import { mapBookFromDatabase } from "./bookMapper";
-import { handleBookServiceError } from "./bookErrorHandler";
+import {
+  handleBookServiceError,
+  logBookServiceError,
+} from "./bookErrorHandler";
 import { logError, getErrorMessage } from "@/utils/errorUtils";
 import { logDatabaseError, logQueryDebug } from "@/utils/debugUtils";
 
@@ -51,7 +54,9 @@ export const getBooks = async (filters?: BookFilters): Promise<Book[]> => {
 
     if (booksError) {
       logError("Error fetching books", booksError);
-      handleBookServiceError(booksError, "fetch books");
+      const errorMessage = logBookServiceError(booksError, "fetch books");
+      console.warn("Books query failed:", errorMessage);
+      return [];
     }
 
     if (!booksData || booksData.length === 0) {
@@ -101,8 +106,9 @@ export const getBooks = async (filters?: BookFilters): Promise<Book[]> => {
     return books;
   } catch (error) {
     logError("Error in getBooks", error);
-    handleBookServiceError(error, "fetch books");
-    return []; // This line will never be reached due to handleBookServiceError throwing, but TypeScript needs it
+    const errorMessage = logBookServiceError(error, "fetch books");
+    console.warn("getBooks failed:", errorMessage);
+    return [];
   }
 };
 

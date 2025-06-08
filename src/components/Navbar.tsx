@@ -1,10 +1,20 @@
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '@/contexts/AuthContext';
-import { Button } from '@/components/ui/button';
-import { BookOpen, Menu, X, Plus, User, LogOut, Bell, UserPlus } from 'lucide-react';
-import AdminAccess from './AdminAccess';
-import CartButton from './CartButton';
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
+import { Button } from "@/components/ui/button";
+import {
+  BookOpen,
+  Menu,
+  X,
+  Plus,
+  User,
+  LogOut,
+  Bell,
+  UserPlus,
+  Truck,
+} from "lucide-react";
+import AdminAccess from "./AdminAccess";
+import CartButton from "./CartButton";
 
 const Navbar = () => {
   const { user, logout, isAuthenticated } = useAuth();
@@ -14,9 +24,9 @@ const Navbar = () => {
   const handleLogout = async () => {
     try {
       await logout();
-      navigate('/');
+      navigate("/");
     } catch (error) {
-      console.error('Logout error:', error);
+      console.error("Logout error:", error);
     }
   };
 
@@ -42,7 +52,14 @@ const Navbar = () => {
             >
               Browse Books
             </Link>
-            
+            <Link
+              to="/shipping"
+              className="text-gray-700 hover:text-book-600 px-3 py-2 transition-colors flex items-center"
+            >
+              <Truck className="h-4 w-4 mr-1" />
+              Shipping
+            </Link>
+
             {isAuthenticated ? (
               <>
                 <Link
@@ -102,7 +119,11 @@ const Navbar = () => {
               onClick={toggleMenu}
               className="text-gray-700"
             >
-              {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+              {isMenuOpen ? (
+                <X className="h-6 w-6" />
+              ) : (
+                <Menu className="h-6 w-6" />
+              )}
             </Button>
           </div>
         </div>
@@ -118,7 +139,15 @@ const Navbar = () => {
               >
                 Browse Books
               </Link>
-              
+              <Link
+                to="/shipping"
+                className="flex items-center text-gray-700 hover:text-book-600 px-3 py-2 transition-colors"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                <Truck className="h-4 w-4 mr-1" />
+                Shipping
+              </Link>
+
               {isAuthenticated ? (
                 <>
                   <Link

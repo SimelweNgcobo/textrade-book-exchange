@@ -213,13 +213,14 @@ const EnhancedModerationDashboard = () => {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+    <div className="space-y-4 md:space-y-6">
+      {/* Header */}
+      <div className="flex flex-col gap-3 md:flex-row md:justify-between md:items-center md:gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">
+          <h1 className="text-xl md:text-2xl font-bold text-gray-900">
             Enhanced Moderation Dashboard
           </h1>
-          <p className="text-gray-600 mt-1">
+          <p className="text-sm md:text-base text-gray-600 mt-1">
             Manage user reports and moderation actions with real-time
             notifications
           </p>
@@ -228,7 +229,8 @@ const EnhancedModerationDashboard = () => {
           onClick={loadData}
           disabled={isLoading}
           variant="outline"
-          size="sm"
+          size={isMobile ? "sm" : "default"}
+          className="self-start md:self-auto"
         >
           <RefreshCw
             className={`h-4 w-4 mr-2 ${isLoading ? "animate-spin" : ""}`}
@@ -237,6 +239,7 @@ const EnhancedModerationDashboard = () => {
         </Button>
       </div>
 
+      {/* Filters */}
       <ReportFilters
         activeTab={activeTab}
         setActiveTab={setActiveTab}
@@ -249,18 +252,19 @@ const EnhancedModerationDashboard = () => {
         }}
       />
 
+      {/* Main Content */}
       <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
+        <CardHeader className="pb-3">
+          <CardTitle className="flex items-center gap-2 text-lg">
             {activeTab === "suspended" ? "Suspended/Banned Users" : "Reports"}
           </CardTitle>
-          <CardDescription>
+          <CardDescription className="text-sm">
             {activeTab === "suspended"
               ? "Manage suspended and banned user accounts"
               : `${filteredData.length} ${activeTab} reports`}
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-3 md:p-6">
           {filteredData.length === 0 ? (
             <div className="text-center py-8">
               <p className="text-gray-500">
@@ -271,7 +275,7 @@ const EnhancedModerationDashboard = () => {
           ) : (
             <>
               {isMobile ? (
-                <div className="space-y-4">
+                <div className="space-y-3">
                   {filteredData.map((item) => (
                     <ModerationReportCard
                       key={
@@ -294,21 +298,21 @@ const EnhancedModerationDashboard = () => {
                   ))}
                 </div>
               ) : (
-                <ScrollArea className="w-full">
+                <div className="overflow-x-auto">
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead>Type</TableHead>
-                        <TableHead>Entity</TableHead>
-                        <TableHead>
+                        <TableHead className="w-[100px]">Type</TableHead>
+                        <TableHead className="w-[150px]">Entity</TableHead>
+                        <TableHead className="min-w-[200px]">
                           {activeTab === "suspended" ? "Reason" : "Reason"}
                         </TableHead>
-                        <TableHead>
+                        <TableHead className="w-[150px]">
                           {activeTab === "suspended" ? "Suspended" : "Reporter"}
                         </TableHead>
-                        <TableHead>Date</TableHead>
-                        <TableHead>Severity</TableHead>
-                        <TableHead className="w-[200px]">Actions</TableHead>
+                        <TableHead className="w-[120px]">Date</TableHead>
+                        <TableHead className="w-[100px]">Severity</TableHead>
+                        <TableHead className="w-[250px]">Actions</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -334,7 +338,7 @@ const EnhancedModerationDashboard = () => {
                       ))}
                     </TableBody>
                   </Table>
-                </ScrollArea>
+                </div>
               )}
             </>
           )}

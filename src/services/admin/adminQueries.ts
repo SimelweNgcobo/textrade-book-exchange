@@ -1,4 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
+import { logError } from "@/utils/errorUtils";
 import { logDatabaseError, logQueryDebug } from "@/utils/debugUtils";
 
 export interface AdminStats {
@@ -42,7 +43,7 @@ export const getUserProfile = async (userId: string): Promise<AdminUser> => {
       .single();
 
     if (userError) {
-      console.error("Error fetching user profile:", userError);
+      logError("Error fetching user profile", userError);
       throw userError;
     }
 

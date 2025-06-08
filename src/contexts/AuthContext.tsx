@@ -3,6 +3,7 @@ import React, {
   useContext,
   useState,
   useEffect,
+  useCallback,
   ReactNode,
 } from "react";
 import { User, Session } from "@supabase/supabase-js";
@@ -19,6 +20,7 @@ import {
   Profile,
 } from "@/services/authOperations";
 import { UserStats } from "@/types/address";
+import { logError, getErrorMessage } from "@/utils/errorUtils";
 
 interface AuthContextType {
   user: User | null;
@@ -38,45 +40,72 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const useAuth = () => {
+// Separate the hook export to ensure Fast Refresh compatibility
+function useAuth() {
   const context = useContext(AuthContext);
   if (context === undefined) {
     throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
-};
+}
 
-export const AuthProvider: React.FC<{ children: ReactNode }> = ({
-  children,
-}) => {
+function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [userStats, setUserStats] = useState<UserStats | null>(null);
+  const [authInitialized, setAuthInitialized] = useState(false);
   const { handleError } = useErrorHandler();
 
   const isAuthenticated = !!user;
   const isAdmin = profile?.isAdmin || false;
 
-  useEffect(() => {
-    console.log("AuthProvider: Setting up auth state listener");
-    initializeAuth();
-    setupAuthListener();
+  // Handle sign out state
+  const handleSignOut = useCallback(() => {
+    console.log("Handling sign out");
+    setUser(null);
+    setProfile(null);
+    setSession(null);
+    setUserStats(null);
   }, []);
 
-  useEffect(() => {
-    if (user && profile) {
-      loadUserStats();
-      updateUserActivity();
-    }
-  }, [user, profile]);
+  // Handle auth state changes
+  const handleAuthStateChange = useCallback(
+    async (session: Session) => {
+      try {
+        console.log("Processing auth state change");
+        setSession(session);
+        setUser(session.user);
 
-  const initializeAuth = async () => {
+        if (session.user) {
+          const userProfile = await fetchUserProfile(session.user);
+          setProfile(userProfile);
+          console.log("Auth state updated successfully");
+        }
+      } catch (error) {
+        logError("Error handling auth state change", error);
+        handleError(error, "Authentication State Change");
+      }
+    },
+    [handleError],
+  );
+
+  // Initialize auth on mount
+  const initializeAuth = useCallback(async () => {
+    if (authInitialized) {
+      console.log("Auth already initialized, skipping");
+      return;
+    }
+
     try {
+      console.log("Initializing authentication...");
+      setIsLoading(true);
+
       const {
         data: { session: currentSession },
       } = await supabase.auth.getSession();
+
       console.log(
         "Initial session check:",
         currentSession ? "Found session" : "No session",
@@ -85,15 +114,20 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
       if (currentSession) {
         await handleAuthStateChange(currentSession);
       }
+
+      setAuthInitialized(true);
     } catch (error) {
-      console.error("Error initializing auth:", error);
+      logError("Error initializing auth", error);
       handleError(error, "Initialize Authentication");
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [authInitialized, handleAuthStateChange, handleError]);
 
-  const setupAuthListener = () => {
+  // Set up auth listener
+  const setupAuthListener = useCallback(() => {
+    console.log("Setting up auth state listener");
+
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
@@ -109,52 +143,33 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
         await handleAuthStateChange(session);
       }
 
-      setIsLoading(false);
+      if (authInitialized) {
+        setIsLoading(false);
+      }
     });
 
     return () => {
       console.log("Cleaning up auth listener");
       subscription.unsubscribe();
     };
-  };
+  }, [authInitialized, handleAuthStateChange, handleSignOut]);
 
-  const handleAuthStateChange = async (session: Session) => {
-    try {
-      setSession(session);
-      setUser(session.user);
-
-      if (session.user) {
-        const userProfile = await fetchUserProfile(session.user);
-        setProfile(userProfile);
-        console.log("Auth state updated successfully");
-      }
-    } catch (error) {
-      console.error("Error handling auth state change:", error);
-      handleError(error, "Authentication State Change");
-    }
-  };
-
-  const handleSignOut = () => {
-    console.log("Handling sign out");
-    setUser(null);
-    setProfile(null);
-    setSession(null);
-    setUserStats(null);
-  };
-
-  const login = async (email: string, password: string) => {
+  // Auth operations
+  const login = useCallback(async (email: string, password: string) => {
     try {
       setIsLoading(true);
       await loginUser(email, password);
       toast.success("Login successful!");
     } catch (error: unknown) {
-      console.error("Login failed:", error);
+      logError("Login failed", error);
 
       let errorMessage = "Login failed. Please try again.";
-      if (error.message?.includes("Invalid login credentials")) {
+      const errorMsg = getErrorMessage(error);
+
+      if (errorMsg.includes("Invalid login credentials")) {
         errorMessage =
           "Invalid email or password. Please check your credentials.";
-      } else if (error.message?.includes("Email not confirmed")) {
+      } else if (errorMsg.includes("Email not confirmed")) {
         errorMessage =
           "Please check your email and click the confirmation link.";
       }
@@ -164,45 +179,50 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
 
-  const register = async (name: string, email: string, password: string) => {
-    try {
-      setIsLoading(true);
-      await registerUser(name, email, password);
-      toast.success(
-        "Registration successful! Please check your email to confirm your account.",
-      );
-    } catch (error: any) {
-      console.error("Registration failed:", error);
+  const register = useCallback(
+    async (name: string, email: string, password: string) => {
+      try {
+        setIsLoading(true);
+        await registerUser(name, email, password);
+        toast.success(
+          "Registration successful! Please check your email to confirm your account.",
+        );
+      } catch (error: unknown) {
+        logError("Registration failed", error);
 
-      let errorMessage = "Registration failed. Please try again.";
-      if (error.message?.includes("already registered")) {
-        errorMessage = "An account with this email already exists.";
+        let errorMessage = "Registration failed. Please try again.";
+        const errorMsg = getErrorMessage(error);
+
+        if (errorMsg.includes("already registered")) {
+          errorMessage = "An account with this email already exists.";
+        }
+
+        toast.error(errorMessage);
+        throw error;
+      } finally {
+        setIsLoading(false);
       }
+    },
+    [],
+  );
 
-      toast.error(errorMessage);
-      throw error;
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const logout = async () => {
+  const logout = useCallback(async () => {
     try {
       setIsLoading(true);
       await logoutUser();
       toast.success("Logged out successfully");
     } catch (error) {
-      console.error("Logout failed:", error);
+      logError("Logout failed", error);
       toast.error("Logout failed. Please try again.");
       throw error;
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
 
-  const refreshProfile = async () => {
+  const refreshProfile = useCallback(async () => {
     if (!user) return;
 
     try {
@@ -210,40 +230,69 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
       setProfile(userProfile);
       console.log("Profile refreshed successfully");
     } catch (error) {
-      console.error("Error refreshing profile:", error);
+      logError("Error refreshing profile", error);
       handleError(error, "Refresh Profile");
     }
-  };
+  }, [user, handleError]);
 
-  const loadUserStats = async () => {
+  const loadUserStats = useCallback(async () => {
     if (!user) return;
 
     try {
       const stats = await getUserStats(user.id);
       setUserStats(stats);
     } catch (error) {
-      console.error("Error loading user stats:", error);
+      logError("Error loading user stats", error);
     }
-  };
+  }, [user]);
 
-  const updateUserActivity = async () => {
+  const updateUserActivity = useCallback(async () => {
     if (!user) return;
 
     try {
       await updateLastActive(user.id);
     } catch (error) {
-      console.error("Error updating last active:", error);
+      logError("Error updating last active", error);
     }
-  };
+  }, [user]);
 
-  const checkAdminStatus = async (userId: string): Promise<boolean> => {
-    try {
-      return await isAdminUser(userId);
-    } catch (error) {
-      console.error("Error checking admin status:", error);
-      return false;
+  const checkAdminStatus = useCallback(
+    async (userId: string): Promise<boolean> => {
+      try {
+        return await isAdminUser(userId);
+      } catch (error) {
+        logError("Error checking admin status", error);
+        return false;
+      }
+    },
+    [],
+  );
+
+  // Initialize auth and set up listener on mount
+  useEffect(() => {
+    let cleanup: (() => void) | undefined;
+
+    const setup = async () => {
+      await initializeAuth();
+      cleanup = setupAuthListener();
+    };
+
+    setup();
+
+    return () => {
+      if (cleanup) {
+        cleanup();
+      }
+    };
+  }, []); // Empty dependency array - only run once on mount
+
+  // Load user stats and update activity when user/profile changes
+  useEffect(() => {
+    if (user && profile && authInitialized) {
+      loadUserStats();
+      updateUserActivity();
     }
-  };
+  }, [user, profile, authInitialized, loadUserStats, updateUserActivity]);
 
   const value: AuthContextType = {
     user,
@@ -262,4 +311,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
-};
+}
+
+// Named exports for Fast Refresh compatibility
+export { useAuth, AuthProvider };

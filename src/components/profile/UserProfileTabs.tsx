@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -25,6 +26,7 @@ interface UserProfileTabsProps {
     same: boolean,
   ) => Promise<void>;
   isLoadingAddress?: boolean;
+  deletingBooks?: Set<string>;
 }
 
 const UserProfileTabs = ({
@@ -39,7 +41,9 @@ const UserProfileTabs = ({
   userName,
   onSaveAddresses,
   isLoadingAddress = false,
+  deletingBooks = new Set(),
 }: UserProfileTabsProps) => {
+  const navigate = useNavigate();
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isAddressEditDialogOpen, setIsAddressEditDialogOpen] = useState(false);
 
@@ -118,9 +122,7 @@ const UserProfileTabs = ({
 
                         <div className="mt-3 space-y-2">
                           <Button
-                            onClick={() =>
-                              window.open(`/books/${book.id}`, "_blank")
-                            }
+                            onClick={() => navigate(`/books/${book.id}`)}
                             variant="outline"
                             size="sm"
                             className="w-full text-xs"
@@ -147,9 +149,19 @@ const UserProfileTabs = ({
                                 variant="destructive"
                                 size="sm"
                                 className="text-xs"
+                                disabled={deletingBooks.has(book.id)}
                               >
-                                <Trash2 className="h-3 w-3 mr-1" />
-                                Delete
+                                {deletingBooks.has(book.id) ? (
+                                  <>
+                                    <div className="h-3 w-3 mr-1 animate-spin rounded-full border border-white border-t-transparent" />
+                                    Deleting...
+                                  </>
+                                ) : (
+                                  <>
+                                    <Trash2 className="h-3 w-3 mr-1" />
+                                    Delete
+                                  </>
+                                )}
                               </Button>
                             </div>
                           )}

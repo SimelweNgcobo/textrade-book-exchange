@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useLocation, useSearchParams } from "react-router-dom";
 import Layout from "@/components/Layout";
 import SEO from "@/components/SEO";
@@ -31,18 +31,10 @@ const BookListing = () => {
     "all",
   );
 
-  useEffect(() => {
-    console.log("BookListing component mounted");
-    loadBooks();
-  }, []);
-
-  useEffect(() => {
-    console.log("Search params changed:", Object.fromEntries(searchParams));
-    loadBooks();
-  }, [searchParams]);
-
-  const loadBooks = async () => {
+  // Memoize loadBooks function to prevent infinite loops
+  const loadBooks = useCallback(async () => {
     console.log("Loading books...");
+
     setIsLoading(true);
     setError(null);
 
@@ -78,9 +70,12 @@ const BookListing = () => {
 
       const loadedBooks = await getBooks(filters);
       console.log("Loaded books count:", loadedBooks.length);
-      setBooks(loadedBooks);
 
-      if (loadedBooks.length === 0) {
+      // Ensure we have an array
+      const booksArray = Array.isArray(loadedBooks) ? loadedBooks : [];
+      setBooks(booksArray);
+
+      if (booksArray.length === 0) {
         console.log("No books found with current filters");
       }
     } catch (error) {
@@ -91,10 +86,19 @@ const BookListing = () => {
           : "Failed to load books. Please try again.";
       setError(errorMessage);
       toast.error(errorMessage);
+
+      // Set empty books array on error to prevent infinite loading
+      setBooks([]);
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [searchParams, selectedCondition, selectedUniversity, priceRange]);
+
+  // Initial load
+  useEffect(() => {
+    console.log("BookListing component mounted");
+    loadBooks();
+  }, [loadBooks]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -102,7 +106,7 @@ const BookListing = () => {
     updateFilters();
   };
 
-  const updateFilters = () => {
+  const updateFilters = useCallback(() => {
     console.log("Updating filters...");
     const params = new URLSearchParams();
 
@@ -114,10 +118,16 @@ const BookListing = () => {
     if (selectedUniversity) params.set("university", selectedUniversity);
 
     setSearchParams(params);
-    loadBooks();
-  };
+  }, [
+    searchQuery,
+    selectedCategory,
+    selectedGrade,
+    selectedUniversityYear,
+    selectedUniversity,
+    setSearchParams,
+  ]);
 
-  const clearFilters = () => {
+  const clearFilters = useCallback(() => {
     console.log("Clearing all filters");
     setSearchQuery("");
     setSelectedCategory("");
@@ -128,8 +138,7 @@ const BookListing = () => {
     setPriceRange([0, 1000]);
     setBookType("all");
     setSearchParams({});
-    loadBooks();
-  };
+  }, [setSearchParams]);
 
   if (error) {
     return (
@@ -141,7 +150,10 @@ const BookListing = () => {
             </h2>
             <p className="text-red-600 mb-4">{error}</p>
             <button
-              onClick={loadBooks}
+              onClick={() => {
+                setError(null);
+                loadBooks();
+              }}
               className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
             >
               Try Again
@@ -183,64 +195,15 @@ const BookListing = () => {
             setBookType={setBookType}
             showFilters={showFilters}
             setShowFilters={setShowFilters}
-            onSearch={(e) => {
-              e.preventDefault();
-              console.log("Search submitted with query:", searchQuery);
-              const params = new URLSearchParams();
-              if (searchQuery) params.set("search", searchQuery);
-              if (selectedCategory) params.set("category", selectedCategory);
-              if (selectedGrade) params.set("grade", selectedGrade);
-              if (selectedUniversityYear)
-                params.set("universityYear", selectedUniversityYear);
-              if (selectedUniversity)
-                params.set("university", selectedUniversity);
-              setSearchParams(params);
-              loadBooks();
-            }}
-            onUpdateFilters={() => {
-              console.log("Updating filters...");
-              const params = new URLSearchParams();
-              if (searchQuery) params.set("search", searchQuery);
-              if (selectedCategory) params.set("category", selectedCategory);
-              if (selectedGrade) params.set("grade", selectedGrade);
-              if (selectedUniversityYear)
-                params.set("universityYear", selectedUniversityYear);
-              if (selectedUniversity)
-                params.set("university", selectedUniversity);
-              setSearchParams(params);
-              loadBooks();
-            }}
-            onClearFilters={() => {
-              console.log("Clearing all filters");
-              setSearchQuery("");
-              setSelectedCategory("");
-              setSelectedCondition("");
-              setSelectedGrade("");
-              setSelectedUniversityYear("");
-              setSelectedUniversity("");
-              setPriceRange([0, 1000]);
-              setBookType("all");
-              setSearchParams({});
-              loadBooks();
-            }}
+            onSearch={handleSearch}
+            onUpdateFilters={updateFilters}
+            onClearFilters={clearFilters}
           />
 
           <BookGrid
             books={books}
             isLoading={isLoading}
-            onClearFilters={() => {
-              console.log("Clearing all filters");
-              setSearchQuery("");
-              setSelectedCategory("");
-              setSelectedCondition("");
-              setSelectedGrade("");
-              setSelectedUniversityYear("");
-              setSelectedUniversity("");
-              setPriceRange([0, 1000]);
-              setBookType("all");
-              setSearchParams({});
-              loadBooks();
-            }}
+            onClearFilters={clearFilters}
           />
         </div>
       </div>

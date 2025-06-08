@@ -2,7 +2,26 @@ import { createRoot } from "react-dom/client";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import App from "./App.tsx";
 import ErrorBoundary from "./components/ErrorBoundary.tsx";
+import { validateEnvironment } from "./config/environment";
+import {
+  initCoreWebVitals,
+  PerformanceMonitor,
+} from "./utils/performanceUtils";
+import { initSecurity } from "./utils/securityUtils";
 import "./index.css";
+
+// Validate environment variables
+try {
+  validateEnvironment();
+} catch (error) {
+  console.error("Environment validation failed:", error);
+}
+
+// Initialize performance monitoring
+initCoreWebVitals();
+
+// Initialize security measures
+initSecurity();
 
 // Create a client with improved error handling
 const queryClient = new QueryClient({
@@ -12,7 +31,7 @@ const queryClient = new QueryClient({
       retry: (failureCount, error) => {
         // Don't retry on 4xx errors (client errors)
         if (error && typeof error === "object" && "status" in error) {
-          const status = (error as any).status;
+          const status = (error as { status: number }).status;
           if (status >= 400 && status < 500) {
             return false;
           }

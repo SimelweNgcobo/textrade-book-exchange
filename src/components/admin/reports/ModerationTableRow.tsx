@@ -61,43 +61,66 @@ export const ModerationTableRow = ({
 }: ModerationTableRowProps) => {
   if (activeTab === "suspended") {
     const user = item as SuspendedUser;
+
+    const handleCopyEmail = (e: React.MouseEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      copyEmailToClipboard(user.email);
+    };
+
+    const handleUnsuspend = (e: React.MouseEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      onUnsuspendUser(user.id);
+    };
+
     return (
-      <TableRow key={user.id}>
+      <TableRow key={user.id} className="hover:bg-gray-50">
         <TableCell>
-          <div className="flex items-center gap-1 text-orange-600">
+          <div className="flex items-center gap-2 text-orange-600">
             <UserX className="h-4 w-4" />
-            <span>{user.status === "banned" ? "Banned" : "Suspended"}</span>
+            <span className="font-medium">
+              {user.status === "banned" ? "Banned" : "Suspended"}
+            </span>
           </div>
         </TableCell>
         <TableCell className="font-medium">
           <div className="flex items-center gap-2">
             <div className="max-w-[150px]">
-              <div className="truncate">{user.name}</div>
+              <div className="truncate font-medium">{user.name}</div>
               <div className="text-xs text-gray-500 truncate">{user.email}</div>
             </div>
             <Button
               size="sm"
               variant="ghost"
-              onClick={() => copyEmailToClipboard(user.email)}
-              className="h-6 w-6 p-0"
+              onClick={handleCopyEmail}
+              className="h-6 w-6 p-0 flex-shrink-0"
               title="Copy Email Address"
             >
               <Copy className="h-3 w-3" />
             </Button>
           </div>
         </TableCell>
-        <TableCell className="max-w-[200px] truncate">
-          {user.suspension_reason}
+        <TableCell>
+          <div className="max-w-[200px]">
+            <div className="truncate" title={user.suspension_reason}>
+              {user.suspension_reason}
+            </div>
+          </div>
         </TableCell>
         <TableCell>
-          {new Date(user.suspended_at).toLocaleDateString()}
+          <div className="text-sm">
+            {new Date(user.suspended_at).toLocaleDateString()}
+          </div>
         </TableCell>
         <TableCell>
-          {new Date(user.suspended_at).toLocaleDateString("en-US", {
-            month: "short",
-            day: "numeric",
-            year: "numeric",
-          })}
+          <div className="text-sm">
+            {new Date(user.suspended_at).toLocaleDateString("en-US", {
+              month: "short",
+              day: "numeric",
+              year: "numeric",
+            })}
+          </div>
         </TableCell>
         <TableCell>
           <Badge
@@ -114,10 +137,11 @@ export const ModerationTableRow = ({
           <Button
             variant="outline"
             size="sm"
-            onClick={() => onUnsuspendUser(user.id)}
-            className="text-green-600 hover:text-green-700"
+            onClick={handleUnsuspend}
+            disabled={isSubmitting}
+            className="text-green-600 hover:text-green-700 hover:bg-green-50"
           >
-            Unsuspend
+            {isSubmitting ? "Unsuspending..." : "Unsuspend"}
           </Button>
         </TableCell>
       </TableRow>
@@ -128,40 +152,57 @@ export const ModerationTableRow = ({
       (r) => r.reported_user_id === report.reported_user_id,
     ).length;
 
+    const handleCopyReporterEmail = (e: React.MouseEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (report.reporter_email) {
+        copyEmailToClipboard(report.reporter_email);
+      }
+    };
+
     return (
-      <TableRow key={report.id}>
+      <TableRow key={report.id} className="hover:bg-gray-50">
         <TableCell>
           <div className="flex items-center gap-2">
             {report.book_id ? (
-              <div className="flex items-center gap-1 text-blue-600">
+              <div className="flex items-center gap-2 text-blue-600">
                 <Flag className="h-4 w-4" />
-                <span>Listing</span>
+                <span className="font-medium">Listing</span>
               </div>
             ) : (
-              <div className="flex items-center gap-1 text-purple-600">
+              <div className="flex items-center gap-2 text-purple-600">
                 <UserX className="h-4 w-4" />
-                <span>User</span>
+                <span className="font-medium">User</span>
               </div>
             )}
           </div>
         </TableCell>
         <TableCell className="font-medium">
-          <div className="max-w-[150px] truncate">
-            {report.book_id ? report.book_title : report.seller_name}
+          <div className="max-w-[150px]">
+            <div
+              className="truncate"
+              title={report.book_id ? report.book_title : report.seller_name}
+            >
+              {report.book_id ? report.book_title : report.seller_name}
+            </div>
           </div>
         </TableCell>
-        <TableCell className="max-w-[200px] truncate">
-          {report.reason}
+        <TableCell>
+          <div className="max-w-[200px]">
+            <div className="truncate" title={report.reason}>
+              {report.reason}
+            </div>
+          </div>
         </TableCell>
         <TableCell>
           <div className="flex items-center gap-2">
-            <div>
-              <div className="text-sm">
+            <div className="min-w-0 flex-1">
+              <div className="text-sm truncate">
                 {report.reporter_name ||
                   `User #${report.reporter_user_id.slice(-8)}`}
               </div>
               {report.reporter_email && (
-                <div className="text-xs text-gray-500">
+                <div className="text-xs text-gray-500 truncate">
                   {report.reporter_email}
                 </div>
               )}
@@ -170,9 +211,9 @@ export const ModerationTableRow = ({
               <Button
                 size="sm"
                 variant="ghost"
-                onClick={() => copyEmailToClipboard(report.reporter_email!)}
-                className="h-6 w-6 p-0"
-                title="Copy Email Address"
+                onClick={handleCopyReporterEmail}
+                className="h-6 w-6 p-0 flex-shrink-0"
+                title="Copy Reporter Email"
               >
                 <Copy className="h-3 w-3" />
               </Button>
@@ -180,13 +221,15 @@ export const ModerationTableRow = ({
           </div>
         </TableCell>
         <TableCell>
-          {new Date(report.created_at).toLocaleDateString("en-US", {
-            month: "short",
-            day: "numeric",
-            year: "numeric",
-            hour: "2-digit",
-            minute: "2-digit",
-          })}
+          <div className="text-sm">
+            {new Date(report.created_at).toLocaleDateString("en-US", {
+              month: "short",
+              day: "numeric",
+              year: "numeric",
+              hour: "2-digit",
+              minute: "2-digit",
+            })}
+          </div>
         </TableCell>
         <TableCell>
           <Badge className={getSeverityColor(reportCount)}>
@@ -194,14 +237,16 @@ export const ModerationTableRow = ({
           </Badge>
         </TableCell>
         <TableCell>
-          <ReportActions
-            report={report}
-            actionReason={actionReason}
-            setActionReason={setActionReason}
-            isSubmitting={isSubmitting}
-            onUpdateStatus={onUpdateStatus}
-            onUserAction={onUserAction}
-          />
+          <div className="min-w-[200px]">
+            <ReportActions
+              report={report}
+              actionReason={actionReason}
+              setActionReason={setActionReason}
+              isSubmitting={isSubmitting}
+              onUpdateStatus={onUpdateStatus}
+              onUserAction={onUserAction}
+            />
+          </div>
         </TableCell>
       </TableRow>
     );

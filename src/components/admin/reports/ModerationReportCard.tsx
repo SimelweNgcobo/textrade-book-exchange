@@ -61,18 +61,39 @@ export const ModerationReportCard = ({
 }: ModerationReportCardProps) => {
   if (activeTab === "suspended") {
     const user = item as SuspendedUser;
+
+    const handleCopyEmail = (e: React.MouseEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      copyEmailToClipboard(user.email);
+    };
+
+    const handleUnsuspend = (e: React.MouseEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      onUnsuspendUser(user.id);
+    };
+
     return (
-      <Card className="mb-4">
+      <Card className="border border-gray-200 shadow-sm">
         <CardContent className="p-4">
           <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <div className="font-medium text-gray-900">{user.name}</div>
-              <div className="flex items-center gap-2">
+            {/* Header */}
+            <div className="flex items-start justify-between">
+              <div className="flex-1 min-w-0">
+                <div className="font-medium text-gray-900 truncate">
+                  {user.name}
+                </div>
+                <div className="text-sm text-gray-600 truncate">
+                  {user.email}
+                </div>
+              </div>
+              <div className="flex items-center gap-2 flex-shrink-0">
                 <Button
                   size="sm"
                   variant="ghost"
-                  onClick={() => copyEmailToClipboard(user.email)}
-                  className="h-6 w-6 p-0"
+                  onClick={handleCopyEmail}
+                  className="h-8 w-8 p-0"
                   title="Copy Email Address"
                 >
                   <Copy className="h-3 w-3" />
@@ -89,26 +110,30 @@ export const ModerationReportCard = ({
               </div>
             </div>
 
-            <div className="text-sm text-gray-600">{user.email}</div>
-
+            {/* Reason */}
             <div>
-              <div className="text-sm font-medium text-gray-700">Reason:</div>
-              <div className="text-sm text-gray-600">
+              <div className="text-sm font-medium text-gray-700 mb-1">
+                Reason:
+              </div>
+              <div className="text-sm text-gray-600 bg-gray-50 p-2 rounded">
                 {user.suspension_reason}
               </div>
             </div>
 
+            {/* Date */}
             <div className="text-sm text-gray-500">
               Suspended: {new Date(user.suspended_at).toLocaleDateString()}
             </div>
 
+            {/* Action Button */}
             <Button
               variant="outline"
               size="sm"
-              onClick={() => onUnsuspendUser(user.id)}
-              className="w-full text-green-600 hover:text-green-700"
+              onClick={handleUnsuspend}
+              disabled={isSubmitting}
+              className="w-full text-green-600 hover:text-green-700 hover:bg-green-50"
             >
-              Unsuspend User
+              {isSubmitting ? "Unsuspending..." : "Unsuspend User"}
             </Button>
           </div>
         </CardContent>
@@ -120,21 +145,30 @@ export const ModerationReportCard = ({
       (r) => r.reported_user_id === report.reported_user_id,
     ).length;
 
+    const handleCopyReporterEmail = (e: React.MouseEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (report.reporter_email) {
+        copyEmailToClipboard(report.reporter_email);
+      }
+    };
+
     return (
-      <Card className="mb-4">
+      <Card className="border border-gray-200 shadow-sm">
         <CardContent className="p-4">
           <div className="space-y-3">
-            <div className="flex items-center justify-between">
+            {/* Header */}
+            <div className="flex items-start justify-between">
               <div className="flex items-center gap-2">
                 {report.book_id ? (
-                  <div className="flex items-center gap-1 text-blue-600">
-                    <Flag className="h-4 w-4" />
-                    <span className="font-medium">Listing</span>
+                  <div className="flex items-center gap-2 text-blue-600">
+                    <Flag className="h-4 w-4 flex-shrink-0" />
+                    <span className="font-medium text-sm">Listing Report</span>
                   </div>
                 ) : (
-                  <div className="flex items-center gap-1 text-purple-600">
-                    <UserX className="h-4 w-4" />
-                    <span className="font-medium">User</span>
+                  <div className="flex items-center gap-2 text-purple-600">
+                    <UserX className="h-4 w-4 flex-shrink-0" />
+                    <span className="font-medium text-sm">User Report</span>
                   </div>
                 )}
               </div>
@@ -143,55 +177,63 @@ export const ModerationReportCard = ({
               </Badge>
             </div>
 
+            {/* Subject */}
             <div>
-              <div className="font-medium text-gray-900">
+              <div className="font-medium text-gray-900 mb-1">
                 {report.book_id ? report.book_title : report.seller_name}
               </div>
-              <div className="text-sm text-gray-500 flex items-center justify-between">
-                <span>
+            </div>
+
+            {/* Reporter Info */}
+            <div className="flex items-start justify-between">
+              <div className="flex-1 min-w-0">
+                <div className="text-sm text-gray-500">
                   Reporter:{" "}
                   {report.reporter_name ||
                     `User #${report.reporter_user_id.slice(-8)}`}
-                  {report.reporter_email && (
-                    <span className="block text-xs text-gray-400">
-                      {report.reporter_email}
-                    </span>
-                  )}
-                </span>
+                </div>
                 {report.reporter_email && (
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={() => copyEmailToClipboard(report.reporter_email!)}
-                    className="h-6 w-6 p-0"
-                    title="Copy Email Address"
-                  >
-                    <Copy className="h-3 w-3" />
-                  </Button>
+                  <div className="text-xs text-gray-400 truncate">
+                    {report.reporter_email}
+                  </div>
                 )}
               </div>
+              {report.reporter_email && (
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={handleCopyReporterEmail}
+                  className="h-6 w-6 p-0 flex-shrink-0"
+                  title="Copy Reporter Email"
+                >
+                  <Copy className="h-3 w-3" />
+                </Button>
+              )}
             </div>
 
+            {/* Reason */}
             <div>
-              <div className="text-sm font-medium text-gray-700">Reason:</div>
-              <div className="text-sm text-gray-600 break-words overflow-hidden">
-                <div className="line-clamp-3">{report.reason}</div>
+              <div className="text-sm font-medium text-gray-700 mb-1">
+                Reason:
+              </div>
+              <div className="text-sm text-gray-600 bg-gray-50 p-2 rounded break-words">
+                {report.reason}
               </div>
             </div>
 
-            <div className="flex items-center justify-between">
-              <div className="text-sm text-gray-500">
-                {new Date(report.created_at).toLocaleDateString("en-US", {
-                  month: "short",
-                  day: "numeric",
-                  year: "numeric",
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })}
-              </div>
+            {/* Date */}
+            <div className="text-sm text-gray-500">
+              {new Date(report.created_at).toLocaleDateString("en-US", {
+                month: "short",
+                day: "numeric",
+                year: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+              })}
             </div>
 
-            <div className="pt-2 border-t">
+            {/* Actions */}
+            <div className="pt-2 border-t border-gray-100">
               <ReportActions
                 report={report}
                 actionReason={actionReason}

@@ -1,19 +1,18 @@
-
-import { useState, useEffect } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogHeader, 
-  DialogTitle, 
-  DialogFooter 
-} from '@/components/ui/dialog';
-import { User, Mail, Loader2 } from 'lucide-react';
-import { toast } from 'sonner';
-import { supabase } from '@/integrations/supabase/client';
+import { useState, useEffect } from "react";
+import { useAuth } from "@/contexts/AuthContext";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { User, Mail, Loader2 } from "lucide-react";
+import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 interface ProfileEditDialogProps {
   isOpen: boolean;
@@ -22,55 +21,58 @@ interface ProfileEditDialogProps {
 
 const ProfileEditDialog = ({ isOpen, onClose }: ProfileEditDialogProps) => {
   const { user, profile } = useAuth();
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     if (isOpen && profile) {
-      setName(profile.name || '');
-      setEmail(profile.email || user?.email || '');
+      setName(profile.name || "");
+      setEmail(profile.email || user?.email || "");
     }
   }, [isOpen, profile, user]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!name.trim() || !email.trim()) {
-      toast.error('Please fill in all fields');
+      toast.error("Please fill in all fields");
       return;
     }
 
     if (!user?.id) {
-      toast.error('User not authenticated');
+      toast.error("User not authenticated");
       return;
     }
 
     setIsLoading(true);
-    
+
     try {
       const { error } = await supabase
-        .from('profiles')
+        .from("profiles")
         .update({
           name: name.trim(),
           email: email.trim(),
-          updated_at: new Date().toISOString()
+          updated_at: new Date().toISOString(),
         })
-        .eq('id', user.id);
+        .eq("id", user.id);
 
       if (error) {
-        console.error('Error updating profile:', error);
-        toast.error('Failed to update profile');
+        console.error("Error updating profile:", error);
+        toast.error("Failed to update profile");
         return;
       }
 
-      toast.success('Profile updated successfully');
+      toast.success("Profile updated successfully");
       onClose();
-      
-      window.location.reload();
+
+      // Use setTimeout to prevent the loading state from being visible during reload
+      setTimeout(() => {
+        window.location.reload();
+      }, 100);
     } catch (error) {
-      console.error('Failed to update profile:', error);
-      toast.error('Failed to update profile');
+      console.error("Failed to update profile:", error);
+      toast.error("Failed to update profile");
     } finally {
       setIsLoading(false);
     }
@@ -79,8 +81,8 @@ const ProfileEditDialog = ({ isOpen, onClose }: ProfileEditDialogProps) => {
   const handleClose = () => {
     if (!isLoading) {
       onClose();
-      setName(profile?.name || '');
-      setEmail(profile?.email || user?.email || '');
+      setName(profile?.name || "");
+      setEmail(profile?.email || user?.email || "");
     }
   };
 
@@ -93,7 +95,7 @@ const ProfileEditDialog = ({ isOpen, onClose }: ProfileEditDialogProps) => {
             Edit Profile
           </DialogTitle>
         </DialogHeader>
-        
+
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="name" className="text-sm font-medium">
@@ -113,7 +115,7 @@ const ProfileEditDialog = ({ isOpen, onClose }: ProfileEditDialogProps) => {
               />
             </div>
           </div>
-          
+
           <div className="space-y-2">
             <Label htmlFor="email" className="text-sm font-medium">
               Email
@@ -133,17 +135,13 @@ const ProfileEditDialog = ({ isOpen, onClose }: ProfileEditDialogProps) => {
             </div>
           </div>
         </form>
-        
+
         <DialogFooter>
-          <Button 
-            variant="outline" 
-            onClick={handleClose} 
-            disabled={isLoading}
-          >
+          <Button variant="outline" onClick={handleClose} disabled={isLoading}>
             Cancel
           </Button>
-          <Button 
-            onClick={handleSubmit} 
+          <Button
+            onClick={handleSubmit}
             disabled={isLoading}
             className="bg-book-600 hover:bg-book-700"
           >
@@ -153,7 +151,7 @@ const ProfileEditDialog = ({ isOpen, onClose }: ProfileEditDialogProps) => {
                 Saving...
               </>
             ) : (
-              'Save Changes'
+              "Save Changes"
             )}
           </Button>
         </DialogFooter>

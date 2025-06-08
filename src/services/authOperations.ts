@@ -1,6 +1,7 @@
 import { User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { isAdminUser } from "@/services/admin/adminAuthService";
+import { logError, getErrorMessage } from "@/utils/errorUtils";
 
 export interface Profile {
   id: string;
@@ -71,14 +72,16 @@ export const fetchUserProfile = async (user: User): Promise<Profile | null> => {
       .single();
 
     if (profileError) {
-      console.error("Error fetching profile:", profileError);
+      logError("Error fetching profile", profileError);
 
       if (profileError.code === "PGRST116") {
         console.log("Profile not found, creating new profile...");
         return await createUserProfile(user);
       }
 
-      throw profileError;
+      throw new Error(
+        getErrorMessage(profileError, "Failed to fetch user profile"),
+      );
     }
 
     if (!profile) {
@@ -103,8 +106,8 @@ export const fetchUserProfile = async (user: User): Promise<Profile | null> => {
       bio: profile.bio,
     };
   } catch (error) {
-    console.error("Error in fetchUserProfile:", error);
-    throw error;
+    logError("Error in fetchUserProfile", error);
+    throw new Error(getErrorMessage(error, "Failed to load user profile"));
   }
 };
 
@@ -126,8 +129,10 @@ export const createUserProfile = async (user: User): Promise<Profile> => {
       .single();
 
     if (createError) {
-      console.error("Error creating profile:", createError);
-      throw createError;
+      logError("Error creating profile", createError);
+      throw new Error(
+        getErrorMessage(createError, "Failed to create user profile"),
+      );
     }
 
     console.log("Profile created successfully:", newProfile.name);
@@ -144,7 +149,7 @@ export const createUserProfile = async (user: User): Promise<Profile> => {
       bio: newProfile.bio,
     };
   } catch (error) {
-    console.error("Error in createUserProfile:", error);
-    throw error;
+    logError("Error in createUserProfile", error);
+    throw new Error(getErrorMessage(error, "Failed to create user profile"));
   }
 };
