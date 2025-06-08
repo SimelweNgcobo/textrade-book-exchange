@@ -8,6 +8,7 @@ import AdminProtectedRoute from "./components/AdminProtectedRoute";
 import ScrollToTop from "./components/ScrollToTop";
 import ErrorBoundary from "./components/ErrorBoundary";
 import AuthErrorBoundary from "./components/AuthErrorBoundary";
+import AuthStateDebug from "./components/AuthStateDebug";
 import OAuthRedirectHandler from "./components/OAuthRedirectHandler";
 import OAuthDebugInfo from "./components/OAuthDebugInfo";
 import DatabaseDebugTest from "./components/DatabaseDebugTest";
@@ -40,6 +41,7 @@ import AdminReports from "./pages/AdminReports";
 import Notifications from "./pages/Notifications";
 import Confirm from "./pages/Confirm";
 import Verify from "./pages/Verify";
+import ConfirmEmailChange from "./pages/ConfirmEmailChange";
 import EditBook from "./pages/EditBook";
 import Cart from "./pages/Cart";
 import Report from "./pages/Report";
@@ -178,6 +180,7 @@ function App() {
               </div>
               <Toaster />
               <OAuthDebugInfo />
+              {process.env.NODE_ENV === "development" && <AuthStateDebug />}
             </Router>
           </CartProvider>
         </AuthProvider>
