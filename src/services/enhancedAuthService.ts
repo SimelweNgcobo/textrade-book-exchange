@@ -23,6 +23,38 @@ export interface VerificationCheckResult {
 
 export class EnhancedAuthService {
   /**
+   * Check if user is likely unverified by looking at profile creation time
+   */
+  static async checkIfLikelyUnverified(email: string): Promise<boolean> {
+    try {
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("created_at")
+        .eq("email", email)
+        .single();
+
+      if (!profile) {
+        return false;
+      }
+
+      // If the profile was created recently (within the last 7 days),
+      // it's more likely to be an unverified email issue
+      const createdAt = new Date(profile.created_at);
+      const now = new Date();
+      const daysSinceCreation =
+        (now.getTime() - createdAt.getTime()) / (1000 * 60 * 60 * 24);
+
+      console.log("📅 Profile created", daysSinceCreation, "days ago");
+
+      // Recent profiles are more likely to have verification issues
+      return daysSinceCreation <= 7;
+    } catch (error) {
+      console.log("⚠️ Could not check profile creation time");
+      return true; // Default to suggesting verification if we can't check
+    }
+  }
+
+  /**
    * Check if a user exists and if their email is confirmed
    */
   static async checkUserVerificationStatus(
