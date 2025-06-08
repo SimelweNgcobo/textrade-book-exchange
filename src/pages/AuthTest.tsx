@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { EnhancedAuthService } from "@/services/enhancedAuthService";
 import { debugAdminStatus } from "@/utils/adminDebug";
+import EmailChangeTest from "@/components/EmailChangeTest";
 import { toast } from "sonner";
 import {
   User,
