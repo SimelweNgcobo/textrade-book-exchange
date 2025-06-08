@@ -21,6 +21,7 @@ import {
 import { UserStats } from "@/types/address";
 import { logError, getErrorMessage } from "@/utils/errorUtils";
 import { ActivityService } from "@/services/activityService";
+import { addNotification } from "@/services/notificationService";
 
 interface AuthContextType {
   user: User | null;
@@ -47,7 +48,6 @@ export const AuthContext = createContext<AuthContextType | undefined>(
 export function useAuth() {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    console.error("useAuth called outside of AuthProvider");
     throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
@@ -57,9 +57,6 @@ export function useAuth() {
 export function useSafeAuth() {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    console.warn(
-      "useSafeAuth: AuthContext not available, returning safe defaults",
-    );
     return {
       user: null,
       profile: null,
@@ -102,13 +99,11 @@ function AuthProvider({ children }: { children: ReactNode }) {
 
   // Safe error handler
   const handleError = useCallback((error: any, context: string) => {
-    console.error(`[AuthContext] ${context}:`, error);
     logError(`AuthContext - ${context}`, error);
   }, []);
 
   // Handle sign out state
   const handleSignOut = useCallback(() => {
-    console.log("🔓 Handling sign out");
     setUser(null);
     setProfile(null);
     setSession(null);
@@ -117,9 +112,8 @@ function AuthProvider({ children }: { children: ReactNode }) {
 
   // Handle auth state changes
   const handleAuthStateChange = useCallback(
-    async (session: Session) => {
+    async (session: Session, event?: string) => {
       try {
-        console.log("🔄 Processing auth state change");
         setSession(session);
         setUser(session.user);
 
@@ -128,16 +122,21 @@ function AuthProvider({ children }: { children: ReactNode }) {
             const userProfile = await fetchUserProfile(session.user);
             setProfile(userProfile);
 
-            // Log admin status for debugging
-            if (userProfile.isAdmin) {
-              console.log("🔐 Admin user logged in:", userProfile.email);
-            } else {
-              console.log("👤 Regular user logged in:", userProfile.email);
+            // Add login notification for authenticated users
+            if (event === "SIGNED_IN") {
+              try {
+                await addNotification({
+                  userId: session.user.id,
+                  title: "Welcome back!",
+                  message: `You have successfully logged in at ${new Date().toLocaleString()}`,
+                  type: "success",
+                  read: false,
+                });
+              } catch (error) {
+                // Silently fail notification creation
+              }
             }
-
-            console.log("✅ Auth state updated successfully");
           } catch (profileError) {
-            console.error("❌ Error fetching profile:", profileError);
             handleError(profileError, "Fetch Profile");
             // Don't throw here, allow login to continue without profile
           }
@@ -152,12 +151,10 @@ function AuthProvider({ children }: { children: ReactNode }) {
   // Initialize auth
   const initializeAuth = useCallback(async () => {
     if (authInitialized) {
-      console.log("Auth already initialized, skipping");
       return;
     }
 
     try {
-      console.log("🔧 Initializing authentication...");
       setIsLoading(true);
       setInitError(null);
 
@@ -170,19 +167,12 @@ function AuthProvider({ children }: { children: ReactNode }) {
         throw sessionError;
       }
 
-      console.log(
-        "Initial session check:",
-        currentSession ? "Found session" : "No session",
-      );
-
       if (currentSession) {
         await handleAuthStateChange(currentSession);
       }
 
       setAuthInitialized(true);
-      console.log("✅ Authentication initialized successfully");
     } catch (error) {
-      console.error("❌ Error initializing auth:", error);
       handleError(error, "Initialize Authentication");
       setInitError(
         `Authentication initialization failed: ${getErrorMessage(error)}`,
@@ -195,35 +185,25 @@ function AuthProvider({ children }: { children: ReactNode }) {
 
   // Set up auth listener
   const setupAuthListener = useCallback(() => {
-    console.log("🔗 Setting up auth state listener");
-
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log(
-        "Auth state changed:",
-        event,
-        session ? "Session exists" : "No session",
-      );
-
       try {
         if (event === "SIGNED_OUT") {
           handleSignOut();
         } else if (session) {
-          await handleAuthStateChange(session);
+          await handleAuthStateChange(session, event);
         }
 
         if (authInitialized) {
           setIsLoading(false);
         }
       } catch (error) {
-        console.error("Error in auth state change handler:", error);
         handleError(error, "Auth State Change Handler");
       }
     });
 
     return () => {
-      console.log("🔌 Cleaning up auth listener");
       subscription.unsubscribe();
     };
   }, [authInitialized, handleAuthStateChange, handleSignOut, handleError]);
@@ -232,7 +212,6 @@ function AuthProvider({ children }: { children: ReactNode }) {
   const login = useCallback(async (email: string, password: string) => {
     try {
       setIsLoading(true);
-      console.log("🔐 Starting login for:", email);
 
       // Use the basic login function to avoid circular dependencies
       const { data, error } = await supabase.auth.signInWithPassword({
@@ -241,8 +220,6 @@ function AuthProvider({ children }: { children: ReactNode }) {
       });
 
       if (error) {
-        console.error("❌ Login error:", error);
-
         // Enhanced error handling
         let errorMessage = "Login failed. Please try again.";
         const errorMsg = getErrorMessage(error);
@@ -274,7 +251,6 @@ function AuthProvider({ children }: { children: ReactNode }) {
                 "No account found with this email address. Please register first.";
             }
           } catch (profileError) {
-            console.log("Could not check profile:", profileError);
             errorMessage =
               "Invalid email or password. Please check your credentials.";
           }
@@ -291,8 +267,7 @@ function AuthProvider({ children }: { children: ReactNode }) {
       }
 
       if (data.session) {
-        console.log("✅ Login successful");
-        toast.success("Login successful!", { duration: 2000 }); // Shorter duration
+        toast.success("Login successful!", { duration: 2000 });
 
         // Log the login activity
         try {
@@ -300,17 +275,16 @@ function AuthProvider({ children }: { children: ReactNode }) {
             data.session.user.id,
           );
           if (!loginResult.success) {
-            console.warn("Failed to log login activity:", loginResult.error);
+            // Silently fail activity logging
           }
         } catch (activityError) {
-          console.warn("Exception logging login activity:", activityError);
+          // Silently fail activity logging
         }
 
         // The auth state change handler will update the context
         return data;
       }
     } catch (error: unknown) {
-      console.error("❌ Login failed:", error);
       throw error;
     } finally {
       setIsLoading(false);
@@ -324,7 +298,7 @@ function AuthProvider({ children }: { children: ReactNode }) {
         await registerUser(name, email, password);
         toast.success(
           "Registration successful! Please check your email to confirm your account.",
-          { duration: 4000 }, // Slightly longer for important registration message
+          { duration: 4000 },
         );
       } catch (error: unknown) {
         logError("Registration failed", error);
@@ -349,7 +323,9 @@ function AuthProvider({ children }: { children: ReactNode }) {
     try {
       setIsLoading(true);
       await logoutUser();
-      toast.success("Logged out successfully", { duration: 2000 }); // Shorter duration
+      toast.success("Successfully logged out. See you next time!", {
+        duration: 2000,
+      });
     } catch (error) {
       logError("Logout failed", error);
       toast.error("Logout failed. Please try again.", { duration: 3000 });
@@ -365,7 +341,6 @@ function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const userProfile = await fetchUserProfile(user);
       setProfile(userProfile);
-      console.log("Profile refreshed successfully");
     } catch (error) {
       logError("Error refreshing profile", error);
       handleError(error, "Refresh Profile");
@@ -397,16 +372,12 @@ function AuthProvider({ children }: { children: ReactNode }) {
     async (userId: string): Promise<boolean> => {
       try {
         if (!userId) {
-          console.warn("checkAdminStatus called with empty userId");
           return false;
         }
 
-        console.log("🔍 AuthContext: Checking admin status for:", userId);
         const adminStatus = await isAdminUser(userId);
-        console.log("✅ AuthContext: Admin status result:", adminStatus);
         return adminStatus;
       } catch (error) {
-        console.error("❌ AuthContext: Admin status check failed");
         logError("AuthContext admin status check failed", error);
         return false;
       }
@@ -420,12 +391,9 @@ function AuthProvider({ children }: { children: ReactNode }) {
 
     const setup = async () => {
       try {
-        console.log("🚀 Starting AuthProvider setup");
         await initializeAuth();
         cleanup = setupAuthListener();
-        console.log("✅ AuthProvider setup complete");
       } catch (error) {
-        console.error("❌ AuthProvider setup failed:", error);
         handleError(error, "AuthProvider Setup");
         setInitError(`Authentication setup failed: ${getErrorMessage(error)}`);
         setIsLoading(false);
@@ -470,5 +438,4 @@ function AuthProvider({ children }: { children: ReactNode }) {
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
-// Named exports for Fast Refresh compatibility
 export { AuthProvider };
