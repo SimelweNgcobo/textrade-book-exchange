@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { Mail, Lock, Loader2 } from "lucide-react";
+import LoginErrorHandler from "@/components/LoginErrorHandler";
 
 const Login = () => {
   const [email, setEmail] = useState("");
