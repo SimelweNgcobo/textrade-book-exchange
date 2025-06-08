@@ -9,7 +9,6 @@ import React, {
 import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { useErrorHandler } from "@/hooks/useErrorHandler";
 import { getUserStats, updateLastActive } from "@/services/userStatsService";
 import { isAdminUser } from "@/services/admin/adminAuthService";
 import {
@@ -19,7 +18,6 @@ import {
   fetchUserProfile,
   Profile,
 } from "@/services/authOperations";
-import { EnhancedAuthService } from "@/services/enhancedAuthService";
 import { UserStats } from "@/types/address";
 import { logError, getErrorMessage } from "@/utils/errorUtils";
 
@@ -44,15 +42,47 @@ export const AuthContext = createContext<AuthContextType | undefined>(
   undefined,
 );
 
-// Separate the hook export to ensure Fast Refresh compatibility
-function useAuth() {
+// Safe hook that doesn't throw when outside provider
+export function useAuth() {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    console.error("useAuth called outside of AuthProvider. Component tree:", {
-      AuthContext,
-      hasProvider: !!AuthContext,
-    });
+    console.error("useAuth called outside of AuthProvider");
     throw new Error("useAuth must be used within an AuthProvider");
+  }
+  return context;
+}
+
+// Safe hook that returns null values when outside provider
+export function useSafeAuth() {
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    console.warn(
+      "useSafeAuth: AuthContext not available, returning safe defaults",
+    );
+    return {
+      user: null,
+      profile: null,
+      session: null,
+      isLoading: false,
+      isAuthenticated: false,
+      isAdmin: false,
+      userStats: null,
+      initError: "AuthProvider not available",
+      loadUserStats: async () => {},
+      checkAdminStatus: async () => false,
+      login: async () => {
+        throw new Error("AuthProvider not available");
+      },
+      register: async () => {
+        throw new Error("AuthProvider not available");
+      },
+      logout: async () => {
+        throw new Error("AuthProvider not available");
+      },
+      refreshProfile: async () => {
+        throw new Error("AuthProvider not available");
+      },
+    };
   }
   return context;
 }
@@ -66,15 +96,18 @@ function AuthProvider({ children }: { children: ReactNode }) {
   const [authInitialized, setAuthInitialized] = useState(false);
   const [initError, setInitError] = useState<string | null>(null);
 
-  // Use a safer error handler approach
-  const { handleError } = useErrorHandler();
-
   const isAuthenticated = !!user;
   const isAdmin = profile?.isAdmin || false;
 
+  // Safe error handler
+  const handleError = useCallback((error: any, context: string) => {
+    console.error(`[AuthContext] ${context}:`, error);
+    logError(`AuthContext - ${context}`, error);
+  }, []);
+
   // Handle sign out state
   const handleSignOut = useCallback(() => {
-    console.log("Handling sign out");
+    console.log("🔓 Handling sign out");
     setUser(null);
     setProfile(null);
     setSession(null);
@@ -85,24 +118,29 @@ function AuthProvider({ children }: { children: ReactNode }) {
   const handleAuthStateChange = useCallback(
     async (session: Session) => {
       try {
-        console.log("Processing auth state change");
+        console.log("🔄 Processing auth state change");
         setSession(session);
         setUser(session.user);
 
         if (session.user) {
-          const userProfile = await fetchUserProfile(session.user);
-          setProfile(userProfile);
-          console.log("Auth state updated successfully");
+          try {
+            const userProfile = await fetchUserProfile(session.user);
+            setProfile(userProfile);
+            console.log("✅ Auth state updated successfully");
+          } catch (profileError) {
+            console.error("❌ Error fetching profile:", profileError);
+            handleError(profileError, "Fetch Profile");
+            // Don't throw here, allow login to continue without profile
+          }
         }
       } catch (error) {
-        logError("Error handling auth state change", error);
-        handleError(error, "Authentication State Change");
+        handleError(error, "Auth State Change");
       }
     },
     [handleError],
   );
 
-  // Initialize auth on mount
+  // Initialize auth
   const initializeAuth = useCallback(async () => {
     if (authInitialized) {
       console.log("Auth already initialized, skipping");
@@ -110,12 +148,18 @@ function AuthProvider({ children }: { children: ReactNode }) {
     }
 
     try {
-      console.log("Initializing authentication...");
+      console.log("🔧 Initializing authentication...");
       setIsLoading(true);
+      setInitError(null);
 
       const {
         data: { session: currentSession },
+        error: sessionError,
       } = await supabase.auth.getSession();
+
+      if (sessionError) {
+        throw sessionError;
+      }
 
       console.log(
         "Initial session check:",
@@ -127,9 +171,14 @@ function AuthProvider({ children }: { children: ReactNode }) {
       }
 
       setAuthInitialized(true);
+      console.log("✅ Authentication initialized successfully");
     } catch (error) {
-      logError("Error initializing auth", error);
+      console.error("❌ Error initializing auth:", error);
       handleError(error, "Initialize Authentication");
+      setInitError(
+        `Authentication initialization failed: ${getErrorMessage(error)}`,
+      );
+      setAuthInitialized(true); // Set to true even on error to prevent infinite loading
     } finally {
       setIsLoading(false);
     }
@@ -137,7 +186,7 @@ function AuthProvider({ children }: { children: ReactNode }) {
 
   // Set up auth listener
   const setupAuthListener = useCallback(() => {
-    console.log("Setting up auth state listener");
+    console.log("🔗 Setting up auth state listener");
 
     const {
       data: { subscription },
@@ -148,37 +197,42 @@ function AuthProvider({ children }: { children: ReactNode }) {
         session ? "Session exists" : "No session",
       );
 
-      if (event === "SIGNED_OUT") {
-        handleSignOut();
-      } else if (session) {
-        await handleAuthStateChange(session);
-      }
+      try {
+        if (event === "SIGNED_OUT") {
+          handleSignOut();
+        } else if (session) {
+          await handleAuthStateChange(session);
+        }
 
-      if (authInitialized) {
-        setIsLoading(false);
+        if (authInitialized) {
+          setIsLoading(false);
+        }
+      } catch (error) {
+        console.error("Error in auth state change handler:", error);
+        handleError(error, "Auth State Change Handler");
       }
     });
 
     return () => {
-      console.log("Cleaning up auth listener");
+      console.log("🔌 Cleaning up auth listener");
       subscription.unsubscribe();
     };
-  }, [authInitialized, handleAuthStateChange, handleSignOut]);
+  }, [authInitialized, handleAuthStateChange, handleSignOut, handleError]);
 
   // Auth operations
   const login = useCallback(async (email: string, password: string) => {
     try {
       setIsLoading(true);
-      console.log("AuthContext: Starting login for", email);
+      console.log("🔐 Starting login for:", email);
 
-      // Try simple login first to avoid circular dependencies
+      // Use the basic login function to avoid circular dependencies
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
       if (error) {
-        console.error("AuthContext: Login error:", error);
+        console.error("❌ Login error:", error);
 
         // Enhanced error handling
         let errorMessage = "Login failed. Please try again.";
@@ -218,6 +272,9 @@ function AuthProvider({ children }: { children: ReactNode }) {
         } else if (errorMsg.includes("Email not confirmed")) {
           errorMessage =
             "Please check your email and click the confirmation link to verify your account.";
+        } else if (errorMsg.includes("Too many requests")) {
+          errorMessage =
+            "Too many login attempts. Please wait a few minutes before trying again.";
         }
 
         toast.error(errorMessage);
@@ -225,12 +282,13 @@ function AuthProvider({ children }: { children: ReactNode }) {
       }
 
       if (data.session) {
-        console.log("AuthContext: Login successful");
+        console.log("✅ Login successful");
         toast.success("Login successful!");
+        // The auth state change handler will update the context
         return data;
       }
     } catch (error: unknown) {
-      logError("Login failed", error);
+      console.error("❌ Login failed:", error);
       throw error;
     } finally {
       setIsLoading(false);
@@ -330,18 +388,16 @@ function AuthProvider({ children }: { children: ReactNode }) {
 
     const setup = async () => {
       try {
-        console.log("🔧 Starting AuthProvider setup");
+        console.log("🚀 Starting AuthProvider setup");
         await initializeAuth();
         cleanup = setupAuthListener();
         console.log("✅ AuthProvider setup complete");
       } catch (error) {
         console.error("❌ AuthProvider setup failed:", error);
-        logError("AuthProvider setup failed", error);
-        setInitError(
-          `Authentication initialization failed: ${getErrorMessage(error)}`,
-        );
+        handleError(error, "AuthProvider Setup");
+        setInitError(`Authentication setup failed: ${getErrorMessage(error)}`);
         setIsLoading(false);
-        setAuthInitialized(true); // Set to true even on error to prevent infinite loading
+        setAuthInitialized(true);
       }
     };
 
@@ -383,4 +439,4 @@ function AuthProvider({ children }: { children: ReactNode }) {
 }
 
 // Named exports for Fast Refresh compatibility
-export { useAuth, AuthProvider };
+export { AuthProvider };
