@@ -202,14 +202,16 @@ const Index = () => {
                     <img
                       src={book.imageUrl}
                       alt={book.title}
+                      width="400"
+                      height="300"
                       className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+                      loading="lazy"
+                      decoding="async"
                       onError={(e) => {
-                        const target = e.target as HTMLImageElement;
-                        target.src =
+                        e.currentTarget.src =
                           "https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=400&h=300&fit=crop&auto=format&q=80";
                       }}
                     />
-                    <div className="absolute top-2 right-2 bg-white px-2 py-1 rounded-full text-sm font-semibold text-book-800">
                       R{book.price}
                     </div>
                   </div>
