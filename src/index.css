@@ -1,9 +1,9 @@
+/* Email Change Mobile Styles - must come before @tailwind */
+@import "./styles/email-change-mobile.css";
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-/* Email Change Mobile Styles */
-@import "./styles/email-change-mobile.css";
 
 @layer base {
   :root {
