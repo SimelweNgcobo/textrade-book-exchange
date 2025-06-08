@@ -32,6 +32,15 @@ const CourierGuyTracker = () => {
       return;
     }
 
+    // Validate tracking number format
+    const trackingNumberRegex = /^[A-Za-z0-9]{6,15}$/;
+    if (!trackingNumberRegex.test(trackingNumber.trim())) {
+      toast.error(
+        "Please enter a valid tracking number (6-15 alphanumeric characters)",
+      );
+      return;
+    }
+
     setIsLoading(true);
     setTrackingInfo(null);
 

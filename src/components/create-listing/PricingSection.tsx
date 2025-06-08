@@ -46,7 +46,7 @@ export const PricingSection = ({
       {formData.price > 0 && (
         <div className="mt-2 p-3 bg-gray-50 rounded">
           <p className="text-sm text-gray-600">
-            Commission (7%): R{commission.toFixed(2)}
+            Commission (10%): R{commission.toFixed(2)}
           </p>
           <p className="text-sm font-medium text-green-600">
             You receive: R{sellerReceives.toFixed(2)}

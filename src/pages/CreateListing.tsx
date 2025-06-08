@@ -87,12 +87,12 @@ const CreateListing = () => {
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
 
-    if (!formData.title) newErrors.title = "Title is required";
-    if (!formData.author) newErrors.author = "Author is required";
-    if (!formData.description)
+    if (!formData.title.trim()) newErrors.title = "Title is required";
+    if (!formData.author.trim()) newErrors.author = "Author is required";
+    if (!formData.description.trim())
       newErrors.description = "Description is required";
     if (!formData.price || formData.price <= 0)
-      newErrors.price = "Valid price is required";
+      newErrors.price = "Valid price is required (must be greater than 0)";
     if (!formData.category) newErrors.category = "Category is required";
     if (!formData.condition) newErrors.condition = "Condition is required";
 
@@ -117,11 +117,23 @@ const CreateListing = () => {
       newErrors.insidePages = "Inside pages photo is required";
 
     setErrors(newErrors);
+
+    // Log validation results for debugging
+    if (Object.keys(newErrors).length > 0) {
+      console.log("Form validation failed with errors:", newErrors);
+    } else {
+      console.log("Form validation passed");
+    }
+
     return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    console.log("Form submission started");
+    console.log("Current form data:", formData);
+    console.log("Current book images:", bookImages);
 
     if (!validateForm()) {
       toast.error("Please fill in all required fields");
@@ -143,11 +155,21 @@ const CreateListing = () => {
         insidePages: bookImages.insidePages,
       };
 
-      console.log("Creating book with data:", bookData);
+      console.log("Creating book with complete data:", bookData);
 
-      const createdBook = await createBook(bookData, user);
+      // Validate that all required images are present
+      if (
+        !bookData.frontCover ||
+        !bookData.backCover ||
+        !bookData.insidePages
+      ) {
+        throw new Error("All three book photos are required");
+      }
+
+      const createdBook = await createBook(bookData);
 
       console.log("Book created successfully:", createdBook);
+      toast.success("Book listing created successfully!");
 
       const hasCompleted = await hasCompletedFirstUpload(user.id);
       if (!hasCompleted) {
@@ -183,9 +205,10 @@ const CreateListing = () => {
       setErrors({});
     } catch (error) {
       console.error("Error creating listing:", error);
-      toast.error(
-        error instanceof Error ? error.message : "Failed to create listing",
-      );
+      const errorMessage =
+        error instanceof Error ? error.message : "Failed to create listing";
+      console.error("Detailed error:", errorMessage);
+      toast.error(errorMessage);
     } finally {
       setIsSubmitting(false);
     }
@@ -245,14 +268,29 @@ const CreateListing = () => {
             </div>
 
             <div>
-              <Label className="text-base font-medium block mb-4">
-                Book Photos <span className="text-red-500">*</span>
-              </Label>
               <MultiImageUpload
-                bookImages={bookImages}
-                setBookImages={setBookImages}
-                errors={errors}
+                currentImages={bookImages}
+                onImagesChange={(images) =>
+                  setBookImages(images as typeof bookImages)
+                }
+                variant="object"
+                maxImages={3}
               />
+              {(errors.frontCover ||
+                errors.backCover ||
+                errors.insidePages) && (
+                <div className="mt-2 space-y-1">
+                  {errors.frontCover && (
+                    <p className="text-sm text-red-500">{errors.frontCover}</p>
+                  )}
+                  {errors.backCover && (
+                    <p className="text-sm text-red-500">{errors.backCover}</p>
+                  )}
+                  {errors.insidePages && (
+                    <p className="text-sm text-red-500">{errors.insidePages}</p>
+                  )}
+                </div>
+              )}
             </div>
 
             <Button

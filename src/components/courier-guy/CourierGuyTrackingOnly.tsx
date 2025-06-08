@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -24,15 +24,7 @@ const CourierGuyTrackingOnly = () => {
   }>({ canSell: false, canBuy: false, errors: [] });
   const [isLoading, setIsLoading] = useState(false);
 
-  useEffect(() => {
-    if (user?.id) {
-      loadEligibilityData();
-    } else {
-      setEligibility({ canSell: false, canBuy: false, errors: [] });
-    }
-  }, [user?.id]);
-
-  const loadEligibilityData = async () => {
+  const loadEligibilityData = useCallback(async () => {
     if (!user?.id) return;
 
     setIsLoading(true);
@@ -55,7 +47,15 @@ const CourierGuyTrackingOnly = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [user?.id]);
+
+  useEffect(() => {
+    if (user?.id) {
+      loadEligibilityData();
+    } else {
+      setEligibility({ canSell: false, canBuy: false, errors: [] });
+    }
+  }, [user?.id, loadEligibilityData]);
 
   if (isLoading) {
     return (
