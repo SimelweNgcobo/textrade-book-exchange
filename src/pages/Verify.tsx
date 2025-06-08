@@ -261,36 +261,53 @@ const Verify = () => {
                   </Card>
                 )}
 
-                <div className="space-y-3">
-                  <p className="text-sm text-gray-600 mb-4">
-                    Please share this information with support if you need help.
-                  </p>
-                  <Button
-                    onClick={() => window.location.reload()}
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 md:px-6 py-2 rounded-lg transition-colors text-sm md:text-base w-full"
-                  >
-                    Try Again
-                  </Button>
-                  <Button
-                    onClick={() => navigate("/login")}
-                    className="bg-book-600 hover:bg-book-700 text-white px-4 md:px-6 py-2 rounded-lg transition-colors text-sm md:text-base w-full"
-                  >
-                    Go to Login
-                  </Button>
-                  <Button
-                    variant="outline"
-                    onClick={() => navigate("/register")}
-                    className="px-4 md:px-6 py-2 rounded-lg transition-colors text-sm md:text-base w-full"
-                  >
-                    Register Again
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    onClick={() => navigate("/")}
-                    className="text-sm text-gray-500 w-full"
-                  >
-                    Go to Home Page
-                  </Button>
+                <div className="space-y-6">
+                  <ManualEmailVerification
+                    onSuccess={() => {
+                      setStatus("success");
+                      setMessage(
+                        "Email verified successfully! You are now logged in.",
+                      );
+                      toast.success("Email verified successfully!");
+                      setTimeout(() => navigate("/"), 2000);
+                    }}
+                    onError={(error) => {
+                      toast.error(error);
+                    }}
+                  />
+
+                  <div className="space-y-3">
+                    <p className="text-sm text-gray-600">
+                      Please share the debug information above with support if
+                      you need help.
+                    </p>
+                    <Button
+                      onClick={() => window.location.reload()}
+                      className="bg-blue-600 hover:bg-blue-700 text-white px-4 md:px-6 py-2 rounded-lg transition-colors text-sm md:text-base w-full"
+                    >
+                      Try Again
+                    </Button>
+                    <Button
+                      onClick={() => navigate("/login")}
+                      className="bg-book-600 hover:bg-book-700 text-white px-4 md:px-6 py-2 rounded-lg transition-colors text-sm md:text-base w-full"
+                    >
+                      Go to Login
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => navigate("/register")}
+                      className="px-4 md:px-6 py-2 rounded-lg transition-colors text-sm md:text-base w-full"
+                    >
+                      Register Again
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      onClick={() => navigate("/")}
+                      className="text-sm text-gray-500 w-full"
+                    >
+                      Go to Home Page
+                    </Button>
+                  </div>
                 </div>
               </>
             )}
