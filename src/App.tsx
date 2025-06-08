@@ -7,6 +7,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import AdminProtectedRoute from "./components/AdminProtectedRoute";
 import ScrollToTop from "./components/ScrollToTop";
 import ErrorBoundary from "./components/ErrorBoundary";
+import AuthErrorBoundary from "./components/AuthErrorBoundary";
 import OAuthRedirectHandler from "./components/OAuthRedirectHandler";
 import OAuthDebugInfo from "./components/OAuthDebugInfo";
 import DatabaseDebugTest from "./components/DatabaseDebugTest";
@@ -39,10 +40,12 @@ import AdminReports from "./pages/AdminReports";
 import Notifications from "./pages/Notifications";
 import Confirm from "./pages/Confirm";
 import Verify from "./pages/Verify";
+import ConfirmEmailChange from "./pages/ConfirmEmailChange";
 import EditBook from "./pages/EditBook";
 import Cart from "./pages/Cart";
 import Report from "./pages/Report";
 import Shipping from "./pages/Shipping";
+import AuthTest from "./pages/AuthTest";
 
 import "./App.css";
 import "./styles/mobile-fixes.css";
@@ -60,120 +63,130 @@ function App() {
 
   return (
     <ErrorBoundary level="app">
-      <AuthProvider>
-        <CartProvider>
-          <Router>
-            <ScrollToTop />
-            <OAuthRedirectHandler />
-            <div className="min-h-screen bg-gray-50">
-              <ErrorBoundary level="page">
-                <Routes>
-                  <Route path="/" element={<Index />} />
-                  <Route path="/books" element={<BookListing />} />
-                  <Route path="/books/:id" element={<BookDetails />} />
-                  <Route path="/login" element={<Login />} />
-                  <Route path="/register" element={<Register />} />
-                  <Route path="/forgot-password" element={<ForgotPassword />} />
-                  <Route path="/reset-password" element={<ResetPassword />} />
-                  <Route path="/confirm" element={<Confirm />} />
-                  <Route path="/verify" element={<Verify />} />
-                  <Route path="/faq" element={<FAQ />} />
-                  <Route path="/terms" element={<Terms />} />
-                  <Route path="/privacy" element={<Privacy />} />
-                  <Route path="/contact" element={<ContactUs />} />
-                  <Route path="/report" element={<Report />} />
-                  <Route path="/shipping" element={<Shipping />} />
-                  <Route path="/oauth-test" element={<OAuthTest />} />
-                  <Route path="/debug-test" element={<DatabaseDebugTest />} />
+      <AuthErrorBoundary>
+        <AuthProvider>
+          <CartProvider>
+            <Router>
+              <ScrollToTop />
+              <OAuthRedirectHandler />
+              <div className="min-h-screen bg-gray-50">
+                <ErrorBoundary level="page">
+                  <Routes>
+                    <Route path="/" element={<Index />} />
+                    <Route path="/books" element={<BookListing />} />
+                    <Route path="/books/:id" element={<BookDetails />} />
+                    <Route path="/login" element={<Login />} />
+                    <Route path="/register" element={<Register />} />
+                    <Route
+                      path="/forgot-password"
+                      element={<ForgotPassword />}
+                    />
+                    <Route path="/reset-password" element={<ResetPassword />} />
+                    <Route path="/confirm" element={<Confirm />} />
+                    <Route path="/verify" element={<Verify />} />
+                    <Route
+                      path="/confirm-email-change"
+                      element={<ConfirmEmailChange />}
+                    />
+                    <Route path="/faq" element={<FAQ />} />
+                    <Route path="/terms" element={<Terms />} />
+                    <Route path="/privacy" element={<Privacy />} />
+                    <Route path="/contact" element={<ContactUs />} />
+                    <Route path="/report" element={<Report />} />
+                    <Route path="/shipping" element={<Shipping />} />
+                    <Route path="/oauth-test" element={<OAuthTest />} />
+                    <Route path="/debug-test" element={<DatabaseDebugTest />} />
+                    <Route path="/auth-test" element={<AuthTest />} />
 
-                  {/* Public user profiles - no authentication required */}
-                  <Route path="/user/:id" element={<UserProfile />} />
+                    {/* Public user profiles - no authentication required */}
+                    <Route path="/user/:id" element={<UserProfile />} />
 
-                  {/* Protected Routes */}
-                  <Route
-                    path="/profile"
-                    element={
-                      <ProtectedRoute>
-                        <Profile />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/create-listing"
-                    element={
-                      <ProtectedRoute>
-                        <CreateListing />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/checkout/:id"
-                    element={
-                      <ProtectedRoute>
-                        <Checkout />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/activity"
-                    element={
-                      <ProtectedRoute>
-                        <ActivityLog />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/notifications"
-                    element={
-                      <ProtectedRoute>
-                        <Notifications />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/cart"
-                    element={
-                      <ProtectedRoute>
-                        <Cart />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/edit-book/:id"
-                    element={
-                      <ProtectedRoute>
-                        <EditBook />
-                      </ProtectedRoute>
-                    }
-                  />
+                    {/* Protected Routes */}
+                    <Route
+                      path="/profile"
+                      element={
+                        <ProtectedRoute>
+                          <Profile />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="/create-listing"
+                      element={
+                        <ProtectedRoute>
+                          <CreateListing />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="/checkout/:id"
+                      element={
+                        <ProtectedRoute>
+                          <Checkout />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="/activity"
+                      element={
+                        <ProtectedRoute>
+                          <ActivityLog />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="/notifications"
+                      element={
+                        <ProtectedRoute>
+                          <Notifications />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="/cart"
+                      element={
+                        <ProtectedRoute>
+                          <Cart />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="/edit-book/:id"
+                      element={
+                        <ProtectedRoute>
+                          <EditBook />
+                        </ProtectedRoute>
+                      }
+                    />
 
-                  {/* Admin Routes */}
-                  <Route
-                    path="/admin"
-                    element={
-                      <AdminProtectedRoute>
-                        <Admin />
-                      </AdminProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/admin/reports"
-                    element={
-                      <AdminProtectedRoute>
-                        <AdminReports />
-                      </AdminProtectedRoute>
-                    }
-                  />
+                    {/* Admin Routes */}
+                    <Route
+                      path="/admin"
+                      element={
+                        <AdminProtectedRoute>
+                          <Admin />
+                        </AdminProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="/admin/reports"
+                      element={
+                        <AdminProtectedRoute>
+                          <AdminReports />
+                        </AdminProtectedRoute>
+                      }
+                    />
 
-                  <Route path="*" element={<NotFound />} />
-                </Routes>
-              </ErrorBoundary>
-            </div>
-            <Toaster />
-            <OAuthDebugInfo />
-          </Router>
-        </CartProvider>
-      </AuthProvider>
+                    <Route path="*" element={<NotFound />} />
+                  </Routes>
+                </ErrorBoundary>
+              </div>
+              <Toaster />
+              <OAuthDebugInfo />
+            </Router>
+          </CartProvider>
+        </AuthProvider>
+      </AuthErrorBoundary>
     </ErrorBoundary>
   );
 }

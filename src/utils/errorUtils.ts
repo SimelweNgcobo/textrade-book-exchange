@@ -41,7 +41,8 @@ export const getErrorMessage = (
     if ("code" in errorObj && typeof errorObj.code === "string") {
       switch (errorObj.code) {
         case "PGRST116":
-          return "Resource not found";
+          // This is often expected (no rows found)
+          return "No matching records found";
         case "PGRST200":
           return "Database constraint error";
         default:

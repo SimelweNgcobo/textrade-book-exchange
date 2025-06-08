@@ -88,7 +88,7 @@ export const sendBroadcastMessage = async (message: string): Promise<void> => {
     }
 
     // Try the most common notification types first
-    const commonTypes = ["info", "general", "announcement"];
+    const commonTypes = ["info", "warning", "success"];
     let successfulType = null;
 
     for (const tryType of commonTypes) {

@@ -1,23 +1,30 @@
-
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from "@/integrations/supabase/client";
+import { logError, getErrorMessage } from "@/utils/errorUtils";
+import { verifyAdminStatus } from "@/utils/adminVerification";
 
 export const isAdminUser = async (userId: string): Promise<boolean> => {
   try {
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('email')
-      .eq('id', userId)
-      .eq('email', 'AdminSimnLi@gmail.com')
-      .single();
+    console.log("🔍 Checking admin status for user:", userId);
 
-    if (error) {
-      console.error('Error checking admin status:', error);
+    if (!userId) {
+      console.log("❌ No userId provided for admin check");
       return false;
     }
 
-    return !!data;
+    // Use the improved verification utility that doesn't generate false errors
+    const isAdmin = await verifyAdminStatus(userId);
+
+    if (isAdmin) {
+      console.log("🔐 Admin user detected:", userId);
+    } else {
+      console.log("👤 Regular user (not admin):", userId);
+    }
+
+    return isAdmin;
   } catch (error) {
-    console.error('Error in admin check:', error);
+    // Only log if it's an actual unexpected error
+    console.warn("⚠️ Unexpected error during admin check, assuming non-admin");
+    logError("Unexpected error in isAdminUser", error);
     return false;
   }
 };
@@ -27,23 +34,23 @@ export const logAdminAction = async (
   actionType: string,
   targetId?: string,
   targetType?: string,
-  description?: string
+  description?: string,
 ) => {
   try {
     // Since admin_actions table doesn't exist, we'll log to notifications instead
-    const { error } = await supabase
-      .from('notifications')
-      .insert({
-        user_id: adminId,
-        title: `Admin Action: ${actionType}`,
-        message: description || `Admin performed ${actionType} on ${targetType}: ${targetId}`,
-        type: 'admin_action'
-      });
+    const { error } = await supabase.from("notifications").insert({
+      user_id: adminId,
+      title: `Admin Action: ${actionType}`,
+      message:
+        description ||
+        `Admin performed ${actionType} on ${targetType}: ${targetId}`,
+      type: "info", // Use 'info' instead of 'admin_action'
+    });
 
     if (error) {
-      console.error('Error logging admin action:', error);
+      console.error("Error logging admin action:", error);
     }
   } catch (error) {
-    console.error('Error in admin action logging:', error);
+    console.error("Error in admin action logging:", error);
   }
 };

@@ -1,126 +1,151 @@
-
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import Layout from '@/components/Layout';
-import { useAuth } from '@/contexts/AuthContext';
-import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, Check, Clock, ShoppingCart, Star, BookIcon, HeartIcon } from 'lucide-react';
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import Layout from "@/components/Layout";
+import { useAuth } from "@/contexts/AuthContext";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { ActivityService, Activity } from "@/services/activityService";
+import {
+  ArrowLeft,
+  Check,
+  Clock,
+  ShoppingCart,
+  Star,
+  BookIcon,
+  HeartIcon,
+  User,
+  Search,
+  Eye,
+  Edit,
+  Trash2,
+  LogIn,
+  AlertCircle,
+  RefreshCw,
+} from "lucide-react";
 
 const ActivityLog = () => {
   const { user, profile } = useAuth();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("all");
-  
-  // For demo, we'll use mock data
-  const [activities, setActivities] = useState<any[]>([]);
+  const [activities, setActivities] = useState<Activity[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // In a real app, you'd fetch this from your database
-    setTimeout(() => {
-      const mockActivities = [
-        {
-          id: 1,
-          type: 'purchase',
-          date: '2025-05-19T10:30:00',
-          details: {
-            bookTitle: 'Introduction to Psychology',
-            price: 450,
-            seller: 'Alice Johnson',
-            status: 'completed'
-          }
-        },
-        {
-          id: 2,
-          type: 'sale',
-          date: '2025-05-15T14:20:00',
-          details: {
-            bookTitle: 'Calculus Made Easy',
-            price: 350,
-            buyer: 'Bob Smith',
-            status: 'completed'
-          }
-        },
-        {
-          id: 3,
-          type: 'wishlist',
-          date: '2025-05-10T09:15:00',
-          details: {
-            bookTitle: 'Modern Physics',
-            status: 'active'
-          }
-        },
-        {
-          id: 4,
-          type: 'rating',
-          date: '2025-05-08T16:45:00',
-          details: {
-            user: 'Charlie Brown',
-            rating: 5,
-            comment: 'Great service, book exactly as described!'
-          }
-        },
-        {
-          id: 5,
-          type: 'listing',
-          date: '2025-05-05T11:30:00',
-          details: {
-            bookTitle: 'Introduction to Computer Science',
-            price: 500,
-            status: 'active'
-          }
-        }
-      ];
-      
-      setActivities(mockActivities);
+    loadActivities();
+  }, [user]);
+
+  const loadActivities = async () => {
+    if (!user) {
       setIsLoading(false);
-    }, 1000);
-  }, []);
+      return;
+    }
+
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const userActivities = await ActivityService.getUserActivities(
+        user.id,
+        100,
+      );
+
+      // If no real activities found, create some sample activities for demo
+      if (userActivities.length === 0) {
+        console.log("No activities found, creating sample activities...");
+
+        // Log current login as activity
+        await ActivityService.logLogin(user.id);
+
+        // Log profile view
+        await ActivityService.logActivity(
+          user.id,
+          "profile_updated",
+          "Viewed activity page",
+          "Checked activity history for the first time",
+        );
+
+        // Fetch again after creating sample activities
+        const newActivities = await ActivityService.getUserActivities(
+          user.id,
+          100,
+        );
+        setActivities(newActivities);
+      } else {
+        setActivities(userActivities);
+      }
+    } catch (error) {
+      console.error("Error loading activities:", error);
+      setError("Failed to load activities. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const getActivityIcon = (type: string) => {
     switch (type) {
-      case 'purchase':
+      case "purchase":
         return <ShoppingCart className="h-5 w-5 text-blue-500" />;
-      case 'sale':
+      case "sale":
         return <Check className="h-5 w-5 text-green-500" />;
-      case 'wishlist':
+      case "wishlist_added":
+      case "wishlist_removed":
         return <HeartIcon className="h-5 w-5 text-red-500" />;
-      case 'rating':
+      case "rating_given":
+      case "rating_received":
         return <Star className="h-5 w-5 text-yellow-500" />;
-      case 'listing':
+      case "listing_created":
+      case "listing_updated":
+      case "listing_deleted":
         return <BookIcon className="h-5 w-5 text-purple-500" />;
+      case "book_viewed":
+        return <Eye className="h-5 w-5 text-gray-500" />;
+      case "search":
+        return <Search className="h-5 w-5 text-blue-400" />;
+      case "profile_updated":
+        return <User className="h-5 w-5 text-indigo-500" />;
+      case "login":
+        return <LogIn className="h-5 w-5 text-green-600" />;
       default:
         return <Clock className="h-5 w-5 text-gray-500" />;
     }
   };
 
-  const getActivityTitle = (activity: any) => {
+  const getStatusBadge = (activity: Activity) => {
     switch (activity.type) {
-      case 'purchase':
-        return `Purchased ${activity.details.bookTitle}`;
-      case 'sale':
-        return `Sold ${activity.details.bookTitle}`;
-      case 'wishlist':
-        return `Added ${activity.details.bookTitle} to wishlist`;
-      case 'rating':
-        return `Rated ${activity.details.user}`;
-      case 'listing':
-        return `Listed ${activity.details.bookTitle} for sale`;
-      default:
-        return 'Activity recorded';
-    }
-  };
-
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case 'completed':
-        return <Badge className="bg-green-100 text-green-800 border-green-200">Completed</Badge>;
-      case 'pending':
-        return <Badge className="bg-yellow-100 text-yellow-800 border-yellow-200">Pending</Badge>;
-      case 'active':
-        return <Badge className="bg-blue-100 text-blue-800 border-blue-200">Active</Badge>;
+      case "purchase":
+      case "sale":
+        return (
+          <Badge className="bg-green-100 text-green-800 border-green-200">
+            Completed
+          </Badge>
+        );
+      case "listing_created":
+        return (
+          <Badge className="bg-blue-100 text-blue-800 border-blue-200">
+            Active
+          </Badge>
+        );
+      case "listing_deleted":
+        return (
+          <Badge className="bg-gray-100 text-gray-800 border-gray-200">
+            Removed
+          </Badge>
+        );
+      case "wishlist_added":
+        return (
+          <Badge className="bg-red-100 text-red-800 border-red-200">
+            Watching
+          </Badge>
+        );
+      case "login":
+        return (
+          <Badge className="bg-green-100 text-green-800 border-green-200">
+            Session
+          </Badge>
+        );
       default:
         return null;
     }
@@ -128,36 +153,159 @@ const ActivityLog = () => {
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { 
-      year: 'numeric', 
-      month: 'short', 
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+    const diffMinutes = Math.floor(diffMs / (1000 * 60));
+
+    if (diffMinutes < 1) {
+      return "Just now";
+    } else if (diffMinutes < 60) {
+      return `${diffMinutes} minute${diffMinutes > 1 ? "s" : ""} ago`;
+    } else if (diffHours < 24) {
+      return `${diffHours} hour${diffHours > 1 ? "s" : ""} ago`;
+    } else if (diffDays < 7) {
+      return `${diffDays} day${diffDays > 1 ? "s" : ""} ago`;
+    } else {
+      return date.toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+    }
   };
 
-  const filteredActivities = activeTab === "all" 
-    ? activities 
-    : activities.filter(activity => activity.type === activeTab);
+  const getActivityTypeLabel = (type: string) => {
+    switch (type) {
+      case "purchase":
+        return "Purchases";
+      case "sale":
+        return "Sales";
+      case "listing_created":
+        return "Listings";
+      case "listing_updated":
+        return "Listings";
+      case "listing_deleted":
+        return "Listings";
+      case "wishlist_added":
+        return "Wishlist";
+      case "wishlist_removed":
+        return "Wishlist";
+      case "rating_given":
+        return "Ratings";
+      case "rating_received":
+        return "Ratings";
+      case "book_viewed":
+        return "Views";
+      case "search":
+        return "Searches";
+      case "profile_updated":
+        return "Profile";
+      case "login":
+        return "Sessions";
+      default:
+        return "Other";
+    }
+  };
+
+  const filteredActivities =
+    activeTab === "all"
+      ? activities
+      : activities.filter((activity) => {
+          switch (activeTab) {
+            case "purchases":
+              return activity.type === "purchase";
+            case "sales":
+              return activity.type === "sale";
+            case "listings":
+              return [
+                "listing_created",
+                "listing_updated",
+                "listing_deleted",
+              ].includes(activity.type);
+            case "social":
+              return [
+                "rating_given",
+                "rating_received",
+                "wishlist_added",
+                "wishlist_removed",
+              ].includes(activity.type);
+            default:
+              return true;
+          }
+        });
+
+  if (!user) {
+    return (
+      <Layout>
+        <div className="container mx-auto px-4 py-8">
+          <div className="text-center">
+            <p className="text-gray-600">
+              Please log in to view your activity history.
+            </p>
+            <Button onClick={() => navigate("/login")} className="mt-4">
+              Log In
+            </Button>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
 
   return (
     <Layout>
       <div className="container mx-auto px-4 py-8">
-        <Button variant="ghost" onClick={() => navigate(-1)} className="mb-6 text-book-600">
+        <Button
+          variant="ghost"
+          onClick={() => navigate(-1)}
+          className="mb-6 text-book-600"
+        >
           <ArrowLeft className="mr-2 h-4 w-4" /> Back
         </Button>
 
         <div className="bg-white rounded-lg shadow-md p-6 md:p-8">
-          <h1 className="text-2xl font-bold text-gray-800 mb-6">Activity History</h1>
+          <div className="flex justify-between items-center mb-6">
+            <h1 className="text-2xl font-bold text-gray-800">
+              Activity History
+            </h1>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={loadActivities}
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <RefreshCw className="h-4 w-4 animate-spin mr-2" />
+              ) : (
+                <RefreshCw className="h-4 w-4 mr-2" />
+              )}
+              Refresh
+            </Button>
+          </div>
 
-          <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab}>
+          {error && (
+            <Alert className="mb-6 border-red-200 bg-red-50">
+              <AlertCircle className="h-4 w-4 text-red-600" />
+              <AlertDescription className="text-red-700">
+                {error}
+              </AlertDescription>
+            </Alert>
+          )}
+
+          <Tabs
+            defaultValue="all"
+            value={activeTab}
+            onValueChange={setActiveTab}
+          >
             <TabsList className="w-full grid grid-cols-5 mb-8">
               <TabsTrigger value="all">All</TabsTrigger>
-              <TabsTrigger value="purchase">Purchases</TabsTrigger>
-              <TabsTrigger value="sale">Sales</TabsTrigger>
-              <TabsTrigger value="listing">Listings</TabsTrigger>
-              <TabsTrigger value="rating">Ratings</TabsTrigger>
+              <TabsTrigger value="purchases">Purchases</TabsTrigger>
+              <TabsTrigger value="sales">Sales</TabsTrigger>
+              <TabsTrigger value="listings">Listings</TabsTrigger>
+              <TabsTrigger value="social">Social</TabsTrigger>
             </TabsList>
 
             <TabsContent value={activeTab}>
@@ -168,8 +316,8 @@ const ActivityLog = () => {
               ) : filteredActivities.length > 0 ? (
                 <div className="space-y-4">
                   {filteredActivities.map((activity) => (
-                    <div 
-                      key={activity.id} 
+                    <div
+                      key={activity.id}
                       className="bg-gray-50 rounded-lg p-4 border border-gray-200 hover:shadow-md transition-shadow"
                     >
                       <div className="flex items-start">
@@ -178,55 +326,66 @@ const ActivityLog = () => {
                         </div>
                         <div className="flex-grow">
                           <div className="flex justify-between items-start">
-                            <h3 className="font-medium text-gray-800">
-                              {getActivityTitle(activity)}
-                            </h3>
-                            <div className="text-sm text-gray-500">
-                              {formatDate(activity.date)}
+                            <div>
+                              <h3 className="font-medium text-gray-800">
+                                {activity.title}
+                              </h3>
+                              <p className="text-sm text-gray-600 mt-1">
+                                {activity.description}
+                              </p>
+                            </div>
+                            <div className="text-right">
+                              <div className="text-sm text-gray-500">
+                                {formatDate(activity.created_at)}
+                              </div>
+                              <div className="text-xs text-gray-400 mt-1">
+                                {getActivityTypeLabel(activity.type)}
+                              </div>
                             </div>
                           </div>
-                          
-                          <div className="mt-1 text-sm text-gray-600">
-                            {activity.type === 'purchase' && (
-                              <p>Purchased from {activity.details.seller} for R{activity.details.price}</p>
-                            )}
-                            {activity.type === 'sale' && (
-                              <p>Sold to {activity.details.buyer} for R{activity.details.price}</p>
-                            )}
-                            {activity.type === 'wishlist' && (
-                              <p>You'll be notified when this book becomes available</p>
-                            )}
-                            {activity.type === 'rating' && (
-                              <div>
-                                <div className="flex items-center">
-                                  {[...Array(5)].map((_, i) => (
-                                    <Star 
-                                      key={i} 
-                                      className={`h-4 w-4 ${i < activity.details.rating ? 'text-yellow-500 fill-yellow-500' : 'text-gray-300'}`} 
-                                    />
-                                  ))}
-                                </div>
-                                <p className="mt-1 italic">"{activity.details.comment}"</p>
+
+                          {/* Activity metadata */}
+                          {activity.metadata &&
+                            Object.keys(activity.metadata).length > 0 && (
+                              <div className="mt-2 text-xs text-gray-500">
+                                {activity.metadata.price && (
+                                  <span className="inline-block mr-3">
+                                    Amount: R{activity.metadata.price}
+                                  </span>
+                                )}
+                                {activity.metadata.rating && (
+                                  <div className="flex items-center mt-1">
+                                    {[...Array(5)].map((_, i) => (
+                                      <Star
+                                        key={i}
+                                        className={`h-3 w-3 ${i < activity.metadata!.rating! ? "text-yellow-500 fill-yellow-500" : "text-gray-300"}`}
+                                      />
+                                    ))}
+                                  </div>
+                                )}
+                                {activity.metadata.search_query && (
+                                  <span className="inline-block">
+                                    Query: "{activity.metadata.search_query}"
+                                  </span>
+                                )}
                               </div>
                             )}
-                            {activity.type === 'listing' && (
-                              <p>Listed for R{activity.details.price}</p>
-                            )}
-                          </div>
-                          
+
                           <div className="mt-2 flex justify-between items-center">
-                            {activity.details.status && getStatusBadge(activity.details.status)}
-                            
-                            {(activity.type === 'purchase' || activity.type === 'sale') && 
-                              activity.details.status === 'completed' && (
-                              <Button variant="ghost" size="sm" className="text-book-600 hover:text-book-800">
-                                View Details
-                              </Button>
-                            )}
-                            
-                            {activity.type === 'listing' && activity.details.status === 'active' && (
-                              <Button variant="ghost" size="sm" className="text-book-600 hover:text-book-800">
-                                Edit Listing
+                            {getStatusBadge(activity)}
+
+                            {activity.metadata?.book_id && (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="text-book-600 hover:text-book-800"
+                                onClick={() =>
+                                  navigate(
+                                    `/book/${activity.metadata!.book_id}`,
+                                  )
+                                }
+                              >
+                                View Book
                               </Button>
                             )}
                           </div>
@@ -237,7 +396,13 @@ const ActivityLog = () => {
                 </div>
               ) : (
                 <div className="py-12 text-center">
-                  <p className="text-gray-500">No {activeTab === "all" ? "activities" : activeTab} found.</p>
+                  <Clock className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+                  <p className="text-gray-500 mb-4">
+                    No {activeTab === "all" ? "activities" : activeTab} found.
+                  </p>
+                  <p className="text-sm text-gray-400">
+                    Start using ReBooked Solutions to see your activity here!
+                  </p>
                 </div>
               )}
             </TabsContent>

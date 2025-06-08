@@ -1,4 +1,3 @@
-
 import { User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { isAdminUser } from "@/services/admin/adminAuthService";
@@ -91,8 +90,26 @@ export const fetchUserProfile = async (user: User): Promise<Profile | null> => {
       return await createUserProfile(user);
     }
 
-    const isAdmin = await isAdminUser(user.id);
-    console.log("Profile loaded successfully:", profile.name);
+    // Safely check admin status
+    let isAdmin = false;
+    try {
+      console.log("🔍 fetchUserProfile: Checking admin status for:", user.id);
+      isAdmin = await isAdminUser(user.id);
+      console.log("✅ fetchUserProfile: Admin status result:", isAdmin);
+    } catch (adminError) {
+      console.warn(
+        "⚠️ fetchUserProfile: Admin status check failed, defaulting to false",
+      );
+      logError("Admin status check in fetchUserProfile", adminError);
+      isAdmin = false; // Default to non-admin if check fails
+    }
+
+    console.log(
+      "Profile loaded successfully:",
+      profile.name,
+      "isAdmin:",
+      isAdmin,
+    );
 
     return {
       id: profile.id,
@@ -139,7 +156,19 @@ export const createUserProfile = async (user: User): Promise<Profile> => {
 
     console.log("Profile created successfully:", newProfile.name);
 
-    const isAdmin = await isAdminUser(user.id);
+    // Safely check admin status
+    let isAdmin = false;
+    try {
+      console.log("🔍 createUserProfile: Checking admin status for:", user.id);
+      isAdmin = await isAdminUser(user.id);
+      console.log("✅ createUserProfile: Admin status result:", isAdmin);
+    } catch (adminError) {
+      console.warn(
+        "⚠️ createUserProfile: Admin status check failed, defaulting to false",
+      );
+      logError("Admin status check in createUserProfile", adminError);
+      isAdmin = false; // Default to non-admin if check fails
+    }
 
     return {
       id: newProfile.id,
