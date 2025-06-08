@@ -61,9 +61,10 @@ function App() {
 
   return (
     <ErrorBoundary level="app">
-      <AuthProvider>
-        <CartProvider>
-          <Router>
+      <AuthErrorBoundary>
+        <AuthProvider>
+          <CartProvider>
+            <Router>
             <ScrollToTop />
             <OAuthRedirectHandler />
             <div className="min-h-screen bg-gray-50">
