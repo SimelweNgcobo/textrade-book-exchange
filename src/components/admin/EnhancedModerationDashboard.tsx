@@ -14,7 +14,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { RefreshCw } from "lucide-react";
+import { RefreshCw, AlertCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import ReportFilters from "./reports/ReportFilters";
@@ -34,6 +34,7 @@ import {
   ModerationData,
 } from "@/services/admin/moderationDataService";
 import { copyEmailToClipboard } from "@/utils/emailCopyUtils";
+import LoadingSpinner from "@/components/LoadingSpinner";
 
 const EnhancedModerationDashboard = () => {
   const isMobile = useIsMobile();
@@ -43,17 +44,23 @@ const EnhancedModerationDashboard = () => {
     [],
   );
   const [isLoading, setIsLoading] = useState(true);
+  const [isActionLoading, setIsActionLoading] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [retryCount, setRetryCount] = useState(0);
   const [activeTab, setActiveTab] = useState<
     "pending" | "resolved" | "dismissed" | "suspended" | "all"
   >("pending");
   const [actionReason, setActionReason] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const { handleError } = useErrorHandler();
 
   useEffect(() => {
     loadData();
-    setupRealtimeSubscription();
+    // Don't set up realtime subscription immediately to avoid overload
+    const timer = setTimeout(() => {
+      setupRealtimeSubscription();
+    }, 2000);
+
+    return () => clearTimeout(timer);
   }, []);
 
   useEffect(() => {
@@ -61,42 +68,46 @@ const EnhancedModerationDashboard = () => {
   }, [reports, suspendedUsers, activeTab]);
 
   const setupRealtimeSubscription = () => {
-    const reportsChannel = supabase
-      .channel("reports-changes")
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "reports",
-        },
-        () => {
-          console.log("Reports updated, reloading...");
-          loadData();
-        },
-      )
-      .subscribe();
+    try {
+      const reportsChannel = supabase
+        .channel("reports-changes")
+        .on(
+          "postgres_changes",
+          {
+            event: "*",
+            schema: "public",
+            table: "reports",
+          },
+          () => {
+            console.log("Reports updated, reloading...");
+            loadData();
+          },
+        )
+        .subscribe();
 
-    const profilesChannel = supabase
-      .channel("profiles-changes")
-      .on(
-        "postgres_changes",
-        {
-          event: "UPDATE",
-          schema: "public",
-          table: "profiles",
-        },
-        () => {
-          console.log("User profiles updated, reloading...");
-          loadData();
-        },
-      )
-      .subscribe();
+      const profilesChannel = supabase
+        .channel("profiles-changes")
+        .on(
+          "postgres_changes",
+          {
+            event: "UPDATE",
+            schema: "public",
+            table: "profiles",
+          },
+          () => {
+            console.log("User profiles updated, reloading...");
+            loadData();
+          },
+        )
+        .subscribe();
 
-    return () => {
-      supabase.removeChannel(reportsChannel);
-      supabase.removeChannel(profilesChannel);
-    };
+      return () => {
+        supabase.removeChannel(reportsChannel);
+        supabase.removeChannel(profilesChannel);
+      };
+    } catch (error) {
+      console.warn("Failed to set up realtime subscription:", error);
+    }
   };
 
   const loadData = async () => {
@@ -107,6 +118,7 @@ const EnhancedModerationDashboard = () => {
       const data: ModerationData = await loadModerationData();
       setReports(data.reports);
       setSuspendedUsers(data.suspendedUsers);
+      setRetryCount(0); // Reset retry count on success
     } catch (error) {
       const errorMessage =
         error instanceof Error
@@ -114,7 +126,13 @@ const EnhancedModerationDashboard = () => {
           : "Failed to load moderation data";
       console.error("Error loading moderation data:", error);
       setError(errorMessage);
-      handleError(error, "Load Moderation Data");
+
+      // Only show toast for user if not a retry
+      if (retryCount === 0) {
+        handleError(error, "Load Moderation Data");
+      }
+
+      setRetryCount((prev) => prev + 1);
     } finally {
       setIsLoading(false);
     }
@@ -134,12 +152,19 @@ const EnhancedModerationDashboard = () => {
     reportId: string,
     status: "resolved" | "dismissed",
   ) => {
+    if (isActionLoading === reportId) return; // Prevent duplicate actions
+
     try {
+      setIsActionLoading(reportId);
       await updateReportStatus(reportId, status);
       toast.success(`Report ${status} successfully`);
-      loadData();
+      await loadData(); // Reload data after action
     } catch (error) {
+      console.error("Error updating report status:", error);
+      toast.error(`Failed to ${status} report. Please try again.`);
       handleError(error, "Update Report Status");
+    } finally {
+      setIsActionLoading(null);
     }
   };
 
@@ -148,199 +173,274 @@ const EnhancedModerationDashboard = () => {
     action: "ban" | "suspend",
     reason: string,
   ) => {
+    if (isActionLoading === userId) return; // Prevent duplicate actions
+
     try {
-      setIsSubmitting(true);
+      setIsActionLoading(userId);
       await updateUserStatus(userId, action, reason);
-      toast.success(
-        `User ${action === "ban" ? "banned" : "suspended"} successfully`,
-      );
-      setActionReason("");
-      loadData();
+      toast.success(`User ${action}ned successfully`);
+      await loadData(); // Reload data after action
     } catch (error) {
-      handleError(error, `${action} User`);
+      console.error("Error updating user status:", error);
+      toast.error(`Failed to ${action} user. Please try again.`);
+      handleError(error, "User Action");
     } finally {
-      setIsSubmitting(false);
+      setIsActionLoading(null);
     }
   };
 
   const handleUnsuspendUser = async (userId: string) => {
+    if (isActionLoading === userId) return; // Prevent duplicate actions
+
     try {
+      setIsActionLoading(userId);
       await unsuspendUser(userId);
       toast.success("User unsuspended successfully");
-      loadData();
+      await loadData(); // Reload data after action
     } catch (error) {
+      console.error("Error unsuspending user:", error);
+      toast.error("Failed to unsuspend user. Please try again.");
       handleError(error, "Unsuspend User");
+    } finally {
+      setIsActionLoading(null);
     }
   };
 
-  const getSeverityColor = (reportCount: number) => {
-    if (reportCount >= 3) return "bg-red-100 text-red-800";
-    if (reportCount >= 2) return "bg-yellow-100 text-yellow-800";
-    return "bg-blue-100 text-blue-800";
-  };
-
-  const getSeverityText = (reportCount: number) => {
-    if (reportCount >= 3) return "High";
-    if (reportCount >= 2) return "Medium";
-    return "Low";
-  };
-
-  if (error) {
+  // Show error state with retry option
+  if (error && retryCount > 0) {
     return (
-      <ErrorFallback
-        error={new Error(error)}
-        resetError={() => {
-          setError(null);
-          loadData();
-        }}
-        title="Moderation Dashboard Error"
-        description="Failed to load moderation data. Please try again."
-      />
-    );
-  }
-
-  if (isLoading) {
-    return (
-      <Card>
-        <CardContent className="p-6">
-          <div className="flex items-center justify-center space-x-2">
-            <RefreshCw className="h-6 w-6 animate-spin text-book-600" />
-            <span>Loading moderation data...</span>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  return (
-    <div className="space-y-4 md:space-y-6">
-      {/* Header */}
-      <div className="flex flex-col gap-3 md:flex-row md:justify-between md:items-center md:gap-4">
+      <div className="flex flex-col items-center justify-center p-8 text-center space-y-4">
+        <AlertCircle className="h-12 w-12 text-red-500" />
         <div>
-          <h1 className="text-xl md:text-2xl font-bold text-gray-900">
-            Enhanced Moderation Dashboard
-          </h1>
-          <p className="text-sm md:text-base text-gray-600 mt-1">
-            Manage user reports and moderation actions with real-time
-            notifications
-          </p>
+          <h3 className="text-lg font-semibold text-gray-900">
+            Unable to Load Reports
+          </h3>
+          <p className="text-sm text-gray-600 mt-1">{error}</p>
         </div>
-        <Button
-          onClick={loadData}
-          disabled={isLoading}
-          variant="outline"
-          size={isMobile ? "sm" : "default"}
-          className="self-start md:self-auto"
-        >
-          <RefreshCw
-            className={`h-4 w-4 mr-2 ${isLoading ? "animate-spin" : ""}`}
-          />
-          Refresh Data
+        <Button onClick={loadData} variant="outline" className="mt-4">
+          <RefreshCw className="h-4 w-4 mr-2" />
+          Try Again
         </Button>
       </div>
+    );
+  }
 
-      {/* Filters */}
-      <ReportFilters
-        activeTab={activeTab}
-        setActiveTab={setActiveTab}
-        reportCounts={{
-          pending: reports.filter((r) => r.status === "pending").length,
-          resolved: reports.filter((r) => r.status === "resolved").length,
-          dismissed: reports.filter((r) => r.status === "dismissed").length,
-          suspended: suspendedUsers.length,
-          all: reports.length,
-        }}
-      />
+  // Show loading state
+  if (isLoading && reports.length === 0) {
+    return (
+      <div className="flex items-center justify-center p-8">
+        <LoadingSpinner size="lg" text="Loading moderation data..." />
+      </div>
+    );
+  }
 
-      {/* Main Content */}
+  const stats = {
+    pending: reports.filter((r) => r.status === "pending").length,
+    resolved: reports.filter((r) => r.status === "resolved").length,
+    dismissed: reports.filter((r) => r.status === "dismissed").length,
+    suspended: suspendedUsers.length,
+    total: reports.length,
+  };
+
+  return (
+    <div className={`space-y-4 ${isMobile ? "px-2" : ""}`}>
+      {/* Mobile-optimized stats cards */}
+      <div
+        className={`grid ${isMobile ? "grid-cols-2 gap-2" : "grid-cols-5 gap-4"}`}
+      >
+        <Card className={isMobile ? "p-2" : ""}>
+          <CardHeader className={`${isMobile ? "pb-2 px-2 pt-2" : "pb-2"}`}>
+            <CardTitle
+              className={`${isMobile ? "text-xs" : "text-sm"} font-medium text-gray-600`}
+            >
+              Pending
+            </CardTitle>
+          </CardHeader>
+          <CardContent className={isMobile ? "px-2 pb-2" : "pt-0"}>
+            <div
+              className={`${isMobile ? "text-lg" : "text-2xl"} font-bold text-orange-600`}
+            >
+              {stats.pending}
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className={isMobile ? "p-2" : ""}>
+          <CardHeader className={`${isMobile ? "pb-2 px-2 pt-2" : "pb-2"}`}>
+            <CardTitle
+              className={`${isMobile ? "text-xs" : "text-sm"} font-medium text-gray-600`}
+            >
+              Resolved
+            </CardTitle>
+          </CardHeader>
+          <CardContent className={isMobile ? "px-2 pb-2" : "pt-0"}>
+            <div
+              className={`${isMobile ? "text-lg" : "text-2xl"} font-bold text-green-600`}
+            >
+              {stats.resolved}
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className={isMobile ? "p-2" : ""}>
+          <CardHeader className={`${isMobile ? "pb-2 px-2 pt-2" : "pb-2"}`}>
+            <CardTitle
+              className={`${isMobile ? "text-xs" : "text-sm"} font-medium text-gray-600`}
+            >
+              Dismissed
+            </CardTitle>
+          </CardHeader>
+          <CardContent className={isMobile ? "px-2 pb-2" : "pt-0"}>
+            <div
+              className={`${isMobile ? "text-lg" : "text-2xl"} font-bold text-gray-600`}
+            >
+              {stats.dismissed}
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className={isMobile ? "p-2" : ""}>
+          <CardHeader className={`${isMobile ? "pb-2 px-2 pt-2" : "pb-2"}`}>
+            <CardTitle
+              className={`${isMobile ? "text-xs" : "text-sm"} font-medium text-gray-600`}
+            >
+              Suspended
+            </CardTitle>
+          </CardHeader>
+          <CardContent className={isMobile ? "px-2 pb-2" : "pt-0"}>
+            <div
+              className={`${isMobile ? "text-lg" : "text-2xl"} font-bold text-red-600`}
+            >
+              {stats.suspended}
+            </div>
+          </CardContent>
+        </Card>
+
+        {!isMobile && (
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-gray-600">
+                Total Reports
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="pt-0">
+              <div className="text-2xl font-bold text-blue-600">
+                {stats.total}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+      </div>
+
+      {/* Filters and Actions */}
       <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="flex items-center gap-2 text-lg">
-            {activeTab === "suspended" ? "Suspended/Banned Users" : "Reports"}
-          </CardTitle>
-          <CardDescription className="text-sm">
-            {activeTab === "suspended"
-              ? "Manage suspended and banned user accounts"
-              : `${filteredData.length} ${activeTab} reports`}
-          </CardDescription>
+        <CardHeader className={isMobile ? "p-4" : ""}>
+          <div
+            className={`flex ${isMobile ? "flex-col space-y-2" : "flex-row items-center justify-between"}`}
+          >
+            <div>
+              <CardTitle className={isMobile ? "text-lg" : "text-xl"}>
+                Moderation Dashboard
+              </CardTitle>
+              <CardDescription className={isMobile ? "text-sm" : ""}>
+                Manage reports and user moderation
+              </CardDescription>
+            </div>
+            <Button
+              onClick={loadData}
+              variant="outline"
+              size={isMobile ? "sm" : "default"}
+              disabled={isLoading}
+              className={isMobile ? "w-full" : ""}
+            >
+              <RefreshCw
+                className={`h-4 w-4 mr-2 ${isLoading ? "animate-spin" : ""}`}
+              />
+              Refresh
+            </Button>
+          </div>
         </CardHeader>
-        <CardContent className="p-3 md:p-6">
+        <CardContent className={isMobile ? "p-4 pt-0" : ""}>
+          <ReportFilters
+            activeTab={activeTab}
+            onTabChange={setActiveTab}
+            isMobile={isMobile}
+          />
+        </CardContent>
+      </Card>
+
+      {/* Results */}
+      <Card>
+        <CardContent className={isMobile ? "p-2" : "p-6"}>
           {filteredData.length === 0 ? (
             <div className="text-center py-8">
               <p className="text-gray-500">
-                No {activeTab === "suspended" ? "suspended users" : "reports"}{" "}
-                found
+                No{" "}
+                {activeTab === "suspended"
+                  ? "suspended users"
+                  : `${activeTab} reports`}{" "}
+                found.
               </p>
             </div>
+          ) : isMobile ? (
+            // Mobile card view
+            <div className="space-y-3">
+              {filteredData.map((item) => (
+                <ModerationReportCard
+                  key={item.id}
+                  data={item}
+                  isReport={activeTab !== "suspended"}
+                  onUpdateStatus={handleUpdateReportStatus}
+                  onUserAction={handleUserAction}
+                  onUnsuspendUser={handleUnsuspendUser}
+                  onCopyEmail={copyEmailToClipboard}
+                  isLoading={isActionLoading === item.id}
+                />
+              ))}
+            </div>
           ) : (
-            <>
-              {isMobile ? (
-                <div className="space-y-3">
+            // Desktop table view
+            <ScrollArea className="h-[600px]">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    {activeTab === "suspended" ? (
+                      <>
+                        <TableHead>User</TableHead>
+                        <TableHead>Email</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead>Suspended</TableHead>
+                        <TableHead>Reason</TableHead>
+                        <TableHead>Actions</TableHead>
+                      </>
+                    ) : (
+                      <>
+                        <TableHead>Book</TableHead>
+                        <TableHead>Seller</TableHead>
+                        <TableHead>Reason</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead>Reported</TableHead>
+                        <TableHead>Actions</TableHead>
+                      </>
+                    )}
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
                   {filteredData.map((item) => (
-                    <ModerationReportCard
-                      key={
-                        activeTab === "suspended"
-                          ? (item as SuspendedUser).id
-                          : (item as Report).id
-                      }
-                      item={item}
-                      activeTab={activeTab}
-                      reports={reports}
-                      actionReason={actionReason}
-                      setActionReason={setActionReason}
-                      isSubmitting={isSubmitting}
+                    <ModerationTableRow
+                      key={item.id}
+                      data={item}
+                      isReport={activeTab !== "suspended"}
                       onUpdateStatus={handleUpdateReportStatus}
                       onUserAction={handleUserAction}
                       onUnsuspendUser={handleUnsuspendUser}
-                      getSeverityColor={getSeverityColor}
-                      getSeverityText={getSeverityText}
+                      onCopyEmail={copyEmailToClipboard}
+                      isLoading={isActionLoading === item.id}
                     />
                   ))}
-                </div>
-              ) : (
-                <div className="overflow-x-auto">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead className="w-[100px]">Type</TableHead>
-                        <TableHead className="w-[150px]">Entity</TableHead>
-                        <TableHead className="min-w-[200px]">
-                          {activeTab === "suspended" ? "Reason" : "Reason"}
-                        </TableHead>
-                        <TableHead className="w-[150px]">
-                          {activeTab === "suspended" ? "Suspended" : "Reporter"}
-                        </TableHead>
-                        <TableHead className="w-[120px]">Date</TableHead>
-                        <TableHead className="w-[100px]">Severity</TableHead>
-                        <TableHead className="w-[250px]">Actions</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {filteredData.map((item) => (
-                        <ModerationTableRow
-                          key={
-                            activeTab === "suspended"
-                              ? (item as SuspendedUser).id
-                              : (item as Report).id
-                          }
-                          item={item}
-                          activeTab={activeTab}
-                          reports={reports}
-                          actionReason={actionReason}
-                          setActionReason={setActionReason}
-                          isSubmitting={isSubmitting}
-                          onUpdateStatus={handleUpdateReportStatus}
-                          onUserAction={handleUserAction}
-                          onUnsuspendUser={handleUnsuspendUser}
-                          getSeverityColor={getSeverityColor}
-                          getSeverityText={getSeverityText}
-                        />
-                      ))}
-                    </TableBody>
-                  </Table>
-                </div>
-              )}
-            </>
+                </TableBody>
+              </Table>
+            </ScrollArea>
           )}
         </CardContent>
       </Card>
