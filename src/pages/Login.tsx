@@ -6,15 +6,27 @@ import Layout from "@/components/Layout";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "sonner";
-import { Mail, Lock, Loader2 } from "lucide-react";
-import LoginErrorHandler from "@/components/LoginErrorHandler";
+import {
+  Mail,
+  Lock,
+  Loader2,
+  AlertCircle,
+  Key,
+  UserPlus,
+  RefreshCw,
+} from "lucide-react";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [loginError, setLoginError] = useState<any>(null);
+  const [loginError, setLoginError] = useState<string | null>(null);
+  const [errorType, setErrorType] = useState<
+    "verify_email" | "register" | "reset_password" | "general" | null
+  >(null);
   const { login, isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -34,17 +46,48 @@ const Login = () => {
     }
   }, [location.state]);
 
-  // Redirect if already authenticated - moved to useEffect to avoid setState during render
+  // Redirect if already authenticated
   useEffect(() => {
     if (isAuthenticated) {
       navigate("/", { replace: true });
     }
   }, [isAuthenticated, navigate]);
 
+  const handleResendVerification = async () => {
+    if (!email.trim()) {
+      toast.error("Please enter your email address first");
+      return;
+    }
+
+    try {
+      const { supabase } = await import("@/integrations/supabase/client");
+      const { error } = await supabase.auth.resend({
+        type: "signup",
+        email: email.trim(),
+        options: {
+          emailRedirectTo: `${window.location.origin}/verify`,
+        },
+      });
+
+      if (error) {
+        toast.error(`Failed to resend verification email: ${error.message}`);
+      } else {
+        toast.success(
+          "Verification email sent! Please check your inbox and spam folder.",
+        );
+        setLoginError(null);
+        setErrorType(null);
+      }
+    } catch (error) {
+      toast.error("Failed to resend verification email");
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    setLoginError(null); // Clear previous errors
+    setLoginError(null);
+    setErrorType(null);
 
     try {
       if (!email.trim() || !password.trim()) {
@@ -58,58 +101,180 @@ const Login = () => {
     } catch (error: any) {
       console.error("Login error in component:", error);
 
-      // Create a simplified error object for display
-      const displayError = {
-        message: error?.message || "Login failed",
-        loginResult: {
-          success: false,
-          message: error?.message || "Login failed. Please try again.",
-          actionRequired:
-            error?.message?.includes("verification") ||
-            error?.message?.includes("verified")
-              ? "verify_email"
-              : error?.message?.includes("No account") ||
-                  error?.message?.includes("not found")
-                ? "register"
-                : "reset_password",
-          userExists: !error?.message?.includes("No account"),
-          requiresVerification:
-            error?.message?.includes("verification") ||
-            error?.message?.includes("verified"),
-        },
-      };
+      const errorMessage = error?.message || "Login failed";
+      setLoginError(errorMessage);
 
-      setLoginError(displayError);
+      // Determine error type for better UX
+      if (
+        errorMessage.includes("verification") ||
+        errorMessage.includes("verified")
+      ) {
+        setErrorType("verify_email");
+      } else if (
+        errorMessage.includes("No account") ||
+        errorMessage.includes("not found")
+      ) {
+        setErrorType("register");
+      } else if (
+        errorMessage.includes("password") ||
+        errorMessage.includes("credentials")
+      ) {
+        setErrorType("reset_password");
+      } else {
+        setErrorType("general");
+      }
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleRetry = () => {
-    setLoginError(null);
-    // Focus on password field for retry
-    setTimeout(() => {
-      const passwordInput = document.getElementById("password");
-      if (passwordInput) {
-        passwordInput.focus();
+  const renderErrorCard = () => {
+    if (!loginError) return null;
+
+    const getErrorIcon = () => {
+      switch (errorType) {
+        case "verify_email":
+          return <Mail className="h-5 w-5 text-orange-500" />;
+        case "reset_password":
+          return <Key className="h-5 w-5 text-yellow-500" />;
+        case "register":
+          return <UserPlus className="h-5 w-5 text-blue-500" />;
+        default:
+          return <AlertCircle className="h-5 w-5 text-red-500" />;
       }
-    }, 100);
+    };
+
+    const getErrorTitle = () => {
+      switch (errorType) {
+        case "verify_email":
+          return "Email Verification Required";
+        case "reset_password":
+          return "Password Issue";
+        case "register":
+          return "Account Not Found";
+        default:
+          return "Login Failed";
+      }
+    };
+
+    return (
+      <Card className="mb-6 border-red-200 bg-red-50">
+        <CardContent className="p-4">
+          <Alert>
+            <div className="flex items-start space-x-3">
+              {getErrorIcon()}
+              <div className="flex-1">
+                <h4 className="font-semibold text-gray-900 mb-2">
+                  {getErrorTitle()}
+                </h4>
+                <AlertDescription className="text-gray-700 mb-4">
+                  {loginError}
+                </AlertDescription>
+
+                {errorType === "verify_email" && (
+                  <div className="mb-4 p-3 bg-orange-50 border border-orange-200 rounded-lg">
+                    <div className="text-sm text-orange-800">
+                      <p className="font-medium mb-2">
+                        📧 Email Verification Steps:
+                      </p>
+                      <ol className="list-decimal list-inside space-y-1">
+                        <li>
+                          Check your inbox for an email from ReBooked Solutions
+                        </li>
+                        <li>If not found, check your spam/junk folder</li>
+                        <li>Click the verification link in the email</li>
+                        <li>Return here to log in</li>
+                      </ol>
+                    </div>
+                  </div>
+                )}
+
+                {errorType === "register" && (
+                  <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                    <div className="text-sm text-blue-800">
+                      <p className="font-medium mb-1">💡 Account Not Found</p>
+                      <p>
+                        No account exists with the email:{" "}
+                        <strong>{email}</strong>
+                      </p>
+                      <p>
+                        Please check the email address or create a new account.
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                <div className="space-y-2">
+                  {errorType === "verify_email" && (
+                    <Button
+                      onClick={handleResendVerification}
+                      className="w-full"
+                      variant="default"
+                    >
+                      <Mail className="h-4 w-4 mr-2" />
+                      Resend Verification Email
+                    </Button>
+                  )}
+
+                  {errorType === "reset_password" && (
+                    <Button
+                      onClick={() =>
+                        navigate("/forgot-password", { state: { email } })
+                      }
+                      className="w-full"
+                      variant="default"
+                    >
+                      <Key className="h-4 w-4 mr-2" />
+                      Reset Password
+                    </Button>
+                  )}
+
+                  {errorType === "register" && (
+                    <Button
+                      onClick={() =>
+                        navigate("/register", { state: { email } })
+                      }
+                      className="w-full"
+                      variant="default"
+                    >
+                      <UserPlus className="h-4 w-4 mr-2" />
+                      Create Account
+                    </Button>
+                  )}
+
+                  <Button
+                    onClick={() => {
+                      setLoginError(null);
+                      setErrorType(null);
+                      // Focus on password field for retry
+                      setTimeout(() => {
+                        const passwordInput =
+                          document.getElementById("password");
+                        if (passwordInput) {
+                          passwordInput.focus();
+                        }
+                      }, 100);
+                    }}
+                    variant="outline"
+                    className="w-full"
+                  >
+                    <RefreshCw className="h-4 w-4 mr-2" />
+                    Try Again
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </Alert>
+        </CardContent>
+      </Card>
+    );
   };
 
   return (
     <Layout>
       <div className="min-h-[80vh] flex items-center justify-center px-4">
         <div className="w-full max-w-md">
-          {loginError && (
-            <div className="mb-6">
-              <LoginErrorHandler
-                error={loginError}
-                email={email}
-                onRetry={handleRetry}
-                onClearError={() => setLoginError(null)}
-              />
-            </div>
-          )}
+          {renderErrorCard()}
 
           <div className="bg-white rounded-lg shadow-lg overflow-hidden">
             <div className="p-6 sm:p-8">
@@ -132,6 +297,7 @@ const Login = () => {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       required
+                      disabled={isLoading}
                     />
                   </div>
                 </div>
@@ -158,6 +324,7 @@ const Login = () => {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       required
+                      disabled={isLoading}
                     />
                   </div>
                 </div>
