@@ -14,6 +14,7 @@ import {
   addEmergencyResetButton,
   monitorLoadingStates,
 } from "./utils/emergencyLoadingReset";
+import LoadingStateMonitor from "./components/LoadingStateMonitor";
 
 // Pages
 import Index from "./pages/Index";
