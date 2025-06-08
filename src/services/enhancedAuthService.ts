@@ -58,34 +58,13 @@ export class EnhancedAuthService {
 
       console.log("✅ User found in profiles table");
 
-      // Try to get auth user info (this will only work if email is confirmed)
-      const { data: authUsers, error: authError } =
-        await supabase.auth.admin?.listUsers();
-
-      if (authError) {
-        console.log(
-          "⚠️ Cannot check auth users directly, assuming user exists but may not be confirmed",
-        );
-        return {
-          userExists: true,
-          emailConfirmed: false, // We assume not confirmed if we can't verify
-        };
-      }
-
-      // Check if user exists in auth and is confirmed
-      const authUser = authUsers.users?.find((user) => user.email === email);
-      const emailConfirmed = authUser?.email_confirmed_at !== null;
-
-      console.log(
-        "🔍 Auth user found:",
-        !!authUser,
-        "Email confirmed:",
-        emailConfirmed,
-      );
-
+      // Since we can't access admin functions from the client side,
+      // we'll make an educated guess based on the login attempt
+      // If user exists in profiles but login fails with invalid credentials,
+      // it's likely an unverified email or wrong password
       return {
-        userExists: !!authUser,
-        emailConfirmed,
+        userExists: true,
+        emailConfirmed: false, // We'll determine this from the login attempt
       };
     } catch (error) {
       logError("Error checking user verification status", error);
