@@ -159,23 +159,52 @@ function AuthProvider({ children }: { children: ReactNode }) {
   const login = useCallback(async (email: string, password: string) => {
     try {
       setIsLoading(true);
-      await loginUser(email, password);
-      toast.success("Login successful!");
-    } catch (error: unknown) {
-      logError("Login failed", error);
 
-      let errorMessage = "Login failed. Please try again.";
-      const errorMsg = getErrorMessage(error);
+      // Use enhanced authentication service
+      const result = await EnhancedAuthService.enhancedLogin(email, password);
 
-      if (errorMsg.includes("Invalid login credentials")) {
-        errorMessage =
-          "Invalid email or password. Please check your credentials.";
-      } else if (errorMsg.includes("Email not confirmed")) {
-        errorMessage =
-          "Please check your email and click the confirmation link.";
+      if (result.success) {
+        toast.success(result.message);
+        return result;
+      } else {
+        // Enhanced error handling with specific guidance
+        logError("Login failed", result.error);
+
+        // Show the enhanced error message
+        toast.error(result.message);
+
+        // Add specific guidance based on the error type
+        if (result.actionRequired === "verify_email") {
+          // Show additional toast with verification guidance
+          setTimeout(() => {
+            toast.info(
+              "💡 Tip: Check your spam/junk folder for the verification email",
+              {
+                duration: 5000,
+              },
+            );
+          }, 2000);
+        } else if (result.actionRequired === "register") {
+          setTimeout(() => {
+            toast.info(
+              "💡 Tip: Make sure you're using the correct email address",
+              {
+                duration: 5000,
+              },
+            );
+          }, 2000);
+        }
+
+        // Throw an enhanced error object that includes the result details
+        const enhancedError = new Error(result.message);
+        (enhancedError as any).loginResult = result;
+        throw enhancedError;
       }
-
-      toast.error(errorMessage);
+    } catch (error: unknown) {
+      // If it's not already an enhanced error, log it
+      if (!(error as any).loginResult) {
+        logError("Login failed with exception", error);
+      }
       throw error;
     } finally {
       setIsLoading(false);
