@@ -183,7 +183,6 @@ function App() {
               </div>
               <Toaster />
               <OAuthDebugInfo />
-              {process.env.NODE_ENV === "development" && <AuthStateDebug />}
             </Router>
           </CartProvider>
         </AuthProvider>
