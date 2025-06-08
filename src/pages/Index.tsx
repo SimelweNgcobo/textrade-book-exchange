@@ -97,7 +97,11 @@ const Index = () => {
             <img
               src="/lovable-uploads/bd1bff70-5398-480d-ab05-1a01e839c2d0.png"
               alt="Students reading colorful books"
+              width="600"
+              height="400"
               className="rounded-lg shadow-xl max-w-full h-auto"
+              loading="eager"
+              decoding="sync"
             />
           </div>
         </div>
@@ -198,10 +202,13 @@ const Index = () => {
                     <img
                       src={book.imageUrl}
                       alt={book.title}
+                      width="400"
+                      height="300"
                       className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+                      loading="lazy"
+                      decoding="async"
                       onError={(e) => {
-                        const target = e.target as HTMLImageElement;
-                        target.src =
+                        e.currentTarget.src =
                           "https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=400&h=300&fit=crop&auto=format&q=80";
                       }}
                     />

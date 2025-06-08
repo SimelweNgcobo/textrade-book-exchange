@@ -93,7 +93,11 @@ const BookGrid = ({ books, isLoading, onClearFilters }: BookGridProps) => {
                     <img
                       src={book.imageUrl}
                       alt={book.title}
+                      width="400"
+                      height="300"
                       className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+                      loading="lazy"
+                      decoding="async"
                       onError={(e) => {
                         console.log("Image failed to load for book:", book.id);
                         e.currentTarget.src =
@@ -158,7 +162,11 @@ const BookGrid = ({ books, isLoading, onClearFilters }: BookGridProps) => {
                     <img
                       src={book.imageUrl}
                       alt={book.title}
+                      width="400"
+                      height="300"
                       className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+                      loading="lazy"
+                      decoding="async"
                       onError={(e) => {
                         console.log("Image failed to load for book:", book.id);
                         e.currentTarget.src =

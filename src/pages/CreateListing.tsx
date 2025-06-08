@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { createBook } from "@/services/book/bookMutations";
 import { BookFormData } from "@/types/book";
 import { toast } from "sonner";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Loader2 } from "lucide-react";
 import MultiImageUpload from "@/components/MultiImageUpload";
 import FirstUploadSuccessDialog from "@/components/FirstUploadSuccessDialog";
 import PostListingSuccessDialog from "@/components/PostListingSuccessDialog";
@@ -19,10 +19,12 @@ import {
 import { BookInformationForm } from "@/components/create-listing/BookInformationForm";
 import { PricingSection } from "@/components/create-listing/PricingSection";
 import { BookTypeSection } from "@/components/create-listing/BookTypeSection";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const CreateListing = () => {
   const { user, profile } = useAuth();
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
 
   const [formData, setFormData] = useState<BookFormData>({
     title: "",
@@ -33,7 +35,6 @@ const CreateListing = () => {
     category: "",
     grade: "",
     universityYear: "",
-    university: "",
     imageUrl: "",
     frontCover: "",
     backCover: "",
@@ -57,11 +58,21 @@ const CreateListing = () => {
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     const { name, value } = e.target;
+
+    let processedValue: string | number = value;
+
+    if (name === "price") {
+      // Handle price input more carefully
+      const numericValue = parseFloat(value);
+      processedValue = isNaN(numericValue) ? 0 : numericValue;
+    }
+
     setFormData({
       ...formData,
-      [name]: name === "price" ? parseFloat(value) || 0 : value,
+      [name]: processedValue,
     });
 
+    // Clear errors when user starts typing
     if (errors[name]) {
       setErrors({ ...errors, [name]: "" });
     }
@@ -105,10 +116,6 @@ const CreateListing = () => {
         "University year is required for university books";
     }
 
-    if (bookType === "university" && !formData.university) {
-      newErrors.university = "University is required for university books";
-    }
-
     if (!bookImages.frontCover)
       newErrors.frontCover = "Front cover photo is required";
     if (!bookImages.backCover)
@@ -131,12 +138,16 @@ const CreateListing = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    console.log("Form submission started");
-    console.log("Current form data:", formData);
-    console.log("Current book images:", bookImages);
+    // Prevent double submission
+    if (isSubmitting) return;
 
     if (!validateForm()) {
-      toast.error("Please fill in all required fields");
+      const firstErrorField = Object.keys(errors)[0];
+      if (firstErrorField) {
+        const element = document.getElementById(firstErrorField);
+        element?.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+      toast.error("Please fill in all required fields and upload all photos");
       return;
     }
 
@@ -155,27 +166,37 @@ const CreateListing = () => {
         insidePages: bookImages.insidePages,
       };
 
-      console.log("Creating book with complete data:", bookData);
-
-      // Validate that all required images are present
+      // Additional validation for images
       if (
         !bookData.frontCover ||
         !bookData.backCover ||
         !bookData.insidePages
       ) {
-        throw new Error("All three book photos are required");
+        throw new Error(
+          "All three book photos are required. Please upload front cover, back cover, and inside pages photos.",
+        );
+      }
+
+      // Validate price
+      if (!bookData.price || bookData.price <= 0) {
+        throw new Error("Please enter a valid price greater than R0");
       }
 
       const createdBook = await createBook(bookData);
+      toast.success("Book listing created successfully! 🎉");
 
-      console.log("Book created successfully:", createdBook);
-      toast.success("Book listing created successfully!");
-
-      const hasCompleted = await hasCompletedFirstUpload(user.id);
-      if (!hasCompleted) {
-        await markFirstUploadCompleted(user.id);
-        setShowFirstUploadDialog(true);
-      } else {
+      // Handle first upload workflow
+      try {
+        const hasCompleted = await hasCompletedFirstUpload(user.id);
+        if (!hasCompleted) {
+          await markFirstUploadCompleted(user.id);
+          setShowFirstUploadDialog(true);
+        } else {
+          setShowPostListingDialog(true);
+        }
+      } catch (prefError) {
+        // Don't fail the whole process if preference tracking fails
+        console.warn("Could not track first upload preference:", prefError);
         setShowPostListingDialog(true);
       }
 
@@ -206,8 +227,9 @@ const CreateListing = () => {
     } catch (error) {
       console.error("Error creating listing:", error);
       const errorMessage =
-        error instanceof Error ? error.message : "Failed to create listing";
-      console.error("Detailed error:", errorMessage);
+        error instanceof Error
+          ? error.message
+          : "Failed to create listing. Please try again.";
       toast.error(errorMessage);
     } finally {
       setIsSubmitting(false);
@@ -227,30 +249,41 @@ const CreateListing = () => {
 
   return (
     <Layout>
-      <div className="container mx-auto px-4 py-8 max-w-2xl">
+      <div
+        className={`container mx-auto ${isMobile ? "px-2" : "px-4"} py-4 md:py-8 max-w-2xl`}
+      >
         <Button
           variant="ghost"
           onClick={() => navigate(-1)}
-          className="mb-6 text-book-600 hover:text-book-700"
+          className={`mb-4 md:mb-6 text-book-600 hover:text-book-700 ${isMobile ? "h-10" : ""}`}
         >
           <ArrowLeft className="mr-2 h-4 w-4" />
-          Back
+          {isMobile ? "" : "Back"}
         </Button>
 
-        <div className="bg-white rounded-lg shadow-md p-8">
-          <h1 className="text-3xl font-bold text-book-800 mb-6 text-center">
+        <div
+          className={`bg-white rounded-lg shadow-md ${isMobile ? "p-4" : "p-8"}`}
+        >
+          <h1
+            className={`${isMobile ? "text-xl" : "text-3xl"} font-bold text-book-800 mb-6 text-center`}
+          >
             Create New Listing
           </h1>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <form
+            onSubmit={handleSubmit}
+            className={`space-y-${isMobile ? "4" : "6"}`}
+          >
+            <div
+              className={`grid grid-cols-1 ${isMobile ? "gap-4" : "md:grid-cols-2 gap-6"}`}
+            >
               <BookInformationForm
                 formData={formData}
                 errors={errors}
                 onInputChange={handleInputChange}
               />
 
-              <div className="space-y-4">
+              <div className={`space-y-${isMobile ? "3" : "4"}`}>
                 <PricingSection
                   formData={formData}
                   errors={errors}
@@ -281,13 +314,25 @@ const CreateListing = () => {
                 errors.insidePages) && (
                 <div className="mt-2 space-y-1">
                   {errors.frontCover && (
-                    <p className="text-sm text-red-500">{errors.frontCover}</p>
+                    <p
+                      className={`${isMobile ? "text-xs" : "text-sm"} text-red-500`}
+                    >
+                      {errors.frontCover}
+                    </p>
                   )}
                   {errors.backCover && (
-                    <p className="text-sm text-red-500">{errors.backCover}</p>
+                    <p
+                      className={`${isMobile ? "text-xs" : "text-sm"} text-red-500`}
+                    >
+                      {errors.backCover}
+                    </p>
                   )}
                   {errors.insidePages && (
-                    <p className="text-sm text-red-500">{errors.insidePages}</p>
+                    <p
+                      className={`${isMobile ? "text-xs" : "text-sm"} text-red-500`}
+                    >
+                      {errors.insidePages}
+                    </p>
                   )}
                 </div>
               )}
@@ -296,9 +341,16 @@ const CreateListing = () => {
             <Button
               type="submit"
               disabled={isSubmitting}
-              className="w-full bg-book-600 hover:bg-book-700 text-white py-3 text-lg"
+              className={`w-full bg-book-600 hover:bg-book-700 text-white ${isMobile ? "py-3 h-12 text-base" : "py-3 text-lg"} touch-manipulation`}
             >
-              {isSubmitting ? "Creating Listing..." : "Create Listing"}
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Creating Listing...
+                </>
+              ) : (
+                "Create Listing"
+              )}
             </Button>
           </form>
         </div>

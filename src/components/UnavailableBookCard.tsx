@@ -41,7 +41,11 @@ const UnavailableBookCard = ({
         <img
           src={book.frontCover || book.imageUrl || "/placeholder.svg"}
           alt={book.title}
+          width="300"
+          height="192"
           className="w-full h-48 object-cover"
+          loading="lazy"
+          decoding="async"
         />
         {isOwnProfile && (
           <div className="absolute top-2 right-2 flex gap-2">

@@ -5,6 +5,7 @@ import {
   calculateCommission,
   calculateSellerReceives,
 } from "@/services/book/bookUtils";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface PricingSectionProps {
   formData: BookFormData;
@@ -19,37 +20,117 @@ export const PricingSection = ({
   errors,
   onInputChange,
 }: PricingSectionProps) => {
+  const isMobile = useIsMobile();
   const commission = calculateCommission(formData.price);
   const sellerReceives = calculateSellerReceives(formData.price);
 
+  const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let value = e.target.value;
+
+    // Remove any leading zeros except for decimal cases like "0.50"
+    if (value.length > 1 && value.startsWith("0") && !value.startsWith("0.")) {
+      value = value.substring(1);
+    }
+
+    // Create a modified event with the cleaned value
+    const modifiedEvent = {
+      ...e,
+      target: {
+        ...e.target,
+        value: value,
+        name: "price",
+      },
+    };
+
+    onInputChange(modifiedEvent);
+  };
+
+  const handlePriceFocus = (e: React.FocusEvent<HTMLInputElement>) => {
+    // Clear the field if it's 0 to make it easier to type
+    if (e.target.value === "0") {
+      const modifiedEvent = {
+        target: {
+          value: "",
+          name: "price",
+        },
+      } as React.ChangeEvent<HTMLInputElement>;
+      onInputChange(modifiedEvent);
+    }
+  };
+
+  const handlePriceBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    // If the field is empty on blur, set it back to 0
+    if (e.target.value === "") {
+      const modifiedEvent = {
+        target: {
+          value: "0",
+          name: "price",
+        },
+      } as React.ChangeEvent<HTMLInputElement>;
+      onInputChange(modifiedEvent);
+    }
+  };
+
   return (
     <div>
-      <Label htmlFor="price" className="text-base font-medium">
+      <Label
+        htmlFor="price"
+        className={`${isMobile ? "text-sm" : "text-base"} font-medium`}
+      >
         Price (R) <span className="text-red-500">*</span>
       </Label>
-      <Input
-        id="price"
-        name="price"
-        type="number"
-        value={formData.price}
-        onChange={onInputChange}
-        placeholder="0"
-        min="0"
-        step="0.01"
-        className={errors.price ? "border-red-500" : ""}
-        required
-      />
+      <div className="relative">
+        <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 pointer-events-none">
+          R
+        </span>
+        <Input
+          id="price"
+          name="price"
+          type="number"
+          inputMode="decimal"
+          value={formData.price === 0 ? "" : formData.price.toString()}
+          onChange={handlePriceChange}
+          onFocus={handlePriceFocus}
+          onBlur={handlePriceBlur}
+          placeholder="0.00"
+          min="0"
+          step="0.01"
+          className={`pl-8 ${errors.price ? "border-red-500" : ""} ${isMobile ? "h-12 text-base" : ""}`}
+          style={{ fontSize: isMobile ? "16px" : undefined }} // Prevents zoom on iOS
+          required
+        />
+      </div>
       {errors.price && (
-        <p className="text-sm text-red-500 mt-1">{errors.price}</p>
+        <p className={`${isMobile ? "text-xs" : "text-sm"} text-red-500 mt-1`}>
+          {errors.price}
+        </p>
       )}
 
       {formData.price > 0 && (
-        <div className="mt-2 p-3 bg-gray-50 rounded">
-          <p className="text-sm text-gray-600">
-            Commission (10%): R{commission.toFixed(2)}
-          </p>
-          <p className="text-sm font-medium text-green-600">
-            You receive: R{sellerReceives.toFixed(2)}
+        <div
+          className={`mt-3 p-3 bg-gray-50 rounded-lg border ${isMobile ? "text-sm" : ""}`}
+        >
+          <div className="space-y-1">
+            <div className="flex justify-between">
+              <span className="text-gray-600">Book price:</span>
+              <span className="font-medium">R{formData.price.toFixed(2)}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-gray-600">Commission (10%):</span>
+              <span className="text-red-600">-R{commission.toFixed(2)}</span>
+            </div>
+            <div className="border-t pt-1 flex justify-between">
+              <span className="font-medium text-green-700">You receive:</span>
+              <span className="font-bold text-green-700">
+                R{sellerReceives.toFixed(2)}
+              </span>
+            </div>
+          </div>
+          <p
+            className={`${isMobile ? "text-xs" : "text-sm"} text-gray-500 mt-2`}
+          >
+            The commission helps us maintain the platform and provide secure
+            transactions.
           </p>
         </div>
       )}
