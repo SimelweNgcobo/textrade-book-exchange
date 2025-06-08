@@ -310,8 +310,20 @@ function AuthProvider({ children }: { children: ReactNode }) {
     let cleanup: (() => void) | undefined;
 
     const setup = async () => {
-      await initializeAuth();
-      cleanup = setupAuthListener();
+      try {
+        console.log("🔧 Starting AuthProvider setup");
+        await initializeAuth();
+        cleanup = setupAuthListener();
+        console.log("✅ AuthProvider setup complete");
+      } catch (error) {
+        console.error("❌ AuthProvider setup failed:", error);
+        logError("AuthProvider setup failed", error);
+        setInitError(
+          `Authentication initialization failed: ${getErrorMessage(error)}`,
+        );
+        setIsLoading(false);
+        setAuthInitialized(true); // Set to true even on error to prevent infinite loading
+      }
     };
 
     setup();
