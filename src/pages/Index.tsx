@@ -97,7 +97,11 @@ const Index = () => {
             <img
               src="/lovable-uploads/bd1bff70-5398-480d-ab05-1a01e839c2d0.png"
               alt="Students reading colorful books"
+              width="600"
+              height="400"
               className="rounded-lg shadow-xl max-w-full h-auto"
+              loading="eager"
+              decoding="sync"
             />
           </div>
         </div>
