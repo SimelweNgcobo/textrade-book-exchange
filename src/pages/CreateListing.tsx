@@ -123,6 +123,10 @@ const CreateListing = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    console.log("Form submission started");
+    console.log("Current form data:", formData);
+    console.log("Current book images:", bookImages);
+
     if (!validateForm()) {
       toast.error("Please fill in all required fields");
       return;
@@ -143,11 +147,21 @@ const CreateListing = () => {
         insidePages: bookImages.insidePages,
       };
 
-      console.log("Creating book with data:", bookData);
+      console.log("Creating book with complete data:", bookData);
+
+      // Validate that all required images are present
+      if (
+        !bookData.frontCover ||
+        !bookData.backCover ||
+        !bookData.insidePages
+      ) {
+        throw new Error("All three book photos are required");
+      }
 
       const createdBook = await createBook(bookData);
 
       console.log("Book created successfully:", createdBook);
+      toast.success("Book listing created successfully!");
 
       const hasCompleted = await hasCompletedFirstUpload(user.id);
       if (!hasCompleted) {
@@ -183,9 +197,10 @@ const CreateListing = () => {
       setErrors({});
     } catch (error) {
       console.error("Error creating listing:", error);
-      toast.error(
-        error instanceof Error ? error.message : "Failed to create listing",
-      );
+      const errorMessage =
+        error instanceof Error ? error.message : "Failed to create listing";
+      console.error("Detailed error:", errorMessage);
+      toast.error(errorMessage);
     } finally {
       setIsSubmitting(false);
     }
