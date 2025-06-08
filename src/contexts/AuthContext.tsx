@@ -31,6 +31,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   isAdmin: boolean;
   userStats: UserStats | null;
+  initError: string | null;
   loadUserStats: () => Promise<void>;
   checkAdminStatus: (userId: string) => Promise<boolean>;
   login: (email: string, password: string) => Promise<void>;
