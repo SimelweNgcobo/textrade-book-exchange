@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -30,9 +30,9 @@ const CourierGuyTrackingOnly = () => {
     } else {
       setEligibility({ canSell: false, canBuy: false, errors: [] });
     }
-  }, [user?.id]);
+  }, [user?.id, loadEligibilityData]);
 
-  const loadEligibilityData = async () => {
+  const loadEligibilityData = useCallback(async () => {
     if (!user?.id) return;
 
     setIsLoading(true);
@@ -55,7 +55,7 @@ const CourierGuyTrackingOnly = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [user?.id]);
 
   if (isLoading) {
     return (

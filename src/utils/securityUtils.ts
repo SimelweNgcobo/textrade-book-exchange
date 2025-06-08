@@ -13,12 +13,20 @@ export const sanitizeUrl = (url: string): string => {
 
     // Only allow http and https protocols
     if (!["http:", "https:"].includes(parsed.protocol)) {
-      return "";
+      throw new Error(
+        `Invalid protocol: ${parsed.protocol}. Only http and https are allowed.`,
+      );
     }
 
     return parsed.toString();
-  } catch {
-    return "";
+  } catch (error) {
+    // Log the error for debugging purposes
+    console.warn(
+      `Invalid URL provided to sanitizeUrl: "${url}". Error: ${error instanceof Error ? error.message : "Unknown error"}`,
+    );
+
+    // Return a safe default URL instead of empty string
+    return "about:blank";
   }
 };
 
