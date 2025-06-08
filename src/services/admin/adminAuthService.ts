@@ -10,32 +10,39 @@ export const isAdminUser = async (userId: string): Promise<boolean> => {
       return false;
     }
 
+    // Don't use .single() since we expect 0 rows for non-admin users
+    // Instead, check if any rows are returned
     const { data, error } = await supabase
       .from("profiles")
       .select("email")
       .eq("id", userId)
-      .eq("email", "AdminSimnLi@gmail.com")
-      .single();
+      .eq("email", "AdminSimnLi@gmail.com");
 
     if (error) {
-      // Use proper error logging
-      logError("Admin status check database error", error);
-
-      // If it's a "not found" error, that's expected for non-admin users
-      if (error.code === "PGRST116") {
-        console.log(
-          "✅ User is not admin (profile not found with admin email)",
+      // Only log actual database errors, not "no rows found"
+      if (error.code !== "PGRST116") {
+        logError("Admin status check database error", error);
+        console.warn(
+          "⚠️ Database error during admin check, assuming non-admin",
         );
-        return false;
+      } else {
+        console.log(
+          "📝 Admin check: No admin profile found (expected for non-admin users)",
+        );
       }
-
-      // For other errors, log but still return false
-      console.warn("⚠️ Database error during admin check, assuming non-admin");
       return false;
     }
 
-    const isAdmin = !!data;
+    // Check if any rows were returned (data will be an array)
+    const isAdmin = data && data.length > 0;
     console.log(`✅ Admin check result for ${userId}:`, isAdmin);
+
+    if (isAdmin) {
+      console.log("🔐 Admin user detected:", userId);
+    } else {
+      console.log("👤 Regular user (not admin):", userId);
+    }
+
     return isAdmin;
   } catch (error) {
     logError("Exception during admin status check", error);
