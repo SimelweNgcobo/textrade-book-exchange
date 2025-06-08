@@ -24,14 +24,6 @@ const CourierGuyTrackingOnly = () => {
   }>({ canSell: false, canBuy: false, errors: [] });
   const [isLoading, setIsLoading] = useState(false);
 
-  useEffect(() => {
-    if (user?.id) {
-      loadEligibilityData();
-    } else {
-      setEligibility({ canSell: false, canBuy: false, errors: [] });
-    }
-  }, [user?.id, loadEligibilityData]);
-
   const loadEligibilityData = useCallback(async () => {
     if (!user?.id) return;
 
@@ -56,6 +48,14 @@ const CourierGuyTrackingOnly = () => {
       setIsLoading(false);
     }
   }, [user?.id]);
+
+  useEffect(() => {
+    if (user?.id) {
+      loadEligibilityData();
+    } else {
+      setEligibility({ canSell: false, canBuy: false, errors: [] });
+    }
+  }, [user?.id, loadEligibilityData]);
 
   if (isLoading) {
     return (
