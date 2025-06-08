@@ -110,6 +110,40 @@ const AuthTest = () => {
     }
   };
 
+  const handleCheckAdminStatus = async () => {
+    if (!currentContext?.user?.id) {
+      toast.error("Please log in first to check admin status");
+      return;
+    }
+
+    setIsCheckingAdmin(true);
+    try {
+      console.log("🔍 Testing admin status check for:", currentContext.user.id);
+      const isAdmin = await currentContext.checkAdminStatus(
+        currentContext.user.id,
+      );
+      setAdminCheckResult({
+        userId: currentContext.user.id,
+        isAdmin,
+        timestamp: new Date().toISOString(),
+      });
+      toast.success(
+        `Admin status check complete: ${isAdmin ? "Admin" : "Not Admin"}`,
+      );
+    } catch (error) {
+      console.error("Admin status check failed:", error);
+      setAdminCheckResult({
+        userId: currentContext.user.id,
+        isAdmin: false,
+        error: error instanceof Error ? error.message : "Unknown error",
+        timestamp: new Date().toISOString(),
+      });
+      toast.error("Admin status check failed");
+    } finally {
+      setIsCheckingAdmin(false);
+    }
+  };
+
   const currentContext = authContext || safeAuthContext;
 
   return (
