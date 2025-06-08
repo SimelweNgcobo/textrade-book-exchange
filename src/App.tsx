@@ -10,7 +10,10 @@ import ErrorBoundary from "./components/ErrorBoundary";
 import OAuthRedirectHandler from "./components/OAuthRedirectHandler";
 import OAuthDebugInfo from "./components/OAuthDebugInfo";
 import DatabaseDebugTest from "./components/DatabaseDebugTest";
-import { addEmergencyResetButton, monitorLoadingStates } from "./utils/emergencyLoadingReset";
+import {
+  addEmergencyResetButton,
+  monitorLoadingStates,
+} from "./utils/emergencyLoadingReset";
 import LoadingStateMonitor from "./components/LoadingStateMonitor";
 
 // Pages
@@ -48,7 +51,7 @@ import "./styles/mobile-fixes.css";
 function App() {
   // Set up emergency loading reset monitoring in development
   useEffect(() => {
-    if (process.env.NODE_ENV === 'development') {
+    if (process.env.NODE_ENV === "development") {
       console.log("🔧 Setting up emergency loading state monitoring");
       addEmergencyResetButton();
       const cleanup = monitorLoadingStates();
@@ -168,13 +171,12 @@ function App() {
               </ErrorBoundary>
             </div>
             <Toaster />
-            <LoadingStateMonitor />
-          </div>
-        </Router>
-      </CartProvider>
-    </AuthProvider>
-  </ErrorBoundary>
-);
+          </Router>
+          <LoadingStateMonitor />
+        </CartProvider>
+      </AuthProvider>
+    </ErrorBoundary>
+  );
 }
 
 export default App;
