@@ -19,6 +19,7 @@ import {
   fetchUserProfile,
   Profile,
 } from "@/services/authOperations";
+import { EnhancedAuthService } from "@/services/enhancedAuthService";
 import { UserStats } from "@/types/address";
 import { logError, getErrorMessage } from "@/utils/errorUtils";
 
