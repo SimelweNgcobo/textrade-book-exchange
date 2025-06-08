@@ -222,6 +222,13 @@ export default function LoginErrorHandler({
               )}
 
               {renderActionButtons()}
+
+              {/* Debug section for development */}
+              {process.env.NODE_ENV === "development" && (
+                <div className="mt-6 pt-4 border-t border-gray-200">
+                  <VerificationStatusDebug email={email} />
+                </div>
+              )}
             </div>
           </div>
         </Alert>
