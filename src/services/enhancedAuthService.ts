@@ -127,29 +127,31 @@ export class EnhancedAuthService {
             };
           }
 
-          if (
-            verificationCheck.userExists &&
-            !verificationCheck.emailConfirmed
-          ) {
+          // User exists - check if it might be an email verification issue
+          // We'll try to differentiate between unverified email and wrong password
+          // by attempting to send a password reset email
+          const isLikelyUnverified = await this.checkIfLikelyUnverified(email);
+
+          if (isLikelyUnverified) {
             return {
               success: false,
               error,
               userExists: true,
               requiresVerification: true,
               message:
-                "Your email address has not been verified yet. Please check your email and click the verification link.",
+                "Your email address may not be verified yet. Please check your email and click the verification link, or try resending the verification email.",
               actionRequired: "verify_email",
             };
           }
 
-          // User exists and is verified, so it's likely a wrong password
+          // User exists and is likely verified, so it's probably a wrong password
           return {
             success: false,
             error,
             userExists: true,
             requiresVerification: false,
             message:
-              "Incorrect password. Please try again or reset your password.",
+              "Incorrect password. Please check your password and try again, or reset your password if you've forgotten it.",
             actionRequired: "reset_password",
           };
         }
