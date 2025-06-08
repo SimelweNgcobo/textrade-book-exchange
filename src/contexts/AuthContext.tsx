@@ -286,13 +286,13 @@ function AuthProvider({ children }: { children: ReactNode }) {
             "Too many login attempts. Please wait a few minutes before trying again.";
         }
 
-        toast.error(errorMessage);
+        toast.error(errorMessage, { duration: 3000 });
         throw error;
       }
 
       if (data.session) {
         console.log("✅ Login successful");
-        toast.success("Login successful!");
+        toast.success("Login successful!", { duration: 2000 }); // Shorter duration
 
         // Log the login activity
         try {
@@ -324,6 +324,7 @@ function AuthProvider({ children }: { children: ReactNode }) {
         await registerUser(name, email, password);
         toast.success(
           "Registration successful! Please check your email to confirm your account.",
+          { duration: 4000 }, // Slightly longer for important registration message
         );
       } catch (error: unknown) {
         logError("Registration failed", error);
@@ -348,10 +349,10 @@ function AuthProvider({ children }: { children: ReactNode }) {
     try {
       setIsLoading(true);
       await logoutUser();
-      toast.success("Logged out successfully");
+      toast.success("Logged out successfully", { duration: 2000 }); // Shorter duration
     } catch (error) {
       logError("Logout failed", error);
-      toast.error("Logout failed. Please try again.");
+      toast.error("Logout failed. Please try again.", { duration: 3000 });
       throw error;
     } finally {
       setIsLoading(false);
