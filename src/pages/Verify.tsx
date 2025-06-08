@@ -176,27 +176,43 @@ const Verify = () => {
                   </Card>
                 )}
 
-                <div className="space-y-3">
-                  <Button
-                    onClick={() => navigate("/login")}
-                    className="bg-book-600 hover:bg-book-700 text-white px-4 md:px-6 py-2 rounded-lg transition-colors text-sm md:text-base w-full"
-                  >
-                    Go to Login
-                  </Button>
-                  <Button
-                    variant="outline"
-                    onClick={() => navigate("/register")}
-                    className="px-4 md:px-6 py-2 rounded-lg transition-colors text-sm md:text-base w-full"
-                  >
-                    Register Again
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    onClick={() => navigate("/")}
-                    className="text-sm text-gray-500 w-full"
-                  >
-                    Go to Home Page
-                  </Button>
+                <div className="space-y-6">
+                  <ManualEmailVerification
+                    onSuccess={() => {
+                      setStatus("success");
+                      setMessage(
+                        "Email verified successfully! You are now logged in.",
+                      );
+                      toast.success("Email verified successfully!");
+                      setTimeout(() => navigate("/"), 2000);
+                    }}
+                    onError={(error) => {
+                      console.error("Manual verification error:", error);
+                    }}
+                  />
+
+                  <div className="space-y-3">
+                    <Button
+                      onClick={() => navigate("/login")}
+                      className="bg-book-600 hover:bg-book-700 text-white px-4 md:px-6 py-2 rounded-lg transition-colors text-sm md:text-base w-full"
+                    >
+                      Go to Login
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => navigate("/register")}
+                      className="px-4 md:px-6 py-2 rounded-lg transition-colors text-sm md:text-base w-full"
+                    >
+                      Register Again
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      onClick={() => navigate("/")}
+                      className="text-sm text-gray-500 w-full"
+                    >
+                      Go to Home Page
+                    </Button>
+                  </div>
                 </div>
               </>
             )}
