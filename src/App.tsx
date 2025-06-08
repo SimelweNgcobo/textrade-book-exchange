@@ -22,7 +22,6 @@ import ResetPassword from "./pages/ResetPassword";
 import Profile from "./pages/Profile";
 import UserProfile from "./pages/UserProfile";
 import NotFound from "./pages/NotFound";
-import OAuthTest from "./pages/OAuthTest";
 import CreateListing from "./pages/CreateListing";
 import Checkout from "./pages/Checkout";
 import Admin from "./pages/Admin";
@@ -40,7 +39,6 @@ import EditBook from "./pages/EditBook";
 import Cart from "./pages/Cart";
 import Report from "./pages/Report";
 import Shipping from "./pages/Shipping";
-import AuthTest from "./pages/AuthTest";
 
 import "./App.css";
 import "./styles/mobile-fixes.css";
@@ -79,12 +77,6 @@ function App() {
                     <Route path="/contact" element={<ContactUs />} />
                     <Route path="/report" element={<Report />} />
                     <Route path="/shipping" element={<Shipping />} />
-                    {process.env.NODE_ENV === "development" && (
-                      <>
-                        <Route path="/oauth-test" element={<OAuthTest />} />
-                        <Route path="/auth-test" element={<AuthTest />} />
-                      </>
-                    )}
 
                     {/* Public user profiles - no authentication required */}
                     <Route path="/user/:id" element={<UserProfile />} />
