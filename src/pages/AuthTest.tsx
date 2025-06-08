@@ -441,6 +441,66 @@ const AuthTest = () => {
                   </AlertDescription>
                 </Alert>
               )}
+
+              {adminDebugResult && (
+                <Alert className="mt-4">
+                  <AlertDescription>
+                    <div className="space-y-2 text-sm">
+                      <div className="font-medium mb-2">
+                        Admin Debug Result:
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Overall Success:</span>
+                        {adminDebugResult.success ? (
+                          <CheckCircle className="h-4 w-4 text-green-500" />
+                        ) : (
+                          <XCircle className="h-4 w-4 text-red-500" />
+                        )}
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Final Result:</span>
+                        <span className="font-semibold">
+                          {adminDebugResult.finalResult ? "ADMIN" : "NOT ADMIN"}
+                        </span>
+                      </div>
+                      {adminDebugResult.error && (
+                        <div className="text-red-600 text-xs">
+                          Error: {adminDebugResult.error}
+                        </div>
+                      )}
+
+                      <details className="mt-2">
+                        <summary className="cursor-pointer text-xs text-gray-600">
+                          View Debug Steps (
+                          {adminDebugResult.steps?.length || 0})
+                        </summary>
+                        <div className="mt-2 space-y-1 text-xs">
+                          {adminDebugResult.steps?.map(
+                            (step: any, index: number) => (
+                              <div
+                                key={index}
+                                className="flex items-center gap-2 p-1 bg-gray-50 rounded"
+                              >
+                                {step.success ? (
+                                  <CheckCircle className="h-3 w-3 text-green-500 flex-shrink-0" />
+                                ) : (
+                                  <XCircle className="h-3 w-3 text-red-500 flex-shrink-0" />
+                                )}
+                                <span className="flex-1">{step.step}</span>
+                                {step.error && (
+                                  <span className="text-red-600 text-xs">
+                                    ({step.error})
+                                  </span>
+                                )}
+                              </div>
+                            ),
+                          )}
+                        </div>
+                      </details>
+                    </div>
+                  </AlertDescription>
+                </Alert>
+              )}
             </CardContent>
           </Card>
         </div>
