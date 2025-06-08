@@ -61,6 +61,9 @@ function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const [userStats, setUserStats] = useState<UserStats | null>(null);
   const [authInitialized, setAuthInitialized] = useState(false);
+  const [initError, setInitError] = useState<string | null>(null);
+
+  // Use a safer error handler approach
   const { handleError } = useErrorHandler();
 
   const isAuthenticated = !!user;
