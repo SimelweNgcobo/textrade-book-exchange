@@ -23,9 +23,7 @@ initCoreWebVitals();
 // Initialize security measures
 initSecurity();
 
-// Initialize performance optimizations
-import { PerformanceOptimizationService } from "./services/performanceOptimizationService";
-PerformanceOptimizationService.initialize();
+// Performance optimizations are handled by performanceUtils
 
 // Create a client with improved error handling
 const queryClient = new QueryClient({

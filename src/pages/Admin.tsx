@@ -102,24 +102,33 @@ const Admin = () => {
 
   return (
     <Layout>
-      <div className="container mx-auto px-4 py-4 md:py-8 space-y-6">
-        {/* Improved Header Layout for Mobile */}
+      <div
+        className={`container mx-auto ${isMobile ? "px-2" : "px-4"} py-4 md:py-8 space-y-4 max-w-full`}
+      >
+        {/* Mobile-optimized Header */}
         <div className="space-y-4">
           <div className="flex items-center space-x-3">
             <Button
               variant="ghost"
               onClick={() => navigate("/")}
-              className="text-book-600 min-h-[44px]"
+              className="text-book-600 min-h-[44px] btn-mobile"
               size={isMobile ? "sm" : "default"}
             >
-              <ArrowLeft className="mr-2 h-4 w-4" /> Back to Home
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              {isMobile ? "" : "Back to Home"}
             </Button>
           </div>
 
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div className="flex items-center space-x-3">
-              <Shield className="h-6 w-6 text-book-600" />
-              <h1 className="text-2xl md:text-3xl font-bold text-book-800">
+          <div
+            className={`flex ${isMobile ? "flex-col space-y-3" : "flex-row items-center justify-between"} gap-4`}
+          >
+            <div className="flex items-center space-x-3 min-w-0">
+              <Shield
+                className={`${isMobile ? "h-5 w-5" : "h-6 w-6"} text-book-600 flex-shrink-0`}
+              />
+              <h1
+                className={`${isMobile ? "text-lg" : "text-2xl md:text-3xl"} font-bold text-book-800 truncate`}
+              >
                 Admin Dashboard
               </h1>
             </div>
@@ -127,8 +136,8 @@ const Admin = () => {
             <Button
               variant="outline"
               onClick={() => navigate("/admin/reports")}
-              className="flex items-center w-full sm:w-auto min-h-[48px]"
-              size={isMobile ? "lg" : "default"}
+              className={`flex items-center ${isMobile ? "w-full" : "w-auto"} min-h-[44px] btn-mobile`}
+              size={isMobile ? "default" : "default"}
             >
               <Flag className="mr-2 h-4 w-4" />
               View Reports
@@ -136,7 +145,9 @@ const Admin = () => {
           </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow-md p-4 md:p-6">
+        <div
+          className={`bg-white rounded-lg shadow-md ${isMobile ? "p-3 card-mobile" : "p-4 md:p-6"} overflow-hidden`}
+        >
           <ErrorBoundary level="component">
             <AdminDashboard />
           </ErrorBoundary>

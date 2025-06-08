@@ -6,8 +6,11 @@ import {
   handleBookServiceError,
   logBookServiceError,
 } from "./bookErrorHandler";
-import { logError, getErrorMessage } from "@/utils/errorUtils";
-import { logDatabaseError, logQueryDebug } from "@/utils/debugUtils";
+import {
+  logError,
+  getErrorMessage,
+  logDatabaseError,
+} from "@/utils/errorUtils";
 
 export const getBooks = async (filters?: BookFilters): Promise<Book[]> => {
   try {

@@ -1,5 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
-import { logDatabaseError } from "@/utils/debugUtils";
+import { logDatabaseError } from "@/utils/errorUtils";
 import { BookDeletionService } from "@/services/bookDeletionService";
 
 export const updateUserStatus = async (

@@ -1,6 +1,6 @@
 import { supabase } from "@/integrations/supabase/client";
 import { addNotification } from "./notificationService";
-import { logDatabaseError } from "@/utils/debugUtils";
+import { logDatabaseError } from "@/utils/errorUtils";
 
 export interface BookDeletionNotificationData {
   bookId: string;

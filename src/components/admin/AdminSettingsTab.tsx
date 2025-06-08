@@ -1,9 +1,27 @@
-
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Textarea } from '@/components/ui/textarea';
-import { Badge } from '@/components/ui/badge';
-import { Settings, MessageSquare } from 'lucide-react';
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
+import { createBroadcast } from "@/services/broadcastService";
+import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "sonner";
+import { Settings, MessageSquare, Megaphone } from "lucide-react";
 
 interface AdminSettingsTabProps {
   broadcastMessage: string;
@@ -11,61 +29,251 @@ interface AdminSettingsTabProps {
   onSendBroadcast: () => void;
 }
 
-const AdminSettingsTab = ({ 
-  broadcastMessage, 
-  setBroadcastMessage, 
-  onSendBroadcast 
+const AdminSettingsTab = ({
+  broadcastMessage,
+  setBroadcastMessage,
+  onSendBroadcast,
 }: AdminSettingsTabProps) => {
+  const { user } = useAuth();
+  const [newBroadcast, setNewBroadcast] = useState({
+    title: "",
+    message: "",
+    priority: "normal" as "low" | "normal" | "high" | "urgent",
+    targetAudience: "all" as "all" | "users" | "admin",
+    expiresAt: "",
+  });
+  const [isCreating, setIsCreating] = useState(false);
+
+  const handleCreateBroadcast = async () => {
+    if (!user || !newBroadcast.title.trim() || !newBroadcast.message.trim()) {
+      toast.error("Please fill in title and message fields");
+      return;
+    }
+
+    setIsCreating(true);
+    try {
+      await createBroadcast({
+        title: newBroadcast.title,
+        message: newBroadcast.message,
+        priority: newBroadcast.priority,
+        targetAudience: newBroadcast.targetAudience,
+        expiresAt: newBroadcast.expiresAt || undefined,
+        createdBy: user.id,
+      });
+
+      toast.success(
+        "Broadcast created successfully! Users will see it when they next visit the site.",
+      );
+
+      // Reset form
+      setNewBroadcast({
+        title: "",
+        message: "",
+        priority: "normal",
+        targetAudience: "all",
+        expiresAt: "",
+      });
+    } catch (error) {
+      console.error("Error creating broadcast:", error);
+      toast.error("Failed to create broadcast");
+    } finally {
+      setIsCreating(false);
+    }
+  };
+
   return (
-    <Card>
-      <CardHeader className="pb-4">
-        <CardTitle className="text-lg md:text-xl">Site Configuration</CardTitle>
-        <CardDescription className="text-sm">Manage site-wide settings and features</CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-4 md:space-y-6">
-        <div>
-          <h4 className="text-sm font-medium mb-2">Broadcast Message</h4>
-          <p className="text-xs text-gray-500 mb-2">
-            Messages will appear as pop-ups for offline users and notifications for active users. Press Enter for line breaks.
-          </p>
-          <div className="flex flex-col space-y-2">
+    <div className="space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Megaphone className="h-5 w-5" />
+            Create System Broadcast
+          </CardTitle>
+          <CardDescription>
+            Create announcements that appear to users when they visit the site
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="broadcast-title">Title</Label>
+              <Input
+                id="broadcast-title"
+                placeholder="Broadcast title..."
+                value={newBroadcast.title}
+                onChange={(e) =>
+                  setNewBroadcast((prev) => ({
+                    ...prev,
+                    title: e.target.value,
+                  }))
+                }
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="broadcast-priority">Priority</Label>
+              <Select
+                value={newBroadcast.priority}
+                onValueChange={(value: "low" | "normal" | "high" | "urgent") =>
+                  setNewBroadcast((prev) => ({ ...prev, priority: value }))
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="low">Low</SelectItem>
+                  <SelectItem value="normal">Normal</SelectItem>
+                  <SelectItem value="high">High</SelectItem>
+                  <SelectItem value="urgent">Urgent</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="broadcast-audience">Target Audience</Label>
+              <Select
+                value={newBroadcast.targetAudience}
+                onValueChange={(value: "all" | "users" | "admin") =>
+                  setNewBroadcast((prev) => ({
+                    ...prev,
+                    targetAudience: value,
+                  }))
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Users</SelectItem>
+                  <SelectItem value="users">Registered Users Only</SelectItem>
+                  <SelectItem value="admin">Admin Only</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="broadcast-expires">Expires At (Optional)</Label>
+              <Input
+                id="broadcast-expires"
+                type="datetime-local"
+                value={newBroadcast.expiresAt}
+                onChange={(e) =>
+                  setNewBroadcast((prev) => ({
+                    ...prev,
+                    expiresAt: e.target.value,
+                  }))
+                }
+              />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="broadcast-message">Message</Label>
             <Textarea
-              placeholder="Enter message to send to all users... Press Enter for line breaks."
-              value={broadcastMessage}
-              onChange={(e) => setBroadcastMessage(e.target.value)}
-              className="min-h-[100px] text-sm resize-vertical"
+              id="broadcast-message"
+              placeholder="Enter broadcast message..."
+              className="min-h-[100px]"
               rows={4}
+              value={newBroadcast.message}
+              onChange={(e) =>
+                setNewBroadcast((prev) => ({
+                  ...prev,
+                  message: e.target.value,
+                }))
+              }
             />
-            <Button onClick={onSendBroadcast} className="w-full md:w-auto md:self-start">
-              <MessageSquare className="h-4 w-4 mr-2" />
-              Send
+          </div>
+
+          <Button
+            onClick={handleCreateBroadcast}
+            disabled={
+              isCreating ||
+              !newBroadcast.title.trim() ||
+              !newBroadcast.message.trim()
+            }
+            className="w-full md:w-auto"
+          >
+            {isCreating ? "Creating..." : "Create Broadcast"}
+          </Button>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <MessageSquare className="h-5 w-5" />
+            Direct Notifications
+          </CardTitle>
+          <CardDescription>
+            Send immediate notifications to all registered users
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-3">
+            <div>
+              <Label htmlFor="direct-message">Message</Label>
+              <Textarea
+                id="direct-message"
+                placeholder="Enter message to send as notification to all users..."
+                className="min-h-[100px]"
+                rows={4}
+                value={broadcastMessage}
+                onChange={(e) => setBroadcastMessage(e.target.value)}
+              />
+            </div>
+            <Button
+              onClick={onSendBroadcast}
+              className="w-full md:w-auto md:self-start"
+            >
+              Send as Notification
             </Button>
           </div>
-        </div>
+        </CardContent>
+      </Card>
 
-        <div>
-          <h4 className="text-sm font-medium mb-2">Listing Settings</h4>
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Settings className="h-5 w-5" />
+            Site Configuration
+          </CardTitle>
+          <CardDescription>
+            Manage site-wide settings and features
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
           <div className="space-y-2">
             <div className="flex items-center justify-between py-2">
               <span className="text-sm">Auto-approve new listings</span>
-              <Badge variant="default" className="text-xs">Enabled</Badge>
+              <Badge variant="default" className="text-xs">
+                Enabled
+              </Badge>
             </div>
             <div className="flex items-center justify-between py-2">
               <span className="text-sm">User registration</span>
-              <Button variant="outline" size="sm" className="h-7 w-7 p-0 md:h-8 md:w-auto md:px-2">
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-7 w-7 p-0 md:h-8 md:w-auto md:px-2"
+              >
                 <Settings className="h-3 w-3 md:h-4 md:w-4" />
               </Button>
             </div>
             <div className="flex items-center justify-between py-2">
               <span className="text-sm">Maximum images per listing</span>
-              <Button variant="outline" size="sm" className="h-7 w-7 p-0 md:h-8 md:w-auto md:px-2">
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-7 w-7 p-0 md:h-8 md:w-auto md:px-2"
+              >
                 <Settings className="h-3 w-3 md:h-4 md:w-4" />
               </Button>
             </div>
           </div>
-        </div>
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+    </div>
   );
 };
 

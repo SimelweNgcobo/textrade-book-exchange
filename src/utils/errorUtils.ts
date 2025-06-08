@@ -27,27 +27,13 @@ export const getErrorMessage = (
       return errorObj.message;
     }
 
-    // Handle PostgreSQL error format
-    if ("details" in errorObj && typeof errorObj.details === "string") {
-      return errorObj.details;
-    }
-
-    // Handle other error objects
+    // Handle other object error formats
     if ("error" in errorObj && typeof errorObj.error === "string") {
       return errorObj.error;
     }
 
-    // Handle error codes
-    if ("code" in errorObj && typeof errorObj.code === "string") {
-      switch (errorObj.code) {
-        case "PGRST116":
-          // This is often expected (no rows found)
-          return "No matching records found";
-        case "PGRST200":
-          return "Database constraint error";
-        default:
-          return `Database error (${errorObj.code})`;
-      }
+    if ("details" in errorObj && typeof errorObj.details === "string") {
+      return errorObj.details;
     }
   }
 
@@ -55,50 +41,95 @@ export const getErrorMessage = (
 };
 
 /**
- * Safely logs error with proper message extraction
+ * Logs error with context information
  */
-export const logError = (context: string, error: unknown): void => {
-  const message = getErrorMessage(error);
-  console.error(`${context}:`, message);
+export const logError = (context: string, error: unknown, metadata?: any) => {
+  const errorMessage = getErrorMessage(error);
 
-  // In development, also log the full error object for debugging (safely)
-  if (process.env.NODE_ENV === "development" && error) {
-    try {
-      // Try to stringify the error object safely
-      const errorDetails =
-        typeof error === "object"
-          ? JSON.stringify(error, null, 2)
-          : String(error);
-      console.error("Full error details:", errorDetails);
-    } catch (stringifyError) {
-      // If stringify fails, just log key properties
-      if (typeof error === "object" && error !== null) {
-        const errorObj = error as any;
-        console.error("Error properties:", {
-          message: errorObj.message,
-          code: errorObj.code,
-          details: errorObj.details,
-          hint: errorObj.hint,
-        });
-      }
+  if (process.env.NODE_ENV === "development") {
+    console.error(`[${context}]:`, errorMessage);
+    if (metadata) {
+      console.error("Metadata:", metadata);
+    }
+    if (error) {
+      console.error("Full error:", error);
     }
   }
 };
 
 /**
- * Creates user-friendly error message for display
+ * Database-specific error logging (replacement for logDatabaseError)
  */
-export const getUserErrorMessage = (error: unknown, context = ""): string => {
-  const message = getErrorMessage(error);
+export const logDatabaseError = (
+  context: string,
+  error: unknown,
+  metadata?: any,
+) => {
+  logError(`Database - ${context}`, error, metadata);
+};
 
-  // Don't include technical error messages in user display
-  if (
-    message.includes("PGRST") ||
-    message.includes("SQL") ||
-    message.includes("pg_")
-  ) {
-    return `${context ? context + ": " : ""}Unable to complete operation. Please try again.`;
+/**
+ * Query debug logging (replacement for logQueryDebug) - only in development
+ */
+export const logQueryDebug = (context: string, query: any) => {
+  if (process.env.NODE_ENV === "development") {
+    console.log(`[Query Debug - ${context}]:`, query);
+  }
+};
+
+/**
+ * Creates a standardized error object
+ */
+export const createError = (message: string, code?: string, details?: any) => {
+  const error = new Error(message) as any;
+  if (code) error.code = code;
+  if (details) error.details = details;
+  return error;
+};
+
+/**
+ * Handles and formats Supabase-specific errors
+ */
+export const handleSupabaseError = (error: any, context: string) => {
+  const message = getErrorMessage(error);
+  logError(context, error);
+
+  // Return user-friendly error message
+  if (message.includes("duplicate key value")) {
+    return "This item already exists";
+  }
+  if (message.includes("violates foreign key constraint")) {
+    return "Referenced item does not exist";
+  }
+  if (message.includes("violates not-null constraint")) {
+    return "Required field is missing";
   }
 
-  return `${context ? context + ": " : ""}${message}`;
+  return message;
+};
+
+/**
+ * Gets user-friendly error message with fallback (replacement for getUserErrorMessage)
+ */
+export const getUserErrorMessage = (
+  error: unknown,
+  fallback = "An error occurred",
+): string => {
+  const message = getErrorMessage(error, fallback);
+
+  // Convert technical errors to user-friendly messages
+  if (message.includes("Failed to fetch")) {
+    return "Network connection error. Please check your internet connection and try again.";
+  }
+  if (message.includes("PGRST116")) {
+    return "The requested profile could not be found.";
+  }
+  if (message.includes("permission denied")) {
+    return "You don't have permission to access this resource.";
+  }
+  if (message.includes("invalid input")) {
+    return "Invalid information provided. Please check your input and try again.";
+  }
+
+  return message;
 };

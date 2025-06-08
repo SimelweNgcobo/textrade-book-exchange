@@ -9,12 +9,7 @@ import ScrollToTop from "./components/ScrollToTop";
 import ErrorBoundary from "./components/ErrorBoundary";
 import AuthErrorBoundary from "./components/AuthErrorBoundary";
 import OAuthRedirectHandler from "./components/OAuthRedirectHandler";
-import OAuthDebugInfo from "./components/OAuthDebugInfo";
-import DatabaseDebugTest from "./components/DatabaseDebugTest";
-import {
-  addEmergencyResetButton,
-  monitorLoadingStates,
-} from "./utils/emergencyLoadingReset";
+import BroadcastManager from "./components/BroadcastManager";
 
 // Pages
 import Index from "./pages/Index";
@@ -27,7 +22,6 @@ import ResetPassword from "./pages/ResetPassword";
 import Profile from "./pages/Profile";
 import UserProfile from "./pages/UserProfile";
 import NotFound from "./pages/NotFound";
-import OAuthTest from "./pages/OAuthTest";
 import CreateListing from "./pages/CreateListing";
 import Checkout from "./pages/Checkout";
 import Admin from "./pages/Admin";
@@ -45,22 +39,11 @@ import EditBook from "./pages/EditBook";
 import Cart from "./pages/Cart";
 import Report from "./pages/Report";
 import Shipping from "./pages/Shipping";
-import AuthTest from "./pages/AuthTest";
 
 import "./App.css";
 import "./styles/mobile-fixes.css";
 
 function App() {
-  // Set up emergency loading reset monitoring in development
-  useEffect(() => {
-    if (process.env.NODE_ENV === "development") {
-      console.log("🔧 Setting up emergency loading state monitoring");
-      addEmergencyResetButton();
-      const cleanup = monitorLoadingStates();
-      return cleanup;
-    }
-  }, []);
-
   return (
     <ErrorBoundary level="app">
       <AuthErrorBoundary>
@@ -94,9 +77,6 @@ function App() {
                     <Route path="/contact" element={<ContactUs />} />
                     <Route path="/report" element={<Report />} />
                     <Route path="/shipping" element={<Shipping />} />
-                    <Route path="/oauth-test" element={<OAuthTest />} />
-                    <Route path="/debug-test" element={<DatabaseDebugTest />} />
-                    <Route path="/auth-test" element={<AuthTest />} />
 
                     {/* Public user profiles - no authentication required */}
                     <Route path="/user/:id" element={<UserProfile />} />
@@ -182,7 +162,10 @@ function App() {
                 </ErrorBoundary>
               </div>
               <Toaster />
-              <OAuthDebugInfo />
+              <BroadcastManager />
+              {process.env.NODE_ENV === "development" && (
+                <>{/* Debug components removed from production */}</>
+              )}
             </Router>
           </CartProvider>
         </AuthProvider>
