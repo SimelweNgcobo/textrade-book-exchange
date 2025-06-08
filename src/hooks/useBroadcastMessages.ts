@@ -26,19 +26,7 @@ const createMessageHash = (message: string): string => {
 export const useBroadcastMessages = () => {
   const [pendingMessage, setPendingMessage] = useState<string | null>(null);
   const [showPopup, setShowPopup] = useState(false);
-
-  // Safely try to get user, with fallback if AuthContext is not available
-  let user = null;
-  try {
-    const authContext = useAuth();
-    user = authContext.user;
-  } catch (error) {
-    console.warn(
-      "useBroadcastMessages: AuthContext not available, continuing without user",
-      error,
-    );
-    user = null;
-  }
+  const { user } = useSafeAuth();
 
   const checkForUnseenBroadcasts = useCallback(() => {
     const seenBroadcasts: string[] = JSON.parse(
