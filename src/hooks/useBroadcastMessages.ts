@@ -1,6 +1,5 @@
-
-import { useState, useEffect, useCallback } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
+import { useState, useEffect, useCallback } from "react";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface BroadcastMessage {
   message: string;
@@ -17,7 +16,7 @@ const createMessageHash = (message: string): string => {
   } catch {
     let hash = 0;
     for (let i = 0; i < message.length; i++) {
-      hash = ((hash << 5) - hash) + message.charCodeAt(i);
+      hash = (hash << 5) - hash + message.charCodeAt(i);
       hash |= 0; // Convert to 32-bit int
     }
     return Math.abs(hash).toString(36).substring(0, 10);
@@ -27,11 +26,27 @@ const createMessageHash = (message: string): string => {
 export const useBroadcastMessages = () => {
   const [pendingMessage, setPendingMessage] = useState<string | null>(null);
   const [showPopup, setShowPopup] = useState(false);
-  const { user } = useAuth();
+
+  // Safely try to get user, with fallback if AuthContext is not available
+  let user = null;
+  try {
+    const authContext = useAuth();
+    user = authContext.user;
+  } catch (error) {
+    console.warn(
+      "useBroadcastMessages: AuthContext not available, continuing without user",
+      error,
+    );
+    user = null;
+  }
 
   const checkForUnseenBroadcasts = useCallback(() => {
-    const seenBroadcasts: string[] = JSON.parse(localStorage.getItem('seenBroadcasts') || '[]');
-    const globalQueue: BroadcastMessage[] = JSON.parse(localStorage.getItem('globalBroadcastQueue') || '[]');
+    const seenBroadcasts: string[] = JSON.parse(
+      localStorage.getItem("seenBroadcasts") || "[]",
+    );
+    const globalQueue: BroadcastMessage[] = JSON.parse(
+      localStorage.getItem("globalBroadcastQueue") || "[]",
+    );
 
     // Check for unseen global broadcast
     const unseenGlobal = globalQueue.find((broadcast) => {
@@ -41,7 +56,9 @@ export const useBroadcastMessages = () => {
     });
 
     if (user) {
-      const userQueue: BroadcastMessage[] = JSON.parse(localStorage.getItem('broadcastQueue') || '[]');
+      const userQueue: BroadcastMessage[] = JSON.parse(
+        localStorage.getItem("broadcastQueue") || "[]",
+      );
       const userBroadcast = userQueue.find((broadcast) => {
         const hash = createMessageHash(broadcast.message);
         const isForUser = broadcast.recipients?.includes(user.id);
@@ -59,27 +76,32 @@ export const useBroadcastMessages = () => {
       setPendingMessage(unseenGlobal.message);
       setShowPopup(true);
     }
-
   }, [user]);
 
   useEffect(() => {
     checkForUnseenBroadcasts();
 
     const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === 'globalBroadcastQueue' || e.key === 'broadcastQueue') {
+      if (e.key === "globalBroadcastQueue" || e.key === "broadcastQueue") {
         checkForUnseenBroadcasts();
       }
     };
 
     // Add event listeners properly
-    window.addEventListener('globalBroadcastUpdate', checkForUnseenBroadcasts);
-    window.addEventListener('notificationUpdate', checkForUnseenBroadcasts);
-    window.addEventListener('storage', handleStorageChange);
+    window.addEventListener("globalBroadcastUpdate", checkForUnseenBroadcasts);
+    window.addEventListener("notificationUpdate", checkForUnseenBroadcasts);
+    window.addEventListener("storage", handleStorageChange);
 
     return () => {
-      window.removeEventListener('globalBroadcastUpdate', checkForUnseenBroadcasts);
-      window.removeEventListener('notificationUpdate', checkForUnseenBroadcasts);
-      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener(
+        "globalBroadcastUpdate",
+        checkForUnseenBroadcasts,
+      );
+      window.removeEventListener(
+        "notificationUpdate",
+        checkForUnseenBroadcasts,
+      );
+      window.removeEventListener("storage", handleStorageChange);
     };
   }, [checkForUnseenBroadcasts]);
 
