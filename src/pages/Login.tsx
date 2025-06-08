@@ -44,6 +44,7 @@ const Login = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    setLoginError(null); // Clear previous errors
 
     try {
       if (!email.trim() || !password.trim()) {
@@ -55,11 +56,22 @@ const Login = () => {
       console.log("Login successful, navigating to home");
       navigate("/", { replace: true });
     } catch (error) {
-      // Error is already handled in the login function
       console.error("Login error in component:", error);
+      setLoginError(error);
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleRetry = () => {
+    setLoginError(null);
+    // Focus on password field for retry
+    setTimeout(() => {
+      const passwordInput = document.getElementById("password");
+      if (passwordInput) {
+        passwordInput.focus();
+      }
+    }, 100);
   };
 
   return (
