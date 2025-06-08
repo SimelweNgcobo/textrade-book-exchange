@@ -177,22 +177,6 @@ export const BookTypeSection = ({
         </div>
       ) : (
         <>
-          {/* University Selection */}
-          <div>
-            <Label htmlFor="university" className="text-base font-medium">
-              University <span className="text-red-500">*</span>
-            </Label>
-            <UniversitySelector
-              value={formData.university || ""}
-              onValueChange={(value) => onSelectChange("university", value)}
-              placeholder="Select university..."
-              className={errors.university ? "border-red-500" : ""}
-            />
-            {errors.university && (
-              <p className="text-red-500 text-sm mt-1">{errors.university}</p>
-            )}
-          </div>
-
           {/* University Year Selection */}
           <div>
             <Label htmlFor="universityYear" className="text-base font-medium">
