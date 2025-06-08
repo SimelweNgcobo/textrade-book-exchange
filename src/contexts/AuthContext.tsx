@@ -21,6 +21,7 @@ import {
 } from "@/services/authOperations";
 import { UserStats } from "@/types/address";
 import { logError, getErrorMessage } from "@/utils/errorUtils";
+import { useLoadingState } from "@/utils/loadingStateManager";
 
 interface AuthContextType {
   user: User | null;
@@ -53,10 +54,13 @@ function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [session, setSession] = useState<Session | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
   const [userStats, setUserStats] = useState<UserStats | null>(null);
   const [authInitialized, setAuthInitialized] = useState(false);
   const { handleError } = useErrorHandler();
+
+  // Use the improved loading state manager
+  const { isLoading, startLoading, stopLoading, forceStopLoading } =
+    useLoadingState("AuthContext");
 
   const isAuthenticated = !!user;
   const isAdmin = profile?.isAdmin || false;
@@ -70,41 +74,60 @@ function AuthProvider({ children }: { children: ReactNode }) {
     setUserStats(null);
   }, []);
 
-  // Handle auth state changes
+  // Handle auth state changes with timeout protection
   const handleAuthStateChange = useCallback(
     async (session: Session) => {
+      const loadingId = startLoading("auth-state-change");
+
       try {
         console.log("Processing auth state change");
         setSession(session);
         setUser(session.user);
 
         if (session.user) {
-          const userProfile = await fetchUserProfile(session.user);
+          // Add timeout protection for profile fetching
+          const profilePromise = fetchUserProfile(session.user);
+          const timeoutPromise = new Promise((_, reject) =>
+            setTimeout(() => reject(new Error("Profile fetch timeout")), 15000),
+          );
+
+          const userProfile = (await Promise.race([
+            profilePromise,
+            timeoutPromise,
+          ])) as Profile;
           setProfile(userProfile);
           console.log("Auth state updated successfully");
         }
       } catch (error) {
         logError("Error handling auth state change", error);
         handleError(error, "Authentication State Change");
+      } finally {
+        stopLoading();
       }
     },
-    [handleError],
+    [handleError, startLoading, stopLoading],
   );
 
-  // Initialize auth on mount
+  // Initialize auth on mount with improved error handling
   const initializeAuth = useCallback(async () => {
     if (authInitialized) {
       console.log("Auth already initialized, skipping");
       return;
     }
 
+    const loadingId = startLoading("auth-init");
+
     try {
       console.log("Initializing authentication...");
-      setIsLoading(true);
+
+      const sessionPromise = supabase.auth.getSession();
+      const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error("Session fetch timeout")), 10000),
+      );
 
       const {
         data: { session: currentSession },
-      } = await supabase.auth.getSession();
+      } = (await Promise.race([sessionPromise, timeoutPromise])) as any;
 
       console.log(
         "Initial session check:",
@@ -119,12 +142,23 @@ function AuthProvider({ children }: { children: ReactNode }) {
     } catch (error) {
       logError("Error initializing auth", error);
       handleError(error, "Initialize Authentication");
+      // Force stop loading even on error
+      forceStopLoading();
+      // Still mark as initialized to prevent infinite retries
+      setAuthInitialized(true);
     } finally {
-      setIsLoading(false);
+      stopLoading();
     }
-  }, [authInitialized, handleAuthStateChange, handleError]);
+  }, [
+    authInitialized,
+    handleAuthStateChange,
+    handleError,
+    startLoading,
+    stopLoading,
+    forceStopLoading,
+  ]);
 
-  // Set up auth listener
+  // Set up auth listener with improved state management
   const setupAuthListener = useCallback(() => {
     console.log("Setting up auth state listener");
 
@@ -137,14 +171,19 @@ function AuthProvider({ children }: { children: ReactNode }) {
         session ? "Session exists" : "No session",
       );
 
-      if (event === "SIGNED_OUT") {
-        handleSignOut();
-      } else if (session) {
-        await handleAuthStateChange(session);
-      }
-
-      if (authInitialized) {
-        setIsLoading(false);
+      try {
+        if (event === "SIGNED_OUT") {
+          handleSignOut();
+        } else if (session) {
+          await handleAuthStateChange(session);
+        }
+      } catch (error) {
+        logError("Error in auth state listener", error);
+      } finally {
+        // Always ensure loading is stopped
+        if (authInitialized && isLoading) {
+          stopLoading();
+        }
       }
     });
 
@@ -152,39 +191,50 @@ function AuthProvider({ children }: { children: ReactNode }) {
       console.log("Cleaning up auth listener");
       subscription.unsubscribe();
     };
-  }, [authInitialized, handleAuthStateChange, handleSignOut]);
+  }, [
+    authInitialized,
+    handleAuthStateChange,
+    handleSignOut,
+    isLoading,
+    stopLoading,
+  ]);
 
-  // Auth operations
-  const login = useCallback(async (email: string, password: string) => {
-    try {
-      setIsLoading(true);
-      await loginUser(email, password);
-      toast.success("Login successful!");
-    } catch (error: unknown) {
-      logError("Login failed", error);
+  // Auth operations with improved loading management
+  const login = useCallback(
+    async (email: string, password: string) => {
+      const loadingId = startLoading("login");
 
-      let errorMessage = "Login failed. Please try again.";
-      const errorMsg = getErrorMessage(error);
+      try {
+        await loginUser(email, password);
+        toast.success("Login successful!");
+      } catch (error: unknown) {
+        logError("Login failed", error);
 
-      if (errorMsg.includes("Invalid login credentials")) {
-        errorMessage =
-          "Invalid email or password. Please check your credentials.";
-      } else if (errorMsg.includes("Email not confirmed")) {
-        errorMessage =
-          "Please check your email and click the confirmation link.";
+        let errorMessage = "Login failed. Please try again.";
+        const errorMsg = getErrorMessage(error);
+
+        if (errorMsg.includes("Invalid login credentials")) {
+          errorMessage =
+            "Invalid email or password. Please check your credentials.";
+        } else if (errorMsg.includes("Email not confirmed")) {
+          errorMessage =
+            "Please check your email and click the confirmation link.";
+        }
+
+        toast.error(errorMessage);
+        throw error;
+      } finally {
+        stopLoading();
       }
-
-      toast.error(errorMessage);
-      throw error;
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
+    },
+    [startLoading, stopLoading],
+  );
 
   const register = useCallback(
     async (name: string, email: string, password: string) => {
+      const loadingId = startLoading("register");
+
       try {
-        setIsLoading(true);
         await registerUser(name, email, password);
         toast.success(
           "Registration successful! Please check your email to confirm your account.",
@@ -202,15 +252,16 @@ function AuthProvider({ children }: { children: ReactNode }) {
         toast.error(errorMessage);
         throw error;
       } finally {
-        setIsLoading(false);
+        stopLoading();
       }
     },
-    [],
+    [startLoading, stopLoading],
   );
 
   const logout = useCallback(async () => {
+    const loadingId = startLoading("logout");
+
     try {
-      setIsLoading(true);
       await logoutUser();
       toast.success("Logged out successfully");
     } catch (error) {
@@ -218,12 +269,14 @@ function AuthProvider({ children }: { children: ReactNode }) {
       toast.error("Logout failed. Please try again.");
       throw error;
     } finally {
-      setIsLoading(false);
+      stopLoading();
     }
-  }, []);
+  }, [startLoading, stopLoading]);
 
   const refreshProfile = useCallback(async () => {
     if (!user) return;
+
+    const loadingId = startLoading("refresh-profile");
 
     try {
       const userProfile = await fetchUserProfile(user);
@@ -232,8 +285,10 @@ function AuthProvider({ children }: { children: ReactNode }) {
     } catch (error) {
       logError("Error refreshing profile", error);
       handleError(error, "Refresh Profile");
+    } finally {
+      stopLoading();
     }
-  }, [user, handleError]);
+  }, [user, handleError, startLoading, stopLoading]);
 
   const loadUserStats = useCallback(async () => {
     if (!user) return;
@@ -283,6 +338,8 @@ function AuthProvider({ children }: { children: ReactNode }) {
       if (cleanup) {
         cleanup();
       }
+      // Force stop any remaining loading states
+      forceStopLoading();
     };
   }, []); // Empty dependency array - only run once on mount
 
@@ -293,6 +350,21 @@ function AuthProvider({ children }: { children: ReactNode }) {
       updateUserActivity();
     }
   }, [user, profile, authInitialized, loadUserStats, updateUserActivity]);
+
+  // Emergency timeout to prevent infinite loading
+  useEffect(() => {
+    if (isLoading) {
+      const emergencyTimeout = setTimeout(() => {
+        console.error(
+          "🚨 AuthContext emergency timeout triggered - force stopping loading",
+        );
+        forceStopLoading();
+        setAuthInitialized(true);
+      }, 45000); // 45 seconds emergency timeout
+
+      return () => clearTimeout(emergencyTimeout);
+    }
+  }, [isLoading, forceStopLoading]);
 
   const value: AuthContextType = {
     user,

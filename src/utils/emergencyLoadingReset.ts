@@ -3,8 +3,13 @@
  * Use this when components get stuck in infinite loading
  */
 
+import { loadingManager } from "./loadingStateManager";
+
 export const emergencyLoadingReset = () => {
   console.log("🚨 Emergency loading state reset initiated");
+
+  // Force stop all managed loading states
+  loadingManager.forceStopAllLoading();
 
   // Clear any stuck timeouts
   const highestTimeoutId = setTimeout(() => {}, 0);
@@ -23,12 +28,29 @@ export const emergencyLoadingReset = () => {
     window.gc();
   }
 
-  console.log("✅ Emergency reset completed - page should reload");
+  // Reset any loading elements in the DOM
+  const loadingElements = document.querySelectorAll(
+    '[data-loading="true"], .animate-spin, .loading',
+  );
+  loadingElements.forEach((element) => {
+    element.removeAttribute("data-loading");
+    element.classList.remove("animate-spin", "loading");
+  });
 
-  // Force page reload as last resort
-  setTimeout(() => {
-    window.location.reload();
-  }, 1000);
+  // Remove any loading overlays
+  const loadingOverlays = document.querySelectorAll(
+    ".loading-overlay, .loading-spinner",
+  );
+  loadingOverlays.forEach((overlay) => overlay.remove());
+
+  console.log(
+    "✅ Emergency reset completed - components should be responsive now",
+  );
+
+  // Optional: Force page reload as last resort (commented out for now)
+  // setTimeout(() => {
+  //   window.location.reload();
+  // }, 1000);
 };
 
 export const addEmergencyResetButton = () => {
@@ -50,44 +72,95 @@ export const addEmergencyResetButton = () => {
   button.onclick = emergencyLoadingReset;
 
   document.body.appendChild(button);
+
+  // Add debug button
+  const debugButton = document.createElement("button");
+  debugButton.innerText = "📊 Debug Loading";
+  debugButton.style.position = "fixed";
+  debugButton.style.top = "50px";
+  debugButton.style.right = "10px";
+  debugButton.style.zIndex = "9999";
+  debugButton.style.padding = "8px 12px";
+  debugButton.style.backgroundColor = "#3b82f6";
+  debugButton.style.color = "white";
+  debugButton.style.border = "none";
+  debugButton.style.borderRadius = "4px";
+  debugButton.style.cursor = "pointer";
+  debugButton.style.fontSize = "12px";
+  debugButton.onclick = () => loadingManager.debugActiveStates();
+
+  document.body.appendChild(debugButton);
 };
 
-// Auto-detect stuck loading states
+// Auto-detect stuck loading states with improved detection
 export const monitorLoadingStates = () => {
   if (process.env.NODE_ENV !== "development") return;
 
-  let loadingCount = 0;
-  let lastLoadingCheck = Date.now();
+  let consecutiveLoadingChecks = 0;
 
   const checkInterval = setInterval(() => {
-    const loadingElements = document.querySelectorAll(
+    const managedStates = loadingManager.getActiveLoadingStates();
+    const domLoadingElements = document.querySelectorAll(
       '[data-loading="true"], .animate-spin, .loading',
     );
     const currentTime = Date.now();
 
-    if (loadingElements.length > 0) {
-      loadingCount++;
+    // Check managed loading states
+    const longRunningManaged = managedStates.filter(
+      (state) => currentTime - state.startTime > 30000, // 30 seconds
+    );
+
+    if (longRunningManaged.length > 0 || domLoadingElements.length > 0) {
+      consecutiveLoadingChecks++;
 
       // If loading for more than 30 seconds, warn
-      if (currentTime - lastLoadingCheck > 30000) {
+      if (consecutiveLoadingChecks >= 6) {
+        // 6 * 5 seconds = 30 seconds
         console.warn(
           "⚠️ Loading state detected for 30+ seconds. Possible infinite loop.",
         );
-        console.log("Loading elements found:", loadingElements);
+        console.log("Managed loading states:", managedStates);
+        console.log("DOM loading elements:", domLoadingElements);
+        loadingManager.debugActiveStates();
       }
 
       // If loading for more than 60 seconds, trigger emergency reset
-      if (currentTime - lastLoadingCheck > 60000) {
+      if (consecutiveLoadingChecks >= 12) {
+        // 12 * 5 seconds = 60 seconds
         console.error(
           "🚨 Loading state stuck for 60+ seconds. Triggering emergency reset.",
         );
+        console.log("Long-running states:", longRunningManaged);
         emergencyLoadingReset();
+        consecutiveLoadingChecks = 0; // Reset counter
       }
     } else {
-      loadingCount = 0;
-      lastLoadingCheck = currentTime;
+      consecutiveLoadingChecks = 0;
     }
   }, 5000);
 
   return () => clearInterval(checkInterval);
 };
+
+// Enhanced debug utilities for development
+if (process.env.NODE_ENV === "development") {
+  // Add global utilities
+  (window as any).emergencyReset = emergencyLoadingReset;
+  (window as any).debugLoading = () => {
+    console.log("=== Loading State Debug ===");
+    loadingManager.debugActiveStates();
+
+    const domElements = document.querySelectorAll(
+      '[data-loading="true"], .animate-spin, .loading',
+    );
+    console.log(`DOM loading elements: ${domElements.length}`);
+    domElements.forEach((el, i) => {
+      console.log(`  ${i + 1}. ${el.tagName} - ${el.className}`);
+    });
+  };
+
+  (window as any).forceStopAll = () => {
+    console.log("🛑 Force stopping all loading states");
+    loadingManager.forceStopAllLoading();
+  };
+}
