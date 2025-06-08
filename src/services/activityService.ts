@@ -43,17 +43,65 @@ export interface ActivitySummary {
 
 export class ActivityService {
   /**
+   * Serialize error objects for better debugging
+   */
+  private static serializeError(error: any): any {
+    if (!error) return null;
+
+    return {
+      name: error.name,
+      message: error.message,
+      code: error.code,
+      details: error.details,
+      hint: error.hint,
+      stack: error.stack,
+      type: typeof error,
+      // Get all properties
+      ...Object.getOwnPropertyNames(error).reduce((acc, key) => {
+        try {
+          const value = error[key];
+          acc[key] = typeof value === "function" ? "[Function]" : value;
+        } catch (e) {
+          acc[key] = "[Error accessing property]";
+        }
+        return acc;
+      }, {} as any),
+    };
+  }
+
+  /**
    * Enhanced error logging with detailed information
    */
   private static logDetailedError(context: string, error: any) {
+    // Properly extract error information
+    const errorInfo = {
+      errorType: typeof error,
+      errorMessage: error?.message || "No message",
+      errorCode: error?.code || "No code",
+      errorDetails: error?.details || "No details",
+      errorHint: error?.hint || "No hint",
+      errorName: error?.name || "No name",
+    };
+
+    // Manually serialize error properties since JSON.stringify doesn't work with Error objects
+    const serializedError = {
+      ...errorInfo,
+      stack: error?.stack,
+      // Get all enumerable properties
+      ...Object.getOwnPropertyNames(error || {}).reduce((acc, key) => {
+        try {
+          acc[key] = error[key];
+        } catch (e) {
+          acc[key] = `[Error accessing ${key}]`;
+        }
+        return acc;
+      }, {} as any),
+    };
+
     console.error(`[ActivityService] ${context}:`, {
       error,
-      errorType: typeof error,
-      errorMessage: error?.message,
-      errorCode: error?.code,
-      errorDetails: error?.details,
-      errorHint: error?.hint,
-      fullError: JSON.stringify(error, null, 2),
+      ...errorInfo,
+      serializedError,
     });
 
     logError(`ActivityService - ${context}`, error);
@@ -132,80 +180,44 @@ export class ActivityService {
         };
       }
 
-      // Try to insert into activities table first (this will likely fail, but we check)
-      console.log("🔄 Attempting to insert into activities table...");
-      const { error: activitiesError } = await supabase
-        .from("activities")
-        .insert({
-          user_id: userId,
-          type,
-          title,
-          description,
-          metadata: metadata || {},
-          created_at: new Date().toISOString(),
-        });
+      // Skip activities table entirely and use notifications directly
+      // This avoids any issues with the activities table which may not exist or have schema issues
+      console.log("📝 Using notifications table for activity logging...");
 
-      if (activitiesError) {
-        // Check if it's a "table doesn't exist" error
-        if (
-          activitiesError.code === "42P01" ||
-          activitiesError.message?.includes("does not exist")
-        ) {
-          console.log(
-            "📋 Activities table not found, using notifications fallback...",
-          );
+      // Encode metadata in the message since notifications table doesn't have metadata column
+      const encodedMetadata = metadata
+        ? ` [META:${JSON.stringify(metadata)}]`
+        : "";
+      const notificationData = {
+        user_id: userId,
+        title: `Activity: ${title}`,
+        message: `${description}${encodedMetadata} [TYPE:${type}]`,
+        type: "activity",
+        created_at: new Date().toISOString(),
+      };
 
-          // Fallback to notifications table
-          // Note: notifications table doesn't have metadata column, so we encode it in the message
-          const encodedMetadata = metadata
-            ? ` [META:${JSON.stringify(metadata)}]`
-            : "";
-          const notificationData = {
-            user_id: userId,
-            title: `Activity: ${title}`,
-            message: `${description}${encodedMetadata} [TYPE:${type}]`,
-            type: "activity",
-            created_at: new Date().toISOString(),
-          };
+      console.log(
+        "📝 Inserting activity into notifications table:",
+        notificationData,
+      );
 
-          console.log(
-            "📝 Inserting into notifications table:",
-            notificationData,
-          );
+      const { error: notifError } = await supabase
+        .from("notifications")
+        .insert(notificationData);
 
-          const { error: notifError } = await supabase
-            .from("notifications")
-            .insert(notificationData);
-
-          if (notifError) {
-            this.logDetailedError(
-              "Failed to log activity in notifications",
-              notifError,
-            );
-            return {
-              success: false,
-              error: "Failed to log activity in notifications table",
-              details: notifError,
-            };
-          }
-
-          console.log("✅ Activity logged successfully via notifications");
-          return { success: true };
-        } else {
-          // Some other error with activities table
-          this.logDetailedError(
-            "Unexpected error with activities table",
-            activitiesError,
-          );
-          return {
-            success: false,
-            error: "Unexpected error with activities table",
-            details: activitiesError,
-          };
-        }
+      if (notifError) {
+        this.logDetailedError(
+          "Failed to log activity in notifications",
+          notifError,
+        );
+        return {
+          success: false,
+          error: "Failed to log activity in notifications table",
+          details: notifError,
+        };
       }
 
-      console.log("✅ Activity logged successfully in activities table");
+      console.log("✅ Activity logged successfully via notifications");
       return { success: true };
     } catch (error) {
       this.logDetailedError("Exception during activity logging", error);
@@ -233,42 +245,8 @@ export class ActivityService {
         return [];
       }
 
-      // Try to get from activities table first
-      console.log("🔄 Checking activities table...");
-      let query = supabase
-        .from("activities")
-        .select("*")
-        .eq("user_id", userId)
-        .order("created_at", { ascending: false })
-        .limit(limit);
-
-      if (type) {
-        query = query.eq("type", type);
-      }
-
-      const { data: activities, error } = await query;
-
-      if (error) {
-        if (
-          error.code === "42P01" ||
-          error.message?.includes("does not exist")
-        ) {
-          console.log("📋 Activities table not found, using notifications...");
-        } else {
-          this.logDetailedError("Error fetching activities", error);
-          // Continue to fallback
-        }
-      }
-
-      if (activities && activities.length > 0) {
-        console.log(
-          `✅ Found ${activities.length} activities in activities table`,
-        );
-        return activities;
-      }
-
-      // Fallback to notifications
-      console.log("🔄 Falling back to notifications table...");
+      // Use notifications table directly (skip activities table to avoid errors)
+      console.log("🔄 Fetching activities from notifications table...");
 
       let notifQuery = supabase
         .from("notifications")
@@ -394,7 +372,7 @@ export class ActivityService {
       results.tests.push({
         name: "Notifications Table Access",
         success: tableTest.accessible,
-        error: tableTest.error,
+        error: tableTest.error ? this.serializeError(tableTest.error) : null,
         details: "Testing if notifications table is accessible",
       });
 
@@ -410,7 +388,9 @@ export class ActivityService {
         name: "Simple Activity Log",
         success: simpleLogResult.success,
         error: simpleLogResult.error,
-        details: simpleLogResult.details,
+        details: simpleLogResult.details
+          ? this.serializeError(simpleLogResult.details)
+          : simpleLogResult.details,
       });
 
       // Test 3: Activity with metadata
@@ -426,7 +406,9 @@ export class ActivityService {
         name: "Activity Log with Metadata",
         success: metadataLogResult.success,
         error: metadataLogResult.error,
-        details: metadataLogResult.details,
+        details: metadataLogResult.details
+          ? this.serializeError(metadataLogResult.details)
+          : metadataLogResult.details,
       });
 
       // Test 4: Fetch activities
@@ -444,7 +426,7 @@ export class ActivityService {
         name: "Debug Exception",
         success: false,
         error: error instanceof Error ? error.message : "Unknown error",
-        details: error,
+        details: this.serializeError(error),
       });
     }
 
