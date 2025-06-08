@@ -9,12 +9,14 @@ import {
   Plus,
   User,
   LogOut,
-  Bell,
   UserPlus,
   Truck,
 } from "lucide-react";
 import AdminAccess from "./AdminAccess";
 import CartButton from "./CartButton";
+import NotificationBadge from "./NotificationBadge";
+import { toast } from "sonner";
+import { addNotification } from "@/services/notificationService";
 
 const Navbar = () => {
   const { user, logout, isAuthenticated } = useAuth();
@@ -23,10 +25,13 @@ const Navbar = () => {
 
   const handleLogout = async () => {
     try {
+      const userEmail = user?.email;
       await logout();
+      toast.success(`Successfully logged out. Goodbye!`);
       navigate("/");
     } catch (error) {
       console.error("Logout error:", error);
+      toast.error("Failed to logout. Please try again.");
     }
   };
 
@@ -73,7 +78,7 @@ const Navbar = () => {
                   to="/notifications"
                   className="flex items-center text-gray-700 hover:text-book-600 px-3 py-2 transition-colors"
                 >
-                  <Bell className="h-4 w-4 mr-1" />
+                  <NotificationBadge iconSize="h-4 w-4" className="mr-1" />
                   Notifications
                 </Link>
                 <CartButton />
@@ -163,7 +168,7 @@ const Navbar = () => {
                     className="flex items-center text-gray-700 hover:text-book-600 px-3 py-2 transition-colors"
                     onClick={() => setIsMenuOpen(false)}
                   >
-                    <Bell className="h-4 w-4 mr-1" />
+                    <NotificationBadge iconSize="h-4 w-4" className="mr-1" />
                     Notifications
                   </Link>
                   <div className="px-3 py-2">
