@@ -27,21 +27,12 @@ const Verify = () => {
         console.log("📍 Current URL:", window.location.href);
         console.log("📍 Location:", location);
 
-        // Get all possible URL parameters
-        const token_hash = searchParams.get("token_hash");
-        const token = searchParams.get("token"); // Legacy token parameter
-        const type = searchParams.get("type");
-        const error_code = searchParams.get("error_code");
-        const error_description = searchParams.get("error_description");
-        const code = searchParams.get("code"); // OAuth/PKCE code
+        // Extract parameters using the service
+        const params =
+          EmailVerificationService.extractParamsFromUrl(searchParams);
 
         const urlParams = {
-          token_hash: token_hash || null,
-          token: token || null,
-          type: type || null,
-          error_code: error_code || null,
-          error_description: error_description || null,
-          code: code || null,
+          ...params,
           fullUrl: window.location.href,
           searchString: window.location.search,
           hash: window.location.hash,
@@ -50,120 +41,55 @@ const Verify = () => {
         console.log("🔍 All URL parameters:", urlParams);
         setDebugInfo(urlParams);
 
-        // Check for errors first
-        if (error_code || error_description) {
-          console.error("❌ Verification error from URL:", {
-            error_code,
-            error_description,
-          });
-          setStatus("error");
-          setMessage(error_description || "Email verification failed");
-          toast.error(error_description || "Email verification failed");
-          return;
-        }
-
-        // Method 1: Try token_hash verification (new Supabase auth)
-        if (token_hash && type) {
-          console.log("🔐 Attempting token_hash verification");
-          const { data, error } = await supabase.auth.verifyOtp({
-            token_hash,
-            type: type as any,
-          });
-
-          if (error) {
-            console.error("❌ Token hash verification error:", error);
-            throw error;
-          }
-
-          if (data.session) {
-            console.log("✅ Token hash verification successful");
-            setStatus("success");
-            setMessage("Email verified successfully! You are now logged in.");
-            toast.success("Email verified successfully!");
-            setTimeout(() => navigate("/"), 2000);
-            return;
-          }
-        }
-
-        // Method 2: Try legacy token verification
-        if (token && type) {
-          console.log("🔐 Attempting legacy token verification");
-          const { data, error } = await supabase.auth.verifyOtp({
-            token,
-            type: type as any,
-          });
-
-          if (error) {
-            console.error("❌ Legacy token verification error:", error);
-          } else if (data.session) {
-            console.log("✅ Legacy token verification successful");
-            setStatus("success");
-            setMessage("Email verified successfully! You are now logged in.");
-            toast.success("Email verified successfully!");
-            setTimeout(() => navigate("/"), 2000);
-            return;
-          }
-        }
-
-        // Method 3: Try code exchange (PKCE flow)
-        if (code || window.location.href.includes("code=")) {
-          console.log("🔐 Attempting PKCE code exchange");
-          const { data, error } = await supabase.auth.exchangeCodeForSession(
-            window.location.href,
-          );
-
-          if (error) {
-            console.error("❌ Code exchange error:", error);
-          } else if (data.session) {
-            console.log("✅ Code exchange successful");
-            setStatus("success");
-            setMessage("Email verified successfully! You are now logged in.");
-            toast.success("Email verified successfully!");
-            setTimeout(() => navigate("/"), 2000);
-            return;
-          }
-        }
-
-        // Method 4: Check current session (user might already be verified)
-        console.log("🔍 Checking current session");
-        const { data: sessionData } = await supabase.auth.getSession();
-
-        if (sessionData.session) {
-          console.log("✅ User already has active session");
-          setStatus("success");
-          setMessage("You are already verified and logged in!");
-          toast.success("You are already verified and logged in!");
-          setTimeout(() => navigate("/"), 2000);
-          return;
-        }
-
-        // If we get here, show debug information
-        console.log("🐛 No verification method worked, showing debug info");
-        setStatus("debug");
-        setMessage(
-          "Unable to verify email automatically. Please see debug information below.",
+        // Use the verification service
+        const result = await EmailVerificationService.verifyEmail(
+          params,
+          window.location.href,
         );
+
+        if (result.success) {
+          console.log("✅ Email verification successful:", result);
+          setStatus("success");
+          setMessage(result.message);
+          toast.success("Email verified successfully!");
+
+          // Redirect to home page after successful verification
+          setTimeout(() => {
+            navigate("/", { replace: true });
+          }, 2000);
+        } else {
+          console.error("❌ Email verification failed:", result);
+
+          // Get user-friendly error message
+          const errorMessage =
+            EmailVerificationService.getFormattedErrorMessage(result);
+
+          // If no verification parameters found, show debug mode
+          if (
+            !params.token_hash &&
+            !params.token &&
+            !params.code &&
+            !params.error_code
+          ) {
+            setStatus("debug");
+            setMessage(
+              "No verification parameters found in URL. Please see debug information below.",
+            );
+          } else {
+            setStatus("error");
+            setMessage(errorMessage);
+            toast.error(errorMessage);
+          }
+        }
       } catch (error: any) {
-        console.error("❌ Email verification error:", error);
+        console.error("❌ Email verification exception:", error);
         setStatus("error");
 
-        let errorMessage = "Email verification failed. ";
-        if (error.message?.includes("expired")) {
-          errorMessage +=
-            "The verification link has expired. Please register again.";
-        } else if (error.message?.includes("already confirmed")) {
-          errorMessage +=
-            "This email has already been verified. You can now log in.";
-        } else if (error.message?.includes("invalid")) {
-          errorMessage +=
-            "The verification link is invalid. Please register again.";
-        } else if (error.message?.includes("Email not confirmed")) {
-          errorMessage +=
-            "Your email is not yet confirmed. Please check your email for the confirmation link.";
-        } else {
-          errorMessage +=
-            error.message || "Please try again or contact support.";
-        }
+        const errorMessage = EmailVerificationService.getFormattedErrorMessage({
+          success: false,
+          message: "Unexpected error during verification",
+          error,
+        });
 
         setMessage(errorMessage);
         toast.error(errorMessage);
