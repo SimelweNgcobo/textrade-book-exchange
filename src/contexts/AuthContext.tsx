@@ -169,52 +169,68 @@ function AuthProvider({ children }: { children: ReactNode }) {
   const login = useCallback(async (email: string, password: string) => {
     try {
       setIsLoading(true);
+      console.log("AuthContext: Starting login for", email);
 
-      // Use enhanced authentication service
-      const result = await EnhancedAuthService.enhancedLogin(email, password);
+      // Try simple login first to avoid circular dependencies
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
 
-      if (result.success) {
-        toast.success(result.message);
-        return result;
-      } else {
-        // Enhanced error handling with specific guidance
-        logError("Login failed", result.error);
+      if (error) {
+        console.error("AuthContext: Login error:", error);
 
-        // Show the enhanced error message
-        toast.error(result.message);
+        // Enhanced error handling
+        let errorMessage = "Login failed. Please try again.";
+        const errorMsg = getErrorMessage(error);
 
-        // Add specific guidance based on the error type
-        if (result.actionRequired === "verify_email") {
-          // Show additional toast with verification guidance
-          setTimeout(() => {
-            toast.info(
-              "💡 Tip: Check your spam/junk folder for the verification email",
-              {
-                duration: 5000,
-              },
-            );
-          }, 2000);
-        } else if (result.actionRequired === "register") {
-          setTimeout(() => {
-            toast.info(
-              "💡 Tip: Make sure you're using the correct email address",
-              {
-                duration: 5000,
-              },
-            );
-          }, 2000);
+        if (errorMsg.includes("Invalid login credentials")) {
+          // Check if user might need email verification
+          try {
+            const { data: profile } = await supabase
+              .from("profiles")
+              .select("created_at")
+              .eq("email", email)
+              .single();
+
+            if (profile) {
+              const createdAt = new Date(profile.created_at);
+              const now = new Date();
+              const daysSinceCreation =
+                (now.getTime() - createdAt.getTime()) / (1000 * 60 * 60 * 24);
+
+              if (daysSinceCreation <= 7) {
+                errorMessage =
+                  "Your email address may not be verified yet. Please check your email and click the verification link.";
+              } else {
+                errorMessage =
+                  "Incorrect email or password. Please check your credentials and try again.";
+              }
+            } else {
+              errorMessage =
+                "No account found with this email address. Please register first.";
+            }
+          } catch (profileError) {
+            console.log("Could not check profile:", profileError);
+            errorMessage =
+              "Invalid email or password. Please check your credentials.";
+          }
+        } else if (errorMsg.includes("Email not confirmed")) {
+          errorMessage =
+            "Please check your email and click the confirmation link to verify your account.";
         }
 
-        // Throw an enhanced error object that includes the result details
-        const enhancedError = new Error(result.message);
-        (enhancedError as any).loginResult = result;
-        throw enhancedError;
+        toast.error(errorMessage);
+        throw error;
+      }
+
+      if (data.session) {
+        console.log("AuthContext: Login successful");
+        toast.success("Login successful!");
+        return data;
       }
     } catch (error: unknown) {
-      // If it's not already an enhanced error, log it
-      if (!(error as any).loginResult) {
-        logError("Login failed with exception", error);
-      }
+      logError("Login failed", error);
       throw error;
     } finally {
       setIsLoading(false);
