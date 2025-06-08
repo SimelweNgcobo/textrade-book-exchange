@@ -1,11 +1,14 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams, useLocation } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
 import Layout from "@/components/Layout";
 import { Loader2, CheckCircle, XCircle, Info } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import {
+  EmailVerificationService,
+  VerificationParams,
+} from "@/services/emailVerificationService";
 
 const Verify = () => {
   const navigate = useNavigate();
