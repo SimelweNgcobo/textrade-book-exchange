@@ -55,9 +55,31 @@ const Login = () => {
       await login(email, password);
       console.log("Login successful, navigating to home");
       navigate("/", { replace: true });
-    } catch (error) {
+    } catch (error: any) {
       console.error("Login error in component:", error);
-      setLoginError(error);
+
+      // Create a simplified error object for display
+      const displayError = {
+        message: error?.message || "Login failed",
+        loginResult: {
+          success: false,
+          message: error?.message || "Login failed. Please try again.",
+          actionRequired:
+            error?.message?.includes("verification") ||
+            error?.message?.includes("verified")
+              ? "verify_email"
+              : error?.message?.includes("No account") ||
+                  error?.message?.includes("not found")
+                ? "register"
+                : "reset_password",
+          userExists: !error?.message?.includes("No account"),
+          requiresVerification:
+            error?.message?.includes("verification") ||
+            error?.message?.includes("verified"),
+        },
+      };
+
+      setLoginError(displayError);
     } finally {
       setIsLoading(false);
     }
