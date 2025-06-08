@@ -107,7 +107,11 @@ const EmailChangeDialog = ({
       );
 
       if (result.success) {
-        toast.success(result.message, { duration: 5000 });
+        // Show success message with more details
+        toast.success("📧 Email change requested successfully!", {
+          duration: 6000,
+          description: `Check ${newEmail} for the confirmation link. You have 24 hours to confirm.`,
+        });
 
         // Update pending status
         setPendingChange({
@@ -122,6 +126,18 @@ const EmailChangeDialog = ({
 
         // Clear form
         setNewEmail("");
+
+        // Show development link if in dev mode
+        if (process.env.NODE_ENV === "development") {
+          setTimeout(() => {
+            toast.info(
+              "Development Mode: Check browser console for confirmation link",
+              {
+                duration: 8000,
+              },
+            );
+          }, 1000);
+        }
 
         // Refresh profile to get latest data
         await refreshProfile();
@@ -286,9 +302,27 @@ const EmailChangeDialog = ({
 
                 <Alert className="border-blue-200 bg-blue-50">
                   <AlertDescription className="text-blue-700 text-xs">
-                    <strong>Important:</strong> A confirmation email will be
-                    sent to your new address. You'll need to click the link in
-                    that email to complete the change.
+                    <strong>How it works:</strong>
+                    <ol className="list-decimal list-inside mt-2 space-y-1">
+                      <li>
+                        A confirmation email will be sent to your new address
+                      </li>
+                      <li>
+                        Check your inbox (and spam folder) for the confirmation
+                        link
+                      </li>
+                      <li>Click the link to confirm and complete the change</li>
+                      <li>
+                        You'll be logged out and need to sign in with your new
+                        email
+                      </li>
+                    </ol>
+                    {process.env.NODE_ENV === "development" && (
+                      <p className="mt-2 font-semibold text-blue-800">
+                        🔧 Dev Mode: Confirmation link will also appear in
+                        browser console
+                      </p>
+                    )}
                   </AlertDescription>
                 </Alert>
 

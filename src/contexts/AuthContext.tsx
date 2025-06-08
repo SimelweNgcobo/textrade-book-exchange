@@ -126,6 +126,14 @@ function AuthProvider({ children }: { children: ReactNode }) {
           try {
             const userProfile = await fetchUserProfile(session.user);
             setProfile(userProfile);
+
+            // Log admin status for debugging
+            if (userProfile.isAdmin) {
+              console.log("🔐 Admin user logged in:", userProfile.email);
+            } else {
+              console.log("👤 Regular user logged in:", userProfile.email);
+            }
+
             console.log("✅ Auth state updated successfully");
           } catch (profileError) {
             console.error("❌ Error fetching profile:", profileError);

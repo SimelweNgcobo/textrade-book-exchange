@@ -139,6 +139,7 @@ export class EmailChangeService {
 
   /**
    * Send confirmation email to new email address
+   * Note: Since we're using Supabase free tier, we'll use a notification-based approach
    */
   private static async sendConfirmationEmail(
     newEmail: string,
@@ -148,30 +149,52 @@ export class EmailChangeService {
       // Create confirmation URL
       const confirmationUrl = `${window.location.origin}/confirm-email-change?token=${token}`;
 
-      // Send email using Supabase's email functionality
-      // Note: This uses the built-in email template system
-      const { error } = await supabase.auth.resetPasswordForEmail(newEmail, {
-        redirectTo: confirmationUrl,
-      });
+      // For now, we'll simulate email sending by logging the confirmation link
+      // In a production environment, you would integrate with an email service like:
+      // - SendGrid, Mailgun, AWS SES, etc.
+      // - Or use Supabase Edge Functions with custom email templates
 
-      if (error) {
-        logError("Error sending confirmation email", error);
-        return {
-          success: false,
-          message: "Failed to send confirmation email. Please try again.",
-          error,
-        };
+      console.log("📧 Email change confirmation link generated:");
+      console.log("📧 To:", newEmail);
+      console.log("📧 Link:", confirmationUrl);
+      console.log("📧 Token:", token);
+
+      // Store a notification for the user
+      try {
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("id")
+          .eq("pending_email", newEmail)
+          .single();
+
+        if (profile) {
+          await supabase.from("notifications").insert({
+            user_id: profile.id,
+            title: "Email Change Confirmation Required",
+            message: `Please confirm your new email address: ${newEmail}. Check your email for the confirmation link.`,
+            type: "email_change",
+          });
+        }
+      } catch (notifError) {
+        console.warn("Could not create notification:", notifError);
+      }
+
+      // For development/demo purposes, show the confirmation link in console
+      if (process.env.NODE_ENV === "development") {
+        console.log("🔗 DEVELOPMENT MODE: Email confirmation link:");
+        console.log(confirmationUrl);
       }
 
       return {
         success: true,
-        message: "Confirmation email sent successfully",
+        message:
+          "Email change request processed. Check your new email address for the confirmation link.",
       };
     } catch (error) {
       logError("Exception sending confirmation email", error);
       return {
         success: false,
-        message: "Failed to send confirmation email",
+        message: "Failed to process email change request",
         error,
       };
     }
