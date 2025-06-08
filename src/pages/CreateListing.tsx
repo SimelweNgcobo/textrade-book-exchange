@@ -145,7 +145,7 @@ const CreateListing = () => {
 
       console.log("Creating book with data:", bookData);
 
-      const createdBook = await createBook(bookData, user);
+      const createdBook = await createBook(bookData);
 
       console.log("Book created successfully:", createdBook);
 
