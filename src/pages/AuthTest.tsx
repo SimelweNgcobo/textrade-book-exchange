@@ -29,6 +29,8 @@ const AuthTest = () => {
   const [isResendingVerification, setIsResendingVerification] = useState(false);
   const [isCheckingAdmin, setIsCheckingAdmin] = useState(false);
   const [adminCheckResult, setAdminCheckResult] = useState<any>(null);
+  const [isDebuggingAdmin, setIsDebuggingAdmin] = useState(false);
+  const [adminDebugResult, setAdminDebugResult] = useState<any>(null);
 
   // Test both hooks
   let authContext = null;
