@@ -1,16 +1,18 @@
-
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
-import Layout from '@/components/Layout';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
-import { toast } from 'sonner';
-import { Mail, ArrowLeft, Loader2 } from 'lucide-react';
+import { useState } from "react";
+import { Link } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import Layout from "@/components/Layout";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { toast } from "sonner";
+import { Mail, ArrowLeft, Loader2 } from "lucide-react";
+import { addNotification } from "@/services/notificationService";
+import { useAuth } from "@/contexts/AuthContext";
 
 const ForgotPassword = () => {
-  const [email, setEmail] = useState('');
+  const { user } = useAuth();
+  const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [emailSent, setEmailSent] = useState(false);
 
@@ -32,9 +34,24 @@ const ForgotPassword = () => {
       }
 
       setEmailSent(true);
-      toast.success('Password reset email sent! Check your inbox.');
+      toast.success(`Password reset email sent to ${email}! Check your inbox.`);
+
+      // If user is logged in, add notification (they might be resetting for another account)
+      if (user) {
+        try {
+          await addNotification({
+            userId: user.id,
+            title: "Password Reset Email Sent",
+            message: `A password reset email was sent to ${email} at ${new Date().toLocaleString()}`,
+            type: "info",
+            read: false,
+          });
+        } catch (notificationError) {
+          // Silently fail notification creation
+        }
+      }
     } catch (error: any) {
-      toast.error(error.message || 'Failed to send reset email');
+      toast.error(error.message || "Failed to send reset email");
     } finally {
       setIsLoading(false);
     }
@@ -57,7 +74,9 @@ const ForgotPassword = () => {
                   We've sent a password reset link to <strong>{email}</strong>
                 </p>
                 <p className="text-sm text-gray-500 mb-6">
-                  Click the link in your email to reset your password. The link will take you to a secure page where you can enter your new password.
+                  Click the link in your email to reset your password. The link
+                  will take you to a secure page where you can enter your new
+                  password.
                 </p>
                 <div className="space-y-3">
                   <Button
@@ -88,8 +107,8 @@ const ForgotPassword = () => {
           <div className="bg-white rounded-lg shadow-lg overflow-hidden">
             <div className="p-6 sm:p-8">
               <div className="mb-6">
-                <Link 
-                  to="/login" 
+                <Link
+                  to="/login"
                   className="inline-flex items-center text-book-600 hover:text-book-800 mb-4"
                 >
                   <ArrowLeft className="h-4 w-4 mr-2" />
@@ -99,7 +118,8 @@ const ForgotPassword = () => {
                   Reset Your Password
                 </h1>
                 <p className="text-gray-600">
-                  Enter your email address and we'll send you a link to reset your password.
+                  Enter your email address and we'll send you a link to reset
+                  your password.
                 </p>
               </div>
 
@@ -141,7 +161,10 @@ const ForgotPassword = () => {
               <div className="mt-6 text-center text-sm">
                 <p className="text-gray-600">
                   Remember your password?{" "}
-                  <Link to="/login" className="text-book-600 hover:text-book-800 font-medium">
+                  <Link
+                    to="/login"
+                    className="text-book-600 hover:text-book-800 font-medium"
+                  >
                     Sign in
                   </Link>
                 </p>
