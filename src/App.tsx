@@ -85,6 +85,10 @@ function App() {
                     <Route path="/reset-password" element={<ResetPassword />} />
                     <Route path="/confirm" element={<Confirm />} />
                     <Route path="/verify" element={<Verify />} />
+                    <Route
+                      path="/confirm-email-change"
+                      element={<ConfirmEmailChange />}
+                    />
                     <Route path="/faq" element={<FAQ />} />
                     <Route path="/terms" element={<Terms />} />
                     <Route path="/privacy" element={<Privacy />} />
