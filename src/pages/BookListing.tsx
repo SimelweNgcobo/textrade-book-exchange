@@ -7,17 +7,13 @@ import BookGrid from "@/components/book-listing/BookGrid";
 import { getBooks } from "@/services/book/bookQueries";
 import { Book } from "@/types/book";
 import { toast } from "sonner";
-import { useLoadingState } from "@/utils/loadingStateManager";
 
 const BookListing = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [books, setBooks] = useState<Book[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [showFilters, setShowFilters] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  // Use improved loading state management
-  const { isLoading, startLoading, stopLoading, forceStopLoading } =
-    useLoadingState("BookListing");
 
   // Filter states
   const [searchQuery, setSearchQuery] = useState(
@@ -35,11 +31,11 @@ const BookListing = () => {
     "all",
   );
 
-  // Memoize loadBooks function with timeout protection
+  // Memoize loadBooks function to prevent infinite loops
   const loadBooks = useCallback(async () => {
     console.log("Loading books...");
 
-    const loadingId = startLoading("load-books");
+    setIsLoading(true);
     setError(null);
 
     try {
@@ -72,16 +68,7 @@ const BookListing = () => {
 
       console.log("Applied filters:", filters);
 
-      // Add timeout protection to the books query
-      const booksPromise = getBooks(filters);
-      const timeoutPromise = new Promise((_, reject) =>
-        setTimeout(() => reject(new Error("Books loading timeout")), 20000),
-      );
-
-      const loadedBooks = (await Promise.race([
-        booksPromise,
-        timeoutPromise,
-      ])) as Book[];
+      const loadedBooks = await getBooks(filters);
       console.log("Loaded books count:", loadedBooks.length);
 
       // Ensure we have an array
@@ -103,55 +90,15 @@ const BookListing = () => {
       // Set empty books array on error to prevent infinite loading
       setBooks([]);
     } finally {
-      stopLoading();
+      setIsLoading(false);
     }
-  }, [
-    searchParams,
-    selectedCondition,
-    selectedUniversity,
-    priceRange,
-    startLoading,
-    stopLoading,
-  ]);
+  }, [searchParams, selectedCondition, selectedUniversity, priceRange]);
 
-  // Initial load with retry mechanism
+  // Initial load
   useEffect(() => {
     console.log("BookListing component mounted");
-
-    const loadWithRetry = async () => {
-      try {
-        await loadBooks();
-      } catch (error) {
-        console.error("Initial load failed, retrying once:", error);
-        // Single retry after a short delay
-        setTimeout(async () => {
-          try {
-            await loadBooks();
-          } catch (retryError) {
-            console.error("Retry failed:", retryError);
-            forceStopLoading();
-          }
-        }, 2000);
-      }
-    };
-
-    loadWithRetry();
-  }, [loadBooks, forceStopLoading]);
-
-  // Emergency timeout to prevent infinite loading
-  useEffect(() => {
-    if (isLoading) {
-      const emergencyTimeout = setTimeout(() => {
-        console.error(
-          "🚨 BookListing emergency timeout - force stopping loading",
-        );
-        forceStopLoading();
-        setError("Loading took too long. Please try again.");
-      }, 30000); // 30 seconds emergency timeout
-
-      return () => clearTimeout(emergencyTimeout);
-    }
-  }, [isLoading, forceStopLoading]);
+    loadBooks();
+  }, [loadBooks]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();

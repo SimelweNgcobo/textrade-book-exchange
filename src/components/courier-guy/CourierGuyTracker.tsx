@@ -1,10 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   Loader2,
   Search,
@@ -12,15 +11,11 @@ import {
   MapPin,
   Clock,
   CheckCircle,
-  AlertTriangle,
-  Info,
 } from "lucide-react";
 import { toast } from "sonner";
 import {
   trackCourierGuyShipment,
   CourierGuyTrackingInfo,
-  checkTrackingServiceStatus,
-  getTestTrackingNumbers,
 } from "@/services/courierGuyService";
 
 const CourierGuyTracker = () => {
@@ -28,27 +23,6 @@ const CourierGuyTracker = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [trackingInfo, setTrackingInfo] =
     useState<CourierGuyTrackingInfo | null>(null);
-  const [serviceStatus, setServiceStatus] = useState<{
-    available: boolean;
-    message: string;
-  } | null>(null);
-  const [showTestNumbers, setShowTestNumbers] = useState(false);
-
-  useEffect(() => {
-    checkServiceStatus();
-  }, []);
-
-  const checkServiceStatus = async () => {
-    try {
-      const status = await checkTrackingServiceStatus();
-      setServiceStatus(status);
-    } catch (error) {
-      setServiceStatus({
-        available: false,
-        message: "Unable to check service status. Using demonstration mode.",
-      });
-    }
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -64,14 +38,7 @@ const CourierGuyTracker = () => {
     try {
       const info = await trackCourierGuyShipment(trackingNumber.trim());
       setTrackingInfo(info);
-
-      if (!serviceStatus?.available) {
-        toast.success("Demonstration tracking data loaded successfully!", {
-          description: "This is mock data for demonstration purposes.",
-        });
-      } else {
-        toast.success("Tracking information retrieved successfully!");
-      }
+      toast.success("Tracking information retrieved successfully!");
     } catch (error) {
       console.error("Error tracking shipment:", error);
       const errorMessage =
@@ -80,11 +47,6 @@ const CourierGuyTracker = () => {
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const handleTestTrackingNumber = (testNumber: string) => {
-    setTrackingNumber(testNumber);
-    setShowTestNumbers(false);
   };
 
   const getStatusColor = (status: string) => {
@@ -96,8 +58,6 @@ const CourierGuyTracker = () => {
         return "bg-blue-100 text-blue-800";
       case "pending":
       case "processing":
-      case "created":
-      case "collected":
         return "bg-yellow-100 text-yellow-800";
       case "failed":
       case "cancelled":
@@ -116,42 +76,14 @@ const CourierGuyTracker = () => {
         return <Package className="h-4 w-4" />;
       case "pending":
       case "processing":
-      case "created":
-      case "collected":
         return <Clock className="h-4 w-4" />;
       default:
         return <MapPin className="h-4 w-4" />;
     }
   };
 
-  const testNumbers = getTestTrackingNumbers();
-
   return (
     <div className="max-w-4xl mx-auto space-y-6">
-      {/* Service Status Alert */}
-      {serviceStatus && (
-        <Alert
-          className={
-            serviceStatus.available
-              ? "border-green-200 bg-green-50"
-              : "border-yellow-200 bg-yellow-50"
-          }
-        >
-          {serviceStatus.available ? (
-            <CheckCircle className="h-4 w-4 text-green-600" />
-          ) : (
-            <Info className="h-4 w-4 text-yellow-600" />
-          )}
-          <AlertDescription
-            className={
-              serviceStatus.available ? "text-green-700" : "text-yellow-700"
-            }
-          >
-            {serviceStatus.message}
-          </AlertDescription>
-        </Alert>
-      )}
-
       {/* Tracking Form */}
       <Card>
         <CardHeader>
@@ -188,38 +120,6 @@ const CourierGuyTracker = () => {
                 </Button>
               </div>
             </div>
-
-            {/* Test Numbers for Demo */}
-            {!serviceStatus?.available && (
-              <div className="space-y-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setShowTestNumbers(!showTestNumbers)}
-                  className="text-xs"
-                >
-                  {showTestNumbers ? "Hide" : "Show"} Demo Tracking Numbers
-                </Button>
-
-                {showTestNumbers && (
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                    {testNumbers.map((number) => (
-                      <Button
-                        key={number}
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleTestTrackingNumber(number)}
-                        className="text-xs border border-gray-200 hover:bg-gray-50"
-                      >
-                        {number}
-                      </Button>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
           </form>
         </CardContent>
       </Card>
@@ -227,18 +127,6 @@ const CourierGuyTracker = () => {
       {/* Tracking Results */}
       {trackingInfo && (
         <div className="space-y-6">
-          {/* Demo Notice */}
-          {!serviceStatus?.available && (
-            <Alert className="border-blue-200 bg-blue-50">
-              <Info className="h-4 w-4 text-blue-600" />
-              <AlertDescription className="text-blue-700">
-                <strong>Demo Mode:</strong> This is demonstration data showing
-                how tracking would work. In production, this would connect to
-                the actual Courier Guy API.
-              </AlertDescription>
-            </Alert>
-          )}
-
           {/* Shipment Overview */}
           <Card>
             <CardHeader>
@@ -251,20 +139,18 @@ const CourierGuyTracker = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 <div>
                   <Label className="text-sm font-medium">Tracking Number</Label>
-                  <p className="text-sm bg-gray-100 p-2 rounded font-mono">
+                  <p className="text-sm bg-gray-100 p-2 rounded">
                     {trackingInfo.tracking_number}
                   </p>
                 </div>
                 <div>
                   <Label className="text-sm font-medium">Status</Label>
-                  <div className="mt-1">
-                    <Badge className={getStatusColor(trackingInfo.status)}>
-                      {getStatusIcon(trackingInfo.status)}
-                      <span className="ml-1">
-                        {trackingInfo.status_description}
-                      </span>
-                    </Badge>
-                  </div>
+                  <Badge className={getStatusColor(trackingInfo.status)}>
+                    {getStatusIcon(trackingInfo.status)}
+                    <span className="ml-1">
+                      {trackingInfo.status_description}
+                    </span>
+                  </Badge>
                 </div>
                 <div>
                   <Label className="text-sm font-medium">Created</Label>
@@ -281,9 +167,8 @@ const CourierGuyTracker = () => {
               </div>
 
               {trackingInfo.estimated_delivery_date && (
-                <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                  <Label className="text-sm font-medium flex items-center">
-                    <Clock className="h-4 w-4 mr-1" />
+                <div className="mt-4">
+                  <Label className="text-sm font-medium">
                     Estimated Delivery
                   </Label>
                   <p className="text-lg font-semibold text-blue-600">
@@ -295,11 +180,8 @@ const CourierGuyTracker = () => {
               )}
 
               {trackingInfo.actual_delivery_date && (
-                <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg">
-                  <Label className="text-sm font-medium flex items-center">
-                    <CheckCircle className="h-4 w-4 mr-1" />
-                    Delivered On
-                  </Label>
+                <div className="mt-4">
+                  <Label className="text-sm font-medium">Delivered On</Label>
                   <p className="text-lg font-semibold text-green-600">
                     {new Date(
                       trackingInfo.actual_delivery_date,
@@ -331,7 +213,7 @@ const CourierGuyTracker = () => {
                       .map((event, index) => (
                         <div
                           key={index}
-                          className="flex items-start space-x-4 p-4 border rounded-lg hover:bg-gray-50 transition-colors"
+                          className="flex items-start space-x-4 p-4 border rounded-lg"
                         >
                           <div className="flex-shrink-0">
                             <div
@@ -346,7 +228,7 @@ const CourierGuyTracker = () => {
                                 {event.description}
                               </h4>
                               <Badge variant="outline" className="text-xs">
-                                {event.status.replace("_", " ").toUpperCase()}
+                                {event.status}
                               </Badge>
                             </div>
                             {event.location && (
@@ -373,45 +255,14 @@ const CourierGuyTracker = () => {
         <Card>
           <CardContent className="flex items-center justify-center py-8">
             <div className="text-center">
-              <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-blue-600" />
+              <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
               <p className="text-sm text-gray-600">
                 Fetching tracking information...
-              </p>
-              <p className="text-xs text-gray-500 mt-1">
-                This may take a few moments
               </p>
             </div>
           </CardContent>
         </Card>
       )}
-
-      {/* Help Section */}
-      <Card className="border-gray-200">
-        <CardHeader>
-          <CardTitle className="text-sm flex items-center">
-            <Info className="mr-2 h-4 w-4" />
-            Help & Information
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="text-sm text-gray-600 space-y-2">
-          <p>
-            • Tracking numbers are usually provided by the seller after shipment
-          </p>
-          <p>
-            • Updates may take 24-48 hours to appear after shipment creation
-          </p>
-          <p>
-            • Contact the seller if you don't receive a tracking number within 3
-            business days
-          </p>
-          {!serviceStatus?.available && (
-            <p className="text-blue-600">
-              • Currently showing demonstration data - actual API integration
-              pending
-            </p>
-          )}
-        </CardContent>
-      </Card>
     </div>
   );
 };
