@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { EnhancedAuthService } from "@/services/enhancedAuthService";
+import { debugAdminStatus } from "@/utils/adminDebug";
 import { toast } from "sonner";
 import {
   User,
