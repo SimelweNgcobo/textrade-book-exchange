@@ -18,20 +18,12 @@ const Verify = () => {
       try {
         console.log('Starting email verification process');
         
-        // Get tokens from URL hash or search params
-        const hash = window.location.hash.substring(1);
-        const hashParams = new URLSearchParams(hash);
-        
-        const access_token = hashParams.get('access_token') || searchParams.get('access_token');
-        const refresh_token = hashParams.get('refresh_token') || searchParams.get('refresh_token');
         const token_hash = searchParams.get('token_hash');
         const type = searchParams.get('type');
         const error_code = searchParams.get('error_code');
         const error_description = searchParams.get('error_description');
         
         console.log('Verification params:', { 
-          access_token: !!access_token, 
-          refresh_token: !!refresh_token,
           token_hash: !!token_hash,
           type,
           error_code,
@@ -47,7 +39,7 @@ const Verify = () => {
           return;
         }
 
-        // Method 1: Token hash verification (most reliable for email confirmation)
+        // Primary verification method using token hash
         if (token_hash && type) {
           console.log('Using token hash verification');
           const { data, error } = await supabase.auth.verifyOtp({
@@ -61,7 +53,7 @@ const Verify = () => {
           }
 
           if (data.session) {
-            console.log('Email confirmed successfully with token hash');
+            console.log('Email verified successfully');
             setStatus('success');
             setMessage('Email verified successfully! You are now logged in.');
             toast.success('Email verified successfully!');
@@ -70,30 +62,7 @@ const Verify = () => {
           }
         }
 
-        // Method 2: Access/Refresh token session (for direct verification links)
-        if (access_token && refresh_token) {
-          console.log('Using session tokens');
-          const { data, error } = await supabase.auth.setSession({
-            access_token,
-            refresh_token,
-          });
-          
-          if (error) {
-            console.error('Session token error:', error);
-            throw error;
-          }
-
-          if (data.session) {
-            console.log('Session set successfully');
-            setStatus('success');
-            setMessage('Email verified successfully! You are now logged in.');
-            toast.success('Email verified successfully!');
-            setTimeout(() => navigate('/'), 2000);
-            return;
-          }
-        }
-
-        // Method 3: Code exchange (fallback)
+        // If no token_hash, try code exchange as fallback
         console.log('Attempting code exchange method');
         const { data, error } = await supabase.auth.exchangeCodeForSession(window.location.href);
         
@@ -111,8 +80,8 @@ const Verify = () => {
           return;
         }
 
-        // If we get here, none of the methods worked
-        throw new Error('Unable to verify email with any available method');
+        // If we get here, verification failed
+        throw new Error('Unable to verify email. Please try again or contact support.');
 
       } catch (error: any) {
         console.error('Email verification error:', error);
@@ -120,11 +89,11 @@ const Verify = () => {
         
         let errorMessage = 'Email verification failed. ';
         if (error.message?.includes('expired')) {
-          errorMessage += 'The verification link has expired.';
+          errorMessage += 'The verification link has expired. Please register again.';
         } else if (error.message?.includes('already confirmed')) {
-          errorMessage += 'This email has already been verified.';
+          errorMessage += 'This email has already been verified. You can now log in.';
         } else if (error.message?.includes('invalid')) {
-          errorMessage += 'The verification link is invalid.';
+          errorMessage += 'The verification link is invalid. Please register again.';
         } else {
           errorMessage += 'Please try again or contact support.';
         }

@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -45,13 +46,13 @@ const Register = () => {
 
       // Show confirmation message and redirect to login
       toast.success(
-        "Confirmation email sent! Please verify before logging in.",
+        "Registration successful! Please check your email for verification.",
       );
       setTimeout(() => {
         navigate("/login", {
           state: {
             message:
-              "Please check your email and click the confirmation link before logging in.",
+              "Please check your email and click the verification link to activate your account.",
             email,
           },
         });

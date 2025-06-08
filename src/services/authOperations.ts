@@ -1,3 +1,4 @@
+
 import { User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { isAdminUser } from "@/services/admin/adminAuthService";
@@ -40,6 +41,7 @@ export const registerUser = async (
       data: {
         name,
       },
+      emailRedirectTo: `${window.location.origin}/verify`,
     },
   });
 
