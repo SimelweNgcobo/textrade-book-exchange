@@ -1,5 +1,6 @@
 import { supabase } from "@/integrations/supabase/client";
 import { logError, getErrorMessage } from "@/utils/errorUtils";
+import { verifyAdminStatus } from "@/utils/adminVerification";
 
 export const isAdminUser = async (userId: string): Promise<boolean> => {
   try {
