@@ -1,5 +1,6 @@
 import { supabase } from "@/integrations/supabase/client";
 import { logError } from "@/utils/errorUtils";
+import { getNotificationTypeForActivity } from "@/utils/notificationTypes";
 
 export interface Activity {
   id: string;
@@ -188,11 +189,15 @@ export class ActivityService {
       const encodedMetadata = metadata
         ? ` [META:${JSON.stringify(metadata)}]`
         : "";
+
+      // Use appropriate notification type based on activity type
+      const notificationType = getNotificationTypeForActivity(type);
+
       const notificationData = {
         user_id: userId,
         title: `Activity: ${title}`,
         message: `${description}${encodedMetadata} [TYPE:${type}]`,
-        type: "activity",
+        type: notificationType,
         created_at: new Date().toISOString(),
       };
 
@@ -248,11 +253,12 @@ export class ActivityService {
       // Use notifications table directly (skip activities table to avoid errors)
       console.log("🔄 Fetching activities from notifications table...");
 
+      // Filter for notifications that have our activity marker in the title
       let notifQuery = supabase
         .from("notifications")
         .select("*")
         .eq("user_id", userId)
-        .eq("type", "activity")
+        .like("title", "Activity:%") // Filter by title prefix instead of type
         .order("created_at", { ascending: false })
         .limit(limit);
 

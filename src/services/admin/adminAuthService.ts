@@ -44,7 +44,7 @@ export const logAdminAction = async (
       message:
         description ||
         `Admin performed ${actionType} on ${targetType}: ${targetId}`,
-      type: "admin_action",
+      type: "info", // Use 'info' instead of 'admin_action'
     });
 
     if (error) {

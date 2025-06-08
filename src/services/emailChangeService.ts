@@ -172,7 +172,7 @@ export class EmailChangeService {
             user_id: profile.id,
             title: "Email Change Confirmation Required",
             message: `Please confirm your new email address: ${newEmail}. Check your email for the confirmation link.`,
-            type: "email_change",
+            type: "info", // Use 'info' instead of 'email_change'
           });
         }
       } catch (notifError) {
