@@ -1,8 +1,7 @@
 import { supabase } from "@/integrations/supabase/client";
 
 /**
- * Simple, lightweight admin verification
- * This function is designed to be error-free and not log false errors
+ * Enhanced admin verification with fallback mechanisms
  */
 export const verifyAdminStatus = async (userId: string): Promise<boolean> => {
   try {
@@ -10,32 +9,83 @@ export const verifyAdminStatus = async (userId: string): Promise<boolean> => {
       return false;
     }
 
-    // Simple query without .single() to avoid PGRST116 errors
-    const { data, error } = await supabase
+    // First, try to get user profile with admin check
+    const { data: profile, error: profileError } = await supabase
       .from("profiles")
-      .select("id")
+      .select("email, is_admin")
       .eq("id", userId)
-      .eq("email", "AdminSimnLi@gmail.com")
-      .limit(1);
+      .single();
 
-    // If there's an error, assume not admin
-    if (error) {
-      return false;
+    if (profileError) {
+      // If single() fails, try without single()
+      const { data: profiles, error: listError } = await supabase
+        .from("profiles")
+        .select("email, is_admin")
+        .eq("id", userId)
+        .limit(1);
+
+      if (listError || !profiles || profiles.length === 0) {
+        return false;
+      }
+
+      // Use first result
+      const userProfile = profiles[0];
+
+      // Check if user has admin flag OR is the specific admin email
+      if (userProfile.is_admin === true) {
+        return true;
+      }
+
+      return isAdminEmail(userProfile.email);
     }
 
-    // Return true if any rows found
-    return data && data.length > 0;
-  } catch {
+    // Check if user has admin flag OR is the specific admin email
+    if (profile.is_admin === true) {
+      return true;
+    }
+
+    // If user is AdminSimnLi@gmail.com but doesn't have admin flag, set it
+    if (isAdminEmail(profile.email)) {
+      await ensureAdminPrivileges(userId);
+      return true;
+    }
+
+    return false;
+  } catch (error) {
     // Any exception means not admin
     return false;
   }
 };
 
 /**
- * Check if an email is the admin email
+ * Check if an email is the admin email (case insensitive)
  */
 export const isAdminEmail = (email: string): boolean => {
-  return email === "AdminSimnLi@gmail.com";
+  if (!email) return false;
+
+  const adminEmails = ["AdminSimnLi@gmail.com", "adminsimnli@gmail.com"];
+
+  return adminEmails.includes(email.toLowerCase());
+};
+
+/**
+ * Ensure admin privileges are set for the admin user
+ */
+export const ensureAdminPrivileges = async (userId: string): Promise<void> => {
+  try {
+    const { error } = await supabase
+      .from("profiles")
+      .update({ is_admin: true })
+      .eq("id", userId);
+
+    if (error) {
+      console.error("Error setting admin privileges:", error);
+    } else {
+      console.log("✅ Admin privileges ensured for user:", userId);
+    }
+  } catch (error) {
+    console.error("Error in ensureAdminPrivileges:", error);
+  }
 };
 
 /**
