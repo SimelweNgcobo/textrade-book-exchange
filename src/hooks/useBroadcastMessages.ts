@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { useAuth } from "@/contexts/AuthContext";
+import { useSafeAuth } from "@/hooks/useSafeAuth";
 
 interface BroadcastMessage {
   message: string;
