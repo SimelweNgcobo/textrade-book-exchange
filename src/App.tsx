@@ -44,6 +44,7 @@ import EditBook from "./pages/EditBook";
 import Cart from "./pages/Cart";
 import Report from "./pages/Report";
 import Shipping from "./pages/Shipping";
+import AuthTest from "./pages/AuthTest";
 
 import "./App.css";
 import "./styles/mobile-fixes.css";
