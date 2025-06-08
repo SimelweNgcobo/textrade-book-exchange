@@ -1,6 +1,7 @@
 import Layout from "@/components/Layout";
 import EmailChangeTest from "@/components/EmailChangeTest";
 import AdminLoginTest from "@/components/AdminLoginTest";
+import ActivityDebugTest from "@/components/ActivityDebugTest";
 
 const AuthTest = () => {
   return (
@@ -13,6 +14,7 @@ const AuthTest = () => {
 
           <div className="space-y-8">
             <AdminLoginTest />
+            <ActivityDebugTest />
             <EmailChangeTest />
           </div>
         </div>

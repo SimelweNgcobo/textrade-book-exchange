@@ -43,7 +43,52 @@ export interface ActivitySummary {
 
 export class ActivityService {
   /**
-   * Log a new activity for a user
+   * Enhanced error logging with detailed information
+   */
+  private static logDetailedError(context: string, error: any) {
+    console.error(`[ActivityService] ${context}:`, {
+      error,
+      errorType: typeof error,
+      errorMessage: error?.message,
+      errorCode: error?.code,
+      errorDetails: error?.details,
+      errorHint: error?.hint,
+      fullError: JSON.stringify(error, null, 2),
+    });
+
+    logError(`ActivityService - ${context}`, error);
+  }
+
+  /**
+   * Test if notifications table is accessible
+   */
+  private static async testNotificationsTable(): Promise<{
+    accessible: boolean;
+    error?: any;
+  }> {
+    try {
+      console.log("🧪 Testing notifications table accessibility...");
+
+      const { data, error } = await supabase
+        .from("notifications")
+        .select("id")
+        .limit(1);
+
+      if (error) {
+        console.error("❌ Notifications table test failed:", error);
+        return { accessible: false, error };
+      }
+
+      console.log("✅ Notifications table is accessible");
+      return { accessible: true };
+    } catch (error) {
+      console.error("❌ Exception testing notifications table:", error);
+      return { accessible: false, error };
+    }
+  }
+
+  /**
+   * Log a new activity for a user with enhanced error handling
    */
   static async logActivity(
     userId: string,
@@ -51,56 +96,123 @@ export class ActivityService {
     title: string,
     description: string,
     metadata?: Activity["metadata"],
-  ): Promise<{ success: boolean; error?: string }> {
+  ): Promise<{ success: boolean; error?: string; details?: any }> {
     try {
-      const { error } = await supabase.from("activities").insert({
-        user_id: userId,
+      console.log("📝 Attempting to log activity:", {
+        userId,
         type,
         title,
         description,
-        metadata: metadata || {},
-        created_at: new Date().toISOString(),
+        metadata,
       });
 
-      if (error) {
-        // If activities table doesn't exist, store in notifications instead
-        if (error.code === "42P01") {
+      // Validate required parameters
+      if (!userId || !type || !title || !description) {
+        const error = "Missing required parameters for activity logging";
+        console.error("❌ Validation failed:", {
+          userId,
+          type,
+          title,
+          description,
+        });
+        return { success: false, error };
+      }
+
+      // Test notifications table first
+      const tableTest = await this.testNotificationsTable();
+      if (!tableTest.accessible) {
+        this.logDetailedError(
+          "Notifications table test failed",
+          tableTest.error,
+        );
+        return {
+          success: false,
+          error: "Notifications table is not accessible",
+          details: tableTest.error,
+        };
+      }
+
+      // Try to insert into activities table first (this will likely fail, but we check)
+      console.log("🔄 Attempting to insert into activities table...");
+      const { error: activitiesError } = await supabase
+        .from("activities")
+        .insert({
+          user_id: userId,
+          type,
+          title,
+          description,
+          metadata: metadata || {},
+          created_at: new Date().toISOString(),
+        });
+
+      if (activitiesError) {
+        // Check if it's a "table doesn't exist" error
+        if (
+          activitiesError.code === "42P01" ||
+          activitiesError.message?.includes("does not exist")
+        ) {
           console.log(
-            "Activities table not found, storing in notifications...",
+            "📋 Activities table not found, using notifications fallback...",
+          );
+
+          // Fallback to notifications table
+          const notificationData = {
+            user_id: userId,
+            title: `Activity: ${title}`,
+            message: description,
+            type: "activity",
+            metadata: {
+              activity_type: type,
+              ...metadata,
+            },
+            created_at: new Date().toISOString(),
+          };
+
+          console.log(
+            "📝 Inserting into notifications table:",
+            notificationData,
           );
 
           const { error: notifError } = await supabase
             .from("notifications")
-            .insert({
-              user_id: userId,
-              title: `Activity: ${title}`,
-              message: description,
-              type: "activity",
-              metadata: {
-                activity_type: type,
-                ...metadata,
-              },
-              created_at: new Date().toISOString(),
-            });
+            .insert(notificationData);
 
           if (notifError) {
-            logError("Failed to log activity in notifications", notifError);
-            return { success: false, error: notifError.message };
+            this.logDetailedError(
+              "Failed to log activity in notifications",
+              notifError,
+            );
+            return {
+              success: false,
+              error: "Failed to log activity in notifications table",
+              details: notifError,
+            };
           }
 
+          console.log("✅ Activity logged successfully via notifications");
           return { success: true };
+        } else {
+          // Some other error with activities table
+          this.logDetailedError(
+            "Unexpected error with activities table",
+            activitiesError,
+          );
+          return {
+            success: false,
+            error: "Unexpected error with activities table",
+            details: activitiesError,
+          };
         }
-
-        logError("Failed to log activity", error);
-        return { success: false, error: error.message };
       }
 
+      console.log("✅ Activity logged successfully in activities table");
       return { success: true };
     } catch (error) {
-      logError("Exception logging activity", error);
+      this.logDetailedError("Exception during activity logging", error);
       return {
         success: false,
-        error: error instanceof Error ? error.message : "Unknown error",
+        error: "Exception occurred during activity logging",
+        details: error,
       };
     }
   }
@@ -114,7 +226,15 @@ export class ActivityService {
     type?: Activity["type"],
   ): Promise<Activity[]> {
     try {
+      console.log("📖 Fetching user activities for:", userId);
+
+      if (!userId) {
+        console.warn("⚠️ No userId provided for getUserActivities");
+        return [];
+      }
+
       // Try to get from activities table first
+      console.log("🔄 Checking activities table...");
       let query = supabase
         .from("activities")
         .select("*")
@@ -128,17 +248,27 @@ export class ActivityService {
 
       const { data: activities, error } = await query;
 
-      if (error && error.code !== "42P01") {
-        logError("Error fetching activities", error);
-        return [];
+      if (error) {
+        if (
+          error.code === "42P01" ||
+          error.message?.includes("does not exist")
+        ) {
+          console.log("📋 Activities table not found, using notifications...");
+        } else {
+          this.logDetailedError("Error fetching activities", error);
+          // Continue to fallback
+        }
       }
 
       if (activities && activities.length > 0) {
+        console.log(
+          `✅ Found ${activities.length} activities in activities table`,
+        );
         return activities;
       }
 
       // Fallback to notifications
-      console.log("No activities found, falling back to notifications...");
+      console.log("🔄 Falling back to notifications table...");
 
       let notifQuery = supabase
         .from("notifications")
@@ -151,22 +281,29 @@ export class ActivityService {
       const { data: notifications, error: notifError } = await notifQuery;
 
       if (notifError) {
-        logError("Error fetching activity notifications", notifError);
+        this.logDetailedError(
+          "Error fetching activity notifications",
+          notifError,
+        );
         return [];
       }
+
+      console.log(
+        `✅ Found ${notifications?.length || 0} activities in notifications table`,
+      );
 
       // Convert notifications to activities
       return (notifications || []).map((notif) => ({
         id: notif.id,
         user_id: notif.user_id,
         type: notif.metadata?.activity_type || "profile_updated",
-        title: notif.title.replace("Activity: ", ""),
-        description: notif.message,
+        title: notif.title?.replace("Activity: ", "") || "Unknown Activity",
+        description: notif.message || "No description",
         metadata: notif.metadata || {},
         created_at: notif.created_at,
       }));
     } catch (error) {
-      logError("Exception fetching user activities", error);
+      this.logDetailedError("Exception fetching user activities", error);
       return [];
     }
   }
@@ -193,7 +330,7 @@ export class ActivityService {
         last_active: activities[0]?.created_at || new Date().toISOString(),
       };
     } catch (error) {
-      logError("Exception getting activity summary", error);
+      this.logDetailedError("Exception getting activity summary", error);
       return {
         total_activities: 0,
         recent_activities: [],
@@ -204,16 +341,99 @@ export class ActivityService {
   }
 
   /**
-   * Auto-log common activities
+   * Debug function to test activity logging
+   */
+  static async debugActivityLogging(userId: string): Promise<any> {
+    console.log("🔍 Starting activity logging debug for user:", userId);
+
+    const results = {
+      timestamp: new Date().toISOString(),
+      userId,
+      tests: [],
+    };
+
+    try {
+      // Test 1: Check notifications table
+      console.log("Test 1: Checking notifications table...");
+      const tableTest = await this.testNotificationsTable();
+      results.tests.push({
+        name: "Notifications Table Access",
+        success: tableTest.accessible,
+        error: tableTest.error,
+        details: "Testing if notifications table is accessible",
+      });
+
+      // Test 2: Simple activity logging
+      console.log("Test 2: Simple activity logging...");
+      const simpleLogResult = await this.logActivity(
+        userId,
+        "login",
+        "Debug Test Login",
+        "Testing activity logging functionality",
+      );
+      results.tests.push({
+        name: "Simple Activity Log",
+        success: simpleLogResult.success,
+        error: simpleLogResult.error,
+        details: simpleLogResult.details,
+      });
+
+      // Test 3: Activity with metadata
+      console.log("Test 3: Activity with metadata...");
+      const metadataLogResult = await this.logActivity(
+        userId,
+        "book_viewed",
+        "Debug Test Book View",
+        "Testing activity logging with metadata",
+        { book_id: "test-123", book_title: "Test Book", test: true },
+      );
+      results.tests.push({
+        name: "Activity Log with Metadata",
+        success: metadataLogResult.success,
+        error: metadataLogResult.error,
+        details: metadataLogResult.details,
+      });
+
+      // Test 4: Fetch activities
+      console.log("Test 4: Fetching activities...");
+      const activities = await this.getUserActivities(userId, 10);
+      results.tests.push({
+        name: "Fetch User Activities",
+        success: true,
+        details: `Found ${activities.length} activities`,
+        data: activities.slice(0, 3), // Only include first 3 for debugging
+      });
+    } catch (error) {
+      this.logDetailedError("Exception during debug", error);
+      results.tests.push({
+        name: "Debug Exception",
+        success: false,
+        error: error instanceof Error ? error.message : "Unknown error",
+        details: error,
+      });
+    }
+
+    console.log("🔍 Debug completed:", results);
+    return results;
+  }
+
+  /**
+   * Auto-log common activities with enhanced error handling
    */
   static async logBookView(userId: string, bookId: string, bookTitle: string) {
-    return this.logActivity(
+    const result = await this.logActivity(
       userId,
       "book_viewed",
       `Viewed "${bookTitle}"`,
       `User viewed the book "${bookTitle}"`,
       { book_id: bookId, book_title: bookTitle },
     );
+
+    if (!result.success) {
+      console.warn("Failed to log book view:", result.error);
+    }
+
+    return result;
   }
 
   static async logBookListing(
@@ -222,13 +442,19 @@ export class ActivityService {
     bookTitle: string,
     price: number,
   ) {
-    return this.logActivity(
+    const result = await this.logActivity(
       userId,
       "listing_created",
       `Listed "${bookTitle}" for sale`,
       `Listed "${bookTitle}" for R${price}`,
       { book_id: bookId, book_title: bookTitle, price },
     );
+
+    if (!result.success) {
+      console.warn("Failed to log book listing:", result.error);
+    }
+
+    return result;
   }
 
   static async logBookPurchase(
@@ -238,13 +464,19 @@ export class ActivityService {
     price: number,
     sellerId: string,
   ) {
-    return this.logActivity(
+    const result = await this.logActivity(
       userId,
       "purchase",
       `Purchased "${bookTitle}"`,
       `Purchased "${bookTitle}" for R${price}`,
       { book_id: bookId, book_title: bookTitle, price, seller_id: sellerId },
     );
+
+    if (!result.success) {
+      console.warn("Failed to log book purchase:", result.error);
+    }
+
+    return result;
   }
 
   static async logBookSale(
@@ -254,13 +486,19 @@ export class ActivityService {
     price: number,
     buyerId: string,
   ) {
-    return this.logActivity(
+    const result = await this.logActivity(
       userId,
       "sale",
       `Sold "${bookTitle}"`,
       `Sold "${bookTitle}" for R${price}`,
       { book_id: bookId, book_title: bookTitle, price, buyer_id: buyerId },
     );
+
+    if (!result.success) {
+      console.warn("Failed to log book sale:", result.error);
+    }
+
+    return result;
   }
 
   static async logWishlistAdd(
@@ -268,13 +506,19 @@ export class ActivityService {
     bookId: string,
     bookTitle: string,
   ) {
-    return this.logActivity(
+    const result = await this.logActivity(
       userId,
       "wishlist_added",
       `Added "${bookTitle}" to wishlist`,
       `Added "${bookTitle}" to your wishlist`,
       { book_id: bookId, book_title: bookTitle },
     );
+
+    if (!result.success) {
+      console.warn("Failed to log wishlist add:", result.error);
+    }
+
+    return result;
   }
 
   static async logRating(
@@ -284,7 +528,7 @@ export class ActivityService {
     rating: number,
     comment?: string,
   ) {
-    return this.logActivity(
+    const result = await this.logActivity(
       userId,
       "rating_given",
       `Rated ${targetUserName} ${rating} stars`,
@@ -296,33 +540,57 @@ export class ActivityService {
         comment,
       },
     );
+
+    if (!result.success) {
+      console.warn("Failed to log rating:", result.error);
+    }
+
+    return result;
   }
 
   static async logProfileUpdate(userId: string) {
-    return this.logActivity(
+    const result = await this.logActivity(
       userId,
       "profile_updated",
       "Updated profile",
       "Updated profile information",
     );
+
+    if (!result.success) {
+      console.warn("Failed to log profile update:", result.error);
+    }
+
+    return result;
   }
 
   static async logSearch(userId: string, query: string, resultCount: number) {
-    return this.logActivity(
+    const result = await this.logActivity(
       userId,
       "search",
       `Searched for "${query}"`,
       `Searched for "${query}" and found ${resultCount} results`,
       { search_query: query, result_count: resultCount },
     );
+
+    if (!result.success) {
+      console.warn("Failed to log search:", result.error);
+    }
+
+    return result;
   }
 
   static async logLogin(userId: string) {
-    return this.logActivity(
+    const result = await this.logActivity(
       userId,
       "login",
       "Logged in",
       "Successfully logged into the platform",
     );
+
+    if (!result.success) {
+      console.warn("Failed to log login:", result.error);
+    }
+
+    return result;
   }
 }
