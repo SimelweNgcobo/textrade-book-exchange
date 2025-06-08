@@ -35,7 +35,6 @@ const CreateListing = () => {
     category: "",
     grade: "",
     universityYear: "",
-    university: "",
     imageUrl: "",
     frontCover: "",
     backCover: "",
