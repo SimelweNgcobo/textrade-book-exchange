@@ -352,6 +352,7 @@ function AuthProvider({ children }: { children: ReactNode }) {
     isAuthenticated,
     isAdmin,
     userStats,
+    initError,
     loadUserStats,
     checkAdminStatus,
     login,
