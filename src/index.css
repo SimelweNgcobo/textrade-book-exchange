@@ -5,6 +5,58 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Global Mobile Responsiveness Fixes */
+@media (max-width: 768px) {
+  /* Prevent horizontal overflow */
+  html,
+  body {
+    overflow-x: hidden;
+    width: 100%;
+  }
+
+  /* Ensure containers don't break layout */
+  .container {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+    max-width: 100% !important;
+  }
+
+  /* Fix table responsiveness */
+  .table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Ensure cards are properly sized on mobile */
+  .card-mobile {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    border-radius: 0.5rem !important;
+  }
+
+  /* Admin dashboard specific fixes */
+  .admin-mobile {
+    padding: 0.5rem !important;
+  }
+
+  .admin-mobile .grid {
+    gap: 0.5rem !important;
+  }
+
+  /* Form responsiveness */
+  .form-mobile input,
+  .form-mobile textarea,
+  .form-mobile select {
+    font-size: 16px !important; /* Prevents zoom on iOS */
+  }
+
+  /* Button responsiveness */
+  .btn-mobile {
+    min-height: 44px !important; /* Touch target size */
+    padding: 12px 16px !important;
+  }
+}
+
 /* Toast Notification Styles - Responsive positioning */
 [data-sonner-toaster] {
   position: fixed !important;
