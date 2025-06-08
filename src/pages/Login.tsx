@@ -78,6 +78,17 @@ const Login = () => {
     <Layout>
       <div className="min-h-[80vh] flex items-center justify-center px-4">
         <div className="w-full max-w-md">
+          {loginError && (
+            <div className="mb-6">
+              <LoginErrorHandler
+                error={loginError}
+                email={email}
+                onRetry={handleRetry}
+                onClearError={() => setLoginError(null)}
+              />
+            </div>
+          )}
+
           <div className="bg-white rounded-lg shadow-lg overflow-hidden">
             <div className="p-6 sm:p-8">
               <h1 className="text-2xl font-bold text-center text-gray-800 mb-6">
