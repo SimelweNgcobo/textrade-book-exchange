@@ -107,3 +107,29 @@ export const handleSupabaseError = (error: any, context: string) => {
 
   return message;
 };
+
+/**
+ * Gets user-friendly error message with fallback (replacement for getUserErrorMessage)
+ */
+export const getUserErrorMessage = (
+  error: unknown,
+  fallback = "An error occurred",
+): string => {
+  const message = getErrorMessage(error, fallback);
+
+  // Convert technical errors to user-friendly messages
+  if (message.includes("Failed to fetch")) {
+    return "Network connection error. Please check your internet connection and try again.";
+  }
+  if (message.includes("PGRST116")) {
+    return "The requested profile could not be found.";
+  }
+  if (message.includes("permission denied")) {
+    return "You don't have permission to access this resource.";
+  }
+  if (message.includes("invalid input")) {
+    return "Invalid information provided. Please check your input and try again.";
+  }
+
+  return message;
+};
