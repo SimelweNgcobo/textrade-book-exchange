@@ -373,9 +373,18 @@ function AuthProvider({ children }: { children: ReactNode }) {
   const checkAdminStatus = useCallback(
     async (userId: string): Promise<boolean> => {
       try {
-        return await isAdminUser(userId);
+        if (!userId) {
+          console.warn("checkAdminStatus called with empty userId");
+          return false;
+        }
+
+        console.log("🔍 AuthContext: Checking admin status for:", userId);
+        const adminStatus = await isAdminUser(userId);
+        console.log("✅ AuthContext: Admin status result:", adminStatus);
+        return adminStatus;
       } catch (error) {
-        logError("Error checking admin status", error);
+        console.error("❌ AuthContext: Admin status check failed");
+        logError("AuthContext admin status check failed", error);
         return false;
       }
     },
