@@ -296,9 +296,14 @@ function AuthProvider({ children }: { children: ReactNode }) {
 
         // Log the login activity
         try {
-          await ActivityService.logLogin(data.session.user.id);
+          const loginResult = await ActivityService.logLogin(
+            data.session.user.id,
+          );
+          if (!loginResult.success) {
+            console.warn("Failed to log login activity:", loginResult.error);
+          }
         } catch (activityError) {
-          console.warn("Failed to log login activity:", activityError);
+          console.warn("Exception logging login activity:", activityError);
         }
 
         // The auth state change handler will update the context

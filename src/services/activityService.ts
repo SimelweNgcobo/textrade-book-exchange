@@ -156,15 +156,15 @@ export class ActivityService {
           );
 
           // Fallback to notifications table
+          // Note: notifications table doesn't have metadata column, so we encode it in the message
+          const encodedMetadata = metadata
+            ? ` [META:${JSON.stringify(metadata)}]`
+            : "";
           const notificationData = {
             user_id: userId,
             title: `Activity: ${title}`,
-            message: description,
+            message: `${description}${encodedMetadata} [TYPE:${type}]`,
             type: "activity",
-            metadata: {
-              activity_type: type,
-              ...metadata,
-            },
             created_at: new Date().toISOString(),
           };
 
@@ -293,15 +293,50 @@ export class ActivityService {
       );
 
       // Convert notifications to activities
-      return (notifications || []).map((notif) => ({
-        id: notif.id,
-        user_id: notif.user_id,
-        type: notif.metadata?.activity_type || "profile_updated",
-        title: notif.title?.replace("Activity: ", "") || "Unknown Activity",
-        description: notif.message || "No description",
-        metadata: notif.metadata || {},
-        created_at: notif.created_at,
-      }));
+      return (notifications || []).map((notif) => {
+        // Parse encoded metadata and type from message
+        const message = notif.message || "";
+        let cleanDescription = message;
+        let parsedMetadata = {};
+        let activityType = "profile_updated";
+
+        // Extract type
+        const typeMatch = message.match(/\[TYPE:([^\]]+)\]$/);
+        if (typeMatch) {
+          activityType = typeMatch[1];
+          cleanDescription = cleanDescription.replace(
+            /\s*\[TYPE:[^\]]+\]$/,
+            "",
+          );
+        }
+
+        // Extract metadata
+        const metaMatch = message.match(/\[META:([^\]]+)\]/);
+        if (metaMatch) {
+          try {
+            parsedMetadata = JSON.parse(metaMatch[1]);
+            cleanDescription = cleanDescription.replace(
+              /\s*\[META:[^\]]+\]/,
+              "",
+            );
+          } catch (e) {
+            console.warn(
+              "Failed to parse metadata from notification:",
+              metaMatch[1],
+            );
+          }
+        }
+
+        return {
+          id: notif.id,
+          user_id: notif.user_id,
+          type: activityType,
+          title: notif.title?.replace("Activity: ", "") || "Unknown Activity",
+          description: cleanDescription,
+          metadata: parsedMetadata,
+          created_at: notif.created_at,
+        };
+      });
     } catch (error) {
       this.logDetailedError("Exception fetching user activities", error);
       return [];
