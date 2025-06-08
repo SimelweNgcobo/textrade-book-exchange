@@ -156,7 +156,19 @@ export const createUserProfile = async (user: User): Promise<Profile> => {
 
     console.log("Profile created successfully:", newProfile.name);
 
-    const isAdmin = await isAdminUser(user.id);
+    // Safely check admin status
+    let isAdmin = false;
+    try {
+      console.log("🔍 createUserProfile: Checking admin status for:", user.id);
+      isAdmin = await isAdminUser(user.id);
+      console.log("✅ createUserProfile: Admin status result:", isAdmin);
+    } catch (adminError) {
+      console.warn(
+        "⚠️ createUserProfile: Admin status check failed, defaulting to false",
+      );
+      logError("Admin status check in createUserProfile", adminError);
+      isAdmin = false; // Default to non-admin if check fails
+    }
 
     return {
       id: newProfile.id,
