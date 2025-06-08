@@ -357,6 +357,20 @@ const AuthTest = () => {
                   )}
                   Check Admin Status
                 </Button>
+
+                <Button
+                  onClick={handleDebugAdminStatus}
+                  disabled={isDebuggingAdmin || !currentContext?.user}
+                  variant="outline"
+                  className="w-full"
+                >
+                  {isDebuggingAdmin ? (
+                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                  ) : (
+                    <AlertCircle className="h-4 w-4 mr-2" />
+                  )}
+                  Debug Admin Status
+                </Button>
               </div>
 
               {userCheckResult && (
