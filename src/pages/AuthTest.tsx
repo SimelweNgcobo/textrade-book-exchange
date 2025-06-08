@@ -1,15 +1,17 @@
-import { useState } from "react";
-import { useAuth, useSafeAuth } from "@/contexts/AuthContext";
-import Layout from "@/components/Layout";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { EnhancedAuthService } from "@/services/enhancedAuthService";
-import { debugAdminStatus } from "@/utils/adminDebug";
-import EmailChangeTest from "@/components/EmailChangeTest";
-import { toast } from "sonner";
+import { useState } from 'react';
+import { useAuth, useSafeAuth } from '@/contexts/AuthContext';
+import Layout from '@/components/Layout';
+import EmailChangeTest from '@/components/EmailChangeTest';
+import AdminLoginTest from '@/components/AdminLoginTest';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { EnhancedAuthService } from '@/services/enhancedAuthService';
+import { debugAdminStatus } from '@/utils/adminDebug';
+import EmailChangeTest from '@/components/EmailChangeTest';
+import { toast } from 'sonner';
 import {
   User,
   Shield,
@@ -18,12 +20,12 @@ import {
   XCircle,
   Loader2,
   Mail,
-  AlertCircle,
-} from "lucide-react";
+  AlertCircle
+} from 'lucide-react';
 
 const AuthTest = () => {
-  const [testEmail, setTestEmail] = useState("");
-  const [testPassword, setTestPassword] = useState("");
+  const [testEmail, setTestEmail] = useState('');
+  const [testPassword, setTestPassword] = useState('');
   const [isTestingLogin, setIsTestingLogin] = useState(false);
   const [isCheckingUser, setIsCheckingUser] = useState(false);
   const [userCheckResult, setUserCheckResult] = useState<any>(null);
@@ -47,12 +49,12 @@ const AuthTest = () => {
   try {
     safeAuthContext = useSafeAuth();
   } catch (error) {
-    console.error("Safe auth also failed:", error);
+    console.error('Safe auth also failed:', error);
   }
 
   const handleTestLogin = async () => {
     if (!testEmail || !testPassword) {
-      toast.error("Please enter email and password");
+      toast.error('Please enter email and password');
       return;
     }
 
@@ -60,12 +62,12 @@ const AuthTest = () => {
     try {
       if (authContext) {
         await authContext.login(testEmail, testPassword);
-        toast.success("Test login successful!");
+        toast.success('Test login successful!');
       } else {
-        toast.error("Auth context not available");
+        toast.error('Auth context not available');
       }
     } catch (error: any) {
-      console.error("Test login failed:", error);
+      console.error('Test login failed:', error);
       toast.error(`Test login failed: ${error.message}`);
     } finally {
       setIsTestingLogin(false);
@@ -74,18 +76,17 @@ const AuthTest = () => {
 
   const handleCheckUser = async () => {
     if (!testEmail) {
-      toast.error("Please enter an email to check");
+      toast.error('Please enter an email to check');
       return;
     }
 
     setIsCheckingUser(true);
     try {
-      const result =
-        await EnhancedAuthService.checkUserVerificationStatus(testEmail);
+      const result = await EnhancedAuthService.checkUserVerificationStatus(testEmail);
       setUserCheckResult(result);
     } catch (error) {
-      console.error("User check failed:", error);
-      toast.error("User check failed");
+      console.error('User check failed:', error);
+      toast.error('User check failed');
     } finally {
       setIsCheckingUser(false);
     }
@@ -93,22 +94,21 @@ const AuthTest = () => {
 
   const handleResendVerification = async () => {
     if (!testEmail) {
-      toast.error("Please enter an email");
+      toast.error('Please enter an email');
       return;
     }
 
     setIsResendingVerification(true);
     try {
-      const result =
-        await EnhancedAuthService.resendVerificationEmail(testEmail);
+      const result = await EnhancedAuthService.resendVerificationEmail(testEmail);
       if (result.success) {
         toast.success(result.message);
       } else {
         toast.error(result.message);
       }
     } catch (error) {
-      console.error("Resend failed:", error);
-      toast.error("Failed to resend verification email");
+      console.error('Resend failed:', error);
+      toast.error('Failed to resend verification email');
     } finally {
       setIsResendingVerification(false);
     }
@@ -116,33 +116,29 @@ const AuthTest = () => {
 
   const handleCheckAdminStatus = async () => {
     if (!currentContext?.user?.id) {
-      toast.error("Please log in first to check admin status");
+      toast.error('Please log in first to check admin status');
       return;
     }
 
     setIsCheckingAdmin(true);
     try {
-      console.log("🔍 Testing admin status check for:", currentContext.user.id);
-      const isAdmin = await currentContext.checkAdminStatus(
-        currentContext.user.id,
-      );
+      console.log('🔍 Testing admin status check for:', currentContext.user.id);
+      const isAdmin = await currentContext.checkAdminStatus(currentContext.user.id);
       setAdminCheckResult({
         userId: currentContext.user.id,
         isAdmin,
         timestamp: new Date().toISOString(),
       });
-      toast.success(
-        `Admin status check complete: ${isAdmin ? "Admin" : "Not Admin"}`,
-      );
+      toast.success(`Admin status check complete: ${isAdmin ? 'Admin' : 'Not Admin'}`);
     } catch (error) {
-      console.error("Admin status check failed:", error);
+      console.error('Admin status check failed:', error);
       setAdminCheckResult({
         userId: currentContext.user.id,
         isAdmin: false,
-        error: error instanceof Error ? error.message : "Unknown error",
+        error: error instanceof Error ? error.message : 'Unknown error',
         timestamp: new Date().toISOString(),
       });
-      toast.error("Admin status check failed");
+      toast.error('Admin status check failed');
     } finally {
       setIsCheckingAdmin(false);
     }
@@ -150,22 +146,19 @@ const AuthTest = () => {
 
   const handleDebugAdminStatus = async () => {
     if (!currentContext?.user?.id) {
-      toast.error("Please log in first to debug admin status");
+      toast.error('Please log in first to debug admin status');
       return;
     }
 
     setIsDebuggingAdmin(true);
     try {
-      console.log(
-        "🔍 Starting comprehensive admin debug for:",
-        currentContext.user.id,
-      );
+      console.log('🔍 Starting comprehensive admin debug for:', currentContext.user.id);
       const debugResult = await debugAdminStatus(currentContext.user.id);
       setAdminDebugResult(debugResult);
-      toast.success("Admin debug complete - check results below");
+      toast.success('Admin debug complete - check results below');
     } catch (error) {
-      console.error("Admin debug failed:", error);
-      toast.error("Admin debug failed");
+      console.error('Admin debug failed:', error);
+      toast.error('Admin debug failed');
     } finally {
       setIsDebuggingAdmin(false);
     }
@@ -201,43 +194,31 @@ const AuthTest = () => {
                 <div className="flex justify-between">
                   <span>useAuth Available:</span>
                   <Badge variant={authContext ? "default" : "destructive"}>
-                    {authContext ? "Yes" : "No"}
+                    {authContext ? 'Yes' : 'No'}
                   </Badge>
                 </div>
                 <div className="flex justify-between">
                   <span>useSafeAuth Available:</span>
                   <Badge variant={safeAuthContext ? "default" : "destructive"}>
-                    {safeAuthContext ? "Yes" : "No"}
+                    {safeAuthContext ? 'Yes' : 'No'}
                   </Badge>
                 </div>
                 <div className="flex justify-between">
                   <span>Is Authenticated:</span>
-                  <Badge
-                    variant={
-                      currentContext?.isAuthenticated ? "default" : "secondary"
-                    }
-                  >
-                    {currentContext?.isAuthenticated ? "Yes" : "No"}
+                  <Badge variant={currentContext?.isAuthenticated ? "default" : "secondary"}>
+                    {currentContext?.isAuthenticated ? 'Yes' : 'No'}
                   </Badge>
                 </div>
                 <div className="flex justify-between">
                   <span>Is Loading:</span>
-                  <Badge
-                    variant={
-                      currentContext?.isLoading ? "outline" : "secondary"
-                    }
-                  >
-                    {currentContext?.isLoading ? "Yes" : "No"}
+                  <Badge variant={currentContext?.isLoading ? "outline" : "secondary"}>
+                    {currentContext?.isLoading ? 'Yes' : 'No'}
                   </Badge>
                 </div>
                 <div className="flex justify-between">
                   <span>Init Error:</span>
-                  <Badge
-                    variant={
-                      currentContext?.initError ? "destructive" : "default"
-                    }
-                  >
-                    {currentContext?.initError ? "Yes" : "No"}
+                  <Badge variant={currentContext?.initError ? "destructive" : "default"}>
+                    {currentContext?.initError ? 'Yes' : 'No'}
                   </Badge>
                 </div>
               </div>
@@ -251,17 +232,12 @@ const AuthTest = () => {
               )}
 
               {currentContext?.user && (
-                <div className="space-y-2">
-                  <h4 className="font-medium">User Info:</h4>
-                  <div className="text-sm space-y-1">
-                    <div>Email: {currentContext.user.email}</div>
+        <div className="space-y-8">
+          <AdminLoginTest />
+          <EmailChangeTest />
+        </div>
                     <div>ID: {currentContext.user.id}</div>
-                    <div>
-                      Created:{" "}
-                      {new Date(
-                        currentContext.user.created_at,
-                      ).toLocaleString()}
-                    </div>
+                    <div>Created: {new Date(currentContext.user.created_at).toLocaleString()}</div>
                   </div>
                 </div>
               )}
@@ -271,9 +247,7 @@ const AuthTest = () => {
                   <h4 className="font-medium">Profile Info:</h4>
                   <div className="text-sm space-y-1">
                     <div>Name: {currentContext.profile.name}</div>
-                    <div>
-                      Admin: {currentContext.profile.isAdmin ? "Yes" : "No"}
-                    </div>
+                    <div>Admin: {currentContext.profile.isAdmin ? 'Yes' : 'No'}</div>
                     <div>Status: {currentContext.profile.status}</div>
                   </div>
                 </div>
@@ -408,14 +382,10 @@ const AuthTest = () => {
                 <Alert>
                   <AlertDescription>
                     <div className="space-y-1 text-sm">
-                      <div className="font-medium mb-2">
-                        Admin Status Check Result:
-                      </div>
+                      <div className="font-medium mb-2">Admin Status Check Result:</div>
                       <div className="flex justify-between">
                         <span>User ID:</span>
-                        <span className="font-mono text-xs">
-                          {adminCheckResult.userId}
-                        </span>
+                        <span className="font-mono text-xs">{adminCheckResult.userId}</span>
                       </div>
                       <div className="flex justify-between">
                         <span>Is Admin:</span>
@@ -427,11 +397,7 @@ const AuthTest = () => {
                       </div>
                       <div className="flex justify-between">
                         <span>Checked At:</span>
-                        <span className="text-xs">
-                          {new Date(
-                            adminCheckResult.timestamp,
-                          ).toLocaleTimeString()}
-                        </span>
+                        <span className="text-xs">{new Date(adminCheckResult.timestamp).toLocaleTimeString()}</span>
                       </div>
                       {adminCheckResult.error && (
                         <div className="text-red-600">
@@ -447,9 +413,7 @@ const AuthTest = () => {
                 <Alert className="mt-4">
                   <AlertDescription>
                     <div className="space-y-2 text-sm">
-                      <div className="font-medium mb-2">
-                        Admin Debug Result:
-                      </div>
+                      <div className="font-medium mb-2">Admin Debug Result:</div>
                       <div className="flex justify-between">
                         <span>Overall Success:</span>
                         {adminDebugResult.success ? (
@@ -461,7 +425,7 @@ const AuthTest = () => {
                       <div className="flex justify-between">
                         <span>Final Result:</span>
                         <span className="font-semibold">
-                          {adminDebugResult.finalResult ? "ADMIN" : "NOT ADMIN"}
+                          {adminDebugResult.finalResult ? 'ADMIN' : 'NOT ADMIN'}
                         </span>
                       </div>
                       {adminDebugResult.error && (
@@ -472,30 +436,22 @@ const AuthTest = () => {
 
                       <details className="mt-2">
                         <summary className="cursor-pointer text-xs text-gray-600">
-                          View Debug Steps (
-                          {adminDebugResult.steps?.length || 0})
+                          View Debug Steps ({adminDebugResult.steps?.length || 0})
                         </summary>
                         <div className="mt-2 space-y-1 text-xs">
-                          {adminDebugResult.steps?.map(
-                            (step: any, index: number) => (
-                              <div
-                                key={index}
-                                className="flex items-center gap-2 p-1 bg-gray-50 rounded"
-                              >
-                                {step.success ? (
-                                  <CheckCircle className="h-3 w-3 text-green-500 flex-shrink-0" />
-                                ) : (
-                                  <XCircle className="h-3 w-3 text-red-500 flex-shrink-0" />
-                                )}
-                                <span className="flex-1">{step.step}</span>
-                                {step.error && (
-                                  <span className="text-red-600 text-xs">
-                                    ({step.error})
-                                  </span>
-                                )}
-                              </div>
-                            ),
-                          )}
+                          {adminDebugResult.steps?.map((step: any, index: number) => (
+                            <div key={index} className="flex items-center gap-2 p-1 bg-gray-50 rounded">
+                              {step.success ? (
+                                <CheckCircle className="h-3 w-3 text-green-500 flex-shrink-0" />
+                              ) : (
+                                <XCircle className="h-3 w-3 text-red-500 flex-shrink-0" />
+                              )}
+                              <span className="flex-1">{step.step}</span>
+                              {step.error && (
+                                <span className="text-red-600 text-xs">({step.error})</span>
+                              )}
+                            </div>
+                          ))}
                         </div>
                       </details>
                     </div>
@@ -541,7 +497,7 @@ const AuthTest = () => {
         )}
 
         {/* Email Change Testing */}
-        {process.env.NODE_ENV === "development" && (
+        {process.env.NODE_ENV === 'development' && (
           <div className="mt-8">
             <EmailChangeTest />
           </div>
