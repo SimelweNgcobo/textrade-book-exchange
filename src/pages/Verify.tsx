@@ -9,6 +9,7 @@ import {
   EmailVerificationService,
   VerificationParams,
 } from "@/services/emailVerificationService";
+import ManualEmailVerification from "@/components/ManualEmailVerification";
 
 const Verify = () => {
   const navigate = useNavigate();
