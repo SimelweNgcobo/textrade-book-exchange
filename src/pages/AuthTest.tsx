@@ -147,6 +147,29 @@ const AuthTest = () => {
     }
   };
 
+  const handleDebugAdminStatus = async () => {
+    if (!currentContext?.user?.id) {
+      toast.error("Please log in first to debug admin status");
+      return;
+    }
+
+    setIsDebuggingAdmin(true);
+    try {
+      console.log(
+        "🔍 Starting comprehensive admin debug for:",
+        currentContext.user.id,
+      );
+      const debugResult = await debugAdminStatus(currentContext.user.id);
+      setAdminDebugResult(debugResult);
+      toast.success("Admin debug complete - check results below");
+    } catch (error) {
+      console.error("Admin debug failed:", error);
+      toast.error("Admin debug failed");
+    } finally {
+      setIsDebuggingAdmin(false);
+    }
+  };
+
   const currentContext = authContext || safeAuthContext;
 
   return (
