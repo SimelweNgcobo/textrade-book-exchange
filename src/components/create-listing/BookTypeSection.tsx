@@ -8,7 +8,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { School, GraduationCap } from "lucide-react";
-import { UniversitySelector } from "@/components/ui/university-selector";
 import { UNIVERSITY_YEARS } from "@/constants/universities";
 import { BookFormData } from "@/types/book";
 
