@@ -41,13 +41,79 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="bg-white shadow-lg border-b border-book-200">
-      <div className="container mx-auto px-4">
-        <div className="flex justify-between items-center h-16">
+    <nav
+      style={{
+        backgroundColor: "rgb(255, 255, 255)",
+        boxShadow:
+          "rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0.1) 0px 10px 15px -3px, rgba(0, 0, 0, 0.1) 0px 4px 6px -4px",
+        position: "sticky",
+        top: "0px",
+        zIndex: "50",
+      }}
+    >
+      <div
+        style={{
+          marginLeft: "auto",
+          marginRight: "auto",
+          maxWidth: "1280px",
+          paddingLeft: "24px",
+          paddingRight: "24px",
+        }}
+      >
+        <div
+          style={{
+            alignItems: "center",
+            display: "flex",
+            height: "64px",
+            justifyContent: "space-between",
+          }}
+        >
           {/* Logo */}
-          <Link to="/" className="flex items-center space-x-2 text-book-600">
-            <BookOpen className="h-8 w-8" />
-            <span className="text-xl font-bold">ReBooked Solutions</span>
+          <Link
+            to="/"
+            style={{
+              alignItems: "center",
+              cursor: "pointer",
+              display: "flex",
+              textDecoration: "none",
+            }}
+          >
+            <div
+              style={{
+                alignItems: "center",
+                backgroundColor: "rgb(21, 115, 71)",
+                borderRadius: "12px",
+                cursor: "pointer",
+                display: "flex",
+                height: "32px",
+                justifyContent: "center",
+                width: "32px",
+              }}
+            >
+              <span
+                style={{
+                  color: "rgb(255, 255, 255)",
+                  cursor: "pointer",
+                  fontSize: "18px",
+                  fontWeight: "700",
+                  lineHeight: "28px",
+                }}
+              >
+                R
+              </span>
+            </div>
+            <span
+              style={{
+                color: "rgb(21, 115, 71)",
+                cursor: "pointer",
+                fontSize: "20px",
+                fontWeight: "700",
+                lineHeight: "28px",
+                marginLeft: "8px",
+              }}
+            >
+              ReBooked Solutions
+            </span>
           </Link>
 
           {/* Desktop Navigation */}
