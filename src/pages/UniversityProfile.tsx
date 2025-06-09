@@ -166,33 +166,87 @@ const UniversityProfile = () => {
                 </CardContent>
               </Card>
 
+              {/* Hero Image Section */}
+              <Card className="mb-8">
+                <CardContent className="p-0">
+                  <div className="relative h-64 bg-gradient-to-r from-book-100 to-book-200 rounded-t-lg overflow-hidden">
+                    <img
+                      src="https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=800&h=300&fit=crop&crop=center"
+                      alt="Students studying with books"
+                      className="w-full h-full object-cover opacity-60"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-r from-book-600/20 to-book-700/20" />
+                    <div className="absolute bottom-4 left-6">
+                      <h2 className="text-2xl font-bold text-white mb-2">
+                        Academic Excellence
+                      </h2>
+                      <p className="text-white/90">
+                        Discover your path to success at{" "}
+                        {university.abbreviation}
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
               {/* Faculties */}
               <Card>
                 <CardHeader>
                   <CardTitle>Faculties & Schools</CardTitle>
                   <CardDescription>
-                    Explore the academic divisions and programs offered
+                    Click on any faculty to explore available programs and
+                    courses
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-4">
-                    {university.faculties.map((faculty, index) => (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {university.faculties.map((faculty) => (
                       <div
                         key={faculty.id}
-                        className="border border-gray-200 rounded-lg p-4"
+                        className="border border-gray-200 rounded-lg p-4 hover:border-book-300 hover:shadow-md transition-all duration-200 cursor-pointer group"
+                        onClick={() =>
+                          navigate(
+                            `/university/${university.id}/faculty/${faculty.id}`,
+                          )
+                        }
                       >
-                        <h3 className="font-semibold text-lg text-gray-900 mb-2">
-                          {faculty.name}
-                        </h3>
-                        <p className="text-gray-600 text-sm leading-relaxed">
-                          {faculty.description}
-                        </p>
-                        {index < university.faculties.length - 1 && (
-                          <Separator className="mt-4" />
-                        )}
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <h3 className="font-semibold text-lg text-gray-900 mb-2 group-hover:text-book-600 transition-colors">
+                              {faculty.name}
+                            </h3>
+                            <p className="text-gray-600 text-sm leading-relaxed mb-3">
+                              {faculty.description}
+                            </p>
+                            <div className="flex items-center justify-between">
+                              <Badge
+                                variant="secondary"
+                                className="bg-book-50 text-book-700"
+                              >
+                                {faculty.degrees.length} Programs
+                              </Badge>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="text-book-600 hover:text-book-700 hover:bg-book-50 p-1"
+                              >
+                                <ExternalLink className="w-4 h-4" />
+                              </Button>
+                            </div>
+                          </div>
+                        </div>
                       </div>
                     ))}
                   </div>
+
+                  {university.faculties.length === 0 && (
+                    <div className="text-center py-8">
+                      <BookOpen className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+                      <p className="text-gray-600">
+                        Faculty information will be available soon.
+                      </p>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
 
