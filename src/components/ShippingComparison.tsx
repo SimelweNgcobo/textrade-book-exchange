@@ -59,6 +59,12 @@ const ShippingComparison = ({
     }
   }, [request]);
 
+  useEffect(() => {
+    if (autoLoad) {
+      handleGetQuotes();
+    }
+  }, [autoLoad, request, handleGetQuotes]);
+
   const getRecommendationIcon = (quote: QuickQuoteResponse) => {
     if (comparison.recommended?.provider === quote.provider) {
       return <Star className="h-4 w-4 text-yellow-500" />;
