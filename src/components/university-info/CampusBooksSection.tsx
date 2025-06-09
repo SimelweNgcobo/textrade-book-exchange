@@ -307,21 +307,16 @@ const CampusBooksSection = ({
   const topUniversities = ["uct", "wits", "stellenbosch", "up", "ukzn"];
 
   return (
-    <section
-      id="campus-books"
-      className="py-16 bg-gradient-to-br from-blue-50 to-indigo-50"
-    >
+    <section id="campus-books" className="py-16 bg-book-50">
       <div className="container mx-auto px-4">
         {/* Section Header */}
         <div className="text-center max-w-4xl mx-auto mb-12">
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-100 rounded-full text-blue-700 text-sm font-medium mb-6">
+          <div className="inline-flex items-center gap-2 px-4 py-2 bg-book-100 rounded-full text-book-700 text-sm font-medium mb-6">
             <BookOpen className="h-4 w-4" />
             Campus Textbook Marketplace
           </div>
           <h2 className="text-4xl font-bold mb-6">
-            <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-              Find Textbooks
-            </span>
+            <span className="text-book-600">Find Textbooks</span>
             <br />
             <span className="text-gray-900">From Your Campus</span>
           </h2>

@@ -123,21 +123,16 @@ const BursaryExplorer = () => {
   const featuredBursaries = BURSARIES.slice(0, 3);
 
   return (
-    <section
-      id="bursaries"
-      className="py-16 bg-gradient-to-br from-yellow-50 to-orange-50"
-    >
+    <section id="bursaries" className="py-16 bg-book-50">
       <div className="container mx-auto px-4">
         {/* Section Header */}
         <div className="text-center max-w-4xl mx-auto mb-12">
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-yellow-100 rounded-full text-yellow-700 text-sm font-medium mb-6">
+          <div className="inline-flex items-center gap-2 px-4 py-2 bg-book-100 rounded-full text-book-700 text-sm font-medium mb-6">
             <DollarSign className="h-4 w-4" />
             Bursary & Scholarship Opportunities
           </div>
           <h2 className="text-4xl font-bold mb-6">
-            <span className="bg-gradient-to-r from-yellow-600 to-orange-600 bg-clip-text text-transparent">
-              Fund Your
-            </span>
+            <span className="text-book-600">Fund Your</span>
             <br />
             <span className="text-gray-900">University Education</span>
           </h2>
