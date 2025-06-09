@@ -3,6 +3,7 @@ import { Book, BookFormData } from "@/types/book";
 import { mapBookFromDatabase } from "./bookMapper";
 import { handleBookServiceError } from "./bookErrorHandler";
 import { BookQueryResult } from "./bookTypes";
+import { ActivityService } from "@/services/activityService";
 
 export const createBook = async (bookData: BookFormData): Promise<Book> => {
   try {
@@ -59,7 +60,26 @@ export const createBook = async (bookData: BookFormData): Promise<Book> => {
         : null,
     };
 
-    return mapBookFromDatabase(bookWithProfile);
+    const mappedBook = mapBookFromDatabase(bookWithProfile);
+
+    // Log activity for book listing
+    try {
+      await ActivityService.logBookListing(
+        user.id,
+        book.id,
+        bookData.title,
+        bookData.price,
+      );
+      console.log("✅ Activity logged for book listing:", book.id);
+    } catch (activityError) {
+      console.warn(
+        "⚠️ Failed to log activity for book listing:",
+        activityError,
+      );
+      // Don't throw here - book creation was successful, activity logging is secondary
+    }
+
+    return mappedBook;
   } catch (error) {
     console.error("Error in createBook:", error);
     handleBookServiceError(error, "create book");
