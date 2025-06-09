@@ -262,12 +262,17 @@ const DegreeMatching = ({ calculation, onViewBooks }: DegreeMatchingProps) => {
         <TabsContent value="eligible" className="space-y-6">
           {/* Filters */}
           <div className="flex flex-col sm:flex-row gap-4">
-            <Select value={selectedFaculty} onValueChange={setSelectedFaculty}>
+            <Select
+              value={selectedFaculty || "all"}
+              onValueChange={(value) =>
+                setSelectedFaculty(value === "all" ? "" : value)
+              }
+            >
               <SelectTrigger className="sm:w-48">
                 <SelectValue placeholder="Filter by faculty" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Faculties</SelectItem>
+                <SelectItem value="all">All Faculties</SelectItem>
                 {faculties.map((faculty) => (
                   <SelectItem key={faculty} value={faculty}>
                     {faculty}
@@ -277,14 +282,16 @@ const DegreeMatching = ({ calculation, onViewBooks }: DegreeMatchingProps) => {
             </Select>
 
             <Select
-              value={selectedUniversity}
-              onValueChange={setSelectedUniversity}
+              value={selectedUniversity || "all"}
+              onValueChange={(value) =>
+                setSelectedUniversity(value === "all" ? "" : value)
+              }
             >
               <SelectTrigger className="sm:w-64">
                 <SelectValue placeholder="Filter by university" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Universities</SelectItem>
+                <SelectItem value="all">All Universities</SelectItem>
                 {universities.map((university) => (
                   <SelectItem key={university} value={university}>
                     {university}

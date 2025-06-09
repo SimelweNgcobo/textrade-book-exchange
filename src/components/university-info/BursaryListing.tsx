@@ -138,16 +138,19 @@ const BursaryListing = () => {
           {/* Filter Controls */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <Select
-              value={filters.fieldOfStudy || ""}
+              value={filters.fieldOfStudy || "all"}
               onValueChange={(value) =>
-                updateFilter("fieldOfStudy", value || undefined)
+                updateFilter(
+                  "fieldOfStudy",
+                  value === "all" ? undefined : value,
+                )
               }
             >
               <SelectTrigger>
                 <SelectValue placeholder="Field of study" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All fields</SelectItem>
+                <SelectItem value="all">All fields</SelectItem>
                 {BURSARY_FIELDS_OF_STUDY.map((field) => (
                   <SelectItem key={field} value={field}>
                     {field}
@@ -157,16 +160,16 @@ const BursaryListing = () => {
             </Select>
 
             <Select
-              value={filters.province || ""}
+              value={filters.province || "all"}
               onValueChange={(value) =>
-                updateFilter("province", value || undefined)
+                updateFilter("province", value === "all" ? undefined : value)
               }
             >
               <SelectTrigger>
                 <SelectValue placeholder="Province" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All provinces</SelectItem>
+                <SelectItem value="all">All provinces</SelectItem>
                 {PROVINCES.map((province) => (
                   <SelectItem key={province} value={province}>
                     {province}

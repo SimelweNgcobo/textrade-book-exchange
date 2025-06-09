@@ -258,14 +258,16 @@ const CampusBooks = ({
           {/* Filter Controls */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <Select
-              value={selectedUniversityFilter}
-              onValueChange={setSelectedUniversityFilter}
+              value={selectedUniversityFilter || "all"}
+              onValueChange={(value) =>
+                setSelectedUniversityFilter(value === "all" ? "" : value)
+              }
             >
               <SelectTrigger>
                 <SelectValue placeholder="Select university" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Universities</SelectItem>
+                <SelectItem value="all">All Universities</SelectItem>
                 {SOUTH_AFRICAN_UNIVERSITIES_SIMPLE.map((university) => (
                   <SelectItem key={university.id} value={university.id}>
                     {university.abbreviation}
@@ -274,12 +276,17 @@ const CampusBooks = ({
               </SelectContent>
             </Select>
 
-            <Select value={selectedYear} onValueChange={setSelectedYear}>
+            <Select
+              value={selectedYear || "all"}
+              onValueChange={(value) =>
+                setSelectedYear(value === "all" ? "" : value)
+              }
+            >
               <SelectTrigger>
                 <SelectValue placeholder="Year level" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Years</SelectItem>
+                <SelectItem value="all">All Years</SelectItem>
                 {UNIVERSITY_YEARS.map((year) => (
                   <SelectItem key={year} value={year}>
                     {year}
@@ -289,14 +296,16 @@ const CampusBooks = ({
             </Select>
 
             <Select
-              value={selectedCondition}
-              onValueChange={setSelectedCondition}
+              value={selectedCondition || "all"}
+              onValueChange={(value) =>
+                setSelectedCondition(value === "all" ? "" : value)
+              }
             >
               <SelectTrigger>
                 <SelectValue placeholder="Condition" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Conditions</SelectItem>
+                <SelectItem value="all">All Conditions</SelectItem>
                 <SelectItem value="New">New</SelectItem>
                 <SelectItem value="Good">Good</SelectItem>
                 <SelectItem value="Better">Better</SelectItem>
