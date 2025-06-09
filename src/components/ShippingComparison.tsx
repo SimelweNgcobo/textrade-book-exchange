@@ -34,12 +34,6 @@ const ShippingComparison = ({
     recommended: QuickQuoteResponse | null;
   }>({ cheapest: null, fastest: null, recommended: null });
 
-  useEffect(() => {
-    if (autoLoad) {
-      handleGetQuotes();
-    }
-  }, [autoLoad, request, handleGetQuotes]);
-
   const handleGetQuotes = useCallback(async () => {
     setIsLoading(true);
     setQuotes([]);
