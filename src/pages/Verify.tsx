@@ -137,8 +137,8 @@ const Verify = () => {
       console.log("🔐 Attempting manual verification");
 
       const verificationData = tokenHash
-        ? { token_hash: tokenHash, type: type as any }
-        : { token: token!, type: type as any };
+        ? { token_hash: tokenHash, type: type || "email" }
+        : { token: token!, type: type || "email" };
 
       const { data, error } = await supabase.auth.verifyOtp(verificationData);
 
