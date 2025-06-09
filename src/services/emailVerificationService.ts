@@ -237,6 +237,42 @@ export class EmailVerificationService {
   }
 
   /**
+   * Resend verification email
+   */
+  static async resendVerificationEmail(
+    email: string,
+  ): Promise<VerificationResult> {
+    try {
+      const { error } = await supabase.auth.resend({
+        type: "signup",
+        email: email,
+        options: {
+          emailRedirectTo: `${window.location.origin}/verify`,
+        },
+      });
+
+      if (error) {
+        logError("Resend verification error", error);
+        return {
+          success: false,
+          message: getErrorMessage(error),
+        };
+      }
+
+      return {
+        success: true,
+        message: "Verification email sent successfully",
+      };
+    } catch (error) {
+      logError("Resend verification exception", error);
+      return {
+        success: false,
+        message: getErrorMessage(error),
+      };
+    }
+  }
+
+  /**
    * Main verification method that tries all available methods
    */
   static async verifyEmail(
