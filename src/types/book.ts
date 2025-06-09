@@ -34,4 +34,5 @@ export interface BookFormData {
   insidePages?: string;
   grade?: string;
   universityYear?: string;
+  university?: string;
 }
