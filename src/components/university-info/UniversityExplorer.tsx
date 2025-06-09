@@ -232,14 +232,16 @@ const UniversityExplorer = ({
                 />
               </div>
               <Select
-                value={selectedProvince}
-                onValueChange={setSelectedProvince}
+                value={selectedProvince || "all"}
+                onValueChange={(value) =>
+                  setSelectedProvince(value === "all" ? "" : value)
+                }
               >
-                <SelectTrigger className="md:w-48 border-gray-200 focus:border-indigo-300">
+                <SelectTrigger className="sm:w-48">
                   <SelectValue placeholder="Filter by province" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Provinces</SelectItem>
+                  <SelectItem value="all">All Provinces</SelectItem>
                   {provinces.map((province) => (
                     <SelectItem key={province} value={province}>
                       {province}

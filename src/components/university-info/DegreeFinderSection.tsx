@@ -396,14 +396,16 @@ const DegreeFinderSection = ({
                   </div>
 
                   <Select
-                    value={selectedFaculty}
-                    onValueChange={setSelectedFaculty}
+                    value={selectedFaculty || "all"}
+                    onValueChange={(value) =>
+                      setSelectedFaculty(value === "all" ? "" : value)
+                    }
                   >
                     <SelectTrigger className="border-gray-200 focus:border-purple-400">
                       <SelectValue placeholder="Filter by faculty" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">All Faculties</SelectItem>
+                      <SelectItem value="all">All Faculties</SelectItem>
                       {faculties.map((faculty) => (
                         <SelectItem key={faculty} value={faculty}>
                           {faculty}
@@ -413,14 +415,16 @@ const DegreeFinderSection = ({
                   </Select>
 
                   <Select
-                    value={selectedUniversity}
-                    onValueChange={setSelectedUniversity}
+                    value={selectedUniversity || "all"}
+                    onValueChange={(value) =>
+                      setSelectedUniversity(value === "all" ? "" : value)
+                    }
                   >
                     <SelectTrigger className="border-gray-200 focus:border-purple-400">
                       <SelectValue placeholder="Filter by university" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">All Universities</SelectItem>
+                      <SelectItem value="all">All Universities</SelectItem>
                       {universities.map((university) => (
                         <SelectItem key={university} value={university}>
                           {university}
