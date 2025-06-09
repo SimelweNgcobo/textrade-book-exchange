@@ -23,9 +23,9 @@ const CampusLayout = ({
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50">
+    <div className="min-h-screen bg-gray-50">
       {/* Campus Header */}
-      <header className="bg-white/80 backdrop-blur-md border-b border-indigo-100 sticky top-0 z-50">
+      <header className="bg-white shadow-lg border-b border-book-200 sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             {/* Campus Brand */}
@@ -35,7 +35,7 @@ const CampusLayout = ({
                   variant="ghost"
                   size="sm"
                   onClick={() => navigate("/")}
-                  className="text-gray-600 hover:text-gray-800"
+                  className="text-gray-600 hover:text-book-600"
                 >
                   <ArrowLeft className="h-4 w-4 mr-2" />
                   Back to Marketplace
@@ -43,11 +43,11 @@ const CampusLayout = ({
               )}
 
               <Link to="/university-info" className="flex items-center gap-3">
-                <div className="p-2 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-xl">
+                <div className="p-2 bg-book-600 rounded-xl">
                   <GraduationCap className="h-8 w-8 text-white" />
                 </div>
                 <div>
-                  <h1 className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+                  <h1 className="text-2xl font-bold text-book-800">
                     ReBooked Campus
                   </h1>
                   <p className="text-sm text-gray-600">
@@ -63,7 +63,7 @@ const CampusLayout = ({
                 <Button
                   variant="outline"
                   size="sm"
-                  className="text-indigo-600 border-indigo-200 hover:bg-indigo-50"
+                  className="text-book-600 border-book-200 hover:bg-book-50"
                 >
                   <BookOpen className="h-4 w-4 mr-2" />
                   Browse All Books
@@ -72,7 +72,7 @@ const CampusLayout = ({
               <Link to="/create-listing">
                 <Button
                   size="sm"
-                  className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700"
+                  className="bg-book-600 hover:bg-book-700 text-white"
                 >
                   Sell Books
                 </Button>
@@ -82,44 +82,11 @@ const CampusLayout = ({
         </div>
       </header>
 
-      {/* Campus Navigation Pills */}
-      <nav className="bg-white/60 backdrop-blur-sm border-b border-indigo-100">
-        <div className="container mx-auto px-4 py-3">
-          <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide">
-            <NavPill
-              href="#universities"
-              icon={<Users className="h-4 w-4" />}
-              label="Universities"
-            />
-            <NavPill
-              href="#aps-calculator"
-              icon={<Calculator className="h-4 w-4" />}
-              label="APS Calculator"
-            />
-            <NavPill
-              href="#degrees"
-              icon={<GraduationCap className="h-4 w-4" />}
-              label="Degree Finder"
-            />
-            <NavPill
-              href="#bursaries"
-              icon={<DollarSign className="h-4 w-4" />}
-              label="Bursaries"
-            />
-            <NavPill
-              href="#campus-books"
-              icon={<BookOpen className="h-4 w-4" />}
-              label="Campus Books"
-            />
-          </div>
-        </div>
-      </nav>
-
       {/* Main Content */}
       <main className="flex-1">{children}</main>
 
       {/* Campus Footer */}
-      <footer className="bg-gradient-to-r from-indigo-900 to-purple-900 text-white py-12 mt-16">
+      <footer className="bg-book-800 text-white py-12 mt-16">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div>
@@ -127,7 +94,7 @@ const CampusLayout = ({
                 <GraduationCap className="h-6 w-6" />
                 <span className="font-bold text-lg">ReBooked Campus</span>
               </div>
-              <p className="text-indigo-200 text-sm">
+              <p className="text-book-200 text-sm">
                 Empowering South African students with comprehensive university
                 information, APS calculations, bursary opportunities, and
                 affordable textbooks.
@@ -139,25 +106,25 @@ const CampusLayout = ({
               <div className="space-y-2 text-sm">
                 <Link
                   to="/university-info"
-                  className="block text-indigo-200 hover:text-white transition-colors"
+                  className="block text-book-200 hover:text-white transition-colors"
                 >
                   University Explorer
                 </Link>
                 <Link
                   to="/university-info#aps-calculator"
-                  className="block text-indigo-200 hover:text-white transition-colors"
+                  className="block text-book-200 hover:text-white transition-colors"
                 >
                   APS Calculator
                 </Link>
                 <Link
                   to="/university-info#bursaries"
-                  className="block text-indigo-200 hover:text-white transition-colors"
+                  className="block text-book-200 hover:text-white transition-colors"
                 >
                   Find Bursaries
                 </Link>
                 <Link
                   to="/books"
-                  className="block text-indigo-200 hover:text-white transition-colors"
+                  className="block text-book-200 hover:text-white transition-colors"
                 >
                   Browse Textbooks
                 </Link>
@@ -169,25 +136,25 @@ const CampusLayout = ({
               <div className="space-y-2 text-sm">
                 <a
                   href="#"
-                  className="block text-indigo-200 hover:text-white transition-colors"
+                  className="block text-book-200 hover:text-white transition-colors"
                 >
                   University Application Guide
                 </a>
                 <a
                   href="#"
-                  className="block text-indigo-200 hover:text-white transition-colors"
+                  className="block text-book-200 hover:text-white transition-colors"
                 >
                   Bursary Application Tips
                 </a>
                 <a
                   href="#"
-                  className="block text-indigo-200 hover:text-white transition-colors"
+                  className="block text-book-200 hover:text-white transition-colors"
                 >
                   Study Tips & Resources
                 </a>
                 <Link
                   to="/contact"
-                  className="block text-indigo-200 hover:text-white transition-colors"
+                  className="block text-book-200 hover:text-white transition-colors"
                 >
                   Contact Support
                 </Link>
@@ -195,7 +162,7 @@ const CampusLayout = ({
             </div>
           </div>
 
-          <div className="border-t border-indigo-800 mt-8 pt-8 text-center text-indigo-200 text-sm">
+          <div className="border-t border-book-700 mt-8 pt-8 text-center text-book-200 text-sm">
             <p>
               &copy; 2024 ReBooked Solutions. Empowering student success across
               South Africa.
@@ -206,23 +173,5 @@ const CampusLayout = ({
     </div>
   );
 };
-
-const NavPill = ({
-  href,
-  icon,
-  label,
-}: {
-  href: string;
-  icon: ReactNode;
-  label: string;
-}) => (
-  <a
-    href={href}
-    className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/60 hover:bg-white/80 text-gray-700 hover:text-indigo-600 transition-all duration-200 text-sm font-medium whitespace-nowrap border border-transparent hover:border-indigo-200"
-  >
-    {icon}
-    {label}
-  </a>
-);
 
 export default CampusLayout;
