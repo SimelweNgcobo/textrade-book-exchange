@@ -40,6 +40,8 @@ import Report from "./pages/Report";
 import Shipping from "./pages/Shipping";
 import UniversityInfo from "./pages/UniversityInfo";
 import UniversityProfile from "./pages/UniversityProfile";
+import FacultyDetail from "./pages/FacultyDetail";
+import CourseDetail from "./pages/CourseDetail";
 
 import "./App.css";
 
@@ -84,6 +86,14 @@ function App() {
                     <Route
                       path="/university/:universityId"
                       element={<UniversityProfile />}
+                    />
+                    <Route
+                      path="/university/:universityId/faculty/:facultyId"
+                      element={<FacultyDetail />}
+                    />
+                    <Route
+                      path="/university/:universityId/faculty/:facultyId/course/:courseId"
+                      element={<CourseDetail />}
                     />
 
                     {/* Public user profiles - no authentication required */}
