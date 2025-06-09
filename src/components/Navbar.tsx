@@ -11,6 +11,7 @@ import {
   LogOut,
   UserPlus,
   Truck,
+  GraduationCap,
 } from "lucide-react";
 import AdminAccess from "./AdminAccess";
 import CartButton from "./CartButton";
@@ -56,6 +57,13 @@ const Navbar = () => {
               className="text-gray-700 hover:text-book-600 px-3 py-2 transition-colors"
             >
               Browse Books
+            </Link>
+            <Link
+              to="/university-info"
+              className="text-gray-700 hover:text-book-600 px-3 py-2 transition-colors flex items-center"
+            >
+              <GraduationCap className="h-4 w-4 mr-1" />
+              ReBooked Campus
             </Link>
             <Link
               to="/shipping"
@@ -143,6 +151,14 @@ const Navbar = () => {
                 onClick={() => setIsMenuOpen(false)}
               >
                 Browse Books
+              </Link>
+              <Link
+                to="/university-info"
+                className="flex items-center text-gray-700 hover:text-book-600 px-3 py-2 transition-colors"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                <GraduationCap className="h-4 w-4 mr-1" />
+                ReBooked Campus
               </Link>
               <Link
                 to="/shipping"
