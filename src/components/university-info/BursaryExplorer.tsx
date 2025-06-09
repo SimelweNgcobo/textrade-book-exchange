@@ -123,18 +123,15 @@ const BursaryExplorer = () => {
   const featuredBursaries = BURSARIES.slice(0, 3);
 
   return (
-    <section id="bursaries" className="py-16 bg-book-50">
+    <section id="bursaries" className="py-0">
       <div className="container mx-auto px-4">
         {/* Section Header */}
         <div className="text-center max-w-4xl mx-auto mb-12">
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-book-100 rounded-full text-book-700 text-sm font-medium mb-6">
-            <DollarSign className="h-4 w-4" />
-            Bursary & Scholarship Opportunities
+          <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <DollarSign className="h-8 w-8 text-gray-700" />
           </div>
-          <h2 className="text-4xl font-bold mb-6">
-            <span className="text-book-600">Fund Your</span>
-            <br />
-            <span className="text-gray-900">University Education</span>
+          <h2 className="text-4xl font-bold mb-6 text-gray-900">
+            Find Bursaries & Scholarships
           </h2>
           <p className="text-xl text-gray-600 leading-relaxed mb-8">
             Discover comprehensive bursary and scholarship opportunities from
@@ -143,25 +140,14 @@ const BursaryExplorer = () => {
           </p>
 
           {/* Quick Stats */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
-            <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-4 text-center">
-              <div className="text-2xl font-bold text-yellow-600">
-                {BURSARIES.length}+
-              </div>
-              <div className="text-sm text-gray-600">Bursaries</div>
-            </div>
-            <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-4 text-center">
-              <div className="text-2xl font-bold text-orange-600">R1M+</div>
-              <div className="text-sm text-gray-600">Total Funding</div>
-            </div>
-            <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-4 text-center">
-              <div className="text-2xl font-bold text-green-600">All</div>
-              <div className="text-sm text-gray-600">Fields of Study</div>
-            </div>
-            <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-4 text-center">
-              <div className="text-2xl font-bold text-blue-600">9</div>
-              <div className="text-sm text-gray-600">Provinces</div>
-            </div>
+          <div className="flex items-center justify-center gap-8 text-sm text-gray-500 mb-12">
+            <span>{BURSARIES.length} Bursaries</span>
+            <span>•</span>
+            <span>R1M+ Total Funding</span>
+            <span>•</span>
+            <span>All Fields of Study</span>
+            <span>•</span>
+            <span>9 Provinces</span>
           </div>
         </div>
 
