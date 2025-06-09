@@ -139,18 +139,16 @@ const APSCalculatorSection = ({
   };
 
   return (
-    <section id="aps-calculator" className="py-16 bg-white">
+    <section id="aps-calculator" className="py-16 bg-gray-50">
       <div className="container mx-auto px-4">
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-12">
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-green-100 rounded-full text-green-700 text-sm font-medium mb-6">
+          <div className="inline-flex items-center gap-2 px-4 py-2 bg-book-100 rounded-full text-book-700 text-sm font-medium mb-6">
             <Calculator className="h-4 w-4" />
             APS Calculator
           </div>
           <h2 className="text-4xl font-bold mb-6">
-            <span className="bg-gradient-to-r from-green-600 to-teal-600 bg-clip-text text-transparent">
-              Calculate Your
-            </span>
+            <span className="text-book-600">Calculate Your</span>
             <br />
             <span className="text-gray-900">Admission Point Score</span>
           </h2>
@@ -164,7 +162,7 @@ const APSCalculatorSection = ({
           {/* Calculator Panel */}
           <div className="lg:col-span-2">
             <Card className="shadow-xl border-0 bg-gradient-to-br from-white to-gray-50">
-              <CardHeader className="bg-gradient-to-r from-green-600 to-teal-600 text-white rounded-t-lg">
+              <CardHeader className="bg-book-600 text-white rounded-t-lg">
                 <CardTitle className="text-xl flex items-center gap-2">
                   <Calculator className="h-6 w-6" />
                   Your Subject Marks
@@ -300,7 +298,7 @@ const APSCalculatorSection = ({
                   <Button
                     onClick={calculateResults}
                     disabled={!canCalculate || isCalculating}
-                    className="flex-1 bg-gradient-to-r from-green-600 to-teal-600 hover:from-green-700 hover:to-teal-700 text-lg py-6"
+                    className="flex-1 bg-book-600 hover:bg-book-700 text-lg py-6"
                   >
                     {isCalculating ? (
                       <>
@@ -412,8 +410,8 @@ const APSCalculatorSection = ({
         {/* Results Section */}
         {showResults && calculation && (
           <div id="aps-results" className="mt-16">
-            <Card className="bg-gradient-to-br from-green-50 to-teal-50 border-green-200 shadow-2xl">
-              <CardHeader className="bg-gradient-to-r from-green-600 to-teal-600 text-white rounded-t-lg">
+            <Card className="bg-book-50 border-book-200 shadow-2xl">
+              <CardHeader className="bg-book-600 text-white rounded-t-lg">
                 <CardTitle className="text-2xl flex items-center gap-2">
                   <CheckCircle className="h-6 w-6" />
                   Your APS Results
@@ -426,7 +424,7 @@ const APSCalculatorSection = ({
               <CardContent className="p-8 space-y-8">
                 {/* Final Score */}
                 <div className="text-center bg-white rounded-2xl p-8 shadow-lg">
-                  <div className="text-6xl font-bold text-green-600 mb-4">
+                  <div className="text-6xl font-bold text-book-600 mb-4">
                     {calculation.totalScore}
                   </div>
                   <div className="text-xl text-gray-600 mb-2">
