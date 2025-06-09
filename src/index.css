@@ -4,6 +4,9 @@
 /* Mobile Improvements */
 @import "./styles/mobile-improvements.css";
 
+/* Campus transitions and animations */
+@import "./styles/campus-transitions.css";
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
