@@ -75,29 +75,27 @@ const CourierGuyTrackingOnly = () => {
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <div className="max-w-4xl mx-auto space-y-4 sm:space-y-6 px-2 sm:px-0">
       {/* Information Alert */}
-      <Alert>
+      <Alert className="mx-2 sm:mx-0">
         <Info className="h-4 w-4" />
-        <AlertDescription>
-          <strong>Automatic Shipping Integration:</strong> When you buy or sell
-          books, shipments are automatically created using your saved addresses.
-          Sellers' pickup addresses are used as sender information, and buyers'
-          delivery addresses are used as recipient information.
+        <AlertDescription className="text-sm">
+          <strong>Automatic Shipping:</strong> Shipments are automatically
+          created when you buy or sell books using your saved addresses.
         </AlertDescription>
       </Alert>
 
       {/* User Eligibility Status */}
       {user && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center">
-              <MapPin className="mr-2 h-5 w-5" />
+        <Card className="mx-2 sm:mx-0">
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center text-lg">
+              <MapPin className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
               Your Shipping Status
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               <div className="flex items-center space-x-2">
                 <Badge
                   className={
@@ -133,11 +131,11 @@ const CourierGuyTrackingOnly = () => {
             </div>
 
             {eligibility.errors.length > 0 && (
-              <div className="mt-4">
+              <div className="mt-4 p-3 bg-red-50 rounded-lg border border-red-200">
                 <p className="text-sm font-medium text-red-600 mb-2">
                   Address Requirements:
                 </p>
-                <ul className="list-disc list-inside text-sm text-red-600 space-y-1">
+                <ul className="list-disc list-inside text-xs sm:text-sm text-red-600 space-y-1 mb-3">
                   {eligibility.errors.map((error, index) => (
                     <li key={index}>{error}</li>
                   ))}
@@ -145,7 +143,7 @@ const CourierGuyTrackingOnly = () => {
                 <Button
                   variant="outline"
                   size="sm"
-                  className="mt-3"
+                  className="w-full sm:w-auto"
                   onClick={() => (window.location.href = "/profile")}
                 >
                   Update Addresses in Profile
@@ -156,69 +154,72 @@ const CourierGuyTrackingOnly = () => {
         </Card>
       )}
 
-      {/* User's Shipments - Will be implemented when shipments table is created */}
+      {/* User's Shipments */}
       {user && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center">
-              <Package className="mr-2 h-5 w-5" />
+        <Card className="mx-2 sm:mx-0">
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center text-lg">
+              <Package className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
               Your Shipments
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-center py-8">
-              <Package className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-              <p className="text-gray-600 mb-2">
+            <div className="text-center py-6 sm:py-8">
+              <Package className="h-8 w-8 sm:h-12 sm:w-12 text-gray-300 mx-auto mb-3 sm:mb-4" />
+              <p className="text-gray-600 mb-2 text-sm sm:text-base">
                 Shipment history will appear here
               </p>
-              <p className="text-sm text-gray-500">
-                When automatic shipment creation is enabled, your sent and
-                received packages will be displayed here.
+              <p className="text-xs sm:text-sm text-gray-500 px-4">
+                When you buy or sell books, tracking information will be
+                displayed here.
               </p>
             </div>
           </CardContent>
         </Card>
       )}
 
-      {/* Shipment Creation Disabled Notice */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center">
-            <Info className="mr-2 h-5 w-5" />
-            Automatic Shipment System
+      {/* Information Card */}
+      <Card className="mx-2 sm:mx-0">
+        <CardHeader className="pb-3">
+          <CardTitle className="flex items-center text-lg">
+            <Info className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
+            How Shipping Works
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
-            <p className="text-gray-600">
-              Our shipping system automatically creates Courier Guy shipments
-              when books are purchased:
+            <p className="text-gray-600 text-sm sm:text-base">
+              Shipments are automatically created when books are purchased:
             </p>
-            <ul className="list-disc list-inside text-sm text-gray-600 space-y-1 ml-4">
-              <li>
-                <strong>Seller Information:</strong> Automatically uses the book
-                seller's saved pickup address and phone number
+            <ul className="space-y-2 text-xs sm:text-sm text-gray-600">
+              <li className="flex items-start">
+                <span className="inline-block w-2 h-2 bg-blue-500 rounded-full mt-1.5 mr-2 flex-shrink-0"></span>
+                <span>
+                  <strong>Automatic Setup:</strong> Uses saved seller and buyer
+                  addresses
+                </span>
               </li>
-              <li>
-                <strong>Buyer Information:</strong> Uses the buyer's delivery
-                address (shipping or pickup address based on preference)
+              <li className="flex items-start">
+                <span className="inline-block w-2 h-2 bg-blue-500 rounded-full mt-1.5 mr-2 flex-shrink-0"></span>
+                <span>
+                  <strong>Package Details:</strong> Includes book information
+                  and pricing
+                </span>
               </li>
-              <li>
-                <strong>Package Details:</strong> Automatically includes book
-                title, author, price, and generates reference numbers
-              </li>
-              <li>
-                <strong>Tracking:</strong> Buyers and sellers receive tracking
-                numbers to monitor shipment progress
+              <li className="flex items-start">
+                <span className="inline-block w-2 h-2 bg-blue-500 rounded-full mt-1.5 mr-2 flex-shrink-0"></span>
+                <span>
+                  <strong>Tracking:</strong> Both parties receive tracking
+                  numbers via email
+                </span>
               </li>
             </ul>
 
-            <Alert>
+            <Alert className="mt-4">
               <Package className="h-4 w-4" />
-              <AlertDescription>
-                <strong>Note:</strong> Manual shipment creation is currently
-                disabled. Shipments are only created automatically during book
-                purchases.
+              <AlertDescription className="text-xs sm:text-sm">
+                <strong>Note:</strong> Shipments are only created automatically
+                during book purchases. Manual creation is not available.
               </AlertDescription>
             </Alert>
           </div>

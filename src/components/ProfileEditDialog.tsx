@@ -64,6 +64,18 @@ const ProfileEditDialog = ({ isOpen, onClose }: ProfileEditDialogProps) => {
       }
 
       toast.success("Profile updated successfully");
+
+      // Log profile update activity
+      try {
+        await ActivityService.logProfileUpdate(user.id);
+        console.log("✅ Profile update activity logged");
+      } catch (activityError) {
+        console.warn(
+          "⚠️ Failed to log profile update activity:",
+          activityError,
+        );
+      }
+
       onClose();
 
       // Use setTimeout to prevent the loading state from being visible during reload

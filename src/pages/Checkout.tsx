@@ -6,7 +6,9 @@ import { useCart } from "@/contexts/CartContext";
 import { getBookById } from "@/services/book/bookQueries";
 import { getUserAddresses } from "@/services/addressService";
 import { getDeliveryQuotes, DeliveryQuote } from "@/services/deliveryService";
+import { automaticShipmentService } from "@/services/automaticShipmentService";
 import { createAutomaticShipment } from "@/services/automaticShipmentService";
+import { ActivityService } from "@/services/activityService";
 import { Book } from "@/types/book";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -282,6 +284,38 @@ const Checkout = () => {
             sellerId: purchasedBook.seller?.id || purchasedBook.sellerId,
           };
 
+          // Log purchase activity
+          try {
+            await ActivityService.logBookPurchase(
+              user.id,
+              purchasedBook.id,
+              purchasedBook.title,
+              purchasedBook.price,
+              bookDetails.sellerId,
+            );
+            console.log(
+              "✅ Purchase activity logged for:",
+              purchasedBook.title,
+            );
+
+            // Also log sale activity for the seller
+            if (bookDetails.sellerId) {
+              await ActivityService.logBookSale(
+                bookDetails.sellerId,
+                purchasedBook.id,
+                purchasedBook.title,
+                purchasedBook.price,
+                user.id,
+              );
+              console.log("✅ Sale activity logged for seller");
+            }
+          } catch (activityError) {
+            console.warn(
+              "⚠️ Failed to log purchase/sale activity:",
+              activityError,
+            );
+          }
+
           // Note: createAutomaticShipment is prepared but disabled as per requirements
           const shipmentResult = await createAutomaticShipment(
             bookDetails,
@@ -404,11 +438,11 @@ const Checkout = () => {
           <ArrowLeft className="mr-2 h-4 w-4" /> Back
         </Button>
 
-        <h1 className="text-2xl md:text-3xl font-bold mb-6 md:mb-8">
+        <h1 className="text-xl sm:text-2xl md:text-3xl font-bold mb-4 sm:mb-6 md:mb-8">
           Checkout
         </h1>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 md:gap-8">
           {/* Shipping Information */}
           <div className="space-y-6">
             <Card>

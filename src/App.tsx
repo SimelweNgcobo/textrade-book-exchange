@@ -1,6 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { useEffect } from "react";
-import { Toaster } from "sonner";
 import { AuthProvider } from "./contexts/AuthContext";
 import { CartProvider } from "./contexts/CartContext";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -41,7 +40,6 @@ import Report from "./pages/Report";
 import Shipping from "./pages/Shipping";
 
 import "./App.css";
-import "./styles/mobile-fixes.css";
 
 function App() {
   return (
@@ -161,7 +159,6 @@ function App() {
                   </Routes>
                 </ErrorBoundary>
               </div>
-              <Toaster />
               <BroadcastManager />
               {process.env.NODE_ENV === "development" && (
                 <>{/* Debug components removed from production */}</>

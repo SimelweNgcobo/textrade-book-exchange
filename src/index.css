@@ -1,6 +1,9 @@
 /* Email Change Mobile Styles - must come before @tailwind */
 @import "./styles/email-change-mobile.css";
 
+/* Mobile Improvements */
+@import "./styles/mobile-improvements.css";
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -57,19 +60,20 @@
   }
 }
 
-/* Toast Notification Styles - Responsive positioning */
+/* Toast Notification Styles - Subtle and Non-intrusive */
 [data-sonner-toaster] {
   position: fixed !important;
-  z-index: 9999 !important;
+  z-index: 50 !important;
   pointer-events: none !important;
 }
 
-/* Mobile: Centered */
+/* Mobile: Top right, smaller and subtle */
 @media (max-width: 768px) {
   [data-sonner-toaster] {
-    top: 50% !important;
-    left: 50% !important;
-    transform: translate(-50%, -50%) !important;
+    top: 20px !important;
+    right: 16px !important;
+    left: auto !important;
+    transform: none !important;
   }
 }
 
@@ -89,105 +93,108 @@
   position: relative !important;
 }
 
-/* Mobile specific toast adjustments */
+/* Mobile specific toast adjustments - Smaller and subtle */
 @media (max-width: 768px) {
   [data-sonner-toaster] [data-sonner-toast] {
-    min-width: 280px !important;
-    max-width: 95vw !important;
-    margin: 0 auto !important;
-    border-radius: 12px !important;
-    padding: 16px !important;
-    font-size: 14px !important;
-    line-height: 1.4 !important;
-  }
-
-  [data-sonner-toaster] [data-sonner-toast] [data-title] {
-    font-size: 16px !important;
-    font-weight: 600 !important;
-    margin-bottom: 4px !important;
-  }
-
-  [data-sonner-toaster] [data-sonner-toast] [data-description] {
-    font-size: 14px !important;
-    opacity: 0.9 !important;
-  }
-}
-
-/* Tablet and Desktop adjustments */
-@media (min-width: 769px) {
-  [data-sonner-toaster] [data-sonner-toast] {
-    min-width: 320px !important;
-    max-width: 420px !important;
-    margin: 0 0 12px 0 !important;
+    min-width: 240px !important;
+    max-width: calc(100vw - 32px) !important;
+    margin: 0 0 8px 0 !important;
     border-radius: 8px !important;
-    padding: 12px 16px !important;
-    font-size: 14px !important;
+    padding: 10px 12px !important;
+    font-size: 13px !important;
     line-height: 1.3 !important;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
   }
 
   [data-sonner-toaster] [data-sonner-toast] [data-title] {
-    font-size: 14px !important;
-    font-weight: 600 !important;
+    font-size: 13px !important;
+    font-weight: 500 !important;
     margin-bottom: 2px !important;
   }
 
   [data-sonner-toaster] [data-sonner-toast] [data-description] {
-    font-size: 13px !important;
-    opacity: 0.9 !important;
+    font-size: 12px !important;
+    opacity: 0.8 !important;
   }
 }
 
-/* Success toast styling */
+/* Tablet and Desktop adjustments - More subtle */
+@media (min-width: 769px) {
+  [data-sonner-toaster] [data-sonner-toast] {
+    min-width: 280px !important;
+    max-width: 360px !important;
+    margin: 0 0 10px 0 !important;
+    border-radius: 8px !important;
+    padding: 10px 14px !important;
+    font-size: 13px !important;
+    line-height: 1.3 !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
+  }
+
+  [data-sonner-toaster] [data-sonner-toast] [data-title] {
+    font-size: 13px !important;
+    font-weight: 500 !important;
+    margin-bottom: 2px !important;
+  }
+
+  [data-sonner-toaster] [data-sonner-toast] [data-description] {
+    font-size: 12px !important;
+    opacity: 0.8 !important;
+  }
+}
+
+/* Success toast styling - Subtle green */
 [data-sonner-toaster] [data-sonner-toast][data-type="success"] {
-  border: 2px solid #10b981 !important;
-  background: #f0fdf4 !important;
-  color: #065f46 !important;
+  border: 1px solid #d1fae5 !important;
+  background: #ffffff !important;
+  color: #059669 !important;
+  border-left: 3px solid #10b981 !important;
 }
 
-/* Error toast styling */
+/* Error toast styling - Subtle red */
 [data-sonner-toaster] [data-sonner-toast][data-type="error"] {
-  border: 2px solid #ef4444 !important;
-  background: #fef2f2 !important;
-  color: #991b1b !important;
+  border: 1px solid #fecaca !important;
+  background: #ffffff !important;
+  color: #dc2626 !important;
+  border-left: 3px solid #ef4444 !important;
 }
 
-/* Info toast styling */
+/* Info toast styling - Subtle blue */
 [data-sonner-toaster] [data-sonner-toast][data-type="info"] {
-  border: 2px solid #3b82f6 !important;
-  background: #eff6ff !important;
-  color: #1e40af !important;
+  border: 1px solid #dbeafe !important;
+  background: #ffffff !important;
+  color: #2563eb !important;
+  border-left: 3px solid #3b82f6 !important;
 }
 
-/* Warning toast styling */
+/* Warning toast styling - Subtle orange */
 [data-sonner-toaster] [data-sonner-toast][data-type="warning"] {
-  border: 2px solid #f59e0b !important;
-  background: #fffbeb !important;
-  color: #92400e !important;
+  border: 1px solid #fed7aa !important;
+  background: #ffffff !important;
+  color: #d97706 !important;
+  border-left: 3px solid #f59e0b !important;
 }
 
-/* Loading toast styling */
+/* Loading toast styling - Subtle gray */
 [data-sonner-toaster] [data-sonner-toast][data-type="loading"] {
-  border: 2px solid #6b7280 !important;
-  background: #f9fafb !important;
-  color: #374151 !important;
+  border: 1px solid #e5e7eb !important;
+  background: #ffffff !important;
+  color: #4b5563 !important;
+  border-left: 3px solid #6b7280 !important;
 }
 
-/* Toast animation improvements */
+/* Toast animation - Subtle slide in from right */
 [data-sonner-toaster] [data-sonner-toast] {
-  animation: toast-slide-in 0.3s ease-out !important;
-  box-shadow:
-    0 10px 25px -5px rgba(0, 0, 0, 0.1),
-    0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+  animation: toast-slide-in 0.25s ease-out !important;
 }
 
 @keyframes toast-slide-in {
   from {
-    transform: scale(0.9) translateY(-10px);
+    transform: translateX(100%);
     opacity: 0;
   }
   to {
-    transform: scale(1) translateY(0);
+    transform: translateX(0);
     opacity: 1;
   }
 }
