@@ -5,7 +5,6 @@ import {
   ShipLogicShipmentRequest,
   ShipLogicShipmentResponse,
   ShipLogicTrackingResponse,
-  ShipLogicShipmentFormData,
   ShipLogicQuoteRequest,
   ShipLogicRate,
   ShipLogicServiceLevel,
@@ -309,97 +308,8 @@ export const getShipLogicRates = async (
   }
 };
 
-/**
- * Create a shipment with ShipLogic
- */
-export const createShipLogicShipment = async (
-  formData: ShipLogicShipmentFormData,
-): Promise<ShipLogicShipmentResponse> => {
-  try {
-    const collectionAddress = convertToShipLogicAddress(
-      formData.collectionStreet,
-      formData.collectionSuburb,
-      formData.collectionCity,
-      formData.collectionProvince,
-      formData.collectionPostalCode,
-      formData.collectionCompany,
-    );
-
-    const deliveryAddress = convertToShipLogicAddress(
-      formData.deliveryStreet,
-      formData.deliverySuburb,
-      formData.deliveryCity,
-      formData.deliveryProvince,
-      formData.deliveryPostalCode,
-      formData.deliveryCompany,
-    );
-
-    const collectionContact = convertToShipLogicContact(
-      formData.collectionName,
-      formData.collectionPhone,
-      formData.collectionEmail,
-    );
-
-    const deliveryContact = convertToShipLogicContact(
-      formData.deliveryName,
-      formData.deliveryPhone,
-      formData.deliveryEmail,
-    );
-
-    const parcel = convertToShipLogicParcel(
-      formData.weight,
-      formData.length,
-      formData.width,
-      formData.height,
-      formData.description,
-    );
-
-    const shipmentRequest: ShipLogicShipmentRequest = {
-      collection_address: collectionAddress,
-      collection_contact: collectionContact,
-      delivery_address: deliveryAddress,
-      delivery_contact: deliveryContact,
-      parcels: [parcel],
-      declared_value: formData.value,
-      collection_min_date: formData.collectionDate,
-      collection_after: formData.collectionAfter,
-      collection_before: formData.collectionBefore,
-      delivery_after: formData.deliveryAfter,
-      delivery_before: formData.deliveryBefore,
-      service_level_code: formData.serviceLevelCode,
-      customer_reference: formData.reference || "",
-      mute_notifications: false,
-    };
-
-    console.log("Creating ShipLogic shipment with request:", shipmentRequest);
-
-    const response = await shiplogicClient.post<ShipLogicShipmentResponse>(
-      "/shipments",
-      shipmentRequest,
-    );
-
-    if (response.data.errors && response.data.errors.length > 0) {
-      throw new Error(
-        `ShipLogic shipment error: ${response.data.errors.join(", ")}`,
-      );
-    }
-
-    console.log("ShipLogic shipment created:", response.data);
-    return response.data;
-  } catch (error) {
-    console.error("Error creating ShipLogic shipment:", error);
-
-    if (axios.isAxiosError(error)) {
-      const errorMessage =
-        error.response?.data?.message ||
-        error.response?.data?.error ||
-        error.message;
-      throw new Error(`Failed to create shipment: ${errorMessage}`);
-    }
-
-    throw new Error("Failed to create shipment. Please try again.");
-  }
-};
+// Note: Manual shipment creation has been disabled.
+// Shipments are now created automatically during book purchases only.
 
 /**
  * Track a shipment using ShipLogic shipment ID

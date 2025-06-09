@@ -113,47 +113,7 @@ export interface ShipLogicTrackingResponse {
   errors?: string[];
 }
 
-// Form data interfaces for React components
-export interface ShipLogicShipmentFormData {
-  // Collection details
-  collectionName: string;
-  collectionPhone: string;
-  collectionEmail: string;
-  collectionStreet: string;
-  collectionSuburb: string;
-  collectionCity: string;
-  collectionProvince: string;
-  collectionPostalCode: string;
-  collectionCompany?: string;
-
-  // Delivery details
-  deliveryName: string;
-  deliveryPhone: string;
-  deliveryEmail: string;
-  deliveryStreet: string;
-  deliverySuburb: string;
-  deliveryCity: string;
-  deliveryProvince: string;
-  deliveryPostalCode: string;
-  deliveryCompany?: string;
-
-  // Parcel details
-  weight: number;
-  length: number;
-  width: number;
-  height: number;
-  description: string;
-  value: number;
-  reference?: string;
-
-  // Service options
-  serviceLevelCode: string;
-  collectionDate: string;
-  collectionAfter: string;
-  collectionBefore: string;
-  deliveryAfter: string;
-  deliveryBefore: string;
-}
+// Note: ShipLogicShipmentFormData removed as manual shipment creation is disabled
 
 export interface ShipLogicServiceLevel {
   code: string;
