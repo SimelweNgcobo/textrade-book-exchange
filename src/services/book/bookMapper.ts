@@ -1,70 +1,47 @@
+import { Book } from "@/types/book";
+import { BookQueryResult } from "./bookTypes";
 
-import { Book } from '@/types/book';
-import { BookQueryResult } from './bookTypes';
-
-export const mapDatabaseBookToBook = (dbBook: any): Book => {
-  return {
-    id: dbBook.id,
-    title: dbBook.title,
-    author: dbBook.author,
-    description: dbBook.description,
-    price: parseFloat(dbBook.price),
-    condition: dbBook.condition,
-    category: dbBook.category,
-    imageUrl: dbBook.image_url,
-    sellerId: dbBook.seller_id,
-    createdAt: dbBook.created_at,
-    sold: dbBook.sold,
-    grade: dbBook.grade,
-    frontCover: dbBook.front_cover,
-    backCover: dbBook.back_cover,
-    insidePages: dbBook.inside_pages,
-    universityYear: dbBook.university_year,
-  };
-};
-
-// Add the missing export that's being imported
 export const mapBookFromDatabase = (bookData: BookQueryResult): Book => {
+  const profile = bookData.profiles;
+
+  console.log("Mapping book data:", bookData);
+  console.log("Profile data:", profile);
+
+  // Ensure we have required fields
+  if (!bookData.id || !bookData.seller_id) {
+    throw new Error("Invalid book data: missing required fields");
+  }
+
   return {
     id: bookData.id,
-    title: bookData.title,
-    author: bookData.author,
-    description: bookData.description,
-    price: parseFloat(bookData.price.toString()),
-    condition: bookData.condition,
-    category: bookData.category,
-    imageUrl: bookData.image_url || '',
-    sellerId: bookData.seller_id,
-    createdAt: bookData.created_at,
-    sold: bookData.sold,
-    grade: bookData.grade,
+    title: bookData.title || "Unknown Title",
+    author: bookData.author || "Unknown Author",
+    description: bookData.description || "",
+    price: bookData.price || 0,
+    category: bookData.category || "Other",
+    condition:
+      (bookData.condition as
+        | "New"
+        | "Good"
+        | "Better"
+        | "Average"
+        | "Below Average") || "Good",
+    imageUrl:
+      bookData.front_cover ||
+      bookData.image_url ||
+      "https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=400&h=300&fit=crop&auto=format&q=80",
     frontCover: bookData.front_cover,
     backCover: bookData.back_cover,
     insidePages: bookData.inside_pages,
+    sold: bookData.sold || false,
+    createdAt: bookData.created_at || new Date().toISOString(),
+    grade: bookData.grade,
     universityYear: bookData.university_year,
-    seller: bookData.profiles ? {
-      id: bookData.profiles.id,
-      name: bookData.profiles.name,
-      email: bookData.profiles.email,
-    } : undefined,
-  };
-};
-
-export const mapBookToDatabase = (book: Partial<Book>) => {
-  return {
-    title: book.title,
-    author: book.author,
-    description: book.description,
-    price: book.price,
-    condition: book.condition,
-    category: book.category,
-    image_url: book.imageUrl,
-    seller_id: book.sellerId,
-    sold: book.sold,
-    grade: book.grade,
-    front_cover: book.frontCover,
-    back_cover: book.backCover,
-    inside_pages: book.insidePages,
-    university_year: book.universityYear,
+    university: bookData.university,
+    seller: {
+      id: bookData.seller_id,
+      name: profile?.name || `User ${bookData.seller_id.slice(0, 8)}`,
+      email: profile?.email || "",
+    },
   };
 };

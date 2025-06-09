@@ -1,109 +1,132 @@
-
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { Book } from '@/types/book';
-
-interface CartItem extends Book {
-  quantity: number;
-}
-
-interface CartContextType {
-  items: CartItem[];
-  addToCart: (book: Book) => void;
-  removeFromCart: (bookId: string) => void;
-  updateQuantity: (bookId: string, quantity: number) => void;
-  clearCart: () => void;
-  totalPrice: number;
-  totalItems: number;
-  getTotalItems: () => number;
-  getTotalPrice: () => number;
-  getSellerTotals: () => any[];
-}
+import React, { createContext, useContext, useState, useEffect } from "react";
+import { CartItem, CartContextType } from "@/types/cart";
+import { toast } from "sonner";
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export const useCart = () => {
   const context = useContext(CartContext);
   if (!context) {
-    throw new Error('useCart must be used within a CartProvider');
+    throw new Error("useCart must be used within a CartProvider");
   }
   return context;
 };
 
-export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const [items, setItems] = useState<CartItem[]>([]);
 
   // Load cart from localStorage on mount
   useEffect(() => {
-    const savedCart = localStorage.getItem('cart');
+    const savedCart = localStorage.getItem("cart");
     if (savedCart) {
-      setItems(JSON.parse(savedCart));
+      try {
+        setItems(JSON.parse(savedCart));
+      } catch (error) {
+        console.error("Error loading cart:", error);
+      }
     }
   }, []);
 
   // Save cart to localStorage whenever items change
   useEffect(() => {
-    localStorage.setItem('cart', JSON.stringify(items));
+    localStorage.setItem("cart", JSON.stringify(items));
   }, [items]);
 
   const addToCart = (book: Book) => {
-    setItems(prev => {
-      const existingItem = prev.find(item => item.id === book.id);
-      if (existingItem) {
-        return prev.map(item =>
-          item.id === book.id
-            ? { ...item, quantity: item.quantity + 1 }
-            : item
-        );
-      }
-      return [...prev, { ...book, quantity: 1 }];
-    });
+    // Check if book and seller exist
+    if (!book) {
+      toast.error("Book information is missing");
+      return;
+    }
+
+    if (!book.seller || !book.seller.id) {
+      toast.error("Seller information is missing");
+      return;
+    }
+
+    // Check if item already exists
+    const existingItem = items.find((item) => item.bookId === book.id);
+    if (existingItem) {
+      toast.error("This book is already in your cart");
+      return;
+    }
+
+    const newItem: CartItem = {
+      id: `${book.id}-${Date.now()}`,
+      bookId: book.id,
+      title: book.title,
+      author: book.author,
+      price: book.price,
+      imageUrl: book.imageUrl || book.frontCover || "",
+      sellerId: book.seller.id,
+      sellerName: book.seller.name || "Unknown Seller",
+      quantity: 1,
+    };
+
+    setItems((prev) => [...prev, newItem]);
+    toast.success("Added to cart");
   };
 
   const removeFromCart = (bookId: string) => {
-    setItems(prev => prev.filter(item => item.id !== bookId));
+    setItems((prev) => prev.filter((item) => item.bookId !== bookId));
+    toast.success("Removed from cart");
   };
 
   const updateQuantity = (bookId: string, quantity: number) => {
+    // Quantity is always 1 for books, but keeping for interface compatibility
     if (quantity <= 0) {
       removeFromCart(bookId);
       return;
     }
-    setItems(prev =>
-      prev.map(item =>
-        item.id === bookId ? { ...item, quantity } : item
-      )
-    );
+    // Don't allow quantity changes since each book is unique
   };
 
   const clearCart = () => {
     setItems([]);
+    localStorage.removeItem("cart");
   };
 
-  const getTotalItems = () => items.reduce((sum, item) => sum + item.quantity, 0);
-  const getTotalPrice = () => items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-  
+  const getTotalPrice = () => {
+    return items.reduce((total, item) => total + item.price, 0);
+  };
+
+  const getTotalItems = () => {
+    return items.length; // Each book is quantity 1
+  };
+
   const getSellerTotals = () => {
-    const sellerMap = new Map();
-    items.forEach(item => {
-      const sellerId = item.sellerId;
-      const sellerName = item.seller?.name || 'Unknown Seller';
-      if (!sellerMap.has(sellerId)) {
-        sellerMap.set(sellerId, {
-          sellerId,
-          sellerName,
-          total: 0,
-          items: []
-        });
-      }
-      const seller = sellerMap.get(sellerId);
-      seller.total += item.price * item.quantity;
-      seller.items.push(item);
-    });
-    return Array.from(sellerMap.values());
-  };
+    const sellerTotals: {
+      [sellerId: string]: {
+        total: number;
+        commission: number;
+        sellerReceives: number;
+        sellerName: string;
+      };
+    } = {};
 
-  const totalPrice = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-  const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
+    items.forEach((item) => {
+      const itemTotal = item.price;
+      const commission = itemTotal * 0.1; // 10% commission
+      const sellerReceives = itemTotal - commission;
+
+      if (sellerTotals[item.sellerId]) {
+        sellerTotals[item.sellerId].total += itemTotal;
+        sellerTotals[item.sellerId].commission += commission;
+        sellerTotals[item.sellerId].sellerReceives += sellerReceives;
+      } else {
+        sellerTotals[item.sellerId] = {
+          total: itemTotal,
+          commission,
+          sellerReceives,
+          sellerName: item.sellerName,
+        };
+      }
+    });
+
+    return sellerTotals;
+  };
 
   return (
     <CartContext.Provider
@@ -113,10 +136,8 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         removeFromCart,
         updateQuantity,
         clearCart,
-        totalPrice,
-        totalItems,
-        getTotalItems,
         getTotalPrice,
+        getTotalItems,
         getSellerTotals,
       }}
     >
