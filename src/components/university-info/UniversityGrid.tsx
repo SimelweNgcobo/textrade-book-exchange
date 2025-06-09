@@ -210,15 +210,37 @@ const UniversityGrid = ({
                 <div className="flex items-start justify-between">
                   <div className="flex items-center space-x-3">
                     {university.logo ? (
-                      <img
-                        src={university.logo}
-                        alt={`${university.name} logo`}
-                        className="w-12 h-12 rounded-lg object-contain bg-white border border-gray-200 p-1"
-                      />
+                      <div className="w-12 h-12 rounded-lg bg-white border border-gray-200 p-2 flex items-center justify-center">
+                        <img
+                          src={university.logo}
+                          alt={`${university.name} logo`}
+                          className="w-full h-full object-contain"
+                          onError={(e) => {
+                            // Fallback to abbreviation if logo fails to load
+                            const target = e.target as HTMLImageElement;
+                            target.style.display = "none";
+                            const fallback =
+                              target.parentElement?.querySelector(
+                                ".logo-fallback",
+                              );
+                            if (fallback) {
+                              (fallback as HTMLElement).style.display = "flex";
+                            }
+                          }}
+                        />
+                        <div
+                          className="logo-fallback w-full h-full bg-book-100 rounded flex items-center justify-center"
+                          style={{ display: "none" }}
+                        >
+                          <span className="text-book-600 font-bold text-sm">
+                            {university.abbreviation}
+                          </span>
+                        </div>
+                      </div>
                     ) : (
                       <div className="w-12 h-12 bg-book-100 rounded-lg flex items-center justify-center">
-                        <span className="text-book-600 font-bold text-lg">
-                          {university.abbreviation.charAt(0)}
+                        <span className="text-book-600 font-bold text-sm">
+                          {university.abbreviation}
                         </span>
                       </div>
                     )}

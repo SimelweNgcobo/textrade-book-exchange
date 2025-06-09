@@ -17,7 +17,6 @@ import AdminAccess from "./AdminAccess";
 import CartButton from "./CartButton";
 import NotificationBadge from "./NotificationBadge";
 import { toast } from "sonner";
-import { addNotification } from "@/services/notificationService";
 
 const Navbar = () => {
   const { user, logout, isAuthenticated } = useAuth();
@@ -27,7 +26,6 @@ const Navbar = () => {
 
   const handleLogout = async () => {
     try {
-      const userEmail = user?.email;
       await logout();
       toast.success(`Successfully logged out. Goodbye!`);
       navigate("/");
@@ -46,443 +44,228 @@ const Navbar = () => {
   };
 
   return (
-    <nav
-      style={{
-        backgroundColor: "rgb(255, 255, 255)",
-        boxShadow:
-          "rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0.1) 0px 10px 15px -3px, rgba(0, 0, 0, 0.1) 0px 4px 6px -4px",
-        position: "sticky",
-        top: "0px",
-        zIndex: "50",
-      }}
-    >
-      <div
-        style={{
-          marginLeft: "auto",
-          marginRight: "auto",
-          maxWidth: "1280px",
-          paddingLeft: "24px",
-          paddingRight: "24px",
-        }}
-      >
-        <div
-          style={{
-            alignItems: "center",
-            display: "flex",
-            height: "64px",
-            justifyContent: "space-between",
-          }}
-        >
+    <nav className="bg-white border-b border-gray-100 sticky top-0 z-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between items-center h-16">
           {/* Logo */}
-          <div
-            style={{
-              alignItems: "center",
-              display: "flex",
-            }}
-          >
+          <div className="flex items-center">
             <Link
               to="/"
-              style={{
-                alignItems: "center",
-                cursor: "pointer",
-                display: "flex",
-                textDecoration: "none",
-              }}
+              className="flex items-center space-x-2 hover:opacity-80 transition-opacity"
             >
-              <div
-                style={{
-                  alignItems: "center",
-                  backgroundColor: "rgb(21, 115, 71)",
-                  borderRadius: "12px",
-                  cursor: "pointer",
-                  display: "flex",
-                  height: "32px",
-                  justifyContent: "center",
-                  width: "32px",
-                }}
-              >
-                <span
-                  style={{
-                    color: "rgb(255, 255, 255)",
-                    cursor: "pointer",
-                    fontSize: "18px",
-                    fontWeight: "700",
-                    lineHeight: "28px",
-                  }}
-                >
-                  R
-                </span>
+              <div className="w-8 h-8 bg-book-600 rounded-lg flex items-center justify-center">
+                <BookOpen className="w-5 h-5 text-white" />
               </div>
-              <span
-                style={{
-                  color: "rgb(21, 115, 71)",
-                  cursor: "pointer",
-                  fontSize: "20px",
-                  fontWeight: "700",
-                  lineHeight: "28px",
-                  marginLeft: "8px",
-                }}
-              >
+              <span className="text-xl font-bold text-book-600">
                 ReBooked Solutions
               </span>
             </Link>
           </div>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center">
-            <div
-              style={{
-                alignItems: "baseline",
-                display: "flex",
-                marginLeft: "40px",
-              }}
+          <div className="hidden md:flex items-center space-x-8">
+            <Link
+              to="/books"
+              className={`text-sm font-medium transition-colors hover:text-book-600 ${
+                isActive("/books") ? "text-book-600" : "text-gray-700"
+              }`}
             >
-              <Link
-                to="/books"
-                style={{
-                  borderRadius: "10px",
-                  color: isActive("/books")
-                    ? "rgb(21, 115, 71)"
-                    : "rgb(55, 65, 81)",
-                  backgroundColor: isActive("/books")
-                    ? "rgb(230, 244, 234)"
-                    : "transparent",
-                  cursor: "pointer",
-                  fontSize: "14px",
-                  fontWeight: "500",
-                  lineHeight: "20px",
-                  paddingBottom: "8px",
-                  paddingLeft: "12px",
-                  paddingRight: "12px",
-                  paddingTop: "8px",
-                  textDecoration: "none",
-                  transition: "all 0.15s cubic-bezier(0.4, 0, 0.2, 1)",
-                }}
-              >
-                Browse Books
-              </Link>
-              <Link
-                to="/university-info"
-                style={{
-                  borderRadius: "10px",
-                  color: isActive("/university-info")
-                    ? "rgb(21, 115, 71)"
-                    : "rgb(55, 65, 81)",
-                  backgroundColor: isActive("/university-info")
-                    ? "rgb(230, 244, 234)"
-                    : "transparent",
-                  cursor: "pointer",
-                  fontSize: "14px",
-                  fontWeight: "500",
-                  lineHeight: "20px",
-                  marginLeft: "16px",
-                  paddingBottom: "8px",
-                  paddingLeft: "12px",
-                  paddingRight: "12px",
-                  paddingTop: "8px",
-                  textDecoration: "none",
-                  transition: "all 0.15s cubic-bezier(0.4, 0, 0.2, 1)",
-                  display: "flex",
-                  alignItems: "center",
-                }}
-              >
-                <GraduationCap
-                  style={{ height: "16px", width: "16px", marginRight: "4px" }}
-                />
-                ReBooked Campus
-              </Link>
-              <Link
-                to="/shipping"
-                style={{
-                  borderRadius: "10px",
-                  color: isActive("/shipping")
-                    ? "rgb(21, 115, 71)"
-                    : "rgb(55, 65, 81)",
-                  backgroundColor: isActive("/shipping")
-                    ? "rgb(230, 244, 234)"
-                    : "transparent",
-                  cursor: "pointer",
-                  fontSize: "14px",
-                  fontWeight: "500",
-                  lineHeight: "20px",
-                  marginLeft: "16px",
-                  paddingBottom: "8px",
-                  paddingLeft: "12px",
-                  paddingRight: "12px",
-                  paddingTop: "8px",
-                  textDecoration: "none",
-                  transition: "all 0.15s cubic-bezier(0.4, 0, 0.2, 1)",
-                  display: "flex",
-                  alignItems: "center",
-                }}
-              >
-                <Truck
-                  style={{ height: "16px", width: "16px", marginRight: "4px" }}
-                />
-                Shipping
-              </Link>
+              Browse Books
+            </Link>
 
-              {isAuthenticated ? (
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    marginLeft: "24px",
-                    gap: "8px",
-                  }}
-                >
-                  <Link
-                    to="/create-listing"
-                    className="flex items-center text-gray-700 hover:text-book-600 px-3 py-2 transition-colors"
-                  >
-                    <Plus className="h-4 w-4 mr-1" />
-                    Sell Book
-                  </Link>
-                  <Link
-                    to="/notifications"
-                    className="flex items-center text-gray-700 hover:text-book-600 px-3 py-2 transition-colors"
-                  >
-                    <NotificationBadge iconSize="h-4 w-4" className="mr-1" />
-                    Notifications
-                  </Link>
-                  <CartButton />
-                  <Link
-                    to="/profile"
-                    className="flex items-center text-gray-700 hover:text-book-600 px-3 py-2 transition-colors"
-                  >
-                    <User className="h-4 w-4 mr-1" />
-                    Profile
-                  </Link>
-                  <AdminAccess />
-                  <Button
-                    onClick={handleLogout}
-                    variant="ghost"
-                    className="flex items-center text-gray-700 hover:text-book-600"
-                  >
-                    <LogOut className="h-4 w-4 mr-1" />
-                    Logout
-                  </Button>
-                </div>
-              ) : (
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    marginLeft: "24px",
-                    gap: "8px",
-                  }}
-                >
-                  <Link to="/login">
-                    <Button variant="ghost" className="text-book-600">
-                      Login
-                    </Button>
-                  </Link>
-                  <Link to="/register">
-                    <Button className="bg-book-600 hover:bg-book-700 text-white">
-                      <UserPlus className="h-4 w-4 mr-1" />
-                      Sign Up
-                    </Button>
-                  </Link>
-                </div>
-              )}
-            </div>
+            <Link
+              to="/university-info"
+              className={`flex items-center space-x-1 text-sm font-medium transition-colors hover:text-book-600 ${
+                location.pathname.startsWith("/university")
+                  ? "text-book-600"
+                  : "text-gray-700"
+              }`}
+            >
+              <GraduationCap className="w-4 h-4" />
+              <span>Campus</span>
+            </Link>
+
+            <Link
+              to="/shipping"
+              className={`flex items-center space-x-1 text-sm font-medium transition-colors hover:text-book-600 ${
+                isActive("/shipping") ? "text-book-600" : "text-gray-700"
+              }`}
+            >
+              <Truck className="w-4 h-4" />
+              <span>Shipping</span>
+            </Link>
           </div>
 
-          {/* Mobile menu button */}
+          {/* Right Side Actions */}
+          <div className="hidden md:flex items-center space-x-4">
+            {isAuthenticated ? (
+              <>
+                <CartButton />
+                <NotificationBadge />
+
+                <Link to="/create-listing">
+                  <Button
+                    size="sm"
+                    className="bg-book-600 hover:bg-book-700 text-white"
+                  >
+                    <Plus className="w-4 h-4 mr-1" />
+                    Sell Book
+                  </Button>
+                </Link>
+
+                <div className="flex items-center space-x-2">
+                  <Link to="/profile">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="text-gray-700 hover:text-book-600"
+                    >
+                      <User className="w-4 h-4 mr-1" />
+                      Profile
+                    </Button>
+                  </Link>
+
+                  <AdminAccess />
+
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleLogout}
+                    className="text-gray-700 hover:text-red-600"
+                  >
+                    <LogOut className="w-4 h-4" />
+                  </Button>
+                </div>
+              </>
+            ) : (
+              <div className="flex items-center space-x-3">
+                <Link to="/login">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-gray-700 hover:text-book-600"
+                  >
+                    Login
+                  </Button>
+                </Link>
+                <Link to="/register">
+                  <Button
+                    size="sm"
+                    className="bg-book-600 hover:bg-book-700 text-white"
+                  >
+                    <UserPlus className="w-4 h-4 mr-1" />
+                    Sign Up
+                  </Button>
+                </Link>
+              </div>
+            )}
+          </div>
+
+          {/* Mobile Menu Button */}
           <div className="md:hidden">
-            <button
-              onClick={toggleMenu}
-              style={{
-                alignItems: "center",
-                borderRadius: "10px",
-                color: "rgb(55, 65, 81)",
-                cursor: "pointer",
-                display: "inline-flex",
-                fontSize: "14px",
-                fontWeight: "500",
-                gap: "8px",
-                height: "36px",
-                justifyContent: "center",
-                paddingLeft: "12px",
-                paddingRight: "12px",
-                backgroundColor: "transparent",
-                border: "none",
-                transition: "all 0.15s cubic-bezier(0.4, 0, 0.2, 1)",
-              }}
-            >
+            <Button variant="ghost" size="sm" onClick={toggleMenu}>
               {isMenuOpen ? (
-                <X style={{ height: "16px", width: "16px" }} />
+                <X className="w-5 h-5" />
               ) : (
-                <Menu style={{ height: "16px", width: "16px" }} />
+                <Menu className="w-5 h-5" />
               )}
-            </button>
+            </Button>
           </div>
         </div>
 
-        {/* Mobile Navigation */}
+        {/* Mobile Menu */}
         {isMenuOpen && (
-          <div
-            style={{
-              paddingBottom: "16px",
-              paddingTop: "8px",
-              borderTop: "1px solid rgb(243, 244, 246)",
-            }}
-          >
-            <div
-              style={{ display: "flex", flexDirection: "column", gap: "8px" }}
-            >
+          <div className="md:hidden border-t border-gray-100 py-4">
+            <div className="space-y-3">
               <Link
                 to="/books"
+                className={`block px-3 py-2 text-sm font-medium rounded-md transition-colors ${
+                  isActive("/books")
+                    ? "bg-book-50 text-book-600"
+                    : "text-gray-700 hover:bg-gray-50 hover:text-book-600"
+                }`}
                 onClick={() => setIsMenuOpen(false)}
-                style={{
-                  borderRadius: "10px",
-                  color: isActive("/books")
-                    ? "rgb(21, 115, 71)"
-                    : "rgb(55, 65, 81)",
-                  backgroundColor: isActive("/books")
-                    ? "rgb(230, 244, 234)"
-                    : "transparent",
-                  cursor: "pointer",
-                  fontSize: "14px",
-                  fontWeight: "500",
-                  lineHeight: "20px",
-                  paddingBottom: "8px",
-                  paddingLeft: "12px",
-                  paddingRight: "12px",
-                  paddingTop: "8px",
-                  textDecoration: "none",
-                  textAlign: "left",
-                  width: "100%",
-                  display: "block",
-                }}
               >
                 Browse Books
               </Link>
+
               <Link
                 to="/university-info"
+                className={`flex items-center space-x-2 px-3 py-2 text-sm font-medium rounded-md transition-colors ${
+                  location.pathname.startsWith("/university")
+                    ? "bg-book-50 text-book-600"
+                    : "text-gray-700 hover:bg-gray-50 hover:text-book-600"
+                }`}
                 onClick={() => setIsMenuOpen(false)}
-                style={{
-                  borderRadius: "10px",
-                  color: isActive("/university-info")
-                    ? "rgb(21, 115, 71)"
-                    : "rgb(55, 65, 81)",
-                  backgroundColor: isActive("/university-info")
-                    ? "rgb(230, 244, 234)"
-                    : "transparent",
-                  cursor: "pointer",
-                  fontSize: "14px",
-                  fontWeight: "500",
-                  lineHeight: "20px",
-                  paddingBottom: "8px",
-                  paddingLeft: "12px",
-                  paddingRight: "12px",
-                  paddingTop: "8px",
-                  textDecoration: "none",
-                  textAlign: "left",
-                  width: "100%",
-                  display: "flex",
-                  alignItems: "center",
-                }}
               >
-                <GraduationCap
-                  style={{ height: "16px", width: "16px", marginRight: "4px" }}
-                />
-                ReBooked Campus
+                <GraduationCap className="w-4 h-4" />
+                <span>Campus</span>
               </Link>
+
               <Link
                 to="/shipping"
+                className={`flex items-center space-x-2 px-3 py-2 text-sm font-medium rounded-md transition-colors ${
+                  isActive("/shipping")
+                    ? "bg-book-50 text-book-600"
+                    : "text-gray-700 hover:bg-gray-50 hover:text-book-600"
+                }`}
                 onClick={() => setIsMenuOpen(false)}
-                style={{
-                  borderRadius: "10px",
-                  color: isActive("/shipping")
-                    ? "rgb(21, 115, 71)"
-                    : "rgb(55, 65, 81)",
-                  backgroundColor: isActive("/shipping")
-                    ? "rgb(230, 244, 234)"
-                    : "transparent",
-                  cursor: "pointer",
-                  fontSize: "14px",
-                  fontWeight: "500",
-                  lineHeight: "20px",
-                  paddingBottom: "8px",
-                  paddingLeft: "12px",
-                  paddingRight: "12px",
-                  paddingTop: "8px",
-                  textDecoration: "none",
-                  textAlign: "left",
-                  width: "100%",
-                  display: "flex",
-                  alignItems: "center",
-                }}
               >
-                <Truck
-                  style={{ height: "16px", width: "16px", marginRight: "4px" }}
-                />
-                Shipping
+                <Truck className="w-4 h-4" />
+                <span>Shipping</span>
               </Link>
 
               {isAuthenticated ? (
                 <>
-                  <Link
-                    to="/create-listing"
-                    className="flex items-center text-gray-700 hover:text-book-600 px-3 py-2 transition-colors"
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    <Plus className="h-4 w-4 mr-1" />
-                    Sell Book
-                  </Link>
-                  <Link
-                    to="/notifications"
-                    className="flex items-center text-gray-700 hover:text-book-600 px-3 py-2 transition-colors"
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    <NotificationBadge iconSize="h-4 w-4" className="mr-1" />
-                    Notifications
-                  </Link>
-                  <div className="px-3 py-2">
-                    <CartButton />
+                  <div className="border-t border-gray-100 pt-3 mt-3">
+                    <Link
+                      to="/create-listing"
+                      className="block px-3 py-2 text-sm font-medium text-white bg-book-600 rounded-md"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      <Plus className="w-4 h-4 mr-1 inline" />
+                      Sell Book
+                    </Link>
                   </div>
+
                   <Link
                     to="/profile"
-                    className="flex items-center text-gray-700 hover:text-book-600 px-3 py-2 transition-colors"
+                    className="block px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-book-600 rounded-md"
                     onClick={() => setIsMenuOpen(false)}
                   >
-                    <User className="h-4 w-4 mr-1" />
+                    <User className="w-4 h-4 mr-1 inline" />
                     Profile
                   </Link>
-                  <div className="px-3 py-2">
-                    <AdminAccess />
-                  </div>
-                  <Button
+
+                  <button
                     onClick={() => {
                       handleLogout();
                       setIsMenuOpen(false);
                     }}
-                    variant="ghost"
-                    className="justify-start text-gray-700 hover:text-book-600 w-full"
+                    className="block w-full text-left px-3 py-2 text-sm font-medium text-gray-700 hover:bg-red-50 hover:text-red-600 rounded-md"
                   >
-                    <LogOut className="h-4 w-4 mr-1" />
+                    <LogOut className="w-4 h-4 mr-1 inline" />
                     Logout
-                  </Button>
+                  </button>
                 </>
               ) : (
-                <>
+                <div className="border-t border-gray-100 pt-3 mt-3 space-y-2">
                   <Link
                     to="/login"
-                    className="text-gray-700 hover:text-book-600 px-3 py-2 transition-colors"
+                    className="block px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-book-600 rounded-md"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     Login
                   </Link>
                   <Link
                     to="/register"
-                    className="flex items-center text-gray-700 hover:text-book-600 px-3 py-2 transition-colors"
+                    className="block px-3 py-2 text-sm font-medium text-white bg-book-600 rounded-md"
                     onClick={() => setIsMenuOpen(false)}
                   >
-                    <UserPlus className="h-4 w-4 mr-1" />
+                    <UserPlus className="w-4 h-4 mr-1 inline" />
                     Sign Up
                   </Link>
-                </>
+                </div>
               )}
             </div>
           </div>
