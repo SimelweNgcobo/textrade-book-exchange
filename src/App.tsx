@@ -38,6 +38,7 @@ import EditBook from "./pages/EditBook";
 import Cart from "./pages/Cart";
 import Report from "./pages/Report";
 import Shipping from "./pages/Shipping";
+import UniversityInfo from "./pages/UniversityInfo";
 
 import "./App.css";
 
@@ -75,6 +76,10 @@ function App() {
                     <Route path="/contact" element={<ContactUs />} />
                     <Route path="/report" element={<Report />} />
                     <Route path="/shipping" element={<Shipping />} />
+                    <Route
+                      path="/university-info"
+                      element={<UniversityInfo />}
+                    />
 
                     {/* Public user profiles - no authentication required */}
                     <Route path="/user/:id" element={<UserProfile />} />
