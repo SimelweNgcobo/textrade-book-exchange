@@ -362,12 +362,16 @@ const CreateListing = () => {
             setShowFirstUploadDialog(false);
             setShowShareProfileDialog(true);
           }}
+          onShareProfile={() => {
+            setShowFirstUploadDialog(false);
+            setShowShareProfileDialog(true);
+          }}
         />
 
         <PostListingSuccessDialog
           isOpen={showPostListingDialog}
           onClose={() => setShowPostListingDialog(false)}
-          onShareProfile={() => {
+          onGoToProfile={() => {
             setShowPostListingDialog(false);
             setShowShareProfileDialog(true);
           }}
