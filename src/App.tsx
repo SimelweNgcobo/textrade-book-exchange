@@ -161,7 +161,6 @@ function App() {
                   </Routes>
                 </ErrorBoundary>
               </div>
-              <Toaster />
               <BroadcastManager />
               {process.env.NODE_ENV === "development" && (
                 <>{/* Debug components removed from production */}</>
