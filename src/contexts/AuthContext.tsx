@@ -438,7 +438,10 @@ function AuthProvider({ children }: { children: ReactNode }) {
     initError,
     loadUserStats,
     checkAdminStatus,
-    login,
+    login: async (email: string, password: string) => {
+      const result = await loginUser(email, password);
+      return result;
+    },
     register,
     logout,
     refreshProfile,
