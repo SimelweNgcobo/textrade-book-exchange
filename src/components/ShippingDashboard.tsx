@@ -85,7 +85,9 @@ const ShippingDashboard = ({
                 key={provider.id}
                 className={`p-4 border-2 rounded-lg cursor-pointer transition-all ${
                   selectedProvider === provider.id
-                    ? `border-${provider.color}-500 bg-${provider.color}-50`
+                    ? provider.color === "blue"
+                      ? "border-blue-500 bg-blue-50"
+                      : "border-green-500 bg-green-50"
                     : "border-gray-200 hover:border-gray-300"
                 }`}
                 onClick={() =>
@@ -100,7 +102,11 @@ const ShippingDashboard = ({
                       {selectedProvider === provider.id && (
                         <Badge
                           variant="default"
-                          className={`bg-${provider.color}-600`}
+                          className={
+                            provider.color === "blue"
+                              ? "bg-blue-600"
+                              : "bg-green-600"
+                          }
                         >
                           Selected
                         </Badge>
