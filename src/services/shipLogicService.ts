@@ -361,7 +361,7 @@ export const trackShipLogicShipment = async (
  */
 export const getShipLogicShipmentNotes = async (
   shipmentId: string,
-): Promise<any> => {
+): Promise<Record<string, unknown>> => {
   try {
     console.log("Getting ShipLogic shipment notes:", shipmentId);
 
@@ -391,7 +391,7 @@ export const getShipLogicShipmentNotes = async (
  */
 export const cancelShipLogicShipment = async (
   shipmentId: string,
-): Promise<any> => {
+): Promise<Record<string, unknown>> => {
   try {
     console.log("Cancelling ShipLogic shipment:", shipmentId);
 
@@ -419,7 +419,9 @@ export const cancelShipLogicShipment = async (
 /**
  * Get available service levels from ShipLogic
  */
-export const getShipLogicServiceLevels = async (): Promise<any> => {
+export const getShipLogicServiceLevels = async (): Promise<
+  ShipLogicServiceLevel[]
+> => {
   try {
     console.log("Getting ShipLogic service levels");
 
