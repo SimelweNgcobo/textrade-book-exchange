@@ -34,6 +34,7 @@ import {
   Clock,
   Phone,
   Mail,
+  BookOpen,
 } from "lucide-react";
 import {
   BURSARIES,
