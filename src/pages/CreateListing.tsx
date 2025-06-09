@@ -380,8 +380,7 @@ const CreateListing = () => {
         <ShareProfileDialog
           isOpen={showShareProfileDialog}
           onClose={() => setShowShareProfileDialog(false)}
-          userId={user?.id}
-          userProfile={profile}
+          userId={user?.id || ""}
         />
       </div>
     </Layout>
