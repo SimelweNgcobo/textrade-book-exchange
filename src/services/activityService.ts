@@ -314,12 +314,11 @@ export class ActivityService {
         return {
           id: notif.id,
           user_id: notif.user_id,
-          type: activityType as Activity['type'],
+          type: activityType as Activity["type"],
           title: notif.title || "",
           description: cleanDescription || "",
           metadata: parsedMetadata,
           created_at: notif.created_at,
-        };
         };
       });
     } catch (error) {
