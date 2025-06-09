@@ -1194,6 +1194,1304 @@ const UniversityInfo = () => {
             </div>
           </div>
         </section>
+
+        {/* Student Resources & Guides Section */}
+        <div
+          style={{
+            backgroundColor: "rgb(230, 244, 234)",
+            minHeight: "910px",
+            paddingBottom: "32px",
+            paddingTop: "32px",
+          }}
+        >
+          <div
+            style={{
+              marginLeft: "auto",
+              marginRight: "auto",
+              maxWidth: "1280px",
+              paddingLeft: "24px",
+              paddingRight: "24px",
+            }}
+          >
+            <div
+              style={{
+                marginBottom: "48px",
+                textAlign: "center",
+              }}
+            >
+              <h1
+                style={{
+                  color: "rgb(17, 24, 39)",
+                  fontSize: "36px",
+                  fontWeight: "700",
+                  lineHeight: "40px",
+                  marginBottom: "16px",
+                  textAlign: "center",
+                }}
+              >
+                Student Resources & Guides
+              </h1>
+              <p
+                style={{
+                  color: "rgb(75, 85, 99)",
+                  fontSize: "18px",
+                  lineHeight: "28px",
+                  marginLeft: "auto",
+                  marginRight: "auto",
+                  maxWidth: "768px",
+                  textAlign: "center",
+                }}
+              >
+                Everything you need to know about studying in South Africa. From
+                funding and applications to student life and career guidance.
+              </p>
+            </div>
+            <section
+              style={{
+                marginBottom: "64px",
+              }}
+            >
+              <div
+                style={{
+                  alignItems: "center",
+                  display: "flex",
+                  justifyContent: "space-between",
+                  marginBottom: "32px",
+                }}
+              >
+                <h2
+                  style={{
+                    color: "rgb(17, 24, 39)",
+                    fontSize: "30px",
+                    fontWeight: "700",
+                    lineHeight: "36px",
+                  }}
+                >
+                  Featured Guides
+                </h2>
+              </div>
+              <div
+                style={{
+                  display: "grid",
+                  gap: "32px",
+                  gridTemplate: "none / repeat(1, minmax(0px, 1fr))",
+                }}
+              >
+                <div
+                  style={{
+                    backgroundColor: "rgb(255, 255, 255)",
+                    borderRadius: "12px",
+                    borderWidth: "1px",
+                    borderColor: "rgb(212, 232, 222)",
+                    boxShadow: "rgba(0, 0, 0, 0.05) 0px 1px 2px 0px",
+                    overflowX: "hidden",
+                    overflowY: "hidden",
+                  }}
+                >
+                  <div
+                    style={{
+                      position: "relative",
+                    }}
+                  >
+                    <img
+                      alt="Complete Guide to NSFAS Applications for 2024"
+                      src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=600&h=400&fit=crop&crop=center"
+                      style={{
+                        height: "192px",
+                        maxWidth: "100%",
+                        objectFit: "cover",
+                        width: "100%",
+                      }}
+                    />
+                    <div
+                      style={{
+                        left: "16px",
+                        position: "absolute",
+                        top: "16px",
+                      }}
+                    >
+                      <div
+                        style={{
+                          alignItems: "center",
+                          backgroundColor: "rgb(21, 115, 71)",
+                          borderRadius: "9999px",
+                          color: "rgb(255, 255, 255)",
+                          display: "inline-flex",
+                          fontSize: "12px",
+                          fontWeight: "600",
+                          lineHeight: "16px",
+                          paddingBottom: "2px",
+                          paddingLeft: "10px",
+                          paddingRight: "10px",
+                          paddingTop: "2px",
+                        }}
+                      >
+                        Featured
+                      </div>
+                    </div>
+                  </div>
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      paddingBottom: "12px",
+                      paddingLeft: "24px",
+                      paddingRight: "24px",
+                      paddingTop: "24px",
+                    }}
+                  >
+                    <div
+                      style={{
+                        alignItems: "center",
+                        display: "flex",
+                        justifyContent: "space-between",
+                        marginBottom: "8px",
+                      }}
+                    >
+                      <div
+                        style={{
+                          alignItems: "center",
+                          borderRadius: "9999px",
+                          borderWidth: "1px",
+                          borderColor: "rgba(21, 115, 71, 0.2)",
+                          color: "rgb(21, 115, 71)",
+                          display: "flex",
+                          fontSize: "12px",
+                          fontWeight: "600",
+                          lineHeight: "16px",
+                          paddingBottom: "2px",
+                          paddingLeft: "10px",
+                          paddingRight: "10px",
+                          paddingTop: "2px",
+                        }}
+                      >
+                        Financial Aid
+                      </div>
+                      <span
+                        style={{
+                          color: "rgb(107, 114, 128)",
+                          fontSize: "14px",
+                          lineHeight: "20px",
+                        }}
+                      >
+                        8 min read
+                      </span>
+                    </div>
+                    <h3
+                      style={{
+                        color: "rgb(45, 55, 72)",
+                        fontSize: "20px",
+                        fontWeight: "600",
+                        letterSpacing: "-0.5px",
+                        lineHeight: "28px",
+                        marginTop: "6px",
+                      }}
+                    >
+                      Complete Guide to NSFAS Applications for 2024
+                    </h3>
+                  </div>
+                  <div
+                    style={{
+                      paddingBottom: "24px",
+                      paddingLeft: "24px",
+                      paddingRight: "24px",
+                    }}
+                  >
+                    <p
+                      style={{
+                        color: "rgb(75, 85, 99)",
+                        marginBottom: "16px",
+                      }}
+                    >
+                      Everything you need to know about applying for NSFAS
+                      funding, including eligibility requirements, required
+                      documents, and application deadlines.
+                    </p>
+                    <Button
+                      style={{
+                        alignItems: "center",
+                        backgroundColor: "rgb(21, 115, 71)",
+                        borderRadius: "10px",
+                        borderWidth: "2px",
+                        borderColor: "rgb(21, 115, 71)",
+                        boxShadow:
+                          "rgba(0, 0, 0, 0.1) 0px 10px 15px -3px, rgba(0, 0, 0, 0.1) 0px 4px 6px -4px",
+                        color: "rgb(255, 255, 255)",
+                        cursor: "pointer",
+                        display: "inline-flex",
+                        fontSize: "14px",
+                        fontWeight: "500",
+                        gap: "8px",
+                        height: "40px",
+                        justifyContent: "center",
+                        paddingBottom: "8px",
+                        paddingLeft: "16px",
+                        paddingRight: "16px",
+                        paddingTop: "8px",
+                        width: "100%",
+                        border: "none",
+                      }}
+                    >
+                      <BookOpen
+                        style={{
+                          marginRight: "8px",
+                          height: "16px",
+                          width: "16px",
+                        }}
+                      />
+                      <span>Read Guide</span>
+                    </Button>
+                  </div>
+                </div>
+                <div
+                  style={{
+                    backgroundColor: "rgb(255, 255, 255)",
+                    borderRadius: "12px",
+                    borderWidth: "1px",
+                    borderColor: "rgb(212, 232, 222)",
+                    boxShadow: "rgba(0, 0, 0, 0.05) 0px 1px 2px 0px",
+                    overflowX: "hidden",
+                    overflowY: "hidden",
+                  }}
+                >
+                  <div
+                    style={{
+                      position: "relative",
+                    }}
+                  >
+                    <img
+                      alt="How to Choose the Right University in South Africa"
+                      src="https://images.unsplash.com/photo-1487958449943-2429e8be8625?w=600&h=400&fit=crop&crop=center"
+                      style={{
+                        height: "192px",
+                        maxWidth: "100%",
+                        objectFit: "cover",
+                        width: "100%",
+                      }}
+                    />
+                    <div
+                      style={{
+                        left: "16px",
+                        position: "absolute",
+                        top: "16px",
+                      }}
+                    >
+                      <div
+                        style={{
+                          alignItems: "center",
+                          backgroundColor: "rgb(21, 115, 71)",
+                          borderRadius: "9999px",
+                          color: "rgb(255, 255, 255)",
+                          display: "inline-flex",
+                          fontSize: "12px",
+                          fontWeight: "600",
+                          lineHeight: "16px",
+                          paddingBottom: "2px",
+                          paddingLeft: "10px",
+                          paddingRight: "10px",
+                          paddingTop: "2px",
+                        }}
+                      >
+                        Featured
+                      </div>
+                    </div>
+                  </div>
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      paddingBottom: "12px",
+                      paddingLeft: "24px",
+                      paddingRight: "24px",
+                      paddingTop: "24px",
+                    }}
+                  >
+                    <div
+                      style={{
+                        alignItems: "center",
+                        display: "flex",
+                        justifyContent: "space-between",
+                        marginBottom: "8px",
+                      }}
+                    >
+                      <div
+                        style={{
+                          alignItems: "center",
+                          borderRadius: "9999px",
+                          borderWidth: "1px",
+                          borderColor: "rgba(21, 115, 71, 0.2)",
+                          color: "rgb(21, 115, 71)",
+                          display: "flex",
+                          fontSize: "12px",
+                          fontWeight: "600",
+                          lineHeight: "16px",
+                          paddingBottom: "2px",
+                          paddingLeft: "10px",
+                          paddingRight: "10px",
+                          paddingTop: "2px",
+                        }}
+                      >
+                        University Selection
+                      </div>
+                      <span
+                        style={{
+                          color: "rgb(107, 114, 128)",
+                          fontSize: "14px",
+                          lineHeight: "20px",
+                        }}
+                      >
+                        6 min read
+                      </span>
+                    </div>
+                    <h3
+                      style={{
+                        color: "rgb(45, 55, 72)",
+                        fontSize: "20px",
+                        fontWeight: "600",
+                        letterSpacing: "-0.5px",
+                        lineHeight: "28px",
+                        marginTop: "6px",
+                      }}
+                    >
+                      How to Choose the Right University in South Africa
+                    </h3>
+                  </div>
+                  <div
+                    style={{
+                      paddingBottom: "24px",
+                      paddingLeft: "24px",
+                      paddingRight: "24px",
+                    }}
+                  >
+                    <p
+                      style={{
+                        color: "rgb(75, 85, 99)",
+                        marginBottom: "16px",
+                      }}
+                    >
+                      A comprehensive guide to selecting the perfect university
+                      based on your career goals, budget, and personal
+                      preferences.
+                    </p>
+                    <Button
+                      style={{
+                        alignItems: "center",
+                        backgroundColor: "rgb(21, 115, 71)",
+                        borderRadius: "10px",
+                        borderWidth: "2px",
+                        borderColor: "rgb(21, 115, 71)",
+                        boxShadow:
+                          "rgba(0, 0, 0, 0.1) 0px 10px 15px -3px, rgba(0, 0, 0, 0.1) 0px 4px 6px -4px",
+                        color: "rgb(255, 255, 255)",
+                        cursor: "pointer",
+                        display: "inline-flex",
+                        fontSize: "14px",
+                        fontWeight: "500",
+                        gap: "8px",
+                        height: "40px",
+                        justifyContent: "center",
+                        paddingBottom: "8px",
+                        paddingLeft: "16px",
+                        paddingRight: "16px",
+                        paddingTop: "8px",
+                        width: "100%",
+                        border: "none",
+                      }}
+                    >
+                      <BookOpen
+                        style={{
+                          marginRight: "8px",
+                          height: "16px",
+                          width: "16px",
+                        }}
+                      />
+                      <span>Read Guide</span>
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </section>
+            <section
+              style={{
+                marginBottom: "32px",
+              }}
+            >
+              <div
+                style={{
+                  backgroundColor: "rgb(255, 255, 255)",
+                  borderRadius: "16px",
+                  boxShadow:
+                    "rgba(0, 0, 0, 0.1) 0px 10px 15px -3px, rgba(0, 0, 0, 0.1) 0px 4px 6px -4px",
+                  paddingBottom: "24px",
+                  paddingLeft: "24px",
+                  paddingRight: "24px",
+                  paddingTop: "24px",
+                }}
+              >
+                <h3
+                  style={{
+                    color: "rgb(17, 24, 39)",
+                    fontSize: "18px",
+                    fontWeight: "600",
+                    lineHeight: "28px",
+                    marginBottom: "16px",
+                  }}
+                >
+                  Browse by Category
+                </h3>
+                <div
+                  style={{
+                    display: "flex",
+                    flexWrap: "wrap",
+                    gap: "12px",
+                  }}
+                >
+                  <Button
+                    style={{
+                      alignItems: "center",
+                      backgroundColor: "rgb(233, 236, 251)",
+                      borderRadius: "10px",
+                      borderWidth: "1px",
+                      borderColor: "rgb(21, 115, 71)",
+                      color: "rgb(21, 115, 71)",
+                      cursor: "pointer",
+                      display: "flex",
+                      fontSize: "14px",
+                      fontWeight: "500",
+                      height: "40px",
+                      justifyContent: "center",
+                      paddingBottom: "8px",
+                      paddingLeft: "16px",
+                      paddingRight: "16px",
+                      paddingTop: "8px",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    All Categories
+                  </Button>
+                  <Button
+                    style={{
+                      alignItems: "center",
+                      backgroundColor: "rgb(233, 236, 251)",
+                      borderRadius: "10px",
+                      borderWidth: "1px",
+                      borderColor: "rgba(21, 115, 71, 0.2)",
+                      color: "rgb(55, 65, 81)",
+                      cursor: "pointer",
+                      display: "flex",
+                      fontSize: "14px",
+                      fontWeight: "500",
+                      height: "40px",
+                      justifyContent: "center",
+                      paddingBottom: "8px",
+                      paddingLeft: "16px",
+                      paddingRight: "16px",
+                      paddingTop: "8px",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    Financial Aid
+                  </Button>
+                  <Button
+                    style={{
+                      alignItems: "center",
+                      backgroundColor: "rgb(233, 236, 251)",
+                      borderRadius: "10px",
+                      borderWidth: "1px",
+                      borderColor: "rgba(21, 115, 71, 0.2)",
+                      color: "rgb(55, 65, 81)",
+                      cursor: "pointer",
+                      display: "flex",
+                      fontSize: "14px",
+                      fontWeight: "500",
+                      height: "40px",
+                      justifyContent: "center",
+                      paddingBottom: "8px",
+                      paddingLeft: "16px",
+                      paddingRight: "16px",
+                      paddingTop: "8px",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    University Selection
+                  </Button>
+                  <Button
+                    style={{
+                      alignItems: "center",
+                      backgroundColor: "rgb(233, 236, 251)",
+                      borderRadius: "10px",
+                      borderWidth: "1px",
+                      borderColor: "rgba(21, 115, 71, 0.2)",
+                      color: "rgb(55, 65, 81)",
+                      cursor: "pointer",
+                      display: "flex",
+                      fontSize: "14px",
+                      fontWeight: "500",
+                      height: "40px",
+                      justifyContent: "center",
+                      paddingBottom: "8px",
+                      paddingLeft: "16px",
+                      paddingRight: "16px",
+                      paddingTop: "8px",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    Student Life
+                  </Button>
+                  <Button
+                    style={{
+                      alignItems: "center",
+                      backgroundColor: "rgb(233, 236, 251)",
+                      borderRadius: "10px",
+                      borderWidth: "1px",
+                      borderColor: "rgba(21, 115, 71, 0.2)",
+                      color: "rgb(55, 65, 81)",
+                      cursor: "pointer",
+                      display: "flex",
+                      fontSize: "14px",
+                      fontWeight: "500",
+                      height: "40px",
+                      justifyContent: "center",
+                      paddingBottom: "8px",
+                      paddingLeft: "16px",
+                      paddingRight: "16px",
+                      paddingTop: "8px",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    Applications
+                  </Button>
+                  <Button
+                    style={{
+                      alignItems: "center",
+                      backgroundColor: "rgb(233, 236, 251)",
+                      borderRadius: "10px",
+                      borderWidth: "1px",
+                      borderColor: "rgba(21, 115, 71, 0.2)",
+                      color: "rgb(55, 65, 81)",
+                      cursor: "pointer",
+                      display: "flex",
+                      fontSize: "14px",
+                      fontWeight: "500",
+                      height: "40px",
+                      justifyContent: "center",
+                      paddingBottom: "8px",
+                      paddingLeft: "16px",
+                      paddingRight: "16px",
+                      paddingTop: "8px",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    Study Tips
+                  </Button>
+                </div>
+              </div>
+            </section>
+            <section>
+              <div
+                style={{
+                  alignItems: "center",
+                  display: "flex",
+                  justifyContent: "space-between",
+                  marginBottom: "32px",
+                }}
+              >
+                <h2
+                  style={{
+                    color: "rgb(17, 24, 39)",
+                    fontSize: "30px",
+                    fontWeight: "700",
+                    lineHeight: "36px",
+                  }}
+                >
+                  All Resources
+                </h2>
+              </div>
+              <div
+                style={{
+                  display: "grid",
+                  gap: "24px",
+                  gridTemplate: "none / repeat(2, minmax(0px, 1fr))",
+                }}
+              >
+                <div
+                  style={{
+                    backgroundColor: "rgb(255, 255, 255)",
+                    borderRadius: "12px",
+                    borderWidth: "1px",
+                    borderColor: "rgb(212, 232, 222)",
+                    boxShadow: "rgba(0, 0, 0, 0.05) 0px 1px 2px 0px",
+                    overflowX: "hidden",
+                    overflowY: "hidden",
+                  }}
+                >
+                  <div
+                    style={{
+                      position: "relative",
+                    }}
+                  >
+                    <img
+                      alt="Student Accommodation Options in Major SA Cities"
+                      src="https://images.unsplash.com/photo-1649972904349-6e44c42644a7?w=600&h=400&fit=crop&crop=center"
+                      style={{
+                        height: "160px",
+                        maxWidth: "100%",
+                        objectFit: "cover",
+                        width: "100%",
+                      }}
+                    />
+                  </div>
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      paddingBottom: "12px",
+                      paddingLeft: "24px",
+                      paddingRight: "24px",
+                      paddingTop: "24px",
+                    }}
+                  >
+                    <div
+                      style={{
+                        alignItems: "center",
+                        display: "flex",
+                        justifyContent: "space-between",
+                        marginBottom: "8px",
+                      }}
+                    >
+                      <div
+                        style={{
+                          alignItems: "center",
+                          borderRadius: "9999px",
+                          borderWidth: "1px",
+                          borderColor: "rgba(21, 115, 71, 0.2)",
+                          color: "rgb(21, 115, 71)",
+                          display: "flex",
+                          fontSize: "12px",
+                          fontWeight: "600",
+                          lineHeight: "16px",
+                          paddingBottom: "2px",
+                          paddingLeft: "10px",
+                          paddingRight: "10px",
+                          paddingTop: "2px",
+                        }}
+                      >
+                        Student Life
+                      </div>
+                      <span
+                        style={{
+                          color: "rgb(107, 114, 128)",
+                          fontSize: "14px",
+                          lineHeight: "20px",
+                        }}
+                      >
+                        5 min read
+                      </span>
+                    </div>
+                    <h3
+                      style={{
+                        color: "rgb(45, 55, 72)",
+                        fontSize: "18px",
+                        fontWeight: "600",
+                        letterSpacing: "-0.45px",
+                        lineHeight: "28px",
+                        marginTop: "6px",
+                      }}
+                    >
+                      Student Accommodation Options in Major SA Cities
+                    </h3>
+                  </div>
+                  <div
+                    style={{
+                      paddingBottom: "24px",
+                      paddingLeft: "24px",
+                      paddingRight: "24px",
+                    }}
+                  >
+                    <p
+                      style={{
+                        color: "rgb(75, 85, 99)",
+                        fontSize: "14px",
+                        lineHeight: "20px",
+                        marginBottom: "16px",
+                      }}
+                    >
+                      Explore different housing options for university students,
+                      from on-campus residences to private accommodation and
+                      budget-friendly alternatives.
+                    </p>
+                    <Button
+                      style={{
+                        alignItems: "center",
+                        backgroundColor: "rgb(233, 236, 251)",
+                        borderRadius: "10px",
+                        borderWidth: "1px",
+                        borderColor: "rgba(21, 115, 71, 0.2)",
+                        color: "rgb(45, 55, 72)",
+                        cursor: "pointer",
+                        display: "inline-flex",
+                        fontSize: "14px",
+                        fontWeight: "500",
+                        gap: "8px",
+                        height: "40px",
+                        justifyContent: "center",
+                        paddingBottom: "8px",
+                        paddingLeft: "16px",
+                        paddingRight: "16px",
+                        paddingTop: "8px",
+                        width: "100%",
+                      }}
+                    >
+                      <BookOpen
+                        style={{
+                          marginRight: "8px",
+                          height: "16px",
+                          width: "16px",
+                        }}
+                      />
+                      <span>Read More</span>
+                    </Button>
+                  </div>
+                </div>
+                <div
+                  style={{
+                    backgroundColor: "rgb(255, 255, 255)",
+                    borderRadius: "12px",
+                    borderWidth: "1px",
+                    borderColor: "rgb(212, 232, 222)",
+                    boxShadow: "rgba(0, 0, 0, 0.05) 0px 1px 2px 0px",
+                    overflowX: "hidden",
+                    overflowY: "hidden",
+                  }}
+                >
+                  <div
+                    style={{
+                      position: "relative",
+                    }}
+                  >
+                    <img
+                      alt="Understanding University Application Requirements"
+                      src="https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?w=600&h=400&fit=crop&crop=center"
+                      style={{
+                        height: "160px",
+                        maxWidth: "100%",
+                        objectFit: "cover",
+                        width: "100%",
+                      }}
+                    />
+                  </div>
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      paddingBottom: "12px",
+                      paddingLeft: "24px",
+                      paddingRight: "24px",
+                      paddingTop: "24px",
+                    }}
+                  >
+                    <div
+                      style={{
+                        alignItems: "center",
+                        display: "flex",
+                        justifyContent: "space-between",
+                        marginBottom: "8px",
+                      }}
+                    >
+                      <div
+                        style={{
+                          alignItems: "center",
+                          borderRadius: "9999px",
+                          borderWidth: "1px",
+                          borderColor: "rgba(21, 115, 71, 0.2)",
+                          color: "rgb(21, 115, 71)",
+                          display: "flex",
+                          fontSize: "12px",
+                          fontWeight: "600",
+                          lineHeight: "16px",
+                          paddingBottom: "2px",
+                          paddingLeft: "10px",
+                          paddingRight: "10px",
+                          paddingTop: "2px",
+                        }}
+                      >
+                        Applications
+                      </div>
+                      <span
+                        style={{
+                          color: "rgb(107, 114, 128)",
+                          fontSize: "14px",
+                          lineHeight: "20px",
+                        }}
+                      >
+                        7 min read
+                      </span>
+                    </div>
+                    <h3
+                      style={{
+                        color: "rgb(45, 55, 72)",
+                        fontSize: "18px",
+                        fontWeight: "600",
+                        letterSpacing: "-0.45px",
+                        lineHeight: "28px",
+                        marginTop: "6px",
+                      }}
+                    >
+                      Understanding University Application Requirements
+                    </h3>
+                  </div>
+                  <div
+                    style={{
+                      paddingBottom: "24px",
+                      paddingLeft: "24px",
+                      paddingRight: "24px",
+                    }}
+                  >
+                    <p
+                      style={{
+                        color: "rgb(75, 85, 99)",
+                        fontSize: "14px",
+                        lineHeight: "20px",
+                        marginBottom: "16px",
+                      }}
+                    >
+                      Navigate the application process with confidence. Learn
+                      about admission points, required subjects, and portfolio
+                      requirements for different programs.
+                    </p>
+                    <Button
+                      style={{
+                        alignItems: "center",
+                        backgroundColor: "rgb(233, 236, 251)",
+                        borderRadius: "10px",
+                        borderWidth: "1px",
+                        borderColor: "rgba(21, 115, 71, 0.2)",
+                        color: "rgb(45, 55, 72)",
+                        cursor: "pointer",
+                        display: "inline-flex",
+                        fontSize: "14px",
+                        fontWeight: "500",
+                        gap: "8px",
+                        height: "40px",
+                        justifyContent: "center",
+                        paddingBottom: "8px",
+                        paddingLeft: "16px",
+                        paddingRight: "16px",
+                        paddingTop: "8px",
+                        width: "100%",
+                      }}
+                    >
+                      <BookOpen
+                        style={{
+                          marginRight: "8px",
+                          height: "16px",
+                          width: "16px",
+                        }}
+                      />
+                      <span>Read More</span>
+                    </Button>
+                  </div>
+                </div>
+                <div
+                  style={{
+                    backgroundColor: "rgb(255, 255, 255)",
+                    borderRadius: "12px",
+                    borderWidth: "1px",
+                    borderColor: "rgb(212, 232, 222)",
+                    boxShadow: "rgba(0, 0, 0, 0.05) 0px 1px 2px 0px",
+                    overflowX: "hidden",
+                    overflowY: "hidden",
+                  }}
+                >
+                  <div
+                    style={{
+                      position: "relative",
+                    }}
+                  >
+                    <img
+                      alt="Scholarship Opportunities for South African Students"
+                      src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=600&h=400&fit=crop&crop=center"
+                      style={{
+                        height: "160px",
+                        maxWidth: "100%",
+                        objectFit: "cover",
+                        width: "100%",
+                      }}
+                    />
+                  </div>
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      paddingBottom: "12px",
+                      paddingLeft: "24px",
+                      paddingRight: "24px",
+                      paddingTop: "24px",
+                    }}
+                  >
+                    <div
+                      style={{
+                        alignItems: "center",
+                        display: "flex",
+                        justifyContent: "space-between",
+                        marginBottom: "8px",
+                      }}
+                    >
+                      <div
+                        style={{
+                          alignItems: "center",
+                          borderRadius: "9999px",
+                          borderWidth: "1px",
+                          borderColor: "rgba(21, 115, 71, 0.2)",
+                          color: "rgb(21, 115, 71)",
+                          display: "flex",
+                          fontSize: "12px",
+                          fontWeight: "600",
+                          lineHeight: "16px",
+                          paddingBottom: "2px",
+                          paddingLeft: "10px",
+                          paddingRight: "10px",
+                          paddingTop: "2px",
+                        }}
+                      >
+                        Financial Aid
+                      </div>
+                      <span
+                        style={{
+                          color: "rgb(107, 114, 128)",
+                          fontSize: "14px",
+                          lineHeight: "20px",
+                        }}
+                      >
+                        9 min read
+                      </span>
+                    </div>
+                    <h3
+                      style={{
+                        color: "rgb(45, 55, 72)",
+                        fontSize: "18px",
+                        fontWeight: "600",
+                        letterSpacing: "-0.45px",
+                        lineHeight: "28px",
+                        marginTop: "6px",
+                      }}
+                    >
+                      Scholarship Opportunities for South African Students
+                    </h3>
+                  </div>
+                  <div
+                    style={{
+                      paddingBottom: "24px",
+                      paddingLeft: "24px",
+                      paddingRight: "24px",
+                    }}
+                  >
+                    <p
+                      style={{
+                        color: "rgb(75, 85, 99)",
+                        fontSize: "14px",
+                        lineHeight: "20px",
+                        marginBottom: "16px",
+                      }}
+                    >
+                      Discover various scholarship programs available to South
+                      African students, including merit-based, need-based, and
+                      industry-specific awards.
+                    </p>
+                    <Button
+                      style={{
+                        alignItems: "center",
+                        backgroundColor: "rgb(233, 236, 251)",
+                        borderRadius: "10px",
+                        borderWidth: "1px",
+                        borderColor: "rgba(21, 115, 71, 0.2)",
+                        color: "rgb(45, 55, 72)",
+                        cursor: "pointer",
+                        display: "inline-flex",
+                        fontSize: "14px",
+                        fontWeight: "500",
+                        gap: "8px",
+                        height: "40px",
+                        justifyContent: "center",
+                        paddingBottom: "8px",
+                        paddingLeft: "16px",
+                        paddingRight: "16px",
+                        paddingTop: "8px",
+                        width: "100%",
+                      }}
+                    >
+                      <BookOpen
+                        style={{
+                          marginRight: "8px",
+                          height: "16px",
+                          width: "16px",
+                        }}
+                      />
+                      <span>Read More</span>
+                    </Button>
+                  </div>
+                </div>
+                <div
+                  style={{
+                    backgroundColor: "rgb(255, 255, 255)",
+                    borderRadius: "12px",
+                    borderWidth: "1px",
+                    borderColor: "rgb(212, 232, 222)",
+                    boxShadow: "rgba(0, 0, 0, 0.05) 0px 1px 2px 0px",
+                    overflowX: "hidden",
+                    overflowY: "hidden",
+                  }}
+                >
+                  <div
+                    style={{
+                      position: "relative",
+                    }}
+                  >
+                    <img
+                      alt="Preparing for University: Essential Study Skills"
+                      src="https://images.unsplash.com/photo-1649972904349-6e44c42644a7?w=600&h=400&fit=crop&crop=center"
+                      style={{
+                        height: "160px",
+                        maxWidth: "100%",
+                        objectFit: "cover",
+                        width: "100%",
+                      }}
+                    />
+                  </div>
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      paddingBottom: "12px",
+                      paddingLeft: "24px",
+                      paddingRight: "24px",
+                      paddingTop: "24px",
+                    }}
+                  >
+                    <div
+                      style={{
+                        alignItems: "center",
+                        display: "flex",
+                        justifyContent: "space-between",
+                        marginBottom: "8px",
+                      }}
+                    >
+                      <div
+                        style={{
+                          alignItems: "center",
+                          borderRadius: "9999px",
+                          borderWidth: "1px",
+                          borderColor: "rgba(21, 115, 71, 0.2)",
+                          color: "rgb(21, 115, 71)",
+                          display: "flex",
+                          fontSize: "12px",
+                          fontWeight: "600",
+                          lineHeight: "16px",
+                          paddingBottom: "2px",
+                          paddingLeft: "10px",
+                          paddingRight: "10px",
+                          paddingTop: "2px",
+                        }}
+                      >
+                        Study Tips
+                      </div>
+                      <span
+                        style={{
+                          color: "rgb(107, 114, 128)",
+                          fontSize: "14px",
+                          lineHeight: "20px",
+                        }}
+                      >
+                        6 min read
+                      </span>
+                    </div>
+                    <h3
+                      style={{
+                        color: "rgb(45, 55, 72)",
+                        fontSize: "18px",
+                        fontWeight: "600",
+                        letterSpacing: "-0.45px",
+                        lineHeight: "28px",
+                        marginTop: "6px",
+                      }}
+                    >
+                      Preparing for University: Essential Study Skills
+                    </h3>
+                  </div>
+                  <div
+                    style={{
+                      paddingBottom: "24px",
+                      paddingLeft: "24px",
+                      paddingRight: "24px",
+                    }}
+                  >
+                    <p
+                      style={{
+                        color: "rgb(75, 85, 99)",
+                        fontSize: "14px",
+                        lineHeight: "20px",
+                        marginBottom: "16px",
+                      }}
+                    >
+                      Develop the academic skills you need to succeed at
+                      university level, including time management, research
+                      techniques, and exam strategies.
+                    </p>
+                    <Button
+                      style={{
+                        alignItems: "center",
+                        backgroundColor: "rgb(233, 236, 251)",
+                        borderRadius: "10px",
+                        borderWidth: "1px",
+                        borderColor: "rgba(21, 115, 71, 0.2)",
+                        color: "rgb(45, 55, 72)",
+                        cursor: "pointer",
+                        display: "inline-flex",
+                        fontSize: "14px",
+                        fontWeight: "500",
+                        gap: "8px",
+                        height: "40px",
+                        justifyContent: "center",
+                        paddingBottom: "8px",
+                        paddingLeft: "16px",
+                        paddingRight: "16px",
+                        paddingTop: "8px",
+                        width: "100%",
+                      }}
+                    >
+                      <BookOpen
+                        style={{
+                          marginRight: "8px",
+                          height: "16px",
+                          width: "16px",
+                        }}
+                      />
+                      <span>Read More</span>
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </section>
+            <section
+              style={{
+                backgroundColor: "rgb(255, 255, 255)",
+                borderRadius: "16px",
+                boxShadow:
+                  "rgba(0, 0, 0, 0.1) 0px 10px 15px -3px, rgba(0, 0, 0, 0.1) 0px 4px 6px -4px",
+                marginTop: "64px",
+                paddingBottom: "32px",
+                paddingLeft: "32px",
+                paddingRight: "32px",
+                paddingTop: "32px",
+                textAlign: "center",
+              }}
+            >
+              <h2
+                style={{
+                  color: "rgb(17, 24, 39)",
+                  fontSize: "30px",
+                  fontWeight: "700",
+                  lineHeight: "36px",
+                  marginBottom: "16px",
+                  textAlign: "center",
+                }}
+              >
+                Need Personalized Guidance?
+              </h2>
+              <p
+                style={{
+                  color: "rgb(75, 85, 99)",
+                  fontSize: "18px",
+                  lineHeight: "28px",
+                  marginBottom: "24px",
+                  marginLeft: "auto",
+                  marginRight: "auto",
+                  maxWidth: "672px",
+                  textAlign: "center",
+                }}
+              >
+                Our team of education consultants is here to help you navigate
+                your university journey. Get personalized advice on university
+                selection, applications, and funding options.
+              </p>
+              <div
+                style={{
+                  display: "flex",
+                  gap: "16px",
+                  justifyContent: "center",
+                  textAlign: "center",
+                }}
+              >
+                <Button
+                  style={{
+                    alignItems: "center",
+                    backgroundColor: "rgb(21, 115, 71)",
+                    borderRadius: "10px",
+                    boxShadow:
+                      "rgba(0, 0, 0, 0.1) 0px 10px 15px -3px, rgba(0, 0, 0, 0.1) 0px 4px 6px -4px",
+                    color: "rgb(255, 255, 255)",
+                    cursor: "pointer",
+                    display: "flex",
+                    fontSize: "14px",
+                    fontWeight: "500",
+                    gap: "8px",
+                    height: "40px",
+                    justifyContent: "center",
+                    paddingBottom: "8px",
+                    paddingLeft: "16px",
+                    paddingRight: "16px",
+                    paddingTop: "8px",
+                    whiteSpace: "nowrap",
+                    border: "none",
+                  }}
+                >
+                  <User
+                    style={{
+                      marginRight: "8px",
+                      height: "16px",
+                      width: "16px",
+                    }}
+                  />
+                  <span>Contact an Advisor</span>
+                </Button>
+                <Button
+                  onClick={() => navigate("/university-info")}
+                  style={{
+                    alignItems: "center",
+                    backgroundColor: "rgb(21, 115, 71)",
+                    borderRadius: "10px",
+                    borderWidth: "2px",
+                    borderColor: "rgb(21, 115, 71)",
+                    boxShadow:
+                      "rgba(0, 0, 0, 0.1) 0px 10px 15px -3px, rgba(0, 0, 0, 0.1) 0px 4px 6px -4px",
+                    color: "rgb(255, 255, 255)",
+                    cursor: "pointer",
+                    display: "flex",
+                    fontSize: "14px",
+                    fontWeight: "500",
+                    gap: "8px",
+                    height: "40px",
+                    justifyContent: "center",
+                    paddingBottom: "8px",
+                    paddingLeft: "16px",
+                    paddingRight: "16px",
+                    paddingTop: "8px",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  <Search
+                    style={{
+                      marginRight: "8px",
+                      height: "16px",
+                      width: "16px",
+                    }}
+                  />
+                  <span>Find Universities</span>
+                </Button>
+              </div>
+            </section>
+          </div>
+        </div>
       </CampusLayout>
     </>
   );
