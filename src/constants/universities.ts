@@ -417,5 +417,5 @@ export const UNIVERSITY_YEARS = [
   "Doctorate",
 ];
 
-// Re-export for backward compatibility
-export { SOUTH_AFRICAN_UNIVERSITIES_SIMPLE as SOUTH_AFRICAN_UNIVERSITIES };
+// Re-export for backward compatibility - keeping both exports available
+export { SOUTH_AFRICAN_UNIVERSITIES_SIMPLE };
