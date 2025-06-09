@@ -33,7 +33,10 @@ const ShipLogicTracker = ({ initialShipmentId }: ShipLogicTrackerProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const [trackingInfo, setTrackingInfo] =
     useState<ShipLogicTrackingInfo | null>(null);
-  const [shipmentNotes, setShipmentNotes] = useState<any>(null);
+  const [shipmentNotes, setShipmentNotes] = useState<Record<
+    string,
+    unknown
+  > | null>(null);
 
   const getStatusColor = (status: string): string => {
     const lowerStatus = status.toLowerCase();
