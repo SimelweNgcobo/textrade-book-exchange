@@ -145,8 +145,11 @@ const EmailChangeDialog = ({
         setError(result.message);
         toast.error(result.message);
       }
-    } catch (error: any) {
-      const errorMessage = error?.message || "Failed to request email change";
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : "Failed to request email change";
       setError(errorMessage);
       toast.error(errorMessage);
     } finally {
@@ -168,7 +171,7 @@ const EmailChangeDialog = ({
       } else {
         toast.error(result.message);
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast.error("Failed to cancel email change");
     } finally {
       setIsCancelling(false);
