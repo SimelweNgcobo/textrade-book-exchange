@@ -39,6 +39,7 @@ import Cart from "./pages/Cart";
 import Report from "./pages/Report";
 import Shipping from "./pages/Shipping";
 import UniversityInfo from "./pages/UniversityInfo";
+import UniversityProfile from "./pages/UniversityProfile";
 
 import "./App.css";
 
@@ -79,6 +80,10 @@ function App() {
                     <Route
                       path="/university-info"
                       element={<UniversityInfo />}
+                    />
+                    <Route
+                      path="/university/:universityId"
+                      element={<UniversityProfile />}
                     />
 
                     {/* Public user profiles - no authentication required */}
