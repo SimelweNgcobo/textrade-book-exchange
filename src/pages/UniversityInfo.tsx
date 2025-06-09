@@ -4,7 +4,7 @@ import CampusLayout from "@/components/CampusLayout";
 import SEO from "@/components/SEO";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, Book, BookOpen } from "lucide-react";
+import { Search, Book, BookOpen, ExternalLink, User } from "lucide-react";
 
 const UniversityInfo = () => {
   const navigate = useNavigate();
