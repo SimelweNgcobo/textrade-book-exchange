@@ -6,7 +6,9 @@ import { useCart } from "@/contexts/CartContext";
 import { getBookById } from "@/services/book/bookQueries";
 import { getUserAddresses } from "@/services/addressService";
 import { getDeliveryQuotes, DeliveryQuote } from "@/services/deliveryService";
+import { automaticShipmentService } from "@/services/automaticShipmentService";
 import { createAutomaticShipment } from "@/services/automaticShipmentService";
+import { ActivityService } from "@/services/activityService";
 import { Book } from "@/types/book";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -281,6 +283,38 @@ const Checkout = () => {
             price: purchasedBook.price,
             sellerId: purchasedBook.seller?.id || purchasedBook.sellerId,
           };
+
+          // Log purchase activity
+          try {
+            await ActivityService.logBookPurchase(
+              user.id,
+              purchasedBook.id,
+              purchasedBook.title,
+              purchasedBook.price,
+              bookDetails.sellerId,
+            );
+            console.log(
+              "✅ Purchase activity logged for:",
+              purchasedBook.title,
+            );
+
+            // Also log sale activity for the seller
+            if (bookDetails.sellerId) {
+              await ActivityService.logBookSale(
+                bookDetails.sellerId,
+                purchasedBook.id,
+                purchasedBook.title,
+                purchasedBook.price,
+                user.id,
+              );
+              console.log("✅ Sale activity logged for seller");
+            }
+          } catch (activityError) {
+            console.warn(
+              "⚠️ Failed to log purchase/sale activity:",
+              activityError,
+            );
+          }
 
           // Note: createAutomaticShipment is prepared but disabled as per requirements
           const shipmentResult = await createAutomaticShipment(
