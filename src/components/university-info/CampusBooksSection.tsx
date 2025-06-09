@@ -348,7 +348,7 @@ const CampusBooksSection = ({
                   }
                   size="sm"
                   onClick={() => setSelectedUniversityFilter(uniId)}
-                  className="rounded-full"
+                  className="flex-1 text-xs bg-book-600 hover:bg-book-700"
                 >
                   {uni.abbreviation}
                 </Button>
@@ -377,7 +377,7 @@ const CampusBooksSection = ({
                 placeholder="Search books by title, author, subject, or course code..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 border-gray-200 focus:border-blue-400 focus:ring-blue-200"
+                className="pl-10 border-gray-200 focus:border-book-400 focus:ring-book-200"
               />
             </div>
 

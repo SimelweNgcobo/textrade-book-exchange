@@ -264,7 +264,7 @@ const BursaryExplorer = () => {
                           expandedBursary === bursary.id ? null : bursary.id,
                         )
                       }
-                      className="w-full group-hover:border-yellow-300 group-hover:bg-yellow-50"
+                      className="w-full group-hover:border-book-300 group-hover:bg-book-50"
                     >
                       {expandedBursary === bursary.id
                         ? "Show Less"
@@ -281,7 +281,7 @@ const BursaryExplorer = () => {
         <Card className="mb-8 bg-white/80 backdrop-blur-sm border-0 shadow-xl">
           <CardHeader>
             <CardTitle className="text-xl font-bold text-gray-900 flex items-center gap-2">
-              <Search className="h-5 w-5 text-yellow-600" />
+              <Search className="h-5 w-5 text-book-600" />
               Find Your Perfect Bursary
             </CardTitle>
             <CardDescription>
@@ -297,7 +297,7 @@ const BursaryExplorer = () => {
                 placeholder="Search bursaries by name, provider, or description..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 border-gray-200 focus:border-yellow-400 focus:ring-yellow-200"
+                className="pl-10 border-gray-200 focus:border-book-400 focus:ring-book-200"
               />
             </div>
 
