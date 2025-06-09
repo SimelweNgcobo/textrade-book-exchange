@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import {
@@ -22,6 +22,7 @@ import { addNotification } from "@/services/notificationService";
 const Navbar = () => {
   const { user, logout, isAuthenticated } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const handleLogout = async () => {
@@ -38,6 +39,10 @@ const Navbar = () => {
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
+  };
+
+  const isActive = (path: string) => {
+    return location.pathname === path;
   };
 
   return (
@@ -69,52 +74,62 @@ const Navbar = () => {
           }}
         >
           {/* Logo */}
-          <Link to="/" style={{
-            alignItems: "center",
-            cursor: "pointer",
-            display: "flex",
-            textDecoration: "none",
-          }}>
-            <div
+          <div
+            style={{
+              alignItems: "center",
+              display: "flex",
+            }}
+          >
+            <Link
+              to="/"
               style={{
                 alignItems: "center",
-                backgroundColor: "rgb(21, 115, 71)",
-                borderRadius: "12px",
                 cursor: "pointer",
                 display: "flex",
-                height: "32px",
-                justifyContent: "center",
-                width: "32px",
+                textDecoration: "none",
               }}
             >
-              <span
+              <div
                 style={{
-                  color: "rgb(255, 255, 255)",
+                  alignItems: "center",
+                  backgroundColor: "rgb(21, 115, 71)",
+                  borderRadius: "12px",
                   cursor: "pointer",
-                  fontSize: "18px",
-                  fontWeight: "700",
-                  lineHeight: "28px",
+                  display: "flex",
+                  height: "32px",
+                  justifyContent: "center",
+                  width: "32px",
                 }}
               >
-                R
+                <span
+                  style={{
+                    color: "rgb(255, 255, 255)",
+                    cursor: "pointer",
+                    fontSize: "18px",
+                    fontWeight: "700",
+                    lineHeight: "28px",
+                  }}
+                >
+                  R
+                </span>
+              </div>
+              <span
+                style={{
+                  color: "rgb(21, 115, 71)",
+                  cursor: "pointer",
+                  fontSize: "20px",
+                  fontWeight: "700",
+                  lineHeight: "28px",
+                  marginLeft: "8px",
+                }}
+              >
+                ReBooked Solutions
               </span>
-            </div>
-            <span
-              style={{
-                color: "rgb(21, 115, 71)",
-                cursor: "pointer",
-                fontSize: "20px",
-                fontWeight: "700",
-                lineHeight: "28px",
-                marginLeft: "8px",
-              }}
-            >
-              ReBooked Solutions
-            </span>
-          </Link>
+            </Link>
+          </div>
 
           {/* Desktop Navigation */}
-          <div style={{ display: window.innerWidth >= 768 ? "block" : "none" }}>
+          <div className="hidden md:flex items-center">
             <div
               style={{
                 alignItems: "baseline",
@@ -126,7 +141,12 @@ const Navbar = () => {
                 to="/books"
                 style={{
                   borderRadius: "10px",
-                  color: "rgb(55, 65, 81)",
+                  color: isActive("/books")
+                    ? "rgb(21, 115, 71)"
+                    : "rgb(55, 65, 81)",
+                  backgroundColor: isActive("/books")
+                    ? "rgb(230, 244, 234)"
+                    : "transparent",
                   cursor: "pointer",
                   fontSize: "14px",
                   fontWeight: "500",
@@ -137,14 +157,6 @@ const Navbar = () => {
                   paddingTop: "8px",
                   textDecoration: "none",
                   transition: "all 0.15s cubic-bezier(0.4, 0, 0.2, 1)",
-                }}
-                onMouseEnter={(e) => {
-                  e.target.style.color = "rgb(21, 115, 71)";
-                  e.target.style.backgroundColor = "rgb(230, 244, 234)";
-                }}
-                onMouseLeave={(e) => {
-                  e.target.style.color = "rgb(55, 65, 81)";
-                  e.target.style.backgroundColor = "transparent";
                 }}
               >
                 Browse Books
@@ -153,7 +165,12 @@ const Navbar = () => {
                 to="/university-info"
                 style={{
                   borderRadius: "10px",
-                  color: "rgb(55, 65, 81)",
+                  color: isActive("/university-info")
+                    ? "rgb(21, 115, 71)"
+                    : "rgb(55, 65, 81)",
+                  backgroundColor: isActive("/university-info")
+                    ? "rgb(230, 244, 234)"
+                    : "transparent",
                   cursor: "pointer",
                   fontSize: "14px",
                   fontWeight: "500",
@@ -168,23 +185,22 @@ const Navbar = () => {
                   display: "flex",
                   alignItems: "center",
                 }}
-                onMouseEnter={(e) => {
-                  e.target.style.color = "rgb(21, 115, 71)";
-                  e.target.style.backgroundColor = "rgb(230, 244, 234)";
-                }}
-                onMouseLeave={(e) => {
-                  e.target.style.color = "rgb(55, 65, 81)";
-                  e.target.style.backgroundColor = "transparent";
-                }}
               >
-                <GraduationCap style={{ height: "16px", width: "16px", marginRight: "4px" }} />
+                <GraduationCap
+                  style={{ height: "16px", width: "16px", marginRight: "4px" }}
+                />
                 ReBooked Campus
               </Link>
               <Link
                 to="/shipping"
                 style={{
                   borderRadius: "10px",
-                  color: "rgb(55, 65, 81)",
+                  color: isActive("/shipping")
+                    ? "rgb(21, 115, 71)"
+                    : "rgb(55, 65, 81)",
+                  backgroundColor: isActive("/shipping")
+                    ? "rgb(230, 244, 234)"
+                    : "transparent",
                   cursor: "pointer",
                   fontSize: "14px",
                   fontWeight: "500",
@@ -199,112 +215,209 @@ const Navbar = () => {
                   display: "flex",
                   alignItems: "center",
                 }}
-                onMouseEnter={(e) => {
-                  e.target.style.color = "rgb(21, 115, 71)";
-                  e.target.style.backgroundColor = "rgb(230, 244, 234)";
-                }}
-                onMouseLeave={(e) => {
-                  e.target.style.color = "rgb(55, 65, 81)";
-                  e.target.style.backgroundColor = "transparent";
-                }}
               >
-                <Truck style={{ height: "16px", width: "16px", marginRight: "4px" }} />
+                <Truck
+                  style={{ height: "16px", width: "16px", marginRight: "4px" }}
+                />
                 Shipping
               </Link>
 
-            {isAuthenticated ? (
-              <>
-                <Link
-                  to="/create-listing"
-                  className="flex items-center text-gray-700 hover:text-book-600 px-3 py-2 transition-colors"
+              {isAuthenticated ? (
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    marginLeft: "24px",
+                    gap: "8px",
+                  }}
                 >
-                  <Plus className="h-4 w-4 mr-1" />
-                  Sell Book
-                </Link>
-                <Link
-                  to="/notifications"
-                  className="flex items-center text-gray-700 hover:text-book-600 px-3 py-2 transition-colors"
-                >
-                  <NotificationBadge iconSize="h-4 w-4" className="mr-1" />
-                  Notifications
-                </Link>
-                <CartButton />
-                <Link
-                  to="/profile"
-                  className="flex items-center text-gray-700 hover:text-book-600 px-3 py-2 transition-colors"
-                >
-                  <User className="h-4 w-4 mr-1" />
-                  Profile
-                </Link>
-                <AdminAccess />
-                <Button
-                  onClick={handleLogout}
-                  variant="ghost"
-                  className="flex items-center text-gray-700 hover:text-book-600"
-                >
-                  <LogOut className="h-4 w-4 mr-1" />
-                  Logout
-                </Button>
-              </>
-            ) : (
-              <>
-                <Link to="/login">
-                  <Button variant="ghost" className="text-book-600">
-                    Login
+                  <Link
+                    to="/create-listing"
+                    className="flex items-center text-gray-700 hover:text-book-600 px-3 py-2 transition-colors"
+                  >
+                    <Plus className="h-4 w-4 mr-1" />
+                    Sell Book
+                  </Link>
+                  <Link
+                    to="/notifications"
+                    className="flex items-center text-gray-700 hover:text-book-600 px-3 py-2 transition-colors"
+                  >
+                    <NotificationBadge iconSize="h-4 w-4" className="mr-1" />
+                    Notifications
+                  </Link>
+                  <CartButton />
+                  <Link
+                    to="/profile"
+                    className="flex items-center text-gray-700 hover:text-book-600 px-3 py-2 transition-colors"
+                  >
+                    <User className="h-4 w-4 mr-1" />
+                    Profile
+                  </Link>
+                  <AdminAccess />
+                  <Button
+                    onClick={handleLogout}
+                    variant="ghost"
+                    className="flex items-center text-gray-700 hover:text-book-600"
+                  >
+                    <LogOut className="h-4 w-4 mr-1" />
+                    Logout
                   </Button>
-                </Link>
-                <Link to="/register">
-                  <Button className="bg-book-600 hover:bg-book-700 text-white">
-                    <UserPlus className="h-4 w-4 mr-1" />
-                    Sign Up
-                  </Button>
-                </Link>
-              </>
-            )}
+                </div>
+              ) : (
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    marginLeft: "24px",
+                    gap: "8px",
+                  }}
+                >
+                  <Link to="/login">
+                    <Button variant="ghost" className="text-book-600">
+                      Login
+                    </Button>
+                  </Link>
+                  <Link to="/register">
+                    <Button className="bg-book-600 hover:bg-book-700 text-white">
+                      <UserPlus className="h-4 w-4 mr-1" />
+                      Sign Up
+                    </Button>
+                  </Link>
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Mobile menu button */}
           <div className="md:hidden">
-            <Button
-              variant="ghost"
-              size="icon"
+            <button
               onClick={toggleMenu}
-              className="text-gray-700"
+              style={{
+                alignItems: "center",
+                borderRadius: "10px",
+                color: "rgb(55, 65, 81)",
+                cursor: "pointer",
+                display: "inline-flex",
+                fontSize: "14px",
+                fontWeight: "500",
+                gap: "8px",
+                height: "36px",
+                justifyContent: "center",
+                paddingLeft: "12px",
+                paddingRight: "12px",
+                backgroundColor: "transparent",
+                border: "none",
+                transition: "all 0.15s cubic-bezier(0.4, 0, 0.2, 1)",
+              }}
             >
               {isMenuOpen ? (
-                <X className="h-6 w-6" />
+                <X style={{ height: "16px", width: "16px" }} />
               ) : (
-                <Menu className="h-6 w-6" />
+                <Menu style={{ height: "16px", width: "16px" }} />
               )}
-            </Button>
+            </button>
           </div>
         </div>
 
         {/* Mobile Navigation */}
         {isMenuOpen && (
-          <div className="md:hidden py-4 border-t border-book-200">
-            <div className="flex flex-col space-y-2">
+          <div
+            style={{
+              paddingBottom: "16px",
+              paddingTop: "8px",
+              borderTop: "1px solid rgb(243, 244, 246)",
+            }}
+          >
+            <div
+              style={{ display: "flex", flexDirection: "column", gap: "8px" }}
+            >
               <Link
                 to="/books"
-                className="text-gray-700 hover:text-book-600 px-3 py-2 transition-colors"
                 onClick={() => setIsMenuOpen(false)}
+                style={{
+                  borderRadius: "10px",
+                  color: isActive("/books")
+                    ? "rgb(21, 115, 71)"
+                    : "rgb(55, 65, 81)",
+                  backgroundColor: isActive("/books")
+                    ? "rgb(230, 244, 234)"
+                    : "transparent",
+                  cursor: "pointer",
+                  fontSize: "14px",
+                  fontWeight: "500",
+                  lineHeight: "20px",
+                  paddingBottom: "8px",
+                  paddingLeft: "12px",
+                  paddingRight: "12px",
+                  paddingTop: "8px",
+                  textDecoration: "none",
+                  textAlign: "left",
+                  width: "100%",
+                  display: "block",
+                }}
               >
                 Browse Books
               </Link>
               <Link
                 to="/university-info"
-                className="flex items-center text-gray-700 hover:text-book-600 px-3 py-2 transition-colors"
                 onClick={() => setIsMenuOpen(false)}
+                style={{
+                  borderRadius: "10px",
+                  color: isActive("/university-info")
+                    ? "rgb(21, 115, 71)"
+                    : "rgb(55, 65, 81)",
+                  backgroundColor: isActive("/university-info")
+                    ? "rgb(230, 244, 234)"
+                    : "transparent",
+                  cursor: "pointer",
+                  fontSize: "14px",
+                  fontWeight: "500",
+                  lineHeight: "20px",
+                  paddingBottom: "8px",
+                  paddingLeft: "12px",
+                  paddingRight: "12px",
+                  paddingTop: "8px",
+                  textDecoration: "none",
+                  textAlign: "left",
+                  width: "100%",
+                  display: "flex",
+                  alignItems: "center",
+                }}
               >
-                <GraduationCap className="h-4 w-4 mr-1" />
+                <GraduationCap
+                  style={{ height: "16px", width: "16px", marginRight: "4px" }}
+                />
                 ReBooked Campus
               </Link>
               <Link
                 to="/shipping"
-                className="flex items-center text-gray-700 hover:text-book-600 px-3 py-2 transition-colors"
                 onClick={() => setIsMenuOpen(false)}
+                style={{
+                  borderRadius: "10px",
+                  color: isActive("/shipping")
+                    ? "rgb(21, 115, 71)"
+                    : "rgb(55, 65, 81)",
+                  backgroundColor: isActive("/shipping")
+                    ? "rgb(230, 244, 234)"
+                    : "transparent",
+                  cursor: "pointer",
+                  fontSize: "14px",
+                  fontWeight: "500",
+                  lineHeight: "20px",
+                  paddingBottom: "8px",
+                  paddingLeft: "12px",
+                  paddingRight: "12px",
+                  paddingTop: "8px",
+                  textDecoration: "none",
+                  textAlign: "left",
+                  width: "100%",
+                  display: "flex",
+                  alignItems: "center",
+                }}
               >
-                <Truck className="h-4 w-4 mr-1" />
+                <Truck
+                  style={{ height: "16px", width: "16px", marginRight: "4px" }}
+                />
                 Shipping
               </Link>
 
