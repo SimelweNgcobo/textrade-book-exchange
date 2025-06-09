@@ -30,6 +30,7 @@ import {
   Award,
   Users,
   MapPin,
+  DollarSign,
 } from "lucide-react";
 import { APSCalculation, EligibleDegree } from "@/types/university";
 
