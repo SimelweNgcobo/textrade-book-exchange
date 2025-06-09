@@ -84,21 +84,16 @@ const UniversityExplorer = ({
   };
 
   return (
-    <section
-      id="universities"
-      className="py-16 bg-gradient-to-br from-indigo-50 to-purple-50"
-    >
+    <section id="universities" className="py-16 bg-book-50">
       <div className="container mx-auto px-4">
         {/* Hero Header */}
         <div className="text-center max-w-4xl mx-auto mb-12">
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-100 rounded-full text-indigo-700 text-sm font-medium mb-6">
+          <div className="inline-flex items-center gap-2 px-4 py-2 bg-book-100 rounded-full text-book-700 text-sm font-medium mb-6">
             <Star className="h-4 w-4" />
             Explore 23+ South African Universities
           </div>
           <h1 className="text-4xl md:text-6xl font-bold mb-6">
-            <span className="bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-              Find Your Perfect
-            </span>
+            <span className="text-book-600">Find Your Perfect</span>
             <br />
             <span className="text-gray-900">University Match</span>
           </h1>
@@ -111,19 +106,19 @@ const UniversityExplorer = ({
           {/* Quick Stats */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
             <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-4 text-center">
-              <div className="text-2xl font-bold text-indigo-600">23+</div>
+              <div className="text-2xl font-bold text-book-600">23+</div>
               <div className="text-sm text-gray-600">Universities</div>
             </div>
             <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-4 text-center">
-              <div className="text-2xl font-bold text-purple-600">9</div>
+              <div className="text-2xl font-bold text-book-600">9</div>
               <div className="text-sm text-gray-600">Provinces</div>
             </div>
             <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-4 text-center">
-              <div className="text-2xl font-bold text-green-600">100+</div>
+              <div className="text-2xl font-bold text-book-600">100+</div>
               <div className="text-sm text-gray-600">Degree Programs</div>
             </div>
             <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-4 text-center">
-              <div className="text-2xl font-bold text-orange-600">1000+</div>
+              <div className="text-2xl font-bold text-book-600">1000+</div>
               <div className="text-sm text-gray-600">Textbooks</div>
             </div>
           </div>
@@ -142,11 +137,11 @@ const UniversityExplorer = ({
               >
                 <CardHeader className="pb-4">
                   <div className="flex items-center gap-3 mb-3">
-                    <div className="w-12 h-12 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-xl flex items-center justify-center">
+                    <div className="w-12 h-12 bg-book-600 rounded-xl flex items-center justify-center">
                       <GraduationCap className="h-6 w-6 text-white" />
                     </div>
                     <div>
-                      <CardTitle className="text-lg font-bold text-gray-900 group-hover:text-indigo-600 transition-colors">
+                      <CardTitle className="text-lg font-bold text-gray-900 group-hover:text-book-600 transition-colors">
                         {university.abbreviation}
                       </CardTitle>
                       <CardDescription className="text-sm text-gray-600">
@@ -188,7 +183,7 @@ const UniversityExplorer = ({
                       variant="outline"
                       size="sm"
                       onClick={() => handleUniversityClick(university)}
-                      className="flex-1 text-xs group-hover:border-indigo-300 group-hover:bg-indigo-50"
+                      className="flex-1 text-xs group-hover:border-book-300 group-hover:bg-book-50"
                     >
                       <Users className="h-3 w-3 mr-1" />
                       View Details
@@ -196,7 +191,7 @@ const UniversityExplorer = ({
                     <Button
                       size="sm"
                       onClick={() => onViewBooks(university.id)}
-                      className="flex-1 text-xs bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700"
+                      className="flex-1 text-xs bg-book-600 hover:bg-book-700"
                     >
                       <BookOpen className="h-3 w-3 mr-1" />
                       Campus Books
