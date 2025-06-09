@@ -352,7 +352,16 @@ function AuthProvider({ children }: { children: ReactNode }) {
 
     try {
       const stats = await getUserStats(user.id);
-      setUserStats(stats);
+      if (stats) {
+        setUserStats({
+          totalListings: stats.totalBooksListed,
+          activeSales: stats.totalBooksSold,
+          totalSales: stats.totalBooksSold,
+          totalEarnings: 0,
+          completedSales: stats.totalBooksSold,
+          ...stats,
+        });
+      }
     } catch (error) {
       logError("Error loading user stats", error);
     }
