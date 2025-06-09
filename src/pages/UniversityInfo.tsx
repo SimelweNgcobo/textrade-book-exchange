@@ -1,5 +1,5 @@
-import { useState, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useMemo, useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import CampusLayout from "@/components/CampusLayout";
 import SEO from "@/components/SEO";
 import { Button } from "@/components/ui/button";
@@ -18,12 +18,24 @@ import {
 
 import { SOUTH_AFRICAN_UNIVERSITIES } from "@/constants/universities";
 import { University } from "@/types/university";
+import APSCalculatorTool from "@/components/university-info/APSCalculatorTool";
+import BursaryExplorer from "@/components/university-info/BursaryExplorer";
 
 const UniversityInfo = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedUniversity, setSelectedUniversity] =
     useState<University | null>(null);
+  const [currentTool, setCurrentTool] = useState<string | null>(null);
+
+  // Handle tool routing from URL params
+  useEffect(() => {
+    const tool = searchParams.get("tool");
+    if (tool) {
+      setCurrentTool(tool);
+    }
+  }, [searchParams]);
 
   // Filter universities based on search
   const filteredUniversities = useMemo(() => {
@@ -54,6 +66,48 @@ const UniversityInfo = () => {
     params.set("university", universityId);
     navigate(`/books?${params.toString()}`);
   };
+
+  // Render tools
+  if (currentTool === "calculator") {
+    return (
+      <>
+        <SEO
+          title="APS Calculator - ReBooked Campus"
+          description="Calculate your Admission Point Score (APS) based on your NSC marks. Find out which university programs you qualify for."
+          url="https://www.rebookedsolutions.co.za/university-info?tool=calculator"
+        />
+        <CampusLayout>
+          <APSCalculatorTool />
+        </CampusLayout>
+      </>
+    );
+  }
+
+  if (currentTool === "bursaries") {
+    return (
+      <>
+        <SEO
+          title="Find Bursaries - ReBooked Campus"
+          description="Discover bursary and scholarship opportunities for South African students. Find funding for your university education."
+          url="https://www.rebookedsolutions.co.za/university-info?tool=bursaries"
+        />
+        <CampusLayout>
+          <div className="container mx-auto px-4 py-16 max-w-6xl">
+            <div className="mb-8">
+              <Button
+                variant="ghost"
+                onClick={() => navigate("/university-info")}
+                className="text-gray-600 hover:text-gray-900 p-0"
+              >
+                ← Back to Universities
+              </Button>
+            </div>
+            <BursaryExplorer />
+          </div>
+        </CampusLayout>
+      </>
+    );
+  }
 
   if (selectedUniversity) {
     return (
