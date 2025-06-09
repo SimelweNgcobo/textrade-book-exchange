@@ -6,7 +6,6 @@ import { useCart } from "@/contexts/CartContext";
 import { getBookById } from "@/services/book/bookQueries";
 import { getUserAddresses } from "@/services/addressService";
 import { getDeliveryQuotes, DeliveryQuote } from "@/services/deliveryService";
-import { automaticShipmentService } from "@/services/automaticShipmentService";
 import { createAutomaticShipment } from "@/services/automaticShipmentService";
 import { ActivityService } from "@/services/activityService";
 import { Book } from "@/types/book";
