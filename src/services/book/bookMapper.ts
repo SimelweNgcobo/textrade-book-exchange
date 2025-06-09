@@ -1,5 +1,6 @@
 
 import { Book } from '@/types/book';
+import { BookQueryResult } from './bookTypes';
 
 export const mapDatabaseBookToBook = (dbBook: any): Book => {
   return {
@@ -19,6 +20,33 @@ export const mapDatabaseBookToBook = (dbBook: any): Book => {
     backCover: dbBook.back_cover,
     insidePages: dbBook.inside_pages,
     universityYear: dbBook.university_year,
+  };
+};
+
+// Add the missing export that's being imported
+export const mapBookFromDatabase = (bookData: BookQueryResult): Book => {
+  return {
+    id: bookData.id,
+    title: bookData.title,
+    author: bookData.author,
+    description: bookData.description,
+    price: parseFloat(bookData.price.toString()),
+    condition: bookData.condition,
+    category: bookData.category,
+    imageUrl: bookData.image_url || '',
+    sellerId: bookData.seller_id,
+    createdAt: bookData.created_at,
+    sold: bookData.sold,
+    grade: bookData.grade,
+    frontCover: bookData.front_cover,
+    backCover: bookData.back_cover,
+    insidePages: bookData.inside_pages,
+    universityYear: bookData.university_year,
+    seller: bookData.profiles ? {
+      id: bookData.profiles.id,
+      name: bookData.profiles.name,
+      email: bookData.profiles.email,
+    } : undefined,
   };
 };
 

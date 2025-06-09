@@ -11,10 +11,13 @@ interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
   userStats: UserStats;
+  profile: any;
+  isAdmin: boolean;
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   register: (email: string, password: string, name: string) => Promise<void>;
   updateUserStats: () => Promise<void>;
+  refreshProfile: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -33,6 +36,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [profile, setProfile] = useState<any>(null);
   const [userStats, setUserStats] = useState<UserStats>({
     totalListings: 0,
     activeSales: 0,
@@ -40,6 +44,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     totalEarnings: 0,
     completedSales: 0,
   });
+
+  const isAdmin = profile?.is_admin || false;
 
   useEffect(() => {
     // Get initial session
@@ -60,6 +66,27 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
     return () => subscription.unsubscribe();
   }, []);
+
+  const refreshProfile = async () => {
+    if (!user) return;
+
+    try {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", user.id)
+        .single();
+
+      if (error) {
+        console.error("Error fetching profile:", error);
+        return;
+      }
+
+      setProfile(data);
+    } catch (error) {
+      console.error("Error in refreshProfile:", error);
+    }
+  };
 
   const updateUserStats = async () => {
     if (!user) return;
@@ -111,10 +138,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     isAuthenticated: !!user,
     isLoading,
     userStats,
+    profile,
+    isAdmin,
     login,
     logout,
     register,
     updateUserStats,
+    refreshProfile,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

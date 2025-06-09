@@ -16,6 +16,11 @@ export interface Book {
   backCover?: string;
   insidePages?: string;
   universityYear?: string;
+  seller?: {
+    id: string;
+    name: string;
+    email: string;
+  };
 }
 
 export interface BookFormData {
@@ -27,5 +32,10 @@ export interface BookFormData {
   category: string;
   grade?: string;
   universityYear?: string;
+  university?: string;
   images: File[];
+  imageUrl?: string;
+  frontCover?: string;
+  backCover?: string;
+  insidePages?: string;
 }

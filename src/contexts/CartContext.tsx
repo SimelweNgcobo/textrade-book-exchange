@@ -14,6 +14,9 @@ interface CartContextType {
   clearCart: () => void;
   totalPrice: number;
   totalItems: number;
+  getTotalItems: () => number;
+  getTotalPrice: () => number;
+  getSellerTotals: () => any[];
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -76,6 +79,29 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setItems([]);
   };
 
+  const getTotalItems = () => items.reduce((sum, item) => sum + item.quantity, 0);
+  const getTotalPrice = () => items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  
+  const getSellerTotals = () => {
+    const sellerMap = new Map();
+    items.forEach(item => {
+      const sellerId = item.sellerId;
+      const sellerName = item.seller?.name || 'Unknown Seller';
+      if (!sellerMap.has(sellerId)) {
+        sellerMap.set(sellerId, {
+          sellerId,
+          sellerName,
+          total: 0,
+          items: []
+        });
+      }
+      const seller = sellerMap.get(sellerId);
+      seller.total += item.price * item.quantity;
+      seller.items.push(item);
+    });
+    return Array.from(sellerMap.values());
+  };
+
   const totalPrice = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
 
@@ -89,6 +115,9 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         clearCart,
         totalPrice,
         totalItems,
+        getTotalItems,
+        getTotalPrice,
+        getSellerTotals,
       }}
     >
       {children}
