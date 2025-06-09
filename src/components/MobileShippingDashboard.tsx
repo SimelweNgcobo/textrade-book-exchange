@@ -273,7 +273,12 @@ const MobileShippingDashboard = ({
               Shipments are automatically created when you purchase textbooks.
               You'll receive tracking information via email.
             </p>
-            <Button size="sm" variant="outline" className="text-xs">
+            <Button
+              size="sm"
+              variant="outline"
+              className="text-xs"
+              onClick={() => (window.location.href = "/contact")}
+            >
               Contact Support
             </Button>
           </div>
