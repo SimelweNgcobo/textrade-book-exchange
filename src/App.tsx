@@ -40,7 +40,6 @@ import Report from "./pages/Report";
 import Shipping from "./pages/Shipping";
 
 import "./App.css";
-import "./styles/mobile-fixes.css";
 
 function App() {
   return (
