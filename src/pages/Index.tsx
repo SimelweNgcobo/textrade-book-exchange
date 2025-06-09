@@ -96,13 +96,17 @@ const Index = () => {
           </div>
           <div className="md:w-1/2 flex justify-center">
             <img
-              src="https://images.unsplash.com/photo-1541339907198-e08756dedf3f?w=600&h=400&fit=crop&auto=format&q=80"
-              alt="Diverse students studying together with textbooks in library"
+              src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=600&h=400&fit=crop&auto=format&q=80"
+              alt="Three diverse students collaborating with textbooks in library - perfect representation of ReBooked Solutions community"
               width="600"
               height="400"
               className="rounded-lg shadow-xl max-w-full h-auto w-full max-w-sm md:max-w-full"
               loading="eager"
               decoding="sync"
+              onError={(e) => {
+                e.currentTarget.src =
+                  "https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?w=600&h=400&fit=crop&auto=format&q=80";
+              }}
             />
           </div>
         </div>
