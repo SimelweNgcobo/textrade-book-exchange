@@ -97,7 +97,7 @@ const Index = () => {
           <div className="md:w-1/2 flex justify-center">
             <img
               src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=600&h=400&fit=crop&auto=format&q=80"
-              alt="Students studying with textbooks in library"
+              alt="Diverse students collaborating with textbooks in library"
               width="600"
               height="400"
               className="rounded-lg shadow-xl max-w-full h-auto w-full max-w-sm md:max-w-full"
