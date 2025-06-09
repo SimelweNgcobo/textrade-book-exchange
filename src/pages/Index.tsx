@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Layout from "@/components/Layout";
@@ -96,7 +97,7 @@ const Index = () => {
           </div>
           <div className="md:w-1/2 flex justify-center">
             <img
-              src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=600&h=400&fit=crop&auto=format&q=80"
+              src="/lovable-uploads/5a675a2a-36d0-4fce-a3dd-1fc8d877a335.png"
               alt="Students studying with textbooks in library"
               width="600"
               height="400"
