@@ -234,18 +234,28 @@ const CampusBooksSection = () => {
 
   return (
     <div className="space-y-8">
-      {/* Header */}
-      <div className="text-center space-y-4">
-        <div className="flex items-center justify-center space-x-2">
-          <BookOpen className="w-8 h-8 text-book-600" />
-          <h2 className="text-3xl font-bold text-gray-900">
-            Campus Books Marketplace
-          </h2>
+      {/* Header with Books Image */}
+      <div className="relative text-center space-y-4 bg-gradient-to-r from-orange-50 to-red-50 rounded-2xl p-8 overflow-hidden">
+        <div className="absolute inset-0">
+          <img
+            src="https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=800&h=400&fit=crop&crop=center"
+            alt="Stack of study books and textbooks"
+            className="w-full h-full object-cover opacity-30"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-orange-50/85 to-red-50/85" />
         </div>
-        <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-          Find affordable textbooks from students at your university. Buy and
-          sell books specific to your courses and save money on your studies.
-        </p>
+        <div className="relative z-10">
+          <div className="flex items-center justify-center space-x-2 mb-4">
+            <BookOpen className="w-8 h-8 text-book-600" />
+            <h2 className="text-3xl font-bold text-gray-900">
+              Campus Books Marketplace
+            </h2>
+          </div>
+          <p className="text-lg text-gray-700 max-w-3xl mx-auto">
+            Find affordable textbooks from students at your university. Buy and
+            sell books specific to your courses and save money on your studies.
+          </p>
+        </div>
       </div>
 
       {/* Integration Notice */}

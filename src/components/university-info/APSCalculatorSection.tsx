@@ -77,19 +77,29 @@ const APSCalculatorSection = () => {
 
   return (
     <div className="space-y-8">
-      {/* Header */}
-      <div className="text-center space-y-4">
-        <div className="flex items-center justify-center space-x-2">
-          <Calculator className="w-8 h-8 text-book-600" />
-          <h2 className="text-3xl font-bold text-gray-900">
-            APS Calculator & Degree Finder
-          </h2>
+      {/* Header with Study Image */}
+      <div className="relative text-center space-y-4 bg-gradient-to-r from-book-50 to-book-100 rounded-2xl p-8 overflow-hidden">
+        <div className="absolute inset-0">
+          <img
+            src="https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=800&h=400&fit=crop&crop=center"
+            alt="Students studying with textbooks"
+            className="w-full h-full object-cover opacity-20"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-book-50/80 to-book-100/80" />
         </div>
-        <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-          Calculate your Admission Point Score (APS) and discover which
-          university programs you qualify for. Get personalized recommendations
-          and find books for your chosen courses.
-        </p>
+        <div className="relative z-10">
+          <div className="flex items-center justify-center space-x-2 mb-4">
+            <Calculator className="w-8 h-8 text-book-600" />
+            <h2 className="text-3xl font-bold text-gray-900">
+              APS Calculator & Degree Finder
+            </h2>
+          </div>
+          <p className="text-lg text-gray-700 max-w-3xl mx-auto">
+            Calculate your Admission Point Score (APS) and discover which
+            university programs you qualify for. Get personalized
+            recommendations and find books for your chosen courses.
+          </p>
+        </div>
       </div>
 
       {/* APS Calculator */}

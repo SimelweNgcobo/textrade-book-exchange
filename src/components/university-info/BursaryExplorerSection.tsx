@@ -134,19 +134,29 @@ const BursaryExplorerSection = () => {
 
   return (
     <div className="space-y-8">
-      {/* Header */}
-      <div className="text-center space-y-4">
-        <div className="flex items-center justify-center space-x-2">
-          <GraduationCap className="w-8 h-8 text-book-600" />
-          <h2 className="text-3xl font-bold text-gray-900">
-            Bursary & Financial Aid Explorer
-          </h2>
+      {/* Header with Graduation Image */}
+      <div className="relative text-center space-y-4 bg-gradient-to-r from-green-50 to-blue-50 rounded-2xl p-8 overflow-hidden">
+        <div className="absolute inset-0">
+          <img
+            src="https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=800&h=400&fit=crop&crop=center"
+            alt="Graduation celebration with caps in the air"
+            className="w-full h-full object-cover opacity-25"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-green-50/80 to-blue-50/80" />
         </div>
-        <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-          Discover funding opportunities for your higher education journey. Find
-          bursaries, scholarships, and financial aid programs that match your
-          profile and field of study.
-        </p>
+        <div className="relative z-10">
+          <div className="flex items-center justify-center space-x-2 mb-4">
+            <GraduationCap className="w-8 h-8 text-book-600" />
+            <h2 className="text-3xl font-bold text-gray-900">
+              Bursary & Financial Aid Explorer
+            </h2>
+          </div>
+          <p className="text-lg text-gray-700 max-w-3xl mx-auto">
+            Discover funding opportunities for your higher education journey.
+            Find bursaries, scholarships, and financial aid programs that match
+            your profile and field of study.
+          </p>
+        </div>
       </div>
 
       {/* Filters */}
