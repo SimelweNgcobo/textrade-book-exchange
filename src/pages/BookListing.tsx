@@ -172,10 +172,12 @@ const BookListing = () => {
         keywords="browse textbooks, used books, academic books, student books, textbook marketplace"
         url="https://www.rebookedsolutions.co.za/books"
       />
-      <div className="container mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold text-book-800 mb-8">Browse Books</h1>
+      <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-8">
+        <h1 className="text-2xl sm:text-3xl font-bold text-book-800 mb-4 sm:mb-8 px-2 sm:px-0">
+          Browse Books
+        </h1>
 
-        <div className="flex flex-col lg:flex-row gap-8">
+        <div className="flex flex-col lg:flex-row gap-4 sm:gap-8">
           <BookFilters
             searchQuery={searchQuery}
             setSearchQuery={setSearchQuery}
