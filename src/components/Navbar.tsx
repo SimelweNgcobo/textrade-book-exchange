@@ -69,15 +69,12 @@ const Navbar = () => {
           }}
         >
           {/* Logo */}
-          <Link
-            to="/"
-            style={{
-              alignItems: "center",
-              cursor: "pointer",
-              display: "flex",
-              textDecoration: "none",
-            }}
-          >
+          <Link to="/" style={{
+            alignItems: "center",
+            cursor: "pointer",
+            display: "flex",
+            textDecoration: "none",
+          }}>
             <div
               style={{
                 alignItems: "center",
@@ -117,27 +114,103 @@ const Navbar = () => {
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-4">
-            <Link
-              to="/books"
-              className="text-gray-700 hover:text-book-600 px-3 py-2 transition-colors"
+          <div style={{ display: window.innerWidth >= 768 ? "block" : "none" }}>
+            <div
+              style={{
+                alignItems: "baseline",
+                display: "flex",
+                marginLeft: "40px",
+              }}
             >
-              Browse Books
-            </Link>
-            <Link
-              to="/university-info"
-              className="text-gray-700 hover:text-book-600 px-3 py-2 transition-colors flex items-center"
-            >
-              <GraduationCap className="h-4 w-4 mr-1" />
-              ReBooked Campus
-            </Link>
-            <Link
-              to="/shipping"
-              className="text-gray-700 hover:text-book-600 px-3 py-2 transition-colors flex items-center"
-            >
-              <Truck className="h-4 w-4 mr-1" />
-              Shipping
-            </Link>
+              <Link
+                to="/books"
+                style={{
+                  borderRadius: "10px",
+                  color: "rgb(55, 65, 81)",
+                  cursor: "pointer",
+                  fontSize: "14px",
+                  fontWeight: "500",
+                  lineHeight: "20px",
+                  paddingBottom: "8px",
+                  paddingLeft: "12px",
+                  paddingRight: "12px",
+                  paddingTop: "8px",
+                  textDecoration: "none",
+                  transition: "all 0.15s cubic-bezier(0.4, 0, 0.2, 1)",
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.color = "rgb(21, 115, 71)";
+                  e.target.style.backgroundColor = "rgb(230, 244, 234)";
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.color = "rgb(55, 65, 81)";
+                  e.target.style.backgroundColor = "transparent";
+                }}
+              >
+                Browse Books
+              </Link>
+              <Link
+                to="/university-info"
+                style={{
+                  borderRadius: "10px",
+                  color: "rgb(55, 65, 81)",
+                  cursor: "pointer",
+                  fontSize: "14px",
+                  fontWeight: "500",
+                  lineHeight: "20px",
+                  marginLeft: "16px",
+                  paddingBottom: "8px",
+                  paddingLeft: "12px",
+                  paddingRight: "12px",
+                  paddingTop: "8px",
+                  textDecoration: "none",
+                  transition: "all 0.15s cubic-bezier(0.4, 0, 0.2, 1)",
+                  display: "flex",
+                  alignItems: "center",
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.color = "rgb(21, 115, 71)";
+                  e.target.style.backgroundColor = "rgb(230, 244, 234)";
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.color = "rgb(55, 65, 81)";
+                  e.target.style.backgroundColor = "transparent";
+                }}
+              >
+                <GraduationCap style={{ height: "16px", width: "16px", marginRight: "4px" }} />
+                ReBooked Campus
+              </Link>
+              <Link
+                to="/shipping"
+                style={{
+                  borderRadius: "10px",
+                  color: "rgb(55, 65, 81)",
+                  cursor: "pointer",
+                  fontSize: "14px",
+                  fontWeight: "500",
+                  lineHeight: "20px",
+                  marginLeft: "16px",
+                  paddingBottom: "8px",
+                  paddingLeft: "12px",
+                  paddingRight: "12px",
+                  paddingTop: "8px",
+                  textDecoration: "none",
+                  transition: "all 0.15s cubic-bezier(0.4, 0, 0.2, 1)",
+                  display: "flex",
+                  alignItems: "center",
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.color = "rgb(21, 115, 71)";
+                  e.target.style.backgroundColor = "rgb(230, 244, 234)";
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.color = "rgb(55, 65, 81)";
+                  e.target.style.backgroundColor = "transparent";
+                }}
+              >
+                <Truck style={{ height: "16px", width: "16px", marginRight: "4px" }} />
+                Shipping
+              </Link>
 
             {isAuthenticated ? (
               <>
