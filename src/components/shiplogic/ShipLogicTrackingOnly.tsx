@@ -254,11 +254,11 @@ const ShipLogicTrackingOnly = ({
       {/* No Results Message */}
       {!trackingInfo && !isLoading && (
         <Card>
-          <CardContent className="text-center py-8">
-            <Package className="h-12 w-12 mx-auto mb-4 opacity-50" />
-            <p className="text-gray-500">
-              Enter a shipment ID or waybill number to track your ShipLogic
-              shipment
+          <CardContent className="text-center py-6 sm:py-8">
+            <Package className="h-8 w-8 sm:h-12 sm:w-12 mx-auto mb-4 opacity-50" />
+            <p className="text-gray-500 text-sm sm:text-base px-4">
+              Enter a shipment ID or waybill number to track your order.
+              Tracking numbers are provided when your book purchase is shipped.
             </p>
           </CardContent>
         </Card>
