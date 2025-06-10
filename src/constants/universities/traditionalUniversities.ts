@@ -5130,4 +5130,132 @@ export const TRADITIONAL_UNIVERSITIES: University[] = [
       },
     ],
   },
+  {
+    id: "ufh",
+    name: "University of Fort Hare",
+    abbreviation: "UFH",
+    fullName: "University of Fort Hare (UFH)",
+    location: "Alice",
+    province: "Eastern Cape",
+    logo: "https://images.unsplash.com/photo-1607013251379-e6eecfffe234?w=80&h=80&fit=crop&crop=center",
+    overview:
+      "A historic university known as the 'Oxford of Africa', with a proud legacy of producing African leaders and intellectuals.",
+    website: "https://www.ufh.ac.za",
+    studentPortal: "https://students.ufh.ac.za",
+    admissionsContact: "admissions@ufh.ac.za",
+    applicationInfo: {
+      isOpen: false,
+      openingDate: "1 April 2025",
+      closingDate: "30 September 2025",
+      academicYear: "2026",
+      applicationFee: "R250",
+      applicationMethod: "Online via UFH application portal",
+      lateApplications: {
+        available: true,
+        deadline: "31 October 2025",
+        additionalFee: "R100",
+      },
+    },
+    faculties: [
+      {
+        id: "science",
+        name: "Faculty of Science and Agriculture",
+        description:
+          "Science and agricultural education with research excellence.",
+        degrees: [
+          {
+            id: "bsc-computer-science",
+            name: "BSc Computer Science",
+            faculty: "Science and Agriculture",
+            duration: "3 years",
+            apsRequirement: 30,
+            description:
+              "Computer science with focus on African technological solutions.",
+            subjects: [
+              { name: "Mathematics", level: 5, isRequired: true },
+              { name: "English", level: 4, isRequired: true },
+            ],
+            careerProspects: [
+              "Software Developer",
+              "Data Scientist",
+              "Systems Analyst",
+              "IT Consultant",
+              "Research Scientist",
+            ],
+          },
+          {
+            id: "bsc-agriculture",
+            name: "BSc Agriculture",
+            faculty: "Science and Agriculture",
+            duration: "4 years",
+            apsRequirement: 26,
+            description: "Agriculture with focus on rural development.",
+            subjects: [
+              { name: "Mathematics", level: 4, isRequired: true },
+              { name: "Physical Sciences", level: 4, isRequired: true },
+              { name: "Life Sciences", level: 4, isRequired: true },
+              { name: "English", level: 4, isRequired: true },
+            ],
+            careerProspects: [
+              "Agricultural Scientist",
+              "Farm Manager",
+              "Extension Officer",
+              "Agricultural Consultant",
+              "Rural Development Officer",
+            ],
+          },
+        ],
+      },
+      {
+        id: "commerce",
+        name: "Faculty of Management and Commerce",
+        description: "Business education with African leadership focus.",
+        degrees: [
+          {
+            id: "bcom-accounting",
+            name: "BCom Accounting",
+            faculty: "Management and Commerce",
+            duration: "3 years",
+            apsRequirement: 28,
+            description: "Accounting education with African development focus.",
+            subjects: [
+              { name: "Mathematics", level: 4, isRequired: true },
+              { name: "English", level: 4, isRequired: true },
+              { name: "Accounting", level: 4, isRequired: true },
+            ],
+            careerProspects: [
+              "Chartered Accountant",
+              "Financial Manager",
+              "Auditor",
+              "Tax Consultant",
+              "Management Accountant",
+            ],
+          },
+        ],
+      },
+      {
+        id: "humanities",
+        name: "Faculty of Social Sciences and Humanities",
+        description: "Humanities education with African scholarship tradition.",
+        degrees: [
+          {
+            id: "ba-political-science",
+            name: "BA Political Science",
+            faculty: "Social Sciences and Humanities",
+            duration: "3 years",
+            apsRequirement: 26,
+            description: "Political science with African governance focus.",
+            subjects: [{ name: "English", level: 4, isRequired: true }],
+            careerProspects: [
+              "Political Analyst",
+              "Policy Researcher",
+              "Government Official",
+              "Diplomat",
+              "Journalist",
+            ],
+          },
+        ],
+      },
+    ],
+  },
 ];
