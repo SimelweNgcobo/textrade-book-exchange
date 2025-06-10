@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,7 +23,6 @@ import {
   Award,
   Clock,
   Filter,
-  CreditCard,
   Package,
   FileText,
   Building2,
@@ -89,12 +87,6 @@ const LandingPage = () => {
       icon: Filter,
       title: "Condition Grading",
       description: "Detailed condition ratings with photos to ensure transparency",
-      color: "bg-book-100 text-book-600",
-    },
-    {
-      icon: CreditCard,
-      title: "Flexible Payments",
-      description: "Multiple payment options including mobile money and bank transfers",
       color: "bg-book-100 text-book-600",
     },
     {
