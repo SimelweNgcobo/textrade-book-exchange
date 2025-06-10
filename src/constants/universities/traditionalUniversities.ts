@@ -1151,7 +1151,7 @@ export const TRADITIONAL_UNIVERSITIES: University[] = [
     fullName: "University of the Witwatersrand (Wits)",
     location: "Johannesburg",
     province: "Gauteng",
-    logo: "https://images.unsplash.com/photo-1562774053-701939374585?w=80&h=80&fit=crop&crop=center",
+    logo: "/logos/universities/university-of-witwatersrand.svg",
     overview:
       "A leading research university in Africa, known for its academic excellence and contribution to South Africa's development.",
     website: "https://www.wits.ac.za",
@@ -2163,7 +2163,7 @@ export const TRADITIONAL_UNIVERSITIES: University[] = [
     fullName: "Stellenbosch University (SU)",
     location: "Stellenbosch",
     province: "Western Cape",
-    logo: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=80&h=80&fit=crop&crop=center",
+    logo: "/logos/universities/stellenbosch-university.svg",
     overview:
       "One of South Africa's leading research universities, known for academic excellence and beautiful campus surrounded by mountains and vineyards.",
     website: "https://www.sun.ac.za",
