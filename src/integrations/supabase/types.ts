@@ -310,27 +310,6 @@ export type Database = {
           },
         ]
       }
-      waitlist: {
-        Row: {
-          created_at: string
-          email: string
-          id: string
-          notified: boolean
-        }
-        Insert: {
-          created_at?: string
-          email: string
-          id?: string
-          notified?: boolean
-        }
-        Update: {
-          created_at?: string
-          email?: string
-          id?: string
-          notified?: boolean
-        }
-        Relationships: []
-      }
     }
     Views: {
       [_ in never]: never

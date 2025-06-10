@@ -1,4 +1,3 @@
-
 import React, {
   createContext,
   useContext,
@@ -210,7 +209,7 @@ function AuthProvider({ children }: { children: ReactNode }) {
   }, [authInitialized, handleAuthStateChange, handleSignOut, handleError]);
 
   // Auth operations
-  const login = useCallback(async (email: string, password: string): Promise<void> => {
+  const login = useCallback(async (email: string, password: string) => {
     try {
       setIsLoading(true);
 
@@ -283,6 +282,7 @@ function AuthProvider({ children }: { children: ReactNode }) {
         }
 
         // The auth state change handler will update the context
+        return data;
       }
     } catch (error: unknown) {
       throw error;
@@ -352,16 +352,7 @@ function AuthProvider({ children }: { children: ReactNode }) {
 
     try {
       const stats = await getUserStats(user.id);
-      // Create a compatible UserStats object
-      const compatibleStats: UserStats = {
-        totalListings: stats.totalListings || 0,
-        activeSales: stats.activeSales || 0,
-        totalSales: stats.totalSales || 0,
-        totalEarnings: stats.totalEarnings || 0,
-        completedSales: stats.completedSales || 0,
-        ...stats
-      };
-      setUserStats(compatibleStats);
+      setUserStats(stats);
     } catch (error) {
       logError("Error loading user stats", error);
     }
