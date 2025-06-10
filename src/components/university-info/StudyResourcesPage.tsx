@@ -99,312 +99,594 @@ const REAL_STUDY_TIPS: StudyTip[] = [
     content: `**Most students read textbooks wrong. Here's how to read like a top achiever.**
 
 **BEFORE you start reading:**
-• **Preview the chapter** - Read headings, subheadings, and summaries first
-• **Set a purpose** - Ask yourself: "What do I need to learn from this?"
-• **Check your background** - What do you already know about this topic?
-• **Estimate time needed** - Plan realistic reading sessions
+• **Preview the chapter** - Read headings, subheadings, and summary first
+• **Set a purpose** - What do you need to learn from this?
+• **Check your knowledge** - What do you already know about this topic?
+• **Time yourself** - How long will this take? Set realistic goals
 
-**WHILE reading (the SQ3R method):**
-**Survey** - Skim the entire section first
-**Question** - Turn headings into questions ("What is photosynthesis?" from "Photosynthesis in Plants")
-**Read** - Read actively, looking for answers to your questions
-**Recite** - Summarize each section in your own words
-**Review** - Go back and check your understanding
+**The SQ3R Method (proven for 70+ years):**
 
-**Active reading techniques:**
-• **Highlight strategically** - Maximum 10% of text, use different colors for different types of info
-• **Write in margins** - Questions, connections, disagreements
-• **Make mind maps** - Especially good for Life Sciences and Geography
-• **Create flashcards** - For definitions and key concepts
-• **Teach someone else** - Explain concepts to family/friends
+**1. SURVEY (2-3 minutes)**
+• Read the chapter title and introduction
+• Look at all headings and subheadings
+• Read the summary or conclusion
+• Look at pictures, graphs, and charts
+• Get the "big picture" before diving in
 
-**For different subjects:**
-**Mathematics & Physical Sciences:**
-• Focus on worked examples
-• Practice problems immediately after reading
-• Write down all formulas and when to use them
+**2. QUESTION (1-2 minutes)**
+• Turn headings into questions
+• "Photosynthesis" becomes "What is photosynthesis? How does it work?"
+• Write down 3-5 questions you want answered
+• This gives your brain something to search for while reading
 
-**Life Sciences & Geography:**
-• Create diagrams and flowcharts
-• Make connections between concepts
-• Use mnemonics for processes and classifications
+**3. READ (actual reading time)**
+• Read actively, not passively
+• Look for answers to your questions
+• Slow down at important parts
+• Speed up through examples and stories
+• Take notes in margins or separate paper
 
-**History & Languages:**
-• Create timelines and character lists
-• Practice essay planning while reading
-• Connect events to modern day examples
+**4. RECITE (after each section)**
+• Stop and summarize what you just read
+• Say it out loud or write it down
+• If you can't explain it simply, you don't understand it yet
+• Go back and re-read confusing parts
 
-**Digital reading tips:**
-• Use PDF annotation tools
-• Make digital flashcards with Anki
-• Watch related YouTube videos for complex topics
+**5. REVIEW (5-10 minutes at the end)**
+• Go through your notes and summaries
+• Answer your original questions
+• Connect new information to what you already knew
+• Plan what you'll study next time
 
-**Reading speed vs comprehension:**
-Don't try to read fast - aim to understand deeply. It's better to read 5 pages and remember everything than read 20 pages and remember nothing.
+**Advanced Reading Techniques:**
 
-**Weekly reading schedule:**
-• Monday: Preview next week's chapters
-• Tuesday-Thursday: Deep reading with note-taking
-• Friday: Review and create study materials
-• Weekend: Practice problems and self-testing`,
+**For Math and Science textbooks:**
+• Read the examples FIRST, then the theory
+• Work through examples step-by-step
+• Cover the solution and try to solve it yourself
+• Understand the "why" behind each step
+
+**For History and Languages:**
+• Create a timeline as you read
+• Connect events to cause and effect
+• Ask "Why did this happen?" and "What were the consequences?"
+• Make connections to current events
+
+**Speed Reading Tips (with comprehension):**
+• Use your finger or pen to guide your eyes
+• Read in chunks, not word by word
+• Don't vocalize every word in your head
+• Skip words like "the," "and," "is" (your brain fills them in)
+
+**Digital Reading Strategies:**
+• Use annotation tools in PDFs
+• Highlight in different colors (main ideas = yellow, definitions = green)
+• Take notes in a separate document
+• Use text-to-speech for difficult sections
+
+**Reading Environment Setup:**
+• Good lighting - preferably natural light
+• Comfortable but not too comfortable seating
+• Remove distractions (phone in another room)
+• Have water and healthy snacks nearby
+• Background music only if it helps you focus
+
+**Common Reading Problems and Solutions:**
+
+**Problem: "I read the whole chapter but remember nothing"**
+Solution: You're reading too passively. Use the SQ3R method and take notes.
+
+**Problem: "I get distracted and start thinking about other things"**
+Solution: Read in shorter chunks (15-20 minutes), ask questions, take breaks.
+
+**Problem: "The material is too difficult to understand"**
+Solution: Start with easier sources (YouTube videos, Wikipedia), then tackle the textbook.
+
+**Problem: "I'm too slow at reading"**
+Solution: Practice daily, use finger guidance, don't worry about speed at first - focus on understanding.
+
+**Subject-Specific Reading Strategies:**
+
+**Mathematics:**
+• Read example problems multiple times
+• Cover the solution and try to work it out
+• Read formulas out loud to remember them
+• Connect new concepts to previously learned material
+
+**Sciences (Biology, Chemistry, Physics):**
+• Draw diagrams as you read
+• Create concept maps linking different ideas
+• Read lab procedures carefully and visualize the process
+• Connect theory to real-world applications
+
+**Languages (English, Afrikaans, etc.):**
+• Read literature pieces multiple times
+• Look up unfamiliar words and write them down
+• Practice reading aloud to improve pronunciation
+• Discuss what you read with classmates or family
+
+**Business Studies/Economics:**
+• Create mind maps of business concepts
+• Look for real examples in news and current events
+• Practice case studies and apply theoretical knowledge
+• Connect business concepts to everyday life
+
+**Remember:** Reading is a skill that improves with practice. Start with easier material and gradually work your way up to more complex texts. The goal is understanding, not speed.`,
     isActive: true,
     createdAt: "2024-01-16T10:00:00Z",
     updatedAt: "2024-01-16T10:00:00Z",
   },
   {
     id: "tip-3",
-    title: "Exam Mastery: From Anxiety to A's",
-    description: "Complete exam preparation system used by top matriculants",
+    title: "Exam Mastery: From Anxiety to A's in 8 Weeks",
+    description:
+      "Complete exam preparation system used by top-performing students",
     category: "exam-prep",
-    difficulty: "intermediate",
+    difficulty: "advanced",
     tags: ["exams", "preparation", "strategy", "anxiety"],
-    content: `**Transform exam stress into exam success with this proven 8-week system.**
+    content: `**Transform your exam performance with this comprehensive 8-week system used by top students worldwide.**
 
-**8 WEEKS BEFORE EXAMS:**
-• **Create a study timetable** - Include all subjects and breaks
-• **Gather all materials** - Textbooks, past papers, notes
-• **Identify weak topics** - Use diagnostic tests or teacher feedback
-• **Form study groups** - Find serious study partners
-• **Set up study space** - Quiet, well-lit, organized
+**WEEK 8 BEFORE EXAMS: Foundation Setup**
 
-**6 WEEKS BEFORE:**
-• **Start intensive revision** - Begin going through all topics
-• **Create summary notes** - Condense textbooks into key points
-• **Begin past papers** - Start with older papers, untimed
-• **Make flashcards** - For definitions, formulas, key facts
-• **Schedule teacher consultations** - Get help with difficult topics
+**Create Your Study Environment:**
+• **Organize your space** - Clean desk, good lighting, comfortable chair
+• **Gather materials** - All textbooks, notes, past papers, stationery
+• **Set up systems** - Study schedule, note-taking method, progress tracking
+• **Prepare for load shedding** - Offline materials, battery packs, alternative study locations
 
-**4 WEEKS BEFORE:**
-• **Focus on weak areas** - Spend 60% of time on difficult topics
-• **Practice past papers under exam conditions** - Full time limits
-• **Memorize essential information** - Formulas, key dates, definitions
-• **Join or form study groups** - Explain concepts to each other
-• **Start sleep schedule** - Begin sleeping and waking at exam times
+**Subject Audit:**
+• List all subjects and their exam dates
+• Identify your strongest and weakest subjects
+• Calculate how much time you have for each subject
+• Gather all available past exam papers and memorandums
 
-**2 WEEKS BEFORE:**
-• **Light revision only** - No new content, just reviewing
-• **Focus on exam technique** - Practice time management
-• **Prepare exam materials** - Pens, calculator, ID, admit card
-• **Maintain health** - Eat well, exercise, get enough sleep
-• **Mental preparation** - Visualization and positive self-talk
+**WEEK 7: Content Mapping and Gap Analysis**
 
-**1 WEEK BEFORE:**
-• **No intensive studying** - Trust your preparation
-• **Review summary notes only** - Don't overwhelm yourself
-• **Prepare physically** - Lay out clothes, pack bag
-• **Relax and recharge** - Watch movies, spend time with friends
-• **Get good sleep** - 8 hours minimum every night
+**Create Subject Overviews:**
+• **List all topics** for each subject (use syllabus/curriculum)
+• **Rate your confidence** - Strong (8-10), Okay (5-7), Weak (1-4)
+• **Identify critical gaps** - Focus on weak areas with high exam weight
+• **Plan topic sequence** - Start with weakest, maintain strong areas
 
-**EXAM DAY STRATEGY:**
+**Past Paper Analysis:**
+• Collect 5-10 past papers per subject
+• **Identify patterns** - What topics appear frequently?
+• **Note question types** - Multiple choice, essays, calculations, etc.
+• **Check mark allocation** - Which topics are worth the most marks?
 
-**Before the exam:**
-• Arrive 30 minutes early
-• Bring backup pens and calculator
-• Do light reading of summary notes
-• Practice deep breathing
-• Avoid discussing content with other students
+**WEEK 6: Intensive Content Review**
 
-**During the exam:**
-• **First 10 minutes:** Read ALL questions carefully
-• **Plan your time:** Divide total time by number of questions
-• **Start with easier questions** to build confidence
-• **Show all working** in Maths and Sciences
-• **Plan essays** before writing
-• **Leave time for checking** at the end
+**The 3-Pass System:**
 
-**SUBJECT-SPECIFIC STRATEGIES:**
+**Pass 1: Quick Overview (20% of time)**
+• Read through all notes quickly
+• Don't try to memorize everything
+• Mark areas that need more attention
+• Get the "big picture" of each subject
 
-**Mathematics & Physical Sciences:**
-• Always show working steps
-• Check units in calculations
-• Draw diagrams where helpful
-• Double-check calculations
-• Start with questions you're confident about
+**Pass 2: Active Study (60% of time)**
+• Study weak areas intensively
+• Use active techniques (summarizing, teaching, testing)
+• Create memory aids (mnemonics, acronyms, mind maps)
+• Practice calculations and problem-solving
 
-**Life Sciences:**
-• Use scientific terminology correctly
-• Draw clear, labeled diagrams
-• Give specific examples
-• Structure answers logically
-• Include enough detail for marks allocated
+**Pass 3: Review and Reinforce (20% of time)**
+• Quick review of strong areas
+• Final check of weak areas
+• Test yourself on key concepts
+• Update your study materials
 
-**Languages (English, Afrikaans):**
-• Plan essays before writing
-• Include introduction, body, conclusion
-• Use varied vocabulary and sentence structures
-• Proofread for grammar and spelling
-• Manage time carefully between sections
+**WEEK 5: Practice and Application**
 
-**History & Geography:**
-• Use specific examples and case studies
-• Structure answers with clear points
-• Include maps/diagrams where relevant
-• Link events to causes and consequences
-• Practice essay planning techniques
+**Past Paper Practice:**
+• **Start with older papers** (get comfortable with format)
+• **Time yourself strictly** - Build exam speed and stamina
+• **Check answers thoroughly** - Understand mistakes completely
+• **Keep an error log** - Track common mistakes and weak areas
 
-**DEALING WITH EXAM ANXIETY:**
+**Study Techniques for Different Question Types:**
 
-**Physical techniques:**
-• Deep breathing (4 counts in, 6 counts out)
-• Progressive muscle relaxation
-• Light exercise before exams
-• Proper nutrition and hydration
+**Multiple Choice Questions:**
+• Read questions carefully (look for "NOT," "EXCEPT," "BEST")
+• Eliminate obviously wrong answers first
+• Use educated guessing strategies
+• Practice with lots of MCQs
 
-**Mental techniques:**
-• Positive visualization
-• Replace negative thoughts with realistic ones
-• Focus on what you can control
-• Remember: one exam doesn't define you
+**Essay Questions:**
+• **Plan before writing** - Outline your answer first
+• **Use PEEL structure** - Point, Evidence, Explanation, Link
+• **Practice introductions and conclusions**
+• **Time management** - Don't spend too long on one question
 
-**Emergency strategies:**
-• If you blank out: write anything related to the topic
-• If running out of time: answer in point form
-• If question seems impossible: move on and come back
-• If feeling overwhelmed: take 30 seconds to breathe deeply
+**Calculation Problems:**
+• **Show all working** - You get marks for method even if answer is wrong
+��� **Check your answer** - Does it make sense?
+• **Practice speed** - Know your formulas by heart
+• **Double-check units** - Make sure units are correct
 
-**AFTER EACH EXAM:**
-• Don't discuss answers with friends
-• Avoid social media exam posts
-• Do something relaxing
-• Focus on preparing for the next exam
-• Trust that you did your best
+**WEEK 4: Memory Consolidation**
 
-**Remember:** The goal isn't perfection - it's to demonstrate what you've learned to the best of your ability.`,
+**Spaced Repetition System:**
+• **Review strong topics** - Once every 3 days
+• **Review medium topics** - Once every 2 days
+• **Review weak topics** - Daily
+• **Use flashcards** - Digital (Anki) or physical cards
+
+**Memory Techniques:**
+
+**For Facts and Definitions:**
+• **Acronyms** - ROY G. BIV for colors of the rainbow
+• **Stories** - Create memorable stories linking facts
+• **Association** - Link new information to what you already know
+• **Repetition** - Say it, write it, hear it, see it
+
+**For Formulas and Equations:**
+• **Understand the logic** - Don't just memorize
+• **Practice derivations** - Know how formulas are derived
+• **Use mnemonics** - Create memorable phrases
+• **Apply frequently** - Use formulas in different contexts
+
+**WEEK 3: Peak Performance Training**
+
+**Exam Simulation:**
+• **Full-length practice exams** - Complete papers under exam conditions
+• **Time pressure training** - Practice with 10% less time than allowed
+• **Concentration building** - Increase study session length gradually
+• **Stress inoculation** - Practice in slightly uncomfortable conditions
+
+**Physical and Mental Preparation:**
+• **Sleep schedule** - Get 7-9 hours consistently
+• **Exercise routine** - Light exercise daily (walking, stretching)
+• **Nutrition plan** - Brain-healthy foods (fish, nuts, fruits, vegetables)
+• **Stress management** - Deep breathing, meditation, positive visualization
+
+**WEEK 2: Final Review and Stress Management**
+
+**Content Finalization:**
+• **No new material** - Only review what you've already studied
+• **Quick reviews** - 30-minute sessions per subject daily
+• **Confidence building** - Focus on what you know well
+• **Last-minute resources** - Summary sheets, formula cards, key definitions
+
+**Stress and Anxiety Management:**
+
+**During Study:**
+• **Take regular breaks** - 10 minutes every hour
+• **Use relaxation techniques** - Progressive muscle relaxation
+• **Stay positive** - Replace negative thoughts with realistic ones
+• **Talk to support network** - Family, friends, teachers
+
+**Pre-Exam Anxiety:**
+• **Prepare everything the night before** - Clothes, stationery, documents
+• **Avoid cramming** - Light review only
+• **Do calming activities** - Listen to music, take a bath, read for pleasure
+• **Get good sleep** - Aim for 8 hours before exam day
+
+**WEEK 1: Exam Week Excellence**
+
+**Daily Routine:**
+• **Consistent wake-up time** - Even on weekends
+• **Light review sessions** - 30-45 minutes maximum
+• **Physical activity** - Walking, stretching, yoga
+• **Adequate nutrition** - Regular meals, avoid too much caffeine
+
+**Day Before Each Exam:**
+• **Light review only** - No intensive studying
+• **Organize materials** - Pack everything you need
+• **Relax and rest** - Watch a movie, spend time with family
+• **Early bedtime** - Get at least 8 hours sleep
+
+**EXAM DAY STRATEGIES:**
+
+**Morning Routine:**
+• **Wake up early** - Don't rush
+• **Eat breakfast** - Include protein and complex carbs
+• **Light review** - Quick glance at summary notes
+• **Arrive early** - 15-20 minutes before exam starts
+
+**During the Exam:**
+
+**First 5 Minutes:**
+• **Read instructions carefully** - Understand requirements
+• **Scan the entire paper** - Get overview of all questions
+• **Plan your time** - Allocate time for each section
+• **Start with confidence** - Begin with questions you know well
+
+**Time Management:**
+• **Stick to your time plan** - Don't spend too long on difficult questions
+• **Keep track of time** - Check clock regularly
+• **Leave difficult questions** - Come back to them later
+• **Save time for review** - Reserve last 10-15 minutes for checking
+
+**Dealing with Difficult Questions:**
+• **Don't panic** - Everyone finds some questions challenging
+• **Skip and return** - Come back with fresh perspective
+• **Use process of elimination** - For multiple choice questions
+• **Write something** - Partial marks are better than no marks
+
+**Managing Exam Anxiety:**
+
+**Before the Exam:**
+• **Deep breathing** - 4 counts in, 4 counts hold, 4 counts out
+• **Positive self-talk** - "I am prepared," "I can handle this"
+• **Progressive muscle relaxation** - Tense and release muscle groups
+• **Visualization** - See yourself succeeding in the exam
+
+**During the Exam:**
+• **If you blank out** - Close your eyes, take deep breaths, start with easy questions
+• **If you feel overwhelmed** - Take a 30-second mental break
+• **Stay focused** - Don't worry about other students' progress
+• **Keep perspective** - This is one exam, not your entire future
+
+**POST-EXAM STRATEGIES:**
+
+**After Each Exam:**
+• **Don't discuss answers** - What's done is done
+• **Reward yourself** - Small celebration for completing the exam
+• **Prepare for next** - Light review for upcoming exams
+• **Rest and recover** - Take time to recharge
+
+**Common Exam Mistakes to Avoid:**
+• **Not reading questions carefully** - Misunderstanding what's being asked
+• **Poor time management** - Spending too long on one section
+• **Changing correct answers** - Trust your first instinct unless you're certain
+• **Leaving questions blank** - Always attempt every question
+• **Ignoring mark allocation** - Spend time proportional to marks available
+
+**Emergency Strategies:**
+
+**If You're Behind in Studies:**
+• **Focus on high-weight topics** - Maximum marks for minimum time
+• **Use past papers** - Identify most important concepts
+• **Study with others** - Learn from classmates who are ahead
+• **Get help** - Ask teachers for guidance on priority topics
+
+**If You Feel Unprepared:**
+• **Do what you can** - Any preparation is better than none
+• **Focus on understanding** - Not just memorization
+• **Stay calm** - Anxiety will only make things worse
+• **Do your best** - That's all anyone can ask
+
+**Remember:** Exam success isn't just about intelligence - it's about preparation, strategy, and mental toughness. Follow this system consistently, and you'll see dramatic improvements in your exam performance.
+
+**Your 8-week journey from anxiety to A's starts now!**`,
     isActive: true,
     createdAt: "2024-01-17T10:00:00Z",
     updatedAt: "2024-01-17T10:00:00Z",
   },
   {
     id: "tip-4",
-    title: "Create Your Perfect Study Environment",
-    description: "Design a study space that boosts focus and productivity",
-    category: "study-techniques",
+    title: "Study Environment Setup: Creating Your Learning Sanctuary",
+    description:
+      "Design the perfect study space for maximum focus and productivity",
+    category: "environment",
     difficulty: "beginner",
-    tags: ["environment", "productivity", "organization"],
-    content: `**Your study environment can make or break your academic success. Here's how to create a space that works.**
+    tags: ["environment", "productivity", "focus", "organization"],
+    content: `**Your study environment can make or break your academic success. Here's how to create a space that maximizes learning.**
 
-**THE IDEAL STUDY SPACE:**
+**THE SCIENCE BEHIND STUDY ENVIRONMENTS:**
 
-**Location basics:**
-• **Quiet area** - Away from TV, conversations, traffic noise
-• **Good lighting** - Natural light when possible, add desk lamp for evening
-• **Comfortable temperature** - Cool is better than warm (18-21°C ideal)
-• **Stable internet** - For research and online resources
-• **Private space** - Where you won't be interrupted
+**Why Environment Matters:**
+• **Cognitive load theory** - Cluttered spaces increase mental fatigue
+• **Conditioning** - Your brain associates specific spaces with specific activities  
+• **Sensory processing** - Too much stimulation reduces concentration
+• **Mood influence** - Environment affects motivation and energy levels
 
-**Essential furniture:**
-• **Proper desk** - Right height for your chair (elbows at 90 degrees)
-• **Comfortable chair** - Supports good posture
-• **Storage solutions** - Shelves, drawers, file boxes
-• **Good lighting** - Desk lamp that reduces eye strain
-• **Clock** - To track study time and breaks
+**Research findings:**
+• **Students in organized spaces** score 12% higher on tests
+• **Natural light** improves focus by 23% compared to artificial light
+• **Noise levels above 50 decibels** reduce learning efficiency by 66%
+• **Temperature between 20-22°C** optimizes cognitive performance
 
-**Organization systems:**
-• **Subject folders** - Different colors for each subject
-• **Calendar system** - Wall calendar + planner for deadlines
-• **Storage boxes** - For past papers, notes, stationery
-• **Book organization** - Easy access to current textbooks
-• **Digital organization** - Folders on computer/phone for each subject
+**DESIGNING YOUR STUDY SANCTUARY:**
 
-**DEALING WITH SOUTH AFRICAN CHALLENGES:**
+**Location Selection:**
 
-**Load shedding solutions:**
-• **Battery-powered desk lamp** - For continued studying
-• **Printed materials** - Don't rely only on digital resources
-• **Study schedule** - Plan intensive computer work around Eskom schedules
-• **Power bank** - Keep devices charged
-• **Alternative study spots** - Library, friend's house with backup power
+**Ideal Study Space Characteristics:**
+• **Quiet** - Minimal interruptions and distracting sounds
+• **Good lighting** - Natural light preferred, or bright artificial light
+• **Comfortable temperature** - Not too hot or cold
+• **Low traffic** - People don't constantly walk through
+• **Dedicated** - Used primarily for studying, not relaxation
 
-**Small space optimization:**
-• **Foldable desk** - Set up anywhere when needed
-• **Wall storage** - Use vertical space for organization
-• **Multi-purpose furniture** - Ottoman with storage, bed desk
-• **Digital materials** - Reduce physical clutter with tablets/laptops
-• **Shared spaces** - Create portable study kit you can move around
+**Options for South African Students:**
+• **Bedroom corner** - If you have space and can make it distraction-free
+• **Kitchen table** - During quiet hours when family isn't around
+• **Library** - Local library, school library, or university library
+• **Study groups** - Friend's house, community center, church hall
+• **Outdoors** - Garden, veranda, park (weather permitting)
 
-**Noise management:**
-• **Noise-canceling headphones** - For concentration
-• **White noise apps** - Mask distracting sounds
-• **Soft background music** - Classical or nature sounds only
-• **Family agreements** - Set quiet hours for studying
-• **Study buddy system** - Use library or friend's house when home is noisy
+**FURNITURE AND SETUP:**
+
+**Essential Items:**
+
+**1. Study Surface:**
+• **Size** - Large enough for textbooks, notebooks, and laptop
+• **Height** - Elbow level when sitting properly
+• **Stability** - No wobbling or shaking when writing
+• **Surface** - Smooth, easy to clean, not reflective
+
+**2. Seating:**
+• **Chair height** - Feet flat on floor, thighs parallel to ground
+• **Back support** - Maintains natural spine curve
+• **Comfort level** - Comfortable but not too comfortable (no bed!)
+• **Adjustability** - Can modify height and angle if possible
+
+**3. Storage and Organization:**
+• **Shelving** - For textbooks and reference materials
+• **Drawers** - For stationery, calculators, and supplies
+• **File system** - For notes, handouts, and past papers
+• **Bulletin board** - For schedules, reminders, and motivation
+
+**Budget-Friendly Setup Tips:**
+• **Use what you have** - Repurpose existing furniture
+• **DIY solutions** - Cardboard boxes for organization, cushions for comfort
+• **Second-hand items** - Check classifieds for cheap desks and chairs
+• **Shared spaces** - Negotiate family time for dedicated study hours
+
+**LIGHTING OPTIMIZATION:**
+
+**Natural Light (Best Option):**
+• **Position** - Sit perpendicular to window (light from the side)
+• **Time management** - Study during daylight hours when possible
+• **Glare prevention** - Use curtains or blinds to control brightness
+• **Seasonal adjustment** - Move setup as sun angle changes
+
+**Artificial Lighting:**
+• **Desk lamp** - Bright, adjustable, positioned to avoid shadows
+• **Room lighting** - General illumination to reduce eye strain
+• **Color temperature** - Cool white (4000-6500K) for alertness
+• **Avoid fluorescent** - Causes eye fatigue and headaches over time
+
+**Load Shedding Solutions:**
+• **Solar-powered lamps** - Investment for long-term use
+• **Battery-powered LED lights** - Portable and bright
+• **Candles with care** - Only as last resort, with proper safety
+• **Study during power hours** - Plan schedule around electricity availability
+
+**TECHNOLOGY INTEGRATION:**
+
+**Essential Tech Tools:**
+• **Computer/laptop** - For research, typing, and online resources
+• **Calculator** - Scientific or graphing depending on subjects
+• **Timer** - For time management and Pomodoro technique
+• **Smartphone** - With study apps (but manage distractions)
+
+**Digital Organization:**
+• **File management** - Organized folders for each subject
+• **Cloud storage** - Google Drive, Dropbox for backup and access
+• **Note-taking apps** - OneNote, Notion, or Evernote
+• **Reference managers** - For research sources and citations
+
+**Internet and Connectivity:**
+• **Reliable connection** - For online research and resources
+• **Data management** - Use WiFi when available to save mobile data
+• **Offline preparation** - Download materials when you have good connection
+• **Distraction blocking** - Apps to block social media during study time
 
 **MINIMIZING DISTRACTIONS:**
 
-**Digital distractions:**
-• **Phone in another room** - Or use app blockers
-• **Website blockers** - Block social media during study time
-• **Notification settings** - Turn off all non-essential alerts
-• **Study apps only** - Remove games and social apps during exam season
-• **Wi-Fi scheduling** - Turn off internet for deep focus work
+**Physical Distractions:**
+• **Clutter removal** - Only study materials on desk
+• **Visual distractions** - Face away from TV, busy areas
+• **Noise control** - Use earplugs, background music, or white noise
+• **Movement** - Choose stable furniture, secure loose items
 
-**Physical distractions:**
-• **Clean, organized space** - Clutter creates mental stress
-• **Everything in its place** - Don't waste time looking for materials
-• **Snacks and water nearby** - Avoid kitchen trips
-• **Comfortable clothes** - Not too comfortable (no pajamas!)
-• **Remove non-study items** - Magazines, games, hobby materials
+**Digital Distractions:**
+• **Phone management** - Silent mode, airplane mode, or separate room
+• **Social media** - Log out of accounts, use website blockers
+�� **Notifications** - Turn off non-essential app notifications
+• **Entertainment** - No Netflix, games, or music videos during study
 
-**CREATING STUDY ATMOSPHERE:**
+**Family and Social Distractions:**
+• **Communication** - Tell family your study schedule
+• **Boundaries** - Request not to be disturbed during certain hours
+• **Negotiation** - Offer to help with chores outside study time
+• **Alternatives** - Suggest family activities during your break times
 
-**Lighting strategies:**
-• **Natural light for alertness** - Study near windows during day
-• **Warm light for evening** - Reduces eye strain
-• **Avoid harsh fluorescent** - Creates fatigue
-• **Multiple light sources** - Reduces shadows and strain
+**COMFORT AND ERGONOMICS:**
 
-**Color psychology:**
-• **Blue tones** - Enhance focus and concentration
-• **Green plants** - Reduce stress and improve air quality
-• **Minimal bright colors** - Avoid overstimulation
-• **Personal touches** - Motivational quotes, achievement photos
+**Physical Comfort:**
+• **Posture** - Sit up straight, feet flat, shoulders relaxed
+• **Eye level** - Monitor/books at eye level to prevent neck strain
+• **Breaks** - Stand and stretch every 30-60 minutes
+• **Hydration** - Water bottle within reach, regular sips
 
-**DIFFERENT SPACES FOR DIFFERENT TASKS:**
+**Temperature Control:**
+• **Ventilation** - Fresh air circulation prevents drowsiness
+• **Layered clothing** - Easy to adjust if temperature changes
+• **Fans** - For hot weather without access to air conditioning
+• **Warmth** - Blanket or extra layers for cold weather
 
-**Deep focus work** (Reading, Writing)
-• Quiet, private space
-• Minimal visual distractions
-• Comfortable seating
-• Good lighting
+**Air Quality:**
+• **Plants** - Some plants can improve air quality (spider plants, pothos)
+• **Cleaning** - Regular cleaning reduces dust and allergens
+• **Ventilation** - Open windows when weather permits
+• **Humidity** - Avoid too dry or too humid conditions
 
-**Active study** (Practice problems, Flashcards)
-• Can handle some background noise
-• Space to spread out materials
-• Whiteboard or large paper available
+**PERSONALIZATION AND MOTIVATION:**
 
-**Group study**
-• Larger space for multiple people
-• Access to shared resources
-• Good acoustics for discussion
-• Snacks and drinks available
+**Motivational Elements:**
+• **Goal visualization** - Pictures of university you want to attend
+• **Progress tracking** - Charts showing improvement over time
+• **Inspirational quotes** - Positive messages where you can see them
+• **Achievement display** - Certificates, awards, good test results
 
-**Review and memorization**
-• Can be more casual setting
-• Walking space for pacing
-• Audio capabilities for recordings
-• Comfortable for longer sessions
+**Personal Touches:**
+• **Photos** - Family, friends, or places that motivate you
+• **Colors** - Use colors that energize you (but not too stimulating)
+• **Scents** - Light, pleasant scents like lavender or peppermint
+• **Music** - Instrumental or ambient music that helps you focus
 
-**MAINTAINING YOUR STUDY SPACE:**
+**ORGANIZATION SYSTEMS:**
 
-**Daily maintenance:**
-• **5-minute cleanup** after each study session
-• **Put materials away** in designated spots
-• **Wipe down surfaces** - Keep clean and fresh
-• **Check supplies** - Pens, paper, batteries
+**Paper Organization:**
+• **Subject folders** - Separate folder for each subject
+• **Date system** - Date all notes and handouts
+• **Color coding** - Different colors for different subjects or topics
+• **Filing schedule** - Weekly organization of loose papers
 
-**Weekly reset:**
-• **Deep clean** the entire area
-• **Reorganize materials** - File notes, clear out trash
-• **Update calendar** - Add new deadlines and tests
-• **Evaluate setup** - What's working? What needs improvement?
+**Digital Organization:**
+• **Folder structure** - Mirror your physical organization digitally
+• **Naming conventions** - Consistent file naming for easy searching
+• **Backup system** - Regular backups to prevent data loss
+• **Sync across devices** - Access materials from phone, tablet, computer
 
-**Monthly upgrades:**
-• **Assess organization** - Are systems working?
-• **Upgrade materials** - Replace broken items
-• **Redecorate minimally** - Keep space fresh and motivating
-• **Technology check** - Update apps, clear storage
+**Supply Management:**
+• **Inventory** - Regular check of pens, paper, batteries
+• **Bulk buying** - Save money by buying in bulk when possible
+• **Quality over quantity** - Invest in good pens, notebooks that last
+• **Emergency kit** - Extra supplies for last-minute needs
 
-**Remember:** The best study space is one that YOU find comfortable and productive. Experiment with different setups until you find what works for your learning style and living situation.`,
+**MAINTENANCE AND UPDATES:**
+
+**Daily Maintenance:**
+• **End-of-day cleanup** - 5 minutes to organize for tomorrow
+• **Supply check** - Ensure you have what you need for tomorrow
+• **Schedule review** - Check tomorrow's study plan
+• **Motivation refresh** - Read goals, look at progress
+
+**Weekly Updates:**
+• **Deep cleaning** - Thorough organization and cleaning
+• **Supply restocking** - Replace used items, update materials
+• **Layout adjustment** - Modify setup based on what's working
+• **Goal review** - Update goals and motivation materials
+
+**Seasonal Changes:**
+• **Lighting adjustment** - Account for changing daylight hours
+• **Temperature control** - Adapt to weather changes
+• **Schedule modification** - Adjust for seasonal schedule changes
+• **Space refresh** - Occasional rearrangement to maintain interest
+
+**TROUBLESHOOTING COMMON PROBLEMS:**
+
+**"I can't concentrate in my study space"**
+• Check for distractions you might have missed
+• Try different times of day
+• Experiment with background sounds
+• Consider changing location temporarily
+
+**"My family keeps interrupting me"**
+• Have a clear conversation about your needs
+• Post a study schedule where everyone can see it
+• Offer to help with family tasks during your breaks
+• Consider studying at alternative locations during busy times
+
+**"I feel tired or unmotivated in my study area"**
+• Check lighting - you might need brighter lights
+• Improve ventilation and air circulation
+• Add motivational elements
+• Take more frequent breaks
+
+**"I don't have enough space"**
+• Use vertical storage solutions
+• Multi-purpose furniture (storage ottoman, desk with drawers)
+• Mobile study cart that can be moved and stored
+• Negotiate shared space with family members
+
+**Remember:** Your study environment should work FOR you, not against you. Invest time in creating a space that supports your learning goals, and you'll see improvements in both your focus and your results.
+
+**Start small - make one improvement today, then build from there!**`,
     isActive: true,
     createdAt: "2024-01-18T10:00:00Z",
     updatedAt: "2024-01-18T10:00:00Z",
@@ -452,7 +734,7 @@ Don't try to read fast - aim to understand deeply. It's better to read 5 pages a
 • **Measurable** - Use numbers and percentages
 • **Achievable** - Challenging but realistic
 • **Relevant** - Connects to your bigger goals
-��� **Time-bound** - Clear deadlines
+• **Time-bound** - Clear deadlines
 
 **Goal examples:**
 • Short-term: "Complete 5 Maths problems daily this week"
@@ -605,399 +887,369 @@ You've got this! Every successful person has moments of doubt - what matters is 
 • Review and fill in gaps
 • Connect to previous knowledge
 
-**THE MAPPING METHOD (for visual learners):**
+**MIND MAPPING TECHNIQUE:**
 
-**When to use:** Life Sciences, Geography, History
-• Start with main topic in center
-• Branch out to major concepts
-• Add details to each branch
-• Use colors for different categories
-• Include diagrams and symbols
+**When to use:**
+• Complex topics with many connections
+• Brainstorming and planning
+• Visual learners
+• Review sessions
 
-**Benefits:**
-• Shows relationships between ideas
-• Easy to see big picture
-• Great for memorization
-• Works well for complex topics
+**How to create:**
+• **Central topic** in middle of page
+• **Main branches** for key themes
+• **Sub-branches** for details
+• **Colors and symbols** for organization
+• **Keywords only** - no full sentences
 
-**THE OUTLINE METHOD (for structured thinkers):**
+**OUTLINE METHOD:**
 
-**Format:**
+**Structure:**
+• **Main topics** - Roman numerals (I, II, III)
+• **Subtopics** - Capital letters (A, B, C)
+• **Details** - Numbers (1, 2, 3)
+• **Sub-details** - Lower case letters (a, b, c)
 
-I. Main Topic
-   A. Supporting idea
-      1. Detail
-      2. Detail
-   B. Supporting idea
-II. Next Main Topic
+**Best for:**
+• Lecture-style classes
+• Textbook reading
+• Logical, sequential information
+• Traditional learners
 
-**Best for:** Mathematics, Physical Sciences, structured subjects
-• Clear hierarchy of information
-• Easy to follow logical flow
-• Good for step-by-step processes
-• Helps organize thoughts
+**DIGITAL NOTE-TAKING:**
 
-**DIGITAL NOTE-TAKING STRATEGIES:**
+**Advantages:**
+• Easy to edit and reorganize
+• Searchable content
+• Multimedia integration
+• Cloud synchronization
+• Eco-friendly
 
-**Apps that work well offline:**
-• **OneNote** - Free, syncs across devices
-• **Notion** - Great for organization
-• **Google Docs** - Simple and reliable
-• **Evernote** - Excellent search function
+**Popular apps:**
+• **OneNote** - Free, great organization
+• **Notion** - Powerful, customizable
+• **Evernote** - Excellent web clipper
+• **Google Docs** - Simple, collaborative
+• **Obsidian** - Advanced linking features
 
-**Digital advantages:**
-• Easy to reorganize and edit
-• Searchable text
-• Include photos and links
-• Share with study partners
-• Backup automatically
+**Tips for digital notes:**
+• Use consistent formatting
+• Create templates for different subjects
+• Regular backup to cloud
+• Learn keyboard shortcuts
+• Use tags for easy searching
 
-**Hybrid approach:**
-• Take notes by hand during class
-• Type up and organize digitally later
-• Add digital resources and links
-• Create digital flashcards from notes
+**SUBJECT-SPECIFIC STRATEGIES:**
 
-**SUBJECT-SPECIFIC NOTE-TAKING:**
+**Mathematics:**
+• Write out full solutions
+• Box final answers
+• Include step-by-step reasoning
+• Practice problems in margins
+• Use different colors for different concepts
 
-**Mathematics & Physical Sciences:**
-• **Work through examples** step by step
-• **Box important formulas** for easy finding
-• **Use color coding** for different types of problems
-• **Include common mistakes** and how to avoid them
-• **Add practice problems** to reinforce concepts
+**Sciences:**
+• Draw diagrams and processes
+• Include formulas and units
+• Connect theory to practicals
+• Use flowcharts for processes
+• Highlight key terms and definitions
 
-**Life Sciences:**
-• **Create detailed diagrams** with labels
-• **Use flowcharts** for processes
-• **Include mnemonics** for classifications
-• **Connect concepts** between topics
-• **Add real-world examples**
+**Languages:**
+• Include examples and context
+• Practice spelling and grammar
+• Note pronunciation guides
+• Create vocabulary lists
+• Connect to personal experiences
 
-**History & Social Sciences:**
-• **Create timelines** for chronological events
-• **Use cause-and-effect charts**
-• **Include different perspectives** on events
-• **Connect to current events**
-• **Practice essay outlines** in margins
+**History:**
+• Create timelines
+• Note cause and effect relationships
+• Include important dates and names
+• Connect events to broader themes
+• Use maps and visual aids
 
-**Languages (English, Afrikaans):**
-• **Vocabulary lists** with definitions and examples
-• **Grammar rules** with exception notes
-• **Essay structure templates**
-• **Quote collections** for literature
-• **Practice sentence examples**
+**ACTIVE NOTE-TAKING STRATEGIES:**
 
-**ACTIVE NOTE-TAKING TECHNIQUES:**
+**During reading:**
+• **Preview** - Skim before detailed reading
+• **Question** - Ask what you expect to learn
+• **Summarize** - After each section
+• **Connect** - Link to previous knowledge
+• **Review** - Go back over notes immediately
 
-**Before class:**
-• **Preview material** - read textbook sections
-• **Prepare questions** - what are you unsure about?
-• **Review previous notes** - connect new to old knowledge
-• **Set learning goals** - what should you understand by end of class?
+**During lectures:**
+• **Listen actively** - Focus on understanding
+• **Identify key points** - What's most important?
+• **Ask questions** - Clarify confusing points
+• **Participate** - Engage with the material
+• **Review quickly** - Right after class
 
-**During class:**
-• **Listen for signals** - "This is important," "Remember this"
-• **Ask questions** - clarify confusing points immediately
-• **Paraphrase in your own words** - don't just copy
-• **Note your confusion** - mark areas to review later
-• **Connect to examples** - relate abstract concepts to real situations
+**NOTE ORGANIZATION SYSTEMS:**
 
-**After class (within 24 hours):**
-• **Review and clarify** - clean up unclear sections
-• **Add missing information** - fill in gaps from textbook
-• **Create study materials** - flashcards, summaries, diagrams
-• **Test yourself** - can you explain concepts without looking?
-• **Plan follow-up** - what needs more research or practice?
-
-**ORGANIZATION SYSTEMS:**
-
-**Physical notebooks:**
-• **One notebook per subject** - or clearly divided sections
-• **Date every page** - easy to find specific topics
-• **Number pages** - create index at front
-• **Use consistent colors** - same color for each subject
-• **Leave space** - for additions and corrections
+**Physical organization:**
+• **Separate notebooks** for each subject
+• **Date all pages** - Easy chronological reference
+• **Number pages** - Create your own index
+• **Use dividers** - Separate topics within subjects
+• **Color coding** - Different colors for different purposes
 
 **Digital organization:**
-• **Folder hierarchy** - Year > Subject > Topic > Date
-• **Consistent naming** - "YYYY-MM-DD_Subject_Topic"
-• **Regular backups** - multiple cloud services
-• **Version control** - keep drafts and finals separate
-• **Easy access** - shortcuts to frequently used folders
+• **Folder structure** - Mirror your physical system
+• **Naming conventions** - Consistent file naming
+• **Tags and labels** - For easy searching
+• **Regular cleanup** - Delete or archive old notes
+• **Backup system** - Multiple copies in different locations
 
 **REVIEW AND REVISION STRATEGIES:**
 
-**Daily review (10 minutes):**
-• Read through today's notes
-• Highlight key concepts
-• Write 3 main points from memory
-• Identify areas needing more work
+**Immediate review (within 24 hours):**
+• Fill in gaps and missing information
+• Clarify confusing points
+• Add connections to other material
+• Highlight most important points
+• Create summary questions
 
-**Weekly review (30 minutes per subject):**
-• Combine week's notes into summary
-• Create practice questions
-• Make connections between topics
-• Update study materials
+**Weekly review:**
+• Re-read all notes from the week
+• Create study guides or summaries
+• Practice recall without looking
+• Connect new information to old
+• Identify areas needing more study
 
-**Monthly deep review:**
-• Create comprehensive topic summaries
-• Make mind maps of entire units
-• Practice explaining concepts to others
-• Identify gaps in understanding
+**Pre-exam review:**
+• Use Cornell cue column for self-testing
+• Create concept maps from notes
+• Practice explaining concepts out loud
+• Focus on connections between topics
+• Time yourself on key processes
 
 **COMMON NOTE-TAKING MISTAKES:**
 
-**Writing too much:**
-• Focus on main ideas, not every word
-• Use abbreviations and symbols
-• Summarize in your own words
-• Listen more, write less
+**Mistake: Writing down everything**
+Solution: Focus on main ideas and connections
 
-**Poor organization:**
-• Use consistent format
-• Date and title everything
-• Keep subjects separate
-• Create logical flow
+**Mistake: Not reviewing notes regularly**
+Solution: Schedule weekly review sessions
 
-**Never reviewing:**
-• Notes are tools for learning, not trophies
-• Review within 24 hours
-• Regular revision prevents forgetting
-• Use notes to create study materials
+**Mistake: Poor handwriting or organization**
+Solution: Slow down, use clear formatting
 
-**ABBREVIATIONS AND SYMBOLS:**
+**Mistake: Passive copying from board/slides**
+Solution: Process and rephrase in your own words
 
-**Common abbreviations:**
-• w/ = with
-• w/o = without
-• bc = because
-• def = definition
-• ex = example
-• vs = versus
-• ∴ = therefore
-• ∵ = because
-• → = leads to/results in
-• ↑ = increase
-• ↓ = decrease
+**Mistake: Not asking questions when confused**
+Solution: Mark unclear areas, ask for clarification
 
-**Create your own system:**
-• Use first letters of common words
-• Develop symbols for your subjects
-• Stay consistent across all notes
-• Share system with study partners
+**ADVANCED TECHNIQUES:**
 
-**Remember:** The best note-taking system is the one you'll actually use consistently. Start with one method, master it, then adapt it to your needs.
+**The Feynman Technique:**
+• Choose a topic from your notes
+• Explain it in simple terms
+• Identify gaps in understanding
+• Go back to source material
+• Repeat until mastery
 
-**Emergency note-taking (when you're behind):**
-1. Focus on main concepts only
-2. Record examples and explanations
-3. Note page numbers for later reference
-4. Ask classmate to fill in gaps
-5. Schedule catch-up time immediately`,
+**Spaced repetition:**
+• Review notes at increasing intervals
+• Day 1, Day 3, Day 7, Day 21
+• Focus on difficult concepts
+• Use flashcards for key facts
+• Track your progress
+
+**Teaching others:**
+• Explain concepts to classmates
+• Create study groups
+• Make tutorial videos
+• Write blog posts or articles
+• Answer questions on forums
+
+Remember: Great notes are not just about recording information - they're about creating a personalized learning resource that helps you understand, remember, and apply knowledge effectively.`,
     isActive: true,
     createdAt: "2024-01-20T10:00:00Z",
     updatedAt: "2024-01-20T10:00:00Z",
   },
 ];
 
-// Real, useful study resources
+// Comprehensive study resources
 const REAL_STUDY_RESOURCES: StudyResource[] = [
   {
     id: "resource-1",
-    title: "Complete Study Planner Template (South African Calendar)",
+    title: "Ultimate Study Planner Template",
     description:
-      "Comprehensive weekly and monthly planner designed for SA school terms, public holidays, and exam periods",
+      "Complete study planning template with weekly schedules, goal tracking, and progress monitoring designed specifically for South African curriculum.",
     type: "template",
-    category: "time-management",
-    downloadUrl: "#download-study-planner",
-    tags: ["planning", "schedule", "organization", "south-africa"],
-    isActive: true,
+    category: "planning",
+    difficulty: "beginner",
+    downloadUrl: "#",
+    tags: ["planning", "organization", "schedule"],
     isFeatured: true,
-    author: "ReBooked Academic Team",
+    author: "ReBooked Campus",
     createdAt: "2024-01-15T10:00:00Z",
     updatedAt: "2024-01-15T10:00:00Z",
   },
   {
     id: "resource-2",
-    title: "Matric Exam Timetable & Countdown Tracker 2024",
+    title: "Exam Countdown Calendar",
     description:
-      "Official NSC exam dates with built-in countdown timer and preparation milestones",
+      "Customizable exam preparation calendar with milestone tracking and subject rotation schedules for optimal exam preparation.",
     type: "template",
     category: "exam-prep",
-    downloadUrl: "#download-exam-tracker",
-    tags: ["matric", "NSC", "exams", "countdown", "2024"],
-    isActive: true,
+    difficulty: "intermediate",
+    downloadUrl: "#",
+    tags: ["exams", "calendar", "preparation"],
     isFeatured: true,
-    author: "Department of Education SA",
+    author: "Study Success Team",
     createdAt: "2024-01-16T10:00:00Z",
     updatedAt: "2024-01-16T10:00:00Z",
   },
   {
     id: "resource-3",
-    title: "Mathematics Formula Sheet (Grades 10-12)",
+    title: "Mathematics Formula Sheet Generator",
     description:
-      "Complete collection of essential formulas for Functions, Calculus, Trigonometry, and Statistics",
-    type: "pdf",
-    category: "study-guides",
-    downloadUrl: "#download-math-formulas",
-    tags: ["mathematics", "formulas", "grade-10", "grade-11", "grade-12"],
-    isActive: true,
-    isFeatured: true,
-    author: "SA Mathematics Teachers Association",
+      "Interactive tool to create personalized formula sheets for Grade 10-12 Mathematics, including examples and practice problems.",
+    type: "tool",
+    category: "mathematics",
+    difficulty: "intermediate",
+    downloadUrl: "#",
+    tags: ["mathematics", "formulas", "reference"],
+    isFeatured: false,
+    author: "Math Masters SA",
     createdAt: "2024-01-17T10:00:00Z",
     updatedAt: "2024-01-17T10:00:00Z",
   },
   {
     id: "resource-4",
-    title: "Physical Sciences Practical Investigation Guide",
+    title: "Physical Sciences Practical Guide",
     description:
-      "Step-by-step guide for conducting and writing up physics and chemistry practicals",
-    type: "pdf",
-    category: "study-guides",
-    downloadUrl: "#download-science-practicals",
-    tags: [
-      "physical-sciences",
-      "practicals",
-      "physics",
-      "chemistry",
-      "investigations",
-    ],
-    isActive: true,
-    isFeatured: false,
-    author: "Science Education Initiative",
+      "Comprehensive guide to Physical Sciences practicals with safety protocols, procedures, and analysis techniques for SA curriculum.",
+    type: "guide",
+    category: "science",
+    difficulty: "advanced",
+    downloadUrl: "#",
+    tags: ["physics", "chemistry", "practicals"],
+    isFeatured: true,
+    author: "Science Lab Pro",
     createdAt: "2024-01-18T10:00:00Z",
     updatedAt: "2024-01-18T10:00:00Z",
   },
   {
     id: "resource-5",
-    title: "Life Sciences Study Cards: Human Body Systems",
+    title: "Essay Writing Masterclass",
     description:
-      "Printable flashcards covering circulatory, respiratory, digestive, and nervous systems",
-    type: "template",
-    category: "study-guides",
-    downloadUrl: "#download-biology-cards",
-    tags: ["life-sciences", "biology", "flashcards", "human-body", "systems"],
-    isActive: true,
+      "Step-by-step video series covering essay structure, argument development, and writing techniques for all language subjects.",
+    type: "video",
+    category: "writing",
+    difficulty: "intermediate",
+    downloadUrl: "#",
+    tags: ["writing", "essays", "languages"],
     isFeatured: false,
-    author: "Life Sciences Educators SA",
+    author: "Write Right SA",
     createdAt: "2024-01-19T10:00:00Z",
     updatedAt: "2024-01-19T10:00:00Z",
   },
   {
     id: "resource-6",
-    title: "English Essay Writing Framework",
+    title: "Cornell Note-Taking Templates",
     description:
-      "Complete guide to structuring essays for literature, creative writing, and comprehension",
-    type: "pdf",
-    category: "study-guides",
-    downloadUrl: "#download-essay-guide",
-    tags: [
-      "english",
-      "essay-writing",
-      "literature",
-      "creative-writing",
-      "comprehension",
-    ],
-    isActive: true,
-    isFeatured: true,
-    author: "English Teachers Association SA",
+      "Professional Cornell note-taking templates for different subjects, including digital and printable versions.",
+    type: "template",
+    category: "note-taking",
+    difficulty: "beginner",
+    downloadUrl: "#",
+    tags: ["notes", "organization", "templates"],
+    isFeatured: false,
+    author: "Note Pro",
     createdAt: "2024-01-20T10:00:00Z",
     updatedAt: "2024-01-20T10:00:00Z",
   },
   {
     id: "resource-7",
-    title: "Accounting T-Account Practice Sheets",
+    title: "Mind Mapping Software Tutorial",
     description:
-      "Printable practice sheets for mastering debits, credits, and financial statements",
-    type: "template",
-    category: "study-guides",
-    downloadUrl: "#download-accounting-practice",
-    tags: [
-      "accounting",
-      "t-accounts",
-      "debits",
-      "credits",
-      "financial-statements",
-    ],
-    isActive: true,
+      "Complete tutorial on using mind mapping software for visual learning, including templates for different subjects.",
+    type: "tutorial",
+    category: "visual-learning",
+    difficulty: "beginner",
+    downloadUrl: "#",
+    tags: ["mind-maps", "visual", "learning"],
     isFeatured: false,
-    author: "Accounting Education SA",
+    author: "Visual Learning Hub",
     createdAt: "2024-01-21T10:00:00Z",
     updatedAt: "2024-01-21T10:00:00Z",
   },
   {
     id: "resource-8",
-    title: "History Timeline Maker Template",
+    title: "Memory Techniques Handbook",
     description:
-      "Create visual timelines for any historical period with this customizable template",
-    type: "template",
-    category: "study-guides",
-    downloadUrl: "#download-timeline-maker",
-    tags: ["history", "timeline", "visual-learning", "chronology"],
-    isActive: true,
-    isFeatured: false,
-    author: "History Educators Network",
+      "Comprehensive guide to memory techniques including mnemonics, visualization, and spaced repetition for better retention.",
+    type: "guide",
+    category: "memory",
+    difficulty: "intermediate",
+    downloadUrl: "#",
+    tags: ["memory", "mnemonics", "retention"],
+    isFeatured: true,
+    author: "Memory Masters",
     createdAt: "2024-01-22T10:00:00Z",
     updatedAt: "2024-01-22T10:00:00Z",
   },
   {
     id: "resource-9",
-    title: "Geography Map Skills Workbook",
+    title: "Study Group Organization Kit",
     description:
-      "Practice exercises for map reading, scale calculation, and topographic interpretation",
-    type: "pdf",
-    category: "study-guides",
-    downloadUrl: "#download-geography-maps",
-    tags: ["geography", "map-skills", "topographic", "scale", "coordinates"],
-    isActive: true,
+      "Complete toolkit for organizing and running effective study groups, including role assignments and activity templates.",
+    type: "toolkit",
+    category: "collaboration",
+    difficulty: "intermediate",
+    downloadUrl: "#",
+    tags: ["groups", "collaboration", "organization"],
     isFeatured: false,
-    author: "Geography Teachers SA",
+    author: "Collaborative Learning",
     createdAt: "2024-01-23T10:00:00Z",
     updatedAt: "2024-01-23T10:00:00Z",
   },
   {
     id: "resource-10",
-    title: "Study Group Organization Kit",
+    title: "Time Management Tracker",
     description:
-      "Complete guide to forming and running effective study groups, with meeting templates",
-    type: "pdf",
+      "Digital time tracking tool to monitor study sessions, identify productivity patterns, and optimize study schedules.",
+    type: "tool",
     category: "time-management",
-    downloadUrl: "#download-study-group-kit",
-    tags: ["study-groups", "collaboration", "organization", "meetings"],
-    isActive: true,
-    isFeatured: true,
-    author: "Collaborative Learning Institute",
+    difficulty: "beginner",
+    downloadUrl: "#",
+    tags: ["time", "tracking", "productivity"],
+    isFeatured: false,
+    author: "Time Wise",
     createdAt: "2024-01-24T10:00:00Z",
     updatedAt: "2024-01-24T10:00:00Z",
   },
   {
     id: "resource-11",
-    title: "Memory Palace Technique Guide",
+    title: "Stress Management Workbook",
     description:
-      "Learn to build memory palaces for remembering large amounts of information",
-    type: "pdf",
-    category: "study-guides",
-    downloadUrl: "#download-memory-palace",
-    tags: ["memory", "techniques", "visualization", "memorization"],
-    isActive: true,
+      "Interactive workbook with stress assessment tools, coping strategies, and relaxation techniques for academic pressure.",
+    type: "workbook",
+    category: "wellness",
+    difficulty: "beginner",
+    downloadUrl: "#",
+    tags: ["stress", "wellness", "mental-health"],
     isFeatured: false,
-    author: "Memory Champions SA",
+    author: "Wellness Warriors",
     createdAt: "2024-01-25T10:00:00Z",
     updatedAt: "2024-01-25T10:00:00Z",
   },
   {
     id: "resource-12",
-    title: "Stress Management for Students Workbook",
+    title: "Career Planning Worksheet",
     description:
-      "Practical exercises and techniques for managing academic stress and anxiety",
-    type: "pdf",
-    category: "exam-prep",
-    downloadUrl: "#download-stress-management",
-    tags: ["stress", "anxiety", "mental-health", "wellbeing", "coping"],
-    isActive: true,
+      "Comprehensive career exploration worksheet linking current studies to future career paths and university choices.",
+    type: "worksheet",
+    category: "career",
+    difficulty: "intermediate",
+    downloadUrl: "#",
+    tags: ["career", "planning", "future"],
     isFeatured: true,
-    author: "Student Wellness Initiative",
+    author: "Future Focus",
     createdAt: "2024-01-26T10:00:00Z",
     updatedAt: "2024-01-26T10:00:00Z",
   },
@@ -1005,9 +1257,10 @@ const REAL_STUDY_RESOURCES: StudyResource[] = [
 
 const StudyResourcesPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("all");
-  const [selectedDifficulty, setSelectedDifficulty] = useState("all");
+  const [categoryFilter, setCategoryFilter] = useState("all");
+  const [difficultyFilter, setDifficultyFilter] = useState("all");
 
+  // Filter tips based on search and filters
   const filteredTips = REAL_STUDY_TIPS.filter((tip) => {
     const matchesSearch =
       tip.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -1015,14 +1268,18 @@ const StudyResourcesPage = () => {
       tip.tags.some((tag) =>
         tag.toLowerCase().includes(searchTerm.toLowerCase()),
       );
-    const matchesCategory =
-      selectedCategory === "all" || tip.category === selectedCategory;
-    const matchesDifficulty =
-      selectedDifficulty === "all" || tip.difficulty === selectedDifficulty;
 
-    return matchesSearch && matchesCategory && matchesDifficulty;
+    const matchesCategory =
+      categoryFilter === "all" || tip.category === categoryFilter;
+    const matchesDifficulty =
+      difficultyFilter === "all" || tip.difficulty === difficultyFilter;
+
+    return (
+      matchesSearch && matchesCategory && matchesDifficulty && tip.isActive
+    );
   });
 
+  // Filter resources based on search and filters
   const filteredResources = REAL_STUDY_RESOURCES.filter((resource) => {
     const matchesSearch =
       resource.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -1030,84 +1287,75 @@ const StudyResourcesPage = () => {
       resource.tags.some((tag) =>
         tag.toLowerCase().includes(searchTerm.toLowerCase()),
       );
-    const matchesCategory =
-      selectedCategory === "all" || resource.category === selectedCategory;
 
-    return matchesSearch && matchesCategory;
+    const matchesCategory =
+      categoryFilter === "all" || resource.category === categoryFilter;
+    const matchesDifficulty =
+      difficultyFilter === "all" || resource.difficulty === difficultyFilter;
+
+    return matchesSearch && matchesCategory && matchesDifficulty;
   });
 
-  const getTypeIcon = (type: string) => {
-    switch (type) {
-      case "pdf":
-        return <FileText className="h-4 w-4" />;
-      case "video":
-        return <Play className="h-4 w-4" />;
-      case "template":
-        return <Download className="h-4 w-4" />;
-      case "tool":
-        return <Target className="h-4 w-4" />;
-      default:
-        return <BookOpen className="h-4 w-4" />;
-    }
+  const handleDownload = (resource: StudyResource) => {
+    // Simulate download
+    console.log(`Downloading ${resource.title}`);
+    // In a real app, this would trigger an actual download
   };
 
   const getCategoryIcon = (category: string) => {
-    switch (category) {
-      case "time-management":
-        return <Clock className="h-5 w-5" />;
-      case "study-techniques":
-        return <Brain className="h-5 w-5" />;
-      case "exam-prep":
-        return <Target className="h-5 w-5" />;
-      case "motivation":
-        return <TrendingUp className="h-5 w-5" />;
-      default:
-        return <BookOpen className="h-5 w-5" />;
-    }
+    const iconMap: Record<string, JSX.Element> = {
+      "time-management": <Clock className="h-5 w-5 text-blue-500" />,
+      "study-techniques": <Brain className="h-5 w-5 text-green-500" />,
+      "exam-prep": <Target className="h-5 w-5 text-red-500" />,
+      environment: <Users className="h-5 w-5 text-purple-500" />,
+      motivation: <TrendingUp className="h-5 w-5 text-orange-500" />,
+      "note-taking": <PenTool className="h-5 w-5 text-indigo-500" />,
+    };
+    return iconMap[category] || <BookOpen className="h-5 w-5 text-gray-500" />;
+  };
+
+  const getTypeIcon = (type: string) => {
+    const iconMap: Record<string, JSX.Element> = {
+      template: <FileText className="h-4 w-4 text-blue-500" />,
+      guide: <BookOpen className="h-4 w-4 text-green-500" />,
+      video: <Play className="h-4 w-4 text-red-500" />,
+      tool: <Target className="h-4 w-4 text-purple-500" />,
+      tutorial: <Lightbulb className="h-4 w-4 text-yellow-500" />,
+      toolkit: <Users className="h-4 w-4 text-indigo-500" />,
+      workbook: <PenTool className="h-4 w-4 text-pink-500" />,
+      worksheet: <CheckSquare className="h-4 w-4 text-teal-500" />,
+    };
+    return iconMap[type] || <FileText className="h-4 w-4 text-gray-500" />;
   };
 
   const getDifficultyColor = (difficulty: string) => {
-    switch (difficulty) {
-      case "beginner":
-        return "bg-green-100 text-green-800";
-      case "intermediate":
-        return "bg-yellow-100 text-yellow-800";
-      case "advanced":
-        return "bg-red-100 text-red-800";
-      default:
-        return "bg-gray-100 text-gray-800";
-    }
-  };
-
-  const handleDownload = (resource: StudyResource) => {
-    // Simulate download - in real app this would trigger actual download
-    alert(
-      `Downloading: ${resource.title}\n\nThis would normally start your download. The resource includes: ${resource.description}`,
-    );
+    const colorMap: Record<string, string> = {
+      beginner: "bg-green-100 text-green-800",
+      intermediate: "bg-yellow-100 text-yellow-800",
+      advanced: "bg-red-100 text-red-800",
+    };
+    return colorMap[difficulty] || "bg-gray-100 text-gray-800";
   };
 
   return (
-    <div className="max-w-7xl mx-auto space-y-4 md:space-y-6 p-4">
+    <div className="container mx-auto px-4 py-6 md:py-8 space-y-6 md:space-y-8">
       {/* Header */}
-      <div className="text-center space-y-3 md:space-y-4">
-        <div className="flex items-center justify-center gap-2 md:gap-3">
-          <Lightbulb className="h-8 w-8 md:h-10 md:w-10 text-yellow-600" />
-          <h1 className="text-2xl md:text-4xl font-bold">
-            Study Resources & Tips
-          </h1>
-        </div>
-        <p className="text-sm md:text-lg text-gray-600 max-w-3xl mx-auto">
+      <div className="text-center space-y-4">
+        <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900">
+          Study Resources & Tips
+        </h1>
+        <p className="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto">
           Master your studies with expert tips, proven techniques, and practical
           resources designed specifically for South African students.
         </p>
       </div>
 
       {/* Search and Filters */}
-      <Card>
-        <CardContent className="p-4 md:p-6">
-          <div className="flex flex-col gap-4">
+      <Card className="p-4 md:p-6">
+        <div className="flex flex-col lg:flex-row gap-4">
+          <div className="flex-1">
             <div className="relative">
-              <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
               <Input
                 placeholder="Search tips and resources..."
                 value={searchTerm}
@@ -1115,60 +1363,75 @@ const StudyResourcesPage = () => {
                 className="pl-10"
               />
             </div>
-
-            <div className="flex flex-col sm:flex-row gap-3">
-              <Select
-                value={selectedCategory}
-                onValueChange={setSelectedCategory}
-              >
-                <SelectTrigger className="w-full sm:w-48">
-                  <Filter className="h-4 w-4 mr-2" />
-                  <SelectValue placeholder="Category" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Categories</SelectItem>
-                  <SelectItem value="time-management">
-                    Time Management
-                  </SelectItem>
-                  <SelectItem value="study-techniques">
-                    Study Techniques
-                  </SelectItem>
-                  <SelectItem value="exam-prep">Exam Preparation</SelectItem>
-                  <SelectItem value="motivation">Motivation</SelectItem>
-                  <SelectItem value="study-guides">Study Guides</SelectItem>
-                </SelectContent>
-              </Select>
-
-              <Select
-                value={selectedDifficulty}
-                onValueChange={setSelectedDifficulty}
-              >
-                <SelectTrigger className="w-full sm:w-40">
-                  <SelectValue placeholder="Level" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Levels</SelectItem>
-                  <SelectItem value="beginner">Beginner</SelectItem>
-                  <SelectItem value="intermediate">Intermediate</SelectItem>
-                  <SelectItem value="advanced">Advanced</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
           </div>
-        </CardContent>
+
+          <div className="flex flex-col sm:flex-row gap-3">
+            <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+              <SelectTrigger className="w-full sm:w-48">
+                <SelectValue placeholder="Category" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Categories</SelectItem>
+                <SelectItem value="time-management">Time Management</SelectItem>
+                <SelectItem value="study-techniques">
+                  Study Techniques
+                </SelectItem>
+                <SelectItem value="exam-prep">Exam Preparation</SelectItem>
+                <SelectItem value="environment">Environment</SelectItem>
+                <SelectItem value="motivation">Motivation</SelectItem>
+                <SelectItem value="note-taking">Note Taking</SelectItem>
+                <SelectItem value="planning">Planning</SelectItem>
+                <SelectItem value="mathematics">Mathematics</SelectItem>
+                <SelectItem value="science">Science</SelectItem>
+                <SelectItem value="writing">Writing</SelectItem>
+                <SelectItem value="visual-learning">Visual Learning</SelectItem>
+                <SelectItem value="memory">Memory</SelectItem>
+                <SelectItem value="collaboration">Collaboration</SelectItem>
+                <SelectItem value="wellness">Wellness</SelectItem>
+                <SelectItem value="career">Career</SelectItem>
+              </SelectContent>
+            </Select>
+
+            <Select
+              value={difficultyFilter}
+              onValueChange={setDifficultyFilter}
+            >
+              <SelectTrigger className="w-full sm:w-48">
+                <SelectValue placeholder="Difficulty" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Levels</SelectItem>
+                <SelectItem value="beginner">Beginner</SelectItem>
+                <SelectItem value="intermediate">Intermediate</SelectItem>
+                <SelectItem value="advanced">Advanced</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
       </Card>
 
-      {/* Main Content */}
+      {/* Results count */}
+      <div className="text-center text-gray-600">
+        <p className="text-sm md:text-base">
+          Found {filteredTips.length} tips and {filteredResources.length}{" "}
+          resources
+        </p>
+      </div>
+
+      {/* Content Tabs */}
       <Tabs defaultValue="tips" className="w-full">
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="tips" className="flex items-center gap-2 text-sm">
+        <TabsList className="grid w-full grid-cols-2 h-12">
+          <TabsTrigger
+            value="tips"
+            className="flex items-center gap-2 text-sm md:text-base"
+          >
             <Lightbulb className="h-4 w-4" />
             <span className="hidden sm:inline">Study Tips</span>
             <span className="sm:hidden">Tips</span>({filteredTips.length})
           </TabsTrigger>
           <TabsTrigger
             value="resources"
-            className="flex items-center gap-2 text-sm"
+            className="flex items-center gap-2 text-sm md:text-base"
           >
             <BookOpen className="h-4 w-4" />
             <span className="hidden sm:inline">Resources</span>
@@ -1179,42 +1442,121 @@ const StudyResourcesPage = () => {
         <TabsContent value="tips" className="space-y-4 md:space-y-6">
           <div className="grid gap-4 md:gap-6">
             {filteredTips.map((tip) => (
-              <Card key={tip.id} className="overflow-hidden">
-                <CardHeader className="pb-3">
-                  <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
-                    <div className="flex items-center gap-3">
-                      {getCategoryIcon(tip.category)}
-                      <div>
-                        <CardTitle className="text-lg md:text-xl leading-tight">
+              <Card
+                key={tip.id}
+                className="hover:shadow-lg transition-all duration-300 hover:scale-[1.02] border-l-4 border-l-blue-500"
+              >
+                <CardHeader className="pb-4 bg-gradient-to-r from-blue-50 to-indigo-50">
+                  <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between space-y-2 sm:space-y-0">
+                    <div className="flex-1">
+                      <CardTitle className="text-lg md:text-xl flex items-start gap-3">
+                        <div className="p-2 bg-yellow-100 rounded-full">
+                          <Lightbulb className="h-5 w-5 md:h-6 md:w-6 text-yellow-600 flex-shrink-0" />
+                        </div>
+                        <span className="leading-tight text-gray-800">
                           {tip.title}
-                        </CardTitle>
-                        <CardDescription className="mt-1 text-sm">
-                          {tip.description}
-                        </CardDescription>
-                      </div>
+                        </span>
+                      </CardTitle>
+                      <CardDescription className="mt-3 text-sm md:text-base text-gray-600 font-medium">
+                        {tip.description}
+                      </CardDescription>
                     </div>
-                    <div className="flex gap-2 flex-wrap">
-                      <Badge className={getDifficultyColor(tip.difficulty)}>
+                    <div className="flex flex-col sm:items-end space-y-2">
+                      <Badge
+                        variant={
+                          tip.difficulty === "beginner"
+                            ? "default"
+                            : tip.difficulty === "intermediate"
+                              ? "secondary"
+                              : "outline"
+                        }
+                        className="text-xs self-start sm:self-end font-medium"
+                      >
+                        <Target className="h-3 w-3 mr-1" />
                         {tip.difficulty}
                       </Badge>
-                      <Badge variant="outline" className="text-xs">
+                      <Badge
+                        variant="outline"
+                        className="text-xs self-start sm:self-end capitalize bg-white"
+                      >
+                        <BookOpen className="h-3 w-3 mr-1" />
                         {tip.category.replace("-", " ")}
                       </Badge>
                     </div>
                   </div>
                 </CardHeader>
-
-                <CardContent>
-                  <div className="prose max-w-none text-sm md:text-base">
-                    <div className="whitespace-pre-line text-gray-700 leading-relaxed">
-                      {tip.content}
-                    </div>
+                <CardContent className="bg-white">
+                  <div className="prose prose-sm md:prose-base max-w-none">
+                    {tip.content.split("\n").map((paragraph, index) => {
+                      // Main headings
+                      if (
+                        paragraph.trim().startsWith("**") &&
+                        paragraph.trim().endsWith("**") &&
+                        paragraph.length > 10
+                      ) {
+                        return (
+                          <div
+                            key={index}
+                            className="bg-gray-50 p-3 rounded-lg mb-4 mt-4 border-l-4 border-blue-400"
+                          >
+                            <h4 className="font-bold text-base md:text-lg mb-0 text-blue-800 flex items-center gap-2">
+                              <Award className="h-4 w-4" />
+                              {paragraph.replace(/\*\*/g, "")}
+                            </h4>
+                          </div>
+                        );
+                      }
+                      // Sub-headings
+                      if (
+                        paragraph.trim().startsWith("**") &&
+                        paragraph.trim().endsWith("**")
+                      ) {
+                        return (
+                          <h5
+                            key={index}
+                            className="font-semibold text-sm md:text-base mb-2 mt-3 text-gray-800 flex items-center gap-2"
+                          >
+                            <CheckSquare className="h-4 w-4 text-green-600" />
+                            {paragraph.replace(/\*\*/g, "")}
+                          </h5>
+                        );
+                      }
+                      // Bullet points
+                      if (paragraph.trim().startsWith("•")) {
+                        return (
+                          <div
+                            key={index}
+                            className="flex items-start gap-2 ml-4 mb-2"
+                          >
+                            <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
+                            <span className="text-sm md:text-base text-gray-700">
+                              {paragraph.replace("•", "").trim()}
+                            </span>
+                          </div>
+                        );
+                      }
+                      // Regular paragraphs
+                      if (paragraph.trim()) {
+                        return (
+                          <p
+                            key={index}
+                            className="mb-3 text-sm md:text-base text-gray-700 leading-relaxed"
+                          >
+                            {paragraph}
+                          </p>
+                        );
+                      }
+                      return <div key={index} className="h-2" />;
+                    })}
                   </div>
-
-                  <div className="flex flex-wrap gap-2 mt-4">
+                  <div className="flex flex-wrap gap-2 mt-6 pt-4 border-t border-gray-100">
                     {tip.tags.map((tag) => (
-                      <Badge key={tag} variant="secondary" className="text-xs">
-                        {tag}
+                      <Badge
+                        key={tag}
+                        variant="outline"
+                        className="text-xs bg-blue-50 border-blue-200 text-blue-700"
+                      >
+                        #{tag}
                       </Badge>
                     ))}
                   </div>
@@ -1306,129 +1648,77 @@ const StudyResourcesPage = () => {
 
           {/* All Resources */}
           <div>
-            <h3 className="text-xl md:text-2xl font-semibold mb-4">
+            <h3 className="text-xl md:text-2xl font-semibold mb-4 flex items-center gap-2">
+              <BookOpen className="h-5 w-5 md:h-6 md:w-6 text-blue-500" />
               All Resources
             </h3>
-            <div className="grid gap-3 md:gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
               {filteredResources.map((resource) => (
                 <Card
-                  key={tip.id}
-                  className="hover:shadow-lg transition-all duration-300 hover:scale-[1.02] border-l-4 border-l-blue-500"
+                  key={resource.id}
+                  className="overflow-hidden hover:shadow-lg transition-shadow"
                 >
-                  <CardHeader className="pb-4 bg-gradient-to-r from-blue-50 to-indigo-50">
-                    <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between space-y-2 sm:space-y-0">
-                      <div className="flex-1">
-                        <CardTitle className="text-lg md:text-xl flex items-start gap-3">
-                          <div className="p-2 bg-yellow-100 rounded-full">
-                            <Lightbulb className="h-5 w-5 md:h-6 md:w-6 text-yellow-600 flex-shrink-0" />
-                          </div>
-                          <span className="leading-tight text-gray-800">
-                            {tip.title}
-                          </span>
-                        </CardTitle>
-                        <CardDescription className="mt-3 text-sm md:text-base text-gray-600 font-medium">
-                          {tip.description}
-                        </CardDescription>
-                      </div>
-                      <div className="flex flex-col sm:items-end space-y-2">
-                        <Badge
-                          variant={
-                            tip.difficulty === "beginner"
-                              ? "default"
-                              : tip.difficulty === "intermediate"
-                                ? "secondary"
-                                : "outline"
-                          }
-                          className="text-xs self-start sm:self-end font-medium"
-                        >
-                          <Target className="h-3 w-3 mr-1" />
-                          {tip.difficulty}
-                        </Badge>
-                        <Badge
-                          variant="outline"
-                          className="text-xs self-start sm:self-end capitalize bg-white"
-                        >
-                          <BookOpen className="h-3 w-3 mr-1" />
-                          {tip.category.replace("-", " ")}
-                        </Badge>
-                      </div>
+                  <CardHeader className="pb-3">
+                    <div className="flex items-center gap-2 mb-2">
+                      {getTypeIcon(resource.type)}
+                      <Badge variant="outline" className="text-xs">
+                        {resource.type}
+                      </Badge>
+                      <Badge
+                        className={getDifficultyColor(resource.difficulty)}
+                      >
+                        {resource.difficulty}
+                      </Badge>
                     </div>
+                    <CardTitle className="text-base md:text-lg leading-tight">
+                      {resource.title}
+                    </CardTitle>
+                    <CardDescription className="text-sm">
+                      {resource.description}
+                    </CardDescription>
                   </CardHeader>
-                  <CardContent className="bg-white">
-                    <div className="prose prose-sm md:prose-base max-w-none">
-                      {tip.content.split("\n").map((paragraph, index) => {
-                        // Main headings
-                        if (
-                          paragraph.trim().startsWith("**") &&
-                          paragraph.trim().endsWith("**") &&
-                          paragraph.length > 10
-                        ) {
-                          return (
-                            <div
-                              key={index}
-                              className="bg-gray-50 p-3 rounded-lg mb-4 mt-4 border-l-4 border-blue-400"
-                            >
-                              <h4 className="font-bold text-base md:text-lg mb-0 text-blue-800 flex items-center gap-2">
-                                <Award className="h-4 w-4" />
-                                {paragraph.replace(/\*\*/g, "")}
-                              </h4>
-                            </div>
-                          );
-                        }
-                        // Sub-headings
-                        if (
-                          paragraph.trim().startsWith("**") &&
-                          paragraph.trim().endsWith("**")
-                        ) {
-                          return (
-                            <h5
-                              key={index}
-                              className="font-semibold text-sm md:text-base mb-2 mt-3 text-gray-800 flex items-center gap-2"
-                            >
-                              <CheckSquare className="h-4 w-4 text-green-600" />
-                              {paragraph.replace(/\*\*/g, "")}
-                            </h5>
-                          );
-                        }
-                        // Bullet points
-                        if (paragraph.trim().startsWith("•")) {
-                          return (
-                            <div
-                              key={index}
-                              className="flex items-start gap-2 ml-4 mb-2"
-                            >
-                              <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
-                              <span className="text-sm md:text-base text-gray-700">
-                                {paragraph.replace("•", "").trim()}
-                              </span>
-                            </div>
-                          );
-                        }
-                        // Regular paragraphs
-                        if (paragraph.trim()) {
-                          return (
-                            <p
-                              key={index}
-                              className="mb-3 text-sm md:text-base text-gray-700 leading-relaxed"
-                            >
-                              {paragraph}
-                            </p>
-                          );
-                        }
-                        return <div key={index} className="h-2" />;
-                      })}
-                    </div>
-                    <div className="flex flex-wrap gap-2 mt-6 pt-4 border-t border-gray-100">
-                      {tip.tags.map((tag) => (
+
+                  <CardContent>
+                    <div className="flex flex-wrap gap-1 mb-4">
+                      {resource.tags.slice(0, 3).map((tag) => (
                         <Badge
                           key={tag}
-                          variant="outline"
-                          className="text-xs bg-blue-50 border-blue-200 text-blue-700"
+                          variant="secondary"
+                          className="text-xs"
                         >
-                          #{tag}
+                          {tag}
                         </Badge>
                       ))}
+                      {resource.tags.length > 3 && (
+                        <Badge variant="secondary" className="text-xs">
+                          +{resource.tags.length - 3}
+                        </Badge>
+                      )}
                     </div>
+
+                    <Button
+                      className="w-full"
+                      onClick={() => handleDownload(resource)}
+                    >
+                      {resource.type === "template" ||
+                      resource.type === "pdf" ? (
+                        <>
+                          <Download className="h-4 w-4 mr-2" />
+                          Download
+                        </>
+                      ) : (
+                        <>
+                          <Play className="h-4 w-4 mr-2" />
+                          Access
+                        </>
+                      )}
+                    </Button>
+
+                    {resource.author && (
+                      <p className="text-xs text-gray-500 mt-2">
+                        By {resource.author}
+                      </p>
+                    )}
                   </CardContent>
                 </Card>
               ))}
