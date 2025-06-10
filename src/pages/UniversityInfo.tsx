@@ -70,8 +70,8 @@ const UniversityInfo = () => {
   const stats = {
     universities: SOUTH_AFRICAN_UNIVERSITIES.length,
     students: "1M+",
-    books: "10,000+",
-    bursaries: "100+",
+    programs: "500+",
+    resources: "Growing Daily",
   };
 
   return (

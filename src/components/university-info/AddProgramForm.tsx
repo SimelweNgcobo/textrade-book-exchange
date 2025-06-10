@@ -157,17 +157,27 @@ const AddProgramForm = () => {
       !formData.description ||
       !formData.apsRequirement
     ) {
-      toast.error("Please fill in all required fields");
+      toast.error("Please fill in all required fields marked with *");
       return false;
     }
 
-    if (formData.apsRequirement < 20 || formData.apsRequirement > 42) {
-      toast.error("APS requirement must be between 20 and 42");
+    if (
+      formData.apsRequirement &&
+      (formData.apsRequirement < 20 || formData.apsRequirement > 42)
+    ) {
+      toast.error("APS requirement must be between 20 and 42 points");
       return false;
     }
 
     if (!formData.subjects || formData.subjects.length === 0) {
       toast.error("Please add at least one subject requirement");
+      return false;
+    }
+
+    // Check if subjects have names
+    const invalidSubjects = formData.subjects.filter((s) => !s.name.trim());
+    if (invalidSubjects.length > 0) {
+      toast.error("Please provide names for all subjects");
       return false;
     }
 

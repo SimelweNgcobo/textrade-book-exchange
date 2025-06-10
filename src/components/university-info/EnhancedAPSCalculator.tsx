@@ -300,23 +300,31 @@ const EnhancedAPSCalculator = ({
                     <SelectTrigger className="w-full">
                       <SelectValue placeholder="Select subject" />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="max-h-[400px]">
                       {Object.values(SUBJECT_CATEGORIES).map((category) => {
                         const categorySubjects = SOUTH_AFRICAN_SUBJECTS.filter(
                           (s) =>
                             getSubjectCategory(s) === category &&
-                            !subjects.some((existing) => existing.name === s),
+                            !subjects.some(
+                              (existing) =>
+                                existing.name === s &&
+                                existing.name !== subject.name,
+                            ),
                         );
 
                         if (categorySubjects.length === 0) return null;
 
                         return (
                           <div key={category}>
-                            <div className="px-2 py-1 text-xs font-semibold text-gray-500 bg-gray-100">
+                            <div className="px-2 py-1.5 text-xs font-semibold text-gray-500 bg-gray-100 sticky top-0">
                               {category}
                             </div>
                             {categorySubjects.map((subjectName) => (
-                              <SelectItem key={subjectName} value={subjectName}>
+                              <SelectItem
+                                key={subjectName}
+                                value={subjectName}
+                                className="pl-4"
+                              >
                                 <div className="flex items-center justify-between w-full">
                                   <span className="text-sm">{subjectName}</span>
                                   {isNonContributing(subjectName) && (
