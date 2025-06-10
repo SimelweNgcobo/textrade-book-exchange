@@ -2,7 +2,7 @@ import { University, Faculty } from "@/types/university";
 import {
   ALL_SOUTH_AFRICAN_UNIVERSITIES,
   SOUTH_AFRICAN_UNIVERSITIES_SIMPLE as SIMPLE_LIST
-} from "./universities";
+} from "./universities/index";
 
 // Export the simplified list for basic operations
 export const SOUTH_AFRICAN_UNIVERSITIES_SIMPLE = SIMPLE_LIST;
