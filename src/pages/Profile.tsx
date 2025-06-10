@@ -332,6 +332,18 @@ const Profile = () => {
           isOpen={isReportIssueDialogOpen}
           onClose={() => setIsReportIssueDialogOpen(false)}
         />
+
+        <HowItWorksDialog
+          isOpen={isSellerHowItWorksOpen}
+          onClose={() => setIsSellerHowItWorksOpen(false)}
+          type="seller"
+        />
+
+        <HowItWorksDialog
+          isOpen={isBuyerHowItWorksOpen}
+          onClose={() => setIsBuyerHowItWorksOpen(false)}
+          type="buyer"
+        />
       </div>
     </Layout>
   );
