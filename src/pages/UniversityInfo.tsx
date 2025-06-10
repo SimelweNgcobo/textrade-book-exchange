@@ -66,13 +66,26 @@ const UniversityInfo = () => {
     setSearchParams(newParams);
   };
 
-  // Statistics for the platform
-  const stats = {
-    universities: SOUTH_AFRICAN_UNIVERSITIES.length,
-    students: "1M+",
-    programs: "500+",
-    resources: "Growing Daily",
-  };
+  // Memoized statistics calculation for better performance
+  const stats = useMemo(() => {
+    const totalPrograms = SOUTH_AFRICAN_UNIVERSITIES.reduce((total, uni) => {
+      return total + uni.faculties.reduce((facTotal, fac) => facTotal + fac.degrees.length, 0);
+    }, 0);
+
+    return {
+      universities: SOUTH_AFRICAN_UNIVERSITIES.length,
+      students: "1M+",
+      programs: `${totalPrograms}+`,
+      resources: "Growing Daily",
+    };
+  }, []);
+
+  // Loading component for lazy-loaded sections
+  const LoadingSection = () => (
+    <div className="flex justify-center items-center py-12">
+      <LoadingSpinner />
+    </div>
+  );
 
   return (
     <>
@@ -176,12 +189,35 @@ const UniversityInfo = () => {
             </TabsContent>
 
             {/* Bursaries Tab */}
-            <TabsContent value="bursaries" className="space-y-4 md:space-y-6">
-              <BursaryExplorerSection />
-            </TabsContent>
+          <TabsContent value="aps-calculator" className="space-y-6">
+            <Suspense fallback={<LoadingSection />}>
+              <APSCalculatorSection />
+            </Suspense>
+          </TabsContent>
 
-            {/* Textbooks Tab */}
-            <TabsContent value="books" className="space-y-4 md:space-y-6">
+          <TabsContent value="bursaries" className="space-y-6">
+            <Suspense fallback={<LoadingSection />}>
+              <BursaryExplorerSection />
+            </Suspense>
+          </TabsContent>
+
+          <TabsContent value="degrees" className="space-y-6">
+            <Suspense fallback={<LoadingSection />}>
+              <DegreeFinderSection />
+            </Suspense>
+          </TabsContent>
+
+          <TabsContent value="books" className="space-y-6">
+            <Suspense fallback={<LoadingSection />}>
+              <CampusBooksSection />
+            </Suspense>
+          </TabsContent>
+
+          <TabsContent value="explore" className="space-y-6">
+            <Suspense fallback={<LoadingSection />}>
+              <UniversityExplorer />
+            </Suspense>
+          </TabsContent>
               <Card>
                 <CardHeader className="pb-3 md:pb-6">
                   <div className="flex items-center space-x-3">
