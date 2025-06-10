@@ -143,67 +143,69 @@ const UniversityInfo = () => {
             </TabsContent>
 
             {/* APS Calculator Tab */}
-            <TabsContent value="aps" className="space-y-6">
+            <TabsContent value="aps" className="space-y-4 md:space-y-6">
               <Card>
-                <CardHeader>
+                <CardHeader className="pb-3 md:pb-6">
                   <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                      <Calculator className="w-5 h-5 text-blue-600" />
+                    <div className="w-8 h-8 md:w-10 md:h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                      <Calculator className="w-4 h-4 md:w-5 md:h-5 text-blue-600" />
                     </div>
                     <div>
-                      <CardTitle>Admission Point Score Calculator</CardTitle>
-                      <CardDescription>
-                        Calculate your APS and see which programs you qualify
-                        for
+                      <CardTitle className="text-lg md:text-xl">
+                        <span className="hidden md:inline">
+                          Admission Point Score Calculator
+                        </span>
+                        <span className="md:hidden">APS Calculator</span>
+                      </CardTitle>
+                      <CardDescription className="text-sm md:text-base">
+                        <span className="hidden md:inline">
+                          Calculate your APS and see which programs you qualify
+                          for
+                        </span>
+                        <span className="md:hidden">
+                          Calculate your APS score
+                        </span>
                       </CardDescription>
                     </div>
                   </div>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="p-3 md:p-6">
                   <APSCalculatorSection />
                 </CardContent>
               </Card>
             </TabsContent>
 
             {/* Bursaries Tab */}
-            <TabsContent value="bursaries" className="space-y-6">
-              <Card>
-                <CardHeader>
-                  <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-                      <GraduationCap className="w-5 h-5 text-green-600" />
-                    </div>
-                    <div>
-                      <CardTitle>Bursary & Scholarship Explorer</CardTitle>
-                      <CardDescription>
-                        Find funding opportunities for your studies
-                      </CardDescription>
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <BursaryExplorerSection />
-                </CardContent>
-              </Card>
+            <TabsContent value="bursaries" className="space-y-4 md:space-y-6">
+              <BursaryExplorerSection />
             </TabsContent>
 
             {/* Textbooks Tab */}
-            <TabsContent value="books" className="space-y-6">
+            <TabsContent value="books" className="space-y-4 md:space-y-6">
               <Card>
-                <CardHeader>
+                <CardHeader className="pb-3 md:pb-6">
                   <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
-                      <Book className="w-5 h-5 text-purple-600" />
+                    <div className="w-8 h-8 md:w-10 md:h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+                      <Book className="w-4 h-4 md:w-5 md:h-5 text-purple-600" />
                     </div>
                     <div>
-                      <CardTitle>Campus Textbook Marketplace</CardTitle>
-                      <CardDescription>
-                        Buy and sell textbooks with students at your university
+                      <CardTitle className="text-lg md:text-xl">
+                        <span className="hidden md:inline">
+                          Campus Textbook Marketplace
+                        </span>
+                        <span className="md:hidden">Textbook Marketplace</span>
+                      </CardTitle>
+                      <CardDescription className="text-sm md:text-base">
+                        <span className="hidden md:inline">
+                          Buy and sell textbooks with students at your
+                          university
+                        </span>
+                        <span className="md:hidden">Buy & sell textbooks</span>
                       </CardDescription>
                     </div>
                   </div>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="p-3 md:p-6">
                   <CampusBooksSection />
                 </CardContent>
               </Card>
