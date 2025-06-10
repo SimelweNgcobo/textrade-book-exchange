@@ -25,9 +25,12 @@ export const useNotifications = (): NotificationHookReturn => {
     setIsLoading(true);
     try {
       const userNotifications = await getNotifications(user.id);
-      setNotifications(userNotifications);
+      setNotifications(
+        Array.isArray(userNotifications) ? userNotifications : [],
+      );
     } catch (error) {
       console.error("Error refreshing notifications:", error);
+      setNotifications([]); // Set empty array on error
     } finally {
       setIsLoading(false);
     }
