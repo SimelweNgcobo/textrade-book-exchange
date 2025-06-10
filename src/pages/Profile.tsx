@@ -7,7 +7,26 @@ import BookNotSellingDialog from "@/components/BookNotSellingDialog";
 import ReportIssueDialog from "@/components/ReportIssueDialog";
 import HowItWorksDialog from "@/components/HowItWorksDialog";
 import { Button } from "@/components/ui/button";
-import { Plus, AlertTriangle, BookOpen, ShoppingCart } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  Plus,
+  AlertTriangle,
+  BookOpen,
+  ShoppingCart,
+  Settings,
+  User,
+  Share2,
+  HelpCircle,
+  MoreHorizontal,
+  Heart,
+} from "lucide-react";
 import ProfileEditDialog from "@/components/ProfileEditDialog";
 import UserProfileTabs from "@/components/profile/UserProfileTabs";
 import { saveUserAddresses, getUserAddresses } from "@/services/addressService";
@@ -233,81 +252,254 @@ const Profile = () => {
   return (
     <Layout>
       <div className="container mx-auto px-4 py-8 max-w-6xl">
-        {/* Fixed Report Issue Button */}
-        <div className="fixed bottom-4 right-4 z-50">
+        {/* Fixed Report Issue Button - Moved to bottom-left for less clutter */}
+        <div className="fixed bottom-4 left-4 z-50">
           <Button
             onClick={handleReportIssue}
-            className="bg-red-600 hover:bg-red-700 text-white rounded-full w-12 h-12 p-0 shadow-lg"
+            variant="outline"
+            className="rounded-full w-12 h-12 p-0 shadow-lg bg-white border-gray-300 hover:bg-gray-50"
             title="Report an Issue"
           >
-            <AlertTriangle className="h-5 w-5" />
+            <AlertTriangle className="h-4 w-4 text-red-600" />
           </Button>
         </div>
 
-        {/* Profile Header with integrated action buttons */}
-        <div className="mb-6">
-          <ProfileHeader
-            userData={userData}
-            isOwnProfile={true}
-            onShareProfile={handleShareProfile}
-            onEditProfile={handleEditProfile}
-            onBookNotSelling={handleBookNotSelling}
-          />
-        </div>
+        {/* Desktop Layout - Grid */}
+        {!isMobile ? (
+          <div className="grid grid-cols-12 gap-6">
+            {/* Left Sidebar - Profile Info */}
+            <div className="col-span-4 space-y-6">
+              {/* Simplified Profile Header */}
+              <Card>
+                <CardContent className="pt-6">
+                  <div className="text-center space-y-4">
+                    <div className="w-20 h-20 bg-book-100 rounded-full flex items-center justify-center mx-auto">
+                      <User className="h-10 w-10 text-book-600" />
+                    </div>
+                    <div>
+                      <h1 className="text-2xl font-bold text-gray-900">
+                        {userData.name}
+                      </h1>
+                      <p className="text-gray-500 text-sm">
+                        Joined{" "}
+                        {new Date(userData.joinDate).toLocaleDateString(
+                          "en-US",
+                          {
+                            year: "numeric",
+                            month: "long",
+                          },
+                        )}
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
 
-        {/* Create New Listing Button */}
-        <div className="mb-6">
-          <Button
-            onClick={() => navigate("/create-listing")}
-            className="bg-book-600 hover:bg-book-700 text-white w-full sm:w-auto"
-            size="lg"
-          >
-            <Plus className="h-4 w-4 mr-2" />
-            Create New Listing
-          </Button>
-        </div>
+              {/* Primary Actions */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Quick Actions</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <Button
+                    onClick={() => navigate("/create-listing")}
+                    className="w-full bg-book-600 hover:bg-book-700 text-white"
+                    size="lg"
+                  >
+                    <Plus className="h-5 w-5 mr-2" />
+                    List a Book
+                  </Button>
 
-        {/* How It Works Buttons */}
-        <div className="mb-6">
-          <div className="flex flex-col sm:flex-row gap-3">
-            <Button
-              onClick={handleSellerHowItWorks}
-              variant="outline"
-              className="border-book-600 text-book-600 hover:bg-book-50 w-full sm:w-auto"
-              size="lg"
-            >
-              <BookOpen className="h-4 w-4 mr-2" />
-              How Being A Seller Works
-            </Button>
-            <Button
-              onClick={handleBuyerHowItWorks}
-              variant="outline"
-              className="border-blue-600 text-blue-600 hover:bg-blue-50 w-full sm:w-auto"
-              size="lg"
-            >
-              <ShoppingCart className="h-4 w-4 mr-2" />
-              How Being A Buyer Works
-            </Button>
+                  <Button
+                    onClick={handleShareProfile}
+                    variant="outline"
+                    className="w-full border-book-600 text-book-600 hover:bg-book-50"
+                  >
+                    <Share2 className="h-4 w-4 mr-2" />
+                    Share Profile
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* Account Settings Dropdown */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Account Settings</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="outline" className="w-full">
+                        <Settings className="h-4 w-4 mr-2" />
+                        Manage Account
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent className="w-56" align="end">
+                      <DropdownMenuItem onClick={handleEditProfile}>
+                        <User className="h-4 w-4 mr-2" />
+                        Edit Profile
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem
+                        onClick={() => navigate("/notifications")}
+                      >
+                        <AlertTriangle className="h-4 w-4 mr-2" />
+                        Notifications
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => navigate("/activity")}>
+                        <Heart className="h-4 w-4 mr-2" />
+                        Activity Log
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </CardContent>
+              </Card>
+
+              {/* Help & Support */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Help & Support</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <Button
+                    onClick={handleBookNotSelling}
+                    variant="outline"
+                    className="w-full text-left justify-start"
+                  >
+                    <HelpCircle className="h-4 w-4 mr-2" />
+                    Book not selling?
+                  </Button>
+
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="outline" className="w-full">
+                        <BookOpen className="h-4 w-4 mr-2" />
+                        How It Works
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent className="w-56" align="end">
+                      <DropdownMenuItem onClick={handleSellerHowItWorks}>
+                        <BookOpen className="h-4 w-4 mr-2" />
+                        How Being A Seller Works
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={handleBuyerHowItWorks}>
+                        <ShoppingCart className="h-4 w-4 mr-2" />
+                        How Being A Buyer Works
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Right Content - Tabs (Keep as-is) */}
+            <div className="col-span-8">
+              <UserProfileTabs
+                activeListings={activeListings}
+                isLoading={isLoadingListings}
+                onEditBook={handleEditBook}
+                onDeleteBook={handleDeleteBook}
+                profile={profile}
+                addressData={addressData}
+                isOwnProfile={true}
+                userId={user.id}
+                userName={profile.name || "Anonymous User"}
+                onSaveAddresses={handleSaveAddresses}
+                isLoadingAddress={isLoadingAddress}
+                deletingBooks={deletingBooks}
+              />
+            </div>
           </div>
-        </div>
+        ) : (
+          /* Mobile Layout - Preserve existing layout */
+          <>
+            {/* Profile Header with integrated action buttons */}
+            <div className="mb-6">
+              <ProfileHeader
+                userData={userData}
+                isOwnProfile={true}
+                onShareProfile={handleShareProfile}
+                onEditProfile={handleEditProfile}
+                onBookNotSelling={handleBookNotSelling}
+              />
+            </div>
 
-        {/* Main Content - Only Tabbed Layout */}
-        <div className="w-full">
-          <UserProfileTabs
-            activeListings={activeListings}
-            isLoading={isLoadingListings}
-            onEditBook={handleEditBook}
-            onDeleteBook={handleDeleteBook}
-            profile={profile}
-            addressData={addressData}
-            isOwnProfile={true}
-            userId={user.id}
-            userName={profile.name || "Anonymous User"}
-            onSaveAddresses={handleSaveAddresses}
-            isLoadingAddress={isLoadingAddress}
-            deletingBooks={deletingBooks}
-          />
-        </div>
+            {/* Primary Action */}
+            <div className="mb-6">
+              <Button
+                onClick={() => navigate("/create-listing")}
+                className="bg-book-600 hover:bg-book-700 text-white w-full"
+                size="lg"
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Create New Listing
+              </Button>
+            </div>
+
+            {/* Consolidated Actions */}
+            <div className="mb-6 space-y-3">
+              <div className="grid grid-cols-2 gap-3">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" className="w-full">
+                      <BookOpen className="h-4 w-4 mr-2" />
+                      How It Works
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="w-56">
+                    <DropdownMenuItem onClick={handleSellerHowItWorks}>
+                      <BookOpen className="h-4 w-4 mr-2" />
+                      Seller Guide
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={handleBuyerHowItWorks}>
+                      <ShoppingCart className="h-4 w-4 mr-2" />
+                      Buyer Guide
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" className="w-full">
+                      <MoreHorizontal className="h-4 w-4 mr-2" />
+                      More
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="w-56">
+                    <DropdownMenuItem
+                      onClick={() => navigate("/notifications")}
+                    >
+                      <AlertTriangle className="h-4 w-4 mr-2" />
+                      Notifications
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => navigate("/activity")}>
+                      <Heart className="h-4 w-4 mr-2" />
+                      Activity Log
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+            </div>
+
+            {/* Main Content - Tabs (Keep as-is) */}
+            <div className="w-full">
+              <UserProfileTabs
+                activeListings={activeListings}
+                isLoading={isLoadingListings}
+                onEditBook={handleEditBook}
+                onDeleteBook={handleDeleteBook}
+                profile={profile}
+                addressData={addressData}
+                isOwnProfile={true}
+                userId={user.id}
+                userName={profile.name || "Anonymous User"}
+                onSaveAddresses={handleSaveAddresses}
+                isLoadingAddress={isLoadingAddress}
+                deletingBooks={deletingBooks}
+              />
+            </div>
+          </>
+        )}
 
         {/* Dialogs */}
         <ProfileEditDialog
