@@ -147,7 +147,6 @@ export const TRADITIONAL_UNIVERSITIES: University[] = [
               "AI Specialist",
             ],
           },
-          },
           {
             id: "bsc-mathematical-sciences",
             name: "BSc Mathematical Sciences",
@@ -4764,7 +4763,8 @@ export const TRADITIONAL_UNIVERSITIES: University[] = [
             faculty: "Natural and Agricultural Sciences",
             duration: "3 years",
             apsRequirement: 32,
-            description: "Information science in publishing and multimedia (UP specialty).",
+            description:
+              "Information science in publishing and multimedia (UP specialty).",
             subjects: [
               { name: "Mathematics", level: 5, isRequired: true },
               { name: "English", level: 6, isRequired: true },
@@ -4784,7 +4784,8 @@ export const TRADITIONAL_UNIVERSITIES: University[] = [
             faculty: "Veterinary Science",
             duration: "6 years",
             apsRequirement: 42,
-            description: "Comprehensive veterinary education at the famous Onderstepoort campus (UP specialty).",
+            description:
+              "Comprehensive veterinary education at the famous Onderstepoort campus (UP specialty).",
             subjects: [
               { name: "Mathematics", level: 6, isRequired: true },
               { name: "Physical Sciences", level: 6, isRequired: true },
