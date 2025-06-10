@@ -178,14 +178,14 @@ const UniversityExplorer = ({
                   </div>
 
                   {/* Clear Filters */}
-                  {(searchTerm || selectedProvince) && (
+                  {(searchTerm || selectedProvince !== "all") && (
                     <div className="flex justify-end">
                       <Button
                         variant="outline"
                         size="sm"
                         onClick={() => {
                           setSearchTerm("");
-                          setSelectedProvince("");
+                          setSelectedProvince("all");
                         }}
                       >
                         Clear All Filters
