@@ -540,4 +540,360 @@ export const COMPREHENSIVE_UNIVERSITIES: University[] = [
       },
     ],
   },
+  {
+    id: "ump",
+    name: "University of Mpumalanga",
+    abbreviation: "UMP",
+    fullName: "University of Mpumalanga (UMP)",
+    location: "Nelspruit",
+    province: "Mpumalanga",
+    logo: "https://images.unsplash.com/photo-1607013251379-e6eecfffe234?w=80&h=80&fit=crop&crop=center",
+    overview:
+      "A young, dynamic university committed to transforming communities through accessible higher education and research.",
+    website: "https://www.ump.ac.za",
+    studentPortal: "https://students.ump.ac.za",
+    admissionsContact: "admissions@ump.ac.za",
+    faculties: [
+      {
+        id: "education",
+        name: "Faculty of Education",
+        description:
+          "Comprehensive teacher training and educational development programs.",
+        degrees: [
+          {
+            id: "bed-foundation",
+            name: "BEd Foundation Phase",
+            faculty: "Education",
+            duration: "4 years",
+            apsRequirement: 24,
+            description:
+              "Foundation phase teacher training focusing on early childhood development.",
+            subjects: [
+              { name: "English", level: 4, isRequired: true },
+              { name: "Mathematics", level: 3, isRequired: true },
+            ],
+            careerProspects: [
+              "Foundation Phase Teacher",
+              "Early Childhood Development Specialist",
+              "Educational Coordinator",
+              "Curriculum Developer",
+              "Education Administrator",
+            ],
+          },
+        ],
+      },
+      {
+        id: "agriculture",
+        name: "Faculty of Agriculture and Natural Sciences",
+        description:
+          "Agricultural education focusing on sustainable development and food security.",
+        degrees: [
+          {
+            id: "bsc-agriculture",
+            name: "BSc Agriculture",
+            faculty: "Agriculture and Natural Sciences",
+            duration: "4 years",
+            apsRequirement: 28,
+            description:
+              "Comprehensive agricultural science program with focus on sustainable farming.",
+            subjects: [
+              { name: "Mathematics", level: 4, isRequired: true },
+              { name: "Physical Sciences", level: 4, isRequired: true },
+              { name: "Life Sciences", level: 4, isRequired: true },
+              { name: "English", level: 4, isRequired: true },
+            ],
+            careerProspects: [
+              "Agricultural Scientist",
+              "Farm Manager",
+              "Extension Officer",
+              "Agricultural Consultant",
+              "Research Officer",
+            ],
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: "spu",
+    name: "Sol Plaatje University",
+    abbreviation: "SPU",
+    fullName: "Sol Plaatje University (SPU)",
+    location: "Kimberley",
+    province: "Northern Cape",
+    logo: "https://images.unsplash.com/photo-1607013251379-e6eecfffe234?w=80&h=80&fit=crop&crop=center",
+    overview:
+      "South Africa's newest comprehensive university, established in 2014, committed to excellence in teaching, learning and research.",
+    website: "https://www.spu.ac.za",
+    studentPortal: "https://students.spu.ac.za",
+    admissionsContact: "admissions@spu.ac.za",
+    faculties: [
+      {
+        id: "humanities",
+        name: "Faculty of Humanities",
+        description:
+          "Comprehensive humanities education with focus on African scholarship.",
+        degrees: [
+          {
+            id: "ba-english",
+            name: "BA English Studies",
+            faculty: "Humanities",
+            duration: "3 years",
+            apsRequirement: 26,
+            description:
+              "English studies program with emphasis on African literature and language development.",
+            subjects: [{ name: "English", level: 5, isRequired: true }],
+            careerProspects: [
+              "Teacher",
+              "Writer",
+              "Editor",
+              "Journalist",
+              "Language Practitioner",
+            ],
+          },
+        ],
+      },
+      {
+        id: "natural",
+        name: "Faculty of Natural and Agricultural Sciences",
+        description: "Science education with focus on sustainable development.",
+        degrees: [
+          {
+            id: "bsc-computer-science",
+            name: "BSc Computer Science and Information Systems",
+            faculty: "Natural and Agricultural Sciences",
+            duration: "3 years",
+            apsRequirement: 30,
+            description:
+              "Computer science program with focus on information systems and technology solutions.",
+            subjects: [
+              { name: "Mathematics", level: 5, isRequired: true },
+              { name: "English", level: 4, isRequired: true },
+            ],
+            careerProspects: [
+              "Software Developer",
+              "Systems Analyst",
+              "IT Specialist",
+              "Database Administrator",
+              "Web Developer",
+            ],
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: "smu",
+    name: "Sefako Makgatho Health Sciences University",
+    abbreviation: "SMU",
+    fullName: "Sefako Makgatho Health Sciences University (SMU)",
+    location: "Pretoria",
+    province: "Gauteng",
+    logo: "https://images.unsplash.com/photo-1607013251379-e6eecfffe234?w=80&h=80&fit=crop&crop=center",
+    overview:
+      "A dedicated health sciences university committed to training healthcare professionals for Africa.",
+    website: "https://www.smu.ac.za",
+    studentPortal: "https://students.smu.ac.za",
+    admissionsContact: "admissions@smu.ac.za",
+    faculties: [
+      {
+        id: "health",
+        name: "Faculty of Health Sciences",
+        description:
+          "Comprehensive health sciences education with focus on African health challenges.",
+        degrees: [
+          {
+            id: "mbchb",
+            name: "MBChB Medicine",
+            faculty: "Health Sciences",
+            duration: "6 years",
+            apsRequirement: 42,
+            description:
+              "Medical degree with strong focus on primary healthcare and community medicine.",
+            subjects: [
+              { name: "Mathematics", level: 6, isRequired: true },
+              { name: "Physical Sciences", level: 6, isRequired: true },
+              { name: "Life Sciences", level: 6, isRequired: true },
+              { name: "English", level: 5, isRequired: true },
+            ],
+            careerProspects: [
+              "Medical Doctor",
+              "Specialist Physician",
+              "Public Health Officer",
+              "Medical Researcher",
+              "Community Health Practitioner",
+            ],
+          },
+          {
+            id: "bpharm",
+            name: "BPharm Pharmacy",
+            faculty: "Health Sciences",
+            duration: "4 years",
+            apsRequirement: 35,
+            description:
+              "Comprehensive pharmacy education focusing on pharmaceutical care.",
+            subjects: [
+              { name: "Mathematics", level: 5, isRequired: true },
+              { name: "Physical Sciences", level: 6, isRequired: true },
+              { name: "Life Sciences", level: 5, isRequired: true },
+              { name: "English", level: 4, isRequired: true },
+            ],
+            careerProspects: [
+              "Pharmacist",
+              "Clinical Pharmacist",
+              "Hospital Pharmacist",
+              "Pharmaceutical Researcher",
+              "Drug Safety Specialist",
+            ],
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: "wsu",
+    name: "Walter Sisulu University",
+    abbreviation: "WSU",
+    fullName: "Walter Sisulu University (WSU)",
+    location: "Mthatha",
+    province: "Eastern Cape",
+    logo: "https://images.unsplash.com/photo-1607013251379-e6eecfffe234?w=80&h=80&fit=crop&crop=center",
+    overview:
+      "A comprehensive university committed to providing quality higher education that responds to the development needs of its communities.",
+    website: "https://www.wsu.ac.za",
+    studentPortal: "https://students.wsu.ac.za",
+    admissionsContact: "admissions@wsu.ac.za",
+    faculties: [
+      {
+        id: "health",
+        name: "Faculty of Health Sciences",
+        description:
+          "Health sciences education serving rural and underserved communities.",
+        degrees: [
+          {
+            id: "mbchb",
+            name: "MBChB Medicine",
+            faculty: "Health Sciences",
+            duration: "6 years",
+            apsRequirement: 40,
+            description:
+              "Medical degree with focus on rural healthcare and community medicine.",
+            subjects: [
+              { name: "Mathematics", level: 6, isRequired: true },
+              { name: "Physical Sciences", level: 6, isRequired: true },
+              { name: "Life Sciences", level: 6, isRequired: true },
+              { name: "English", level: 5, isRequired: true },
+            ],
+            careerProspects: [
+              "Medical Doctor",
+              "Rural Health Practitioner",
+              "Public Health Officer",
+              "Community Health Worker",
+              "Medical Researcher",
+            ],
+          },
+        ],
+      },
+      {
+        id: "education",
+        name: "Faculty of Education",
+        description:
+          "Teacher training with focus on rural and disadvantaged communities.",
+        degrees: [
+          {
+            id: "bed-foundation",
+            name: "BEd Foundation Phase",
+            faculty: "Education",
+            duration: "4 years",
+            apsRequirement: 24,
+            description:
+              "Foundation phase teacher training with community development focus.",
+            subjects: [
+              { name: "English", level: 4, isRequired: true },
+              { name: "Mathematics", level: 3, isRequired: true },
+            ],
+            careerProspects: [
+              "Foundation Phase Teacher",
+              "Education Coordinator",
+              "Community Education Developer",
+              "Curriculum Specialist",
+              "Educational Support Officer",
+            ],
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: "unizulu",
+    name: "University of Zululand",
+    abbreviation: "UniZulu",
+    fullName: "University of Zululand (UniZulu)",
+    location: "KwaDlangezwa",
+    province: "KwaZulu-Natal",
+    logo: "https://images.unsplash.com/photo-1607013251379-e6eecfffe234?w=80&h=80&fit=crop&crop=center",
+    overview:
+      "A comprehensive university rooted in African values and committed to academic excellence and community engagement.",
+    website: "https://www.unizulu.ac.za",
+    studentPortal: "https://students.unizulu.ac.za",
+    admissionsContact: "admissions@unizulu.ac.za",
+    faculties: [
+      {
+        id: "arts",
+        name: "Faculty of Arts",
+        description: "Comprehensive humanities and social sciences education.",
+        degrees: [
+          {
+            id: "ba-psychology",
+            name: "BA Psychology",
+            faculty: "Arts",
+            duration: "3 years",
+            apsRequirement: 26,
+            description:
+              "Psychology program with focus on African psychological perspectives.",
+            subjects: [
+              { name: "English", level: 4, isRequired: true },
+              { name: "Mathematics", level: 3, isRequired: false },
+            ],
+            careerProspects: [
+              "Psychologist",
+              "Counselor",
+              "Social Worker",
+              "Human Resources Specialist",
+              "Research Assistant",
+            ],
+          },
+        ],
+      },
+      {
+        id: "science",
+        name: "Faculty of Science and Agriculture",
+        description: "Science and agricultural education with community focus.",
+        degrees: [
+          {
+            id: "bsc-agriculture",
+            name: "BSc Agriculture",
+            faculty: "Science and Agriculture",
+            duration: "4 years",
+            apsRequirement: 28,
+            description:
+              "Agricultural science program focusing on sustainable farming practices.",
+            subjects: [
+              { name: "Mathematics", level: 4, isRequired: true },
+              { name: "Physical Sciences", level: 4, isRequired: true },
+              { name: "Life Sciences", level: 4, isRequired: true },
+              { name: "English", level: 4, isRequired: true },
+            ],
+            careerProspects: [
+              "Agricultural Scientist",
+              "Farm Manager",
+              "Extension Officer",
+              "Agricultural Researcher",
+              "Rural Development Officer",
+            ],
+          },
+        ],
+      },
+    ],
+  },
 ];
