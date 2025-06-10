@@ -2,13 +2,7 @@ import { useState, useEffect } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -26,7 +20,7 @@ import {
   Target,
   ChevronRight,
   Star,
-  Info,
+  Info
 } from "lucide-react";
 
 import CampusNavbar from "@/components/CampusNavbar";
@@ -70,7 +64,7 @@ const UniversityInfo = () => {
     universities: SOUTH_AFRICAN_UNIVERSITIES.length,
     students: "500,000+",
     books: "50,000+",
-    bursaries: "50+",
+    bursaries: "50+"
   };
 
   return (
@@ -104,14 +98,11 @@ const UniversityInfo = () => {
                 <div className="space-y-6">
                   <h1 className="text-4xl md:text-6xl font-bold text-gray-900">
                     Explore South Africa's{" "}
-                    <span className="text-book-600">
-                      Universities with Ease
-                    </span>
+                    <span className="text-book-600">Universities with Ease</span>
                   </h1>
                   <p className="text-xl md:text-2xl text-gray-600 max-w-4xl mx-auto leading-relaxed">
-                    Your trusted student guide for finding the right place to
-                    study. Discover universities, calculate your APS, find
-                    bursaries, and get textbooks.
+                    Your trusted student guide for finding the right place to study.
+                    Discover universities, calculate your APS, find bursaries, and get textbooks.
                   </p>
                 </div>
 
@@ -171,27 +162,19 @@ const UniversityInfo = () => {
                 {/* Platform Statistics */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto mt-12">
                   <div className="text-center bg-white rounded-lg p-6 shadow-sm">
-                    <div className="text-3xl font-bold text-book-600 mb-2">
-                      {stats.universities}
-                    </div>
+                    <div className="text-3xl font-bold text-book-600 mb-2">{stats.universities}</div>
                     <div className="text-gray-600">Universities</div>
                   </div>
                   <div className="text-center bg-white rounded-lg p-6 shadow-sm">
-                    <div className="text-3xl font-bold text-book-600 mb-2">
-                      {stats.students}
-                    </div>
+                    <div className="text-3xl font-bold text-book-600 mb-2">{stats.students}</div>
                     <div className="text-gray-600">Students</div>
                   </div>
                   <div className="text-center bg-white rounded-lg p-6 shadow-sm">
-                    <div className="text-3xl font-bold text-book-600 mb-2">
-                      {stats.books}
-                    </div>
+                    <div className="text-3xl font-bold text-book-600 mb-2">{stats.books}</div>
                     <div className="text-gray-600">Books Available</div>
                   </div>
                   <div className="text-center bg-white rounded-lg p-6 shadow-sm">
-                    <div className="text-3xl font-bold text-book-600 mb-2">
-                      {stats.bursaries}
-                    </div>
+                    <div className="text-3xl font-bold text-book-600 mb-2">{stats.bursaries}</div>
                     <div className="text-gray-600">Bursaries</div>
                   </div>
                 </div>
@@ -200,33 +183,28 @@ const UniversityInfo = () => {
           </section>
         )}
 
-        {/* Featured Universities Section - Only show on home tab */}
+        {/* University Explorer Section - Only show on home tab */}
         {currentTool === "home" && (
-          <section className="py-16 bg-white">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-              <div className="text-center mb-12">
-                <h2 className="text-3xl font-bold text-gray-900 mb-4">
-                  Featured Universities
-                </h2>
-                <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-                  Explore some of South Africa's leading institutions and
-                  discover what makes them special.
-                </p>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+          <div className="bg-white">
+            <UniversityExplorer
+              onUniversitySelect={(university) => {
+                // Handle university selection - could navigate to detailed view
+                navigate(`/university/${university.id}`);
+              }}
+              onViewBooks={(universityId) => {
+                // Handle view books action
+                navigate(`/books?university=${universityId}`);
+              }}
+            />
+          </div>
+        )}
                 {/* UCT Card */}
-                <Card
-                  className="group cursor-pointer hover:shadow-lg transition-all duration-200 border-2 hover:border-book-300"
-                  onClick={() => navigate("/university/uct")}
-                >
+                <Card className="group cursor-pointer hover:shadow-lg transition-all duration-200 border-2 hover:border-book-300" onClick={() => navigate("/university/uct")}>
                   <CardHeader>
                     <div className="flex items-start justify-between">
                       <div className="flex items-center space-x-4">
                         <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                          <span className="text-blue-600 font-bold text-lg">
-                            UCT
-                          </span>
+                          <span className="text-blue-600 font-bold text-lg">UCT</span>
                         </div>
                         <div>
                           <CardTitle className="group-hover:text-book-600 transition-colors">
@@ -234,9 +212,7 @@ const UniversityInfo = () => {
                           </CardTitle>
                           <div className="flex items-center space-x-2 mt-1">
                             <MapPin className="w-4 h-4 text-gray-400" />
-                            <span className="text-gray-600">
-                              Cape Town, Western Cape
-                            </span>
+                            <span className="text-gray-600">Cape Town, Western Cape</span>
                             <Badge variant="secondary">Public</Badge>
                           </div>
                         </div>
@@ -246,25 +222,14 @@ const UniversityInfo = () => {
                   </CardHeader>
                   <CardContent>
                     <p className="text-gray-600 mb-4">
-                      Africa's leading university, renowned for research
-                      excellence and situated beneath Table Mountain.
+                      Africa's leading university, renowned for research excellence and situated beneath Table Mountain.
                     </p>
                     <div className="flex flex-wrap gap-2 mb-4">
-                      <Badge variant="outline" className="text-xs">
-                        Medicine
-                      </Badge>
-                      <Badge variant="outline" className="text-xs">
-                        Engineering
-                      </Badge>
-                      <Badge variant="outline" className="text-xs">
-                        Commerce
-                      </Badge>
-                      <Badge variant="outline" className="text-xs">
-                        Law
-                      </Badge>
-                      <Badge variant="outline" className="text-xs">
-                        +4 more
-                      </Badge>
+                      <Badge variant="outline" className="text-xs">Medicine</Badge>
+                      <Badge variant="outline" className="text-xs">Engineering</Badge>
+                      <Badge variant="outline" className="text-xs">Commerce</Badge>
+                      <Badge variant="outline" className="text-xs">Law</Badge>
+                      <Badge variant="outline" className="text-xs">+4 more</Badge>
                     </div>
                     <div className="flex items-center justify-between text-sm text-gray-600">
                       <span>Est. 1829</span>
@@ -274,17 +239,12 @@ const UniversityInfo = () => {
                 </Card>
 
                 {/* Wits Card */}
-                <Card
-                  className="group cursor-pointer hover:shadow-lg transition-all duration-200 border-2 hover:border-book-300"
-                  onClick={() => navigate("/university/wits")}
-                >
+                <Card className="group cursor-pointer hover:shadow-lg transition-all duration-200 border-2 hover:border-book-300" onClick={() => navigate("/university/wits")}>
                   <CardHeader>
                     <div className="flex items-start justify-between">
                       <div className="flex items-center space-x-4">
                         <div className="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
-                          <span className="text-yellow-600 font-bold text-lg">
-                            W
-                          </span>
+                          <span className="text-yellow-600 font-bold text-lg">W</span>
                         </div>
                         <div>
                           <CardTitle className="group-hover:text-book-600 transition-colors">
@@ -292,9 +252,7 @@ const UniversityInfo = () => {
                           </CardTitle>
                           <div className="flex items-center space-x-2 mt-1">
                             <MapPin className="w-4 h-4 text-gray-400" />
-                            <span className="text-gray-600">
-                              Johannesburg, Gauteng
-                            </span>
+                            <span className="text-gray-600">Johannesburg, Gauteng</span>
                             <Badge variant="secondary">Public</Badge>
                           </div>
                         </div>
@@ -304,25 +262,14 @@ const UniversityInfo = () => {
                   </CardHeader>
                   <CardContent>
                     <p className="text-gray-600 mb-4">
-                      World-class African university distinguished for excellent
-                      research and producing global leaders.
+                      World-class African university distinguished for excellent research and producing global leaders.
                     </p>
                     <div className="flex flex-wrap gap-2 mb-4">
-                      <Badge variant="outline" className="text-xs">
-                        Mining Engineering
-                      </Badge>
-                      <Badge variant="outline" className="text-xs">
-                        Medicine
-                      </Badge>
-                      <Badge variant="outline" className="text-xs">
-                        Business
-                      </Badge>
-                      <Badge variant="outline" className="text-xs">
-                        Science
-                      </Badge>
-                      <Badge variant="outline" className="text-xs">
-                        +3 more
-                      </Badge>
+                      <Badge variant="outline" className="text-xs">Mining Engineering</Badge>
+                      <Badge variant="outline" className="text-xs">Medicine</Badge>
+                      <Badge variant="outline" className="text-xs">Business</Badge>
+                      <Badge variant="outline" className="text-xs">Science</Badge>
+                      <Badge variant="outline" className="text-xs">+3 more</Badge>
                     </div>
                     <div className="flex items-center justify-between text-sm text-gray-600">
                       <span>Est. 1922</span>
@@ -365,8 +312,7 @@ const UniversityInfo = () => {
                   Why Choose ReBooked Campus?
                 </h2>
                 <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-                  Everything you need for your university journey in one
-                  comprehensive platform.
+                  Everything you need for your university journey in one comprehensive platform.
                 </p>
               </div>
 
@@ -380,9 +326,8 @@ const UniversityInfo = () => {
                   </CardHeader>
                   <CardContent className="text-center">
                     <p className="text-gray-600">
-                      Find universities by location, programs, or specific
-                      requirements. Get detailed profiles with all the
-                      information you need.
+                      Find universities by location, programs, or specific requirements.
+                      Get detailed profiles with all the information you need.
                     </p>
                   </CardContent>
                 </Card>
@@ -396,9 +341,8 @@ const UniversityInfo = () => {
                   </CardHeader>
                   <CardContent className="text-center">
                     <p className="text-gray-600">
-                      Calculate your Admission Point Score and discover which
-                      programs you qualify for. Get personalized recommendations
-                      instantly.
+                      Calculate your Admission Point Score and discover which programs you qualify for.
+                      Get personalized recommendations instantly.
                     </p>
                   </CardContent>
                 </Card>
@@ -458,9 +402,7 @@ const UniversityInfo = () => {
               </TabsList>
 
               <TabsContent value="home" className="mt-8">
-                <UniversityGrid
-                  searchQuery={searchParams.get("search") || ""}
-                />
+                <UniversityGrid searchQuery={searchParams.get("search") || ""} />
               </TabsContent>
 
               <TabsContent value="aps" className="mt-8">
@@ -488,8 +430,7 @@ const UniversityInfo = () => {
                     Ready to Start Your University Journey?
                   </CardTitle>
                   <CardDescription className="text-book-700 text-lg">
-                    Get personalized guidance and find everything you need for
-                    your studies.
+                    Get personalized guidance and find everything you need for your studies.
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
@@ -517,10 +458,8 @@ const UniversityInfo = () => {
                   <Alert className="border-book-200 bg-book-100">
                     <Info className="h-4 w-4" />
                     <AlertDescription className="text-book-800">
-                      <strong>Pro Tip:</strong> Use our APS calculator first,
-                      then explore bursaries and textbooks for your eligible
-                      programs. This gives you a complete picture of your
-                      university options!
+                      <strong>Pro Tip:</strong> Use our APS calculator first, then explore bursaries and textbooks
+                      for your eligible programs. This gives you a complete picture of your university options!
                     </AlertDescription>
                   </Alert>
                 </CardContent>
