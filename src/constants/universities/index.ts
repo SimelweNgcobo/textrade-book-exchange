@@ -72,6 +72,30 @@ allUniversities = ensureCompletePrograms(allUniversities);
 
 export const ALL_SOUTH_AFRICAN_UNIVERSITIES: University[] = allUniversities;
 
+// Test the university programs in development
+if (import.meta.env.DEV) {
+  console.log("=== University Programs Status ===");
+  allUniversities.forEach((university) => {
+    const totalPrograms = university.faculties.reduce(
+      (total, faculty) => total + faculty.degrees.length,
+      0,
+    );
+    console.log(
+      `${university.name}: ${university.faculties.length} faculties, ${totalPrograms} programs`,
+    );
+  });
+
+  const totalPrograms = allUniversities.reduce(
+    (total, uni) =>
+      total +
+      uni.faculties.reduce((facTotal, fac) => facTotal + fac.degrees.length, 0),
+    0,
+  );
+  console.log(
+    `📊 Total: ${allUniversities.length} universities with ${totalPrograms} programs`,
+  );
+}
+
 // Export individual categories
 export { TRADITIONAL_UNIVERSITIES } from "./traditionalUniversities";
 export { UNIVERSITIES_OF_TECHNOLOGY } from "./technicalUniversities";
