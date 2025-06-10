@@ -21,6 +21,7 @@ export const UNIVERSITIES_OF_TECHNOLOGY: University[] = [
         description:
           "Practical engineering education with strong industry connections.",
         degrees: [
+          // BTech Engineering Programs
           {
             id: "btech-civil",
             name: "BTech Civil Engineering",
@@ -103,6 +104,129 @@ export const UNIVERSITIES_OF_TECHNOLOGY: University[] = [
               "Port Engineer",
               "Maritime Technical Specialist",
               "Naval Architect",
+            ],
+          },
+          {
+            id: "btech-industrial",
+            name: "BTech Industrial Engineering",
+            faculty: "Engineering and the Built Environment",
+            duration: "4 years",
+            apsRequirement: 30,
+            description: "Industrial engineering with operations optimization.",
+            subjects: [
+              { name: "Mathematics", level: 5, isRequired: true },
+              { name: "Physical Sciences", level: 4, isRequired: true },
+              { name: "English", level: 4, isRequired: true },
+            ],
+            careerProspects: [
+              "Industrial Engineer",
+              "Operations Manager",
+              "Quality Manager",
+              "Process Improvement Specialist",
+              "Production Planner",
+            ],
+          },
+          {
+            id: "btech-chemical",
+            name: "BTech Chemical Engineering",
+            faculty: "Engineering and the Built Environment",
+            duration: "4 years",
+            apsRequirement: 32,
+            description: "Chemical engineering technology with process focus.",
+            subjects: [
+              { name: "Mathematics", level: 5, isRequired: true },
+              { name: "Physical Sciences", level: 6, isRequired: true },
+              { name: "English", level: 4, isRequired: true },
+            ],
+            careerProspects: [
+              "Chemical Engineering Technologist",
+              "Process Engineer",
+              "Plant Operator",
+              "Environmental Engineer",
+              "Quality Control Analyst",
+            ],
+          },
+          {
+            id: "btech-surveying",
+            name: "BTech Surveying",
+            faculty: "Engineering and the Built Environment",
+            duration: "4 years",
+            apsRequirement: 28,
+            description: "Land surveying and geomatics technology.",
+            subjects: [
+              { name: "Mathematics", level: 5, isRequired: true },
+              { name: "Physical Sciences", level: 4, isRequired: true },
+              { name: "English", level: 4, isRequired: true },
+            ],
+            careerProspects: [
+              "Land Surveyor",
+              "GIS Specialist",
+              "Geomatics Technologist",
+              "Cartographer",
+              "Mining Surveyor",
+            ],
+          },
+          // Diploma Programs
+          {
+            id: "dip-civil-engineering",
+            name: "Diploma in Civil Engineering",
+            faculty: "Engineering and the Built Environment",
+            duration: "3 years",
+            apsRequirement: 26,
+            description: "Foundation diploma in civil engineering technology.",
+            subjects: [
+              { name: "Mathematics", level: 4, isRequired: true },
+              { name: "Physical Sciences", level: 4, isRequired: true },
+              { name: "English", level: 4, isRequired: true },
+            ],
+            careerProspects: [
+              "Civil Engineering Technician",
+              "Construction Supervisor",
+              "Draughtsperson",
+              "Site Inspector",
+              "Project Assistant",
+            ],
+          },
+          {
+            id: "dip-electrical-engineering",
+            name: "Diploma in Electrical Engineering",
+            faculty: "Engineering and the Built Environment",
+            duration: "3 years",
+            apsRequirement: 26,
+            description:
+              "Foundation diploma in electrical engineering technology.",
+            subjects: [
+              { name: "Mathematics", level: 4, isRequired: true },
+              { name: "Physical Sciences", level: 4, isRequired: true },
+              { name: "English", level: 4, isRequired: true },
+            ],
+            careerProspects: [
+              "Electrical Technician",
+              "Maintenance Technician",
+              "Control Systems Technician",
+              "Power Systems Operator",
+              "Electrical Draughtsperson",
+            ],
+          },
+          {
+            id: "dip-mechanical-engineering",
+            name: "Diploma in Mechanical Engineering",
+            faculty: "Engineering and the Built Environment",
+            duration: "3 years",
+            apsRequirement: 26,
+            description:
+              "Foundation diploma in mechanical engineering technology.",
+            subjects: [
+              { name: "Mathematics", level: 4, isRequired: true },
+              { name: "Physical Sciences", level: 4, isRequired: true },
+              { name: "English", level: 4, isRequired: true },
+            ],
+            careerProspects: [
+              "Mechanical Technician",
+              "Manufacturing Technician",
+              "Maintenance Planner",
+              "CAD Draughtsperson",
+              "Quality Inspector",
             ],
           },
         ],
