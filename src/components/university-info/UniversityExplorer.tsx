@@ -102,7 +102,7 @@ const UniversityExplorer = ({
       </div>
 
       {/* Advanced Search Section */}
-      {(searchTerm || selectedProvince || showAdvancedSearch) && (
+      {(searchTerm || selectedProvince !== "all" || showAdvancedSearch) && (
         <section className="py-12 bg-gray-50">
           <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto">
