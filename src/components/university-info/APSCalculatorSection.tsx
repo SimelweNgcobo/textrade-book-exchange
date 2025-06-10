@@ -102,8 +102,10 @@ const APSCalculatorSection = () => {
         </div>
       </div>
 
-      {/* APS Calculator */}
-      <APSCalculator onCalculationComplete={handleCalculationComplete} />
+      {/* Enhanced APS Calculator */}
+      <EnhancedAPSCalculator
+        onCalculationComplete={handleCalculationComplete}
+      />
 
       {/* Results Section */}
       {showResults && calculation && (
