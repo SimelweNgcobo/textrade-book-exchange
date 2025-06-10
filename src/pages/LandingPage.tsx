@@ -400,7 +400,23 @@ const LandingPage = () => {
           </div>
 
           {/* Testimonials */}
-      
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+            {testimonials.map((testimonial, index) => (
+              <Card key={index} className="border-book-200 bg-white">
+                <CardContent className="p-6">
+                  <div className="flex mb-3">
+                    {[...Array(testimonial.rating)].map((_, i) => (
+                      <Star key={i} className="h-4 w-4 fill-book-500 text-book-500" />
+                    ))}
+                  </div>
+                  <p className="text-book-700 mb-4">"{testimonial.text}"</p>
+                  <p className="font-semibold text-book-900">{testimonial.name}</p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
 
       {/* Final CTA Section */}
       <section className="py-16 bg-book-600 text-white">
