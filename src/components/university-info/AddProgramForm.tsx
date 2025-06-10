@@ -272,14 +272,16 @@ const AddProgramForm = () => {
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <div className="max-w-4xl mx-auto space-y-4 md:space-y-6 p-4">
       <Card>
-        <CardHeader>
-          <div className="flex items-center space-x-2">
-            <University className="h-8 w-8 text-blue-600" />
+        <CardHeader className="pb-4">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-3 space-y-2 sm:space-y-0">
+            <University className="h-6 w-6 md:h-8 md:w-8 text-blue-600" />
             <div>
-              <CardTitle>Add University Program</CardTitle>
-              <CardDescription>
+              <CardTitle className="text-lg md:text-xl">
+                Add University Program
+              </CardTitle>
+              <CardDescription className="text-sm">
                 Help expand our database by adding missing programs from South
                 African universities. All submissions are reviewed before
                 publication.
