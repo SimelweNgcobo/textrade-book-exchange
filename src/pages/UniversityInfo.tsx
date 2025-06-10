@@ -221,25 +221,6 @@ const UniversityInfo = () => {
                     <Badge variant="outline">40+ Available</Badge>
                   </CardContent>
                 </Card>
-
-                <Card
-                  className="hover:shadow-lg transition-shadow cursor-pointer"
-                  onClick={() => handleTabChange("degrees")}
-                >
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <GraduationCap className="h-5 w-5 text-purple-600" />
-                      Explore Degrees
-                    </CardTitle>
-                    <CardDescription>
-                      Browse degree programs across all South African
-                      universities
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <Badge variant="outline">All Fields</Badge>
-                  </CardContent>
-                </Card>
               </div>
 
               {/* About Section */}
