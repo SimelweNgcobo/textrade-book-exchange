@@ -22,6 +22,7 @@ import { UserStats } from "@/types/address";
 import { logError, getErrorMessage } from "@/utils/errorUtils";
 import { ActivityService } from "@/services/activityService";
 import { addNotification } from "@/services/notificationService";
+import { performHealthChecks } from "@/utils/healthCheck";
 
 interface AuthContextType {
   user: User | null;
