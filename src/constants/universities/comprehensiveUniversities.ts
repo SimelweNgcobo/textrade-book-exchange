@@ -1081,6 +1081,31 @@ export const COMPREHENSIVE_UNIVERSITIES: University[] = [
             ],
             careerProspects: [
               "Agricultural Extension Officer",
+              "Rural Development Specialist",
+              "Community Development Worker",
+              "Farmer Support Coordinator",
+              "Agricultural Advisor",
+            ],
+          },
+          {
+            id: "bachelor-development-studies",
+            name: "Bachelor of Development Studies",
+            faculty: "Humanities and Social Sciences",
+            duration: "3 years",
+            apsRequirement: 22,
+            description:
+              "Development studies focusing on rural development (UMP specialty).",
+            subjects: [
+              { name: "English", level: 4, isRequired: true },
+              { name: "Mathematics", level: 3, isRequired: true },
+              { name: "Geography", level: 4, isRequired: false },
+            ],
+            careerProspects: [
+              "Development Practitioner",
+              "Project Manager",
+              "Community Development Worker",
+              "Policy Analyst",
+              "NGO Coordinator",
               "Small-scale Farm Advisor",
               "Rural Development Specialist",
               "Agricultural Coordinator",
