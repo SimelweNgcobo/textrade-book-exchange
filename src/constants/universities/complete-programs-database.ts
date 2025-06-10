@@ -471,6 +471,65 @@ export const generateStandardFaculties = (universityName: string) => [
           "Government Advisor",
         ],
       },
+      {
+        id: "bcom-marketing",
+        name: "BCom Marketing",
+        faculty: "Commerce",
+        duration: "3 years",
+        apsRequirement: 28,
+        description:
+          "Marketing strategy, consumer behavior, and brand management.",
+        subjects: [
+          { name: "English", level: 5, isRequired: true },
+          { name: "Mathematics", level: 4, isRequired: true },
+        ],
+        careerProspects: [
+          "Marketing Manager",
+          "Brand Manager",
+          "Digital Marketer",
+          "Sales Manager",
+          "Market Researcher",
+        ],
+      },
+      {
+        id: "bcom-finance",
+        name: "BCom Finance",
+        faculty: "Commerce",
+        duration: "3 years",
+        apsRequirement: 32,
+        description: "Financial management, investment analysis, and banking.",
+        subjects: [
+          { name: "Mathematics", level: 5, isRequired: true },
+          { name: "English", level: 5, isRequired: true },
+        ],
+        careerProspects: [
+          "Financial Analyst",
+          "Investment Advisor",
+          "Bank Manager",
+          "Financial Planner",
+          "Portfolio Manager",
+        ],
+      },
+      {
+        id: "bcom-management",
+        name: "BCom Management",
+        faculty: "Commerce",
+        duration: "3 years",
+        apsRequirement: 26,
+        description:
+          "Business management, leadership, and organizational behavior.",
+        subjects: [
+          { name: "English", level: 5, isRequired: true },
+          { name: "Mathematics", level: 4, isRequired: true },
+        ],
+        careerProspects: [
+          "Business Manager",
+          "Operations Manager",
+          "Project Manager",
+          "Human Resources Manager",
+          "Consultant",
+        ],
+      },
     ],
   },
   {
