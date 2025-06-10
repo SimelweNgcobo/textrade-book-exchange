@@ -46,7 +46,7 @@ const UniversityExplorer = ({
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedProvince, setSelectedProvince] = useState<string>("");
-  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const [showAdvancedSearch, setShowAdvancedSearch] = useState(false);
 
   const provinces = [
     "Eastern Cape",
@@ -76,14 +76,15 @@ const UniversityExplorer = ({
     });
   }, [searchTerm, selectedProvince]);
 
-  const featuredUniversities = SOUTH_AFRICAN_UNIVERSITIES.slice(0, 3);
-
-  const handleUniversityClick = (university: University) => {
-    // Smooth scroll to details and select university
+  const handleUniversitySelect = (university: University) => {
     document
       .getElementById("university-details")
       ?.scrollIntoView({ behavior: "smooth" });
     onUniversitySelect(university);
+  };
+
+  const handleSearch = (query: string) => {
+    setSearchTerm(query);
   };
 
   return (
