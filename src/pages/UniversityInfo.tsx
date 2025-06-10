@@ -30,9 +30,6 @@ import CampusNavbar from "@/components/CampusNavbar";
 import LoadingSpinner from "@/components/LoadingSpinner";
 
 // Lazy load heavy components for better performance
-const UniversityExplorer = lazy(
-  () => import("@/components/university-info/UniversityExplorer"),
-);
 const APSCalculatorSection = lazy(
   () => import("@/components/university-info/APSCalculatorSection"),
 );
@@ -41,9 +38,6 @@ const BursaryExplorerSection = lazy(
 );
 const CampusBooksSection = lazy(
   () => import("@/components/university-info/CampusBooksSection"),
-);
-const DegreeFinderSection = lazy(
-  () => import("@/components/university-info/DegreeFinderSection"),
 );
 
 const UniversityInfo = () => {
