@@ -212,20 +212,26 @@ function AuthProvider({ children }: { children: ReactNode }) {
 
       console.log("[AuthContext] Starting auth initialization...");
 
-      // Add timeout for auth initialization
+      // Add timeout for auth initialization - increased to 20 seconds
       const timeoutPromise = new Promise((_, reject) => {
         setTimeout(
           () => reject(new Error("Auth initialization timeout")),
-          10000,
+          20000,
         );
       });
 
       const authPromise = supabase.auth.getSession();
 
+      const result = await Promise.race([authPromise, timeoutPromise]);
+
+      if (!result || typeof result !== "object" || !("data" in result)) {
+        throw new Error("Invalid auth response");
+      }
+
       const {
         data: { session: currentSession },
         error: sessionError,
-      } = (await Promise.race([authPromise, timeoutPromise])) as any;
+      } = result as any;
 
       if (sessionError) {
         console.error("[AuthContext] Session error:", sessionError);
@@ -246,9 +252,16 @@ function AuthProvider({ children }: { children: ReactNode }) {
     } catch (error) {
       console.error("[AuthContext] Auth initialization failed:", error);
       handleError(error, "Initialize Authentication");
-      setInitError(
-        `Authentication initialization failed: ${getErrorMessage(error)}`,
-      );
+
+      // More user-friendly error message
+      if (error instanceof Error && error.message.includes("timeout")) {
+        setInitError(
+          "Connection timeout. Please check your internet connection and refresh the page.",
+        );
+      } else {
+        setInitError(`Authentication setup failed. Please refresh the page.`);
+      }
+
       setAuthInitialized(true); // Set to true even on error to prevent infinite loading
     } finally {
       setIsLoading(false);
