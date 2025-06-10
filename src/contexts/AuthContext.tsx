@@ -444,22 +444,23 @@ function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     let cleanup: (() => void) | undefined;
     let isMounted = true;
+    let setupTimeout: NodeJS.Timeout;
 
     const setup = async () => {
       try {
         console.log("[AuthContext] Starting setup...");
 
-        // Add overall timeout for the entire setup process
-        const setupTimeout = setTimeout(() => {
+        // Add overall timeout for the entire setup process - reduced to 8 seconds
+        setupTimeout = setTimeout(() => {
           if (isMounted) {
-            console.error("[AuthContext] Setup timeout - forcing completion");
+            console.warn(
+              "[AuthContext] Setup timeout - continuing without full auth",
+            );
             setIsLoading(false);
             setAuthInitialized(true);
-            setInitError(
-              "Authentication setup timed out. Please refresh the page.",
-            );
+            setInitError(null); // Don't show error for timeout, just continue
           }
-        }, 15000); // 15 second timeout
+        }, 8000);
 
         await initializeAuth();
 
@@ -471,11 +472,17 @@ function AuthProvider({ children }: { children: ReactNode }) {
         if (isMounted) {
           console.error("[AuthContext] Setup failed:", error);
           handleError(error, "AuthProvider Setup");
-          setInitError(
-            `Authentication setup failed: ${getErrorMessage(error)}`,
-          );
+
+          // Don't show user-facing error in development
+          if (process.env.NODE_ENV === "production") {
+            setInitError(
+              `Authentication setup failed: ${getErrorMessage(error)}`,
+            );
+          }
+
           setIsLoading(false);
           setAuthInitialized(true);
+          clearTimeout(setupTimeout);
         }
       }
     };
@@ -486,6 +493,9 @@ function AuthProvider({ children }: { children: ReactNode }) {
       isMounted = false;
       if (cleanup) {
         cleanup();
+      }
+      if (setupTimeout) {
+        clearTimeout(setupTimeout);
       }
     };
   }, []); // Empty dependency array - only run once on mount
