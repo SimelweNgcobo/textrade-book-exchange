@@ -139,9 +139,9 @@ const UniversityDirectory = ({
                   Key Faculties:
                 </h4>
                 <div className="flex flex-wrap gap-1">
-                  {university.faculties.slice(0, 3).map((faculty) => (
+                  {university.faculties.slice(0, 3).map((faculty, index) => (
                     <Badge
-                      key={faculty.id}
+                      key={`${university.id}-${faculty.id}-${index}`}
                       variant="secondary"
                       className="text-xs"
                     >
