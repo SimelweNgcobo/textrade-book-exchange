@@ -17,8 +17,8 @@ const ensureCompletePrograms = (universities: University[]): University[] => {
       0,
     );
 
-    // If university has less than 15 degrees or very few faculties, enhance it
-    if (totalDegrees < 15 || university.faculties.length <= 3) {
+    // Enhanced criteria: If university has less than 25 degrees or fewer than 5 faculties, enhance it
+    if (totalDegrees < 25 || university.faculties.length < 5) {
       const standardFaculties = generateStandardFaculties(university.name);
 
       // Start with existing faculties
@@ -31,24 +31,66 @@ const ensureCompletePrograms = (universities: University[]): University[] => {
             f.id === standardFaculty.id ||
             f.name
               .toLowerCase()
-              .includes(standardFaculty.name.toLowerCase().split(" ")[2] || ""),
+              .includes(
+                standardFaculty.name.toLowerCase().split(" ")[2] || "",
+              ) ||
+            f.name
+              .toLowerCase()
+              .includes(standardFaculty.name.toLowerCase().split(" ")[1] || ""),
         );
 
         if (existingFacultyIndex === -1) {
           // Add entirely new faculty
           mergedFaculties.push(standardFaculty);
         } else {
-          // Enhance existing faculty with more degrees
+          // Enhance existing faculty with more degrees - be more aggressive
           const existingFaculty = mergedFaculties[existingFacultyIndex];
           const newDegrees = standardFaculty.degrees.filter(
             (degree) =>
               !existingFaculty.degrees.some(
                 (existing) =>
                   existing.id === degree.id ||
-                  existing.name.toLowerCase() === degree.name.toLowerCase(),
+                  existing.name
+                    .toLowerCase()
+                    .includes(degree.name.toLowerCase().split(" ")[1] || "") ||
+                  degree.name
+                    .toLowerCase()
+                    .includes(existing.name.toLowerCase().split(" ")[1] || ""),
               ),
           );
-          existingFaculty.degrees.push(...newDegrees);
+
+          // Add up to 5 new degrees per faculty to ensure variety
+          existingFaculty.degrees.push(...newDegrees.slice(0, 5));
+        }
+      });
+
+      return { ...university, faculties: mergedFaculties };
+    }
+
+    // Even for universities with enough programs, ensure minimum faculty count
+    if (university.faculties.length < 4) {
+      const standardFaculties = generateStandardFaculties(university.name);
+      const mergedFaculties = [...university.faculties];
+
+      // Add at least Commerce and Science faculties if missing
+      const essentialFaculties = standardFaculties.filter(
+        (f) =>
+          f.id === "commerce" || f.id === "science" || f.id === "humanities",
+      );
+
+      essentialFaculties.forEach((essentialFaculty) => {
+        const exists = mergedFaculties.some(
+          (f) =>
+            f.id === essentialFaculty.id ||
+            f.name
+              .toLowerCase()
+              .includes(
+                essentialFaculty.name.toLowerCase().split(" ")[2] || "",
+              ),
+        );
+
+        if (!exists) {
+          mergedFaculties.push(essentialFaculty);
         }
       });
 

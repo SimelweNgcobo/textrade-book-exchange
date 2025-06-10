@@ -22,6 +22,7 @@ import { UserStats } from "@/types/address";
 import { logError, getErrorMessage } from "@/utils/errorUtils";
 import { ActivityService } from "@/services/activityService";
 import { addNotification } from "@/services/notificationService";
+import { performHealthChecks } from "@/utils/healthCheck";
 
 interface AuthContextType {
   user: User | null;
@@ -114,34 +115,86 @@ function AuthProvider({ children }: { children: ReactNode }) {
   const handleAuthStateChange = useCallback(
     async (session: Session, event?: string) => {
       try {
+        console.log("[AuthContext] Handling auth state change:", {
+          event,
+          userId: session.user?.id,
+        });
         setSession(session);
         setUser(session.user);
 
         if (session.user) {
           try {
-            const userProfile = await fetchUserProfile(session.user);
-            setProfile(userProfile);
+            // Add timeout for profile fetching - increased to 15 seconds
+            const profilePromise = fetchUserProfile(session.user);
+            const timeoutPromise = new Promise((_, reject) => {
+              setTimeout(
+                () => reject(new Error("Profile fetch timeout")),
+                15000,
+              );
+            });
 
-            // Add login notification for authenticated users
+            const userProfile = await Promise.race([
+              profilePromise,
+              timeoutPromise,
+            ]);
+            setProfile(userProfile as any);
+            console.log("[AuthContext] Profile loaded successfully");
+
+            // Add login notification for authenticated users (non-blocking)
             if (event === "SIGNED_IN") {
-              try {
-                await addNotification({
-                  userId: session.user.id,
-                  title: "Welcome back!",
-                  message: `You have successfully logged in at ${new Date().toLocaleString()}`,
-                  type: "success",
-                  read: false,
-                });
-              } catch (error) {
+              addNotification({
+                userId: session.user.id,
+                title: "Welcome back!",
+                message: `You have successfully logged in at ${new Date().toLocaleString()}`,
+                type: "success",
+                read: false,
+              }).catch(() => {
                 // Silently fail notification creation
-              }
+              });
             }
           } catch (profileError) {
+            console.error("[AuthContext] Profile fetch failed:", profileError);
             handleError(profileError, "Fetch Profile");
-            // Don't throw here, allow login to continue without profile
+
+            // Create a more comprehensive fallback profile
+            const fallbackProfile = {
+              id: session.user.id,
+              name:
+                session.user.user_metadata?.name ||
+                session.user.email?.split("@")[0] ||
+                "User",
+              email: session.user.email || "",
+              isAdmin: false,
+              status: "active",
+              profile_picture_url: session.user.user_metadata?.avatar_url,
+              bio: undefined,
+            };
+
+            setProfile(fallbackProfile);
+            console.log(
+              "[AuthContext] Using fallback profile due to fetch error",
+            );
+
+            // Try to create/fix profile in background (non-blocking)
+            fetchUserProfile(session.user)
+              .then((profile) => {
+                if (profile) {
+                  setProfile(profile);
+                  console.log(
+                    "[AuthContext] Background profile fetch successful",
+                  );
+                }
+              })
+              .catch(() => {
+                // Silently fail background fetch
+                console.warn(
+                  "[AuthContext] Background profile fetch also failed",
+                );
+              });
           }
         }
       } catch (error) {
+        console.error("[AuthContext] Auth state change failed:", error);
         handleError(error, "Auth State Change");
       }
     },
@@ -158,25 +211,65 @@ function AuthProvider({ children }: { children: ReactNode }) {
       setIsLoading(true);
       setInitError(null);
 
+      console.log("[AuthContext] Starting auth initialization...");
+
+      // Perform health check in development
+      if (process.env.NODE_ENV === "development") {
+        performHealthChecks().catch(() => {
+          console.warn("[AuthContext] Health check failed, but continuing...");
+        });
+      }
+
+      // Add timeout for auth initialization - increased to 20 seconds
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(
+          () => reject(new Error("Auth initialization timeout")),
+          20000,
+        );
+      });
+
+      const authPromise = supabase.auth.getSession();
+
+      const result = await Promise.race([authPromise, timeoutPromise]);
+
+      if (!result || typeof result !== "object" || !("data" in result)) {
+        throw new Error("Invalid auth response");
+      }
+
       const {
         data: { session: currentSession },
         error: sessionError,
-      } = await supabase.auth.getSession();
+      } = result as any;
 
       if (sessionError) {
+        console.error("[AuthContext] Session error:", sessionError);
         throw sessionError;
       }
+
+      console.log(
+        "[AuthContext] Session retrieved:",
+        currentSession ? "exists" : "null",
+      );
 
       if (currentSession) {
         await handleAuthStateChange(currentSession);
       }
 
       setAuthInitialized(true);
+      console.log("[AuthContext] Auth initialization completed successfully");
     } catch (error) {
+      console.error("[AuthContext] Auth initialization failed:", error);
       handleError(error, "Initialize Authentication");
-      setInitError(
-        `Authentication initialization failed: ${getErrorMessage(error)}`,
-      );
+
+      // More user-friendly error message
+      if (error instanceof Error && error.message.includes("timeout")) {
+        setInitError(
+          "Connection timeout. Please check your internet connection and refresh the page.",
+        );
+      } else {
+        setInitError(`Authentication setup failed. Please refresh the page.`);
+      }
+
       setAuthInitialized(true); // Set to true even on error to prevent infinite loading
     } finally {
       setIsLoading(false);
@@ -185,10 +278,17 @@ function AuthProvider({ children }: { children: ReactNode }) {
 
   // Set up auth listener
   const setupAuthListener = useCallback(() => {
+    console.log("[AuthContext] Setting up auth listener...");
+
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
       try {
+        console.log("[AuthContext] Auth state changed:", {
+          event,
+          hasSession: !!session,
+        });
+
         if (event === "SIGNED_OUT") {
           handleSignOut();
         } else if (session) {
@@ -199,11 +299,14 @@ function AuthProvider({ children }: { children: ReactNode }) {
           setIsLoading(false);
         }
       } catch (error) {
+        console.error("[AuthContext] Auth state change handler error:", error);
         handleError(error, "Auth State Change Handler");
+        setIsLoading(false); // Ensure loading stops even on error
       }
     });
 
     return () => {
+      console.log("[AuthContext] Cleaning up auth listener");
       subscription.unsubscribe();
     };
   }, [authInitialized, handleAuthStateChange, handleSignOut, handleError]);
@@ -388,24 +491,59 @@ function AuthProvider({ children }: { children: ReactNode }) {
   // Initialize auth and set up listener on mount
   useEffect(() => {
     let cleanup: (() => void) | undefined;
+    let isMounted = true;
+    let setupTimeout: NodeJS.Timeout;
 
     const setup = async () => {
       try {
+        console.log("[AuthContext] Starting setup...");
+
+        // Add overall timeout for the entire setup process - reduced to 8 seconds
+        setupTimeout = setTimeout(() => {
+          if (isMounted) {
+            console.warn(
+              "[AuthContext] Setup timeout - continuing without full auth",
+            );
+            setIsLoading(false);
+            setAuthInitialized(true);
+            setInitError(null); // Don't show error for timeout, just continue
+          }
+        }, 8000);
+
         await initializeAuth();
-        cleanup = setupAuthListener();
+
+        if (isMounted) {
+          cleanup = setupAuthListener();
+          clearTimeout(setupTimeout);
+        }
       } catch (error) {
-        handleError(error, "AuthProvider Setup");
-        setInitError(`Authentication setup failed: ${getErrorMessage(error)}`);
-        setIsLoading(false);
-        setAuthInitialized(true);
+        if (isMounted) {
+          console.error("[AuthContext] Setup failed:", error);
+          handleError(error, "AuthProvider Setup");
+
+          // Don't show user-facing error in development
+          if (process.env.NODE_ENV === "production") {
+            setInitError(
+              `Authentication setup failed: ${getErrorMessage(error)}`,
+            );
+          }
+
+          setIsLoading(false);
+          setAuthInitialized(true);
+          clearTimeout(setupTimeout);
+        }
       }
     };
 
     setup();
 
     return () => {
+      isMounted = false;
       if (cleanup) {
         cleanup();
+      }
+      if (setupTimeout) {
+        clearTimeout(setupTimeout);
       }
     };
   }, []); // Empty dependency array - only run once on mount

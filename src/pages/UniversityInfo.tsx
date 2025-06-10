@@ -30,9 +30,6 @@ import CampusNavbar from "@/components/CampusNavbar";
 import LoadingSpinner from "@/components/LoadingSpinner";
 
 // Lazy load heavy components for better performance
-const UniversityExplorer = lazy(
-  () => import("@/components/university-info/UniversityExplorer"),
-);
 const APSCalculatorSection = lazy(
   () => import("@/components/university-info/APSCalculatorSection"),
 );
@@ -41,9 +38,6 @@ const BursaryExplorerSection = lazy(
 );
 const CampusBooksSection = lazy(
   () => import("@/components/university-info/CampusBooksSection"),
-);
-const DegreeFinderSection = lazy(
-  () => import("@/components/university-info/DegreeFinderSection"),
 );
 
 const UniversityInfo = () => {
@@ -109,7 +103,7 @@ const UniversityInfo = () => {
             onValueChange={handleTabChange}
             className="w-full"
           >
-            <TabsList className="grid w-full grid-cols-3 lg:grid-cols-6 mb-8 h-auto">
+            <TabsList className="grid w-full grid-cols-2 lg:grid-cols-4 mb-8 h-auto">
               <TabsTrigger
                 value="overview"
                 className="flex flex-col items-center gap-1 py-3"
@@ -132,25 +126,11 @@ const UniversityInfo = () => {
                 <span className="text-xs">Bursaries</span>
               </TabsTrigger>
               <TabsTrigger
-                value="degrees"
-                className="flex flex-col items-center gap-1 py-3"
-              >
-                <GraduationCap className="h-4 w-4" />
-                <span className="text-xs">Degrees</span>
-              </TabsTrigger>
-              <TabsTrigger
                 value="books"
                 className="flex flex-col items-center gap-1 py-3"
               >
                 <BookOpen className="h-4 w-4" />
                 <span className="text-xs">Textbooks</span>
-              </TabsTrigger>
-              <TabsTrigger
-                value="explore"
-                className="flex flex-col items-center gap-1 py-3"
-              >
-                <Search className="h-4 w-4" />
-                <span className="text-xs">Explore</span>
               </TabsTrigger>
             </TabsList>
 
@@ -198,7 +178,7 @@ const UniversityInfo = () => {
               <PopularUniversities />
 
               {/* Quick Tools Section */}
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid md:grid-cols-2 gap-6">
                 <Card
                   className="hover:shadow-lg transition-shadow cursor-pointer"
                   onClick={() => handleTabChange("aps-calculator")}
@@ -233,25 +213,6 @@ const UniversityInfo = () => {
                   </CardHeader>
                   <CardContent>
                     <Badge variant="outline">40+ Available</Badge>
-                  </CardContent>
-                </Card>
-
-                <Card
-                  className="hover:shadow-lg transition-shadow cursor-pointer"
-                  onClick={() => handleTabChange("degrees")}
-                >
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <GraduationCap className="h-5 w-5 text-purple-600" />
-                      Explore Degrees
-                    </CardTitle>
-                    <CardDescription>
-                      Browse degree programs across all South African
-                      universities
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <Badge variant="outline">All Fields</Badge>
                   </CardContent>
                 </Card>
               </div>
@@ -308,21 +269,9 @@ const UniversityInfo = () => {
               </Suspense>
             </TabsContent>
 
-            <TabsContent value="degrees" className="space-y-6">
-              <Suspense fallback={<LoadingSection />}>
-                <DegreeFinderSection />
-              </Suspense>
-            </TabsContent>
-
             <TabsContent value="books" className="space-y-6">
               <Suspense fallback={<LoadingSection />}>
                 <CampusBooksSection />
-              </Suspense>
-            </TabsContent>
-
-            <TabsContent value="explore" className="space-y-6">
-              <Suspense fallback={<LoadingSection />}>
-                <UniversityExplorer />
               </Suspense>
             </TabsContent>
           </Tabs>

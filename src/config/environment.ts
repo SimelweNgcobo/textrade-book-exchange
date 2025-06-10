@@ -1,8 +1,12 @@
 // Environment configuration for production readiness
 export const ENV = {
   NODE_ENV: import.meta.env.NODE_ENV || "development",
-  VITE_SUPABASE_URL: import.meta.env.VITE_SUPABASE_URL || "",
-  VITE_SUPABASE_ANON_KEY: import.meta.env.VITE_SUPABASE_ANON_KEY || "",
+  VITE_SUPABASE_URL:
+    import.meta.env.VITE_SUPABASE_URL ||
+    "https://kbpjqzaqbqukutflwixf.supabase.co",
+  VITE_SUPABASE_ANON_KEY:
+    import.meta.env.VITE_SUPABASE_ANON_KEY ||
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImticGpxemFxYnF1a3V0Zmx3aXhmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc1NjMzNzcsImV4cCI6MjA2MzEzOTM3N30.3EdAkGlyFv1JRaRw9OFMyA5AkkKoXp0hdX1bFWpLVMc",
   VITE_PAYSTACK_PUBLIC_KEY: import.meta.env.VITE_PAYSTACK_PUBLIC_KEY || "",
   VITE_APP_URL:
     import.meta.env.VITE_APP_URL || "https://rebookedsolutions.co.za",
@@ -18,9 +22,15 @@ export const validateEnvironment = () => {
   const missing = required.filter((key) => !ENV[key as keyof typeof ENV]);
 
   if (missing.length > 0) {
-    throw new Error(
-      `Missing required environment variables: ${missing.join(", ")}`,
+    console.warn(
+      `Missing environment variables: ${missing.join(", ")} - using fallback values`,
     );
+    // Don't throw in development, just warn
+    if (ENV.NODE_ENV === "production") {
+      throw new Error(
+        `Missing required environment variables: ${missing.join(", ")}`,
+      );
+    }
   }
 };
 
