@@ -123,12 +123,12 @@ function AuthProvider({ children }: { children: ReactNode }) {
 
         if (session.user) {
           try {
-            // Add timeout for profile fetching
+            // Add timeout for profile fetching - increased to 15 seconds
             const profilePromise = fetchUserProfile(session.user);
             const timeoutPromise = new Promise((_, reject) => {
               setTimeout(
                 () => reject(new Error("Profile fetch timeout")),
-                5000,
+                15000,
               );
             });
 
@@ -154,15 +154,42 @@ function AuthProvider({ children }: { children: ReactNode }) {
           } catch (profileError) {
             console.error("[AuthContext] Profile fetch failed:", profileError);
             handleError(profileError, "Fetch Profile");
-            // Set a minimal profile to prevent blocking
-            setProfile({
+
+            // Create a more comprehensive fallback profile
+            const fallbackProfile = {
               id: session.user.id,
-              name: session.user.email || "User",
+              name:
+                session.user.user_metadata?.name ||
+                session.user.email?.split("@")[0] ||
+                "User",
               email: session.user.email || "",
-              created_at: new Date().toISOString(),
-              updated_at: new Date().toISOString(),
               isAdmin: false,
-            });
+              status: "active",
+              profile_picture_url: session.user.user_metadata?.avatar_url,
+              bio: undefined,
+            };
+
+            setProfile(fallbackProfile);
+            console.log(
+              "[AuthContext] Using fallback profile due to fetch error",
+            );
+
+            // Try to create/fix profile in background (non-blocking)
+            fetchUserProfile(session.user)
+              .then((profile) => {
+                if (profile) {
+                  setProfile(profile);
+                  console.log(
+                    "[AuthContext] Background profile fetch successful",
+                  );
+                }
+              })
+              .catch(() => {
+                // Silently fail background fetch
+                console.warn(
+                  "[AuthContext] Background profile fetch also failed",
+                );
+              });
           }
         }
       } catch (error) {
