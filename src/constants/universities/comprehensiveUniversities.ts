@@ -319,7 +319,8 @@ export const COMPREHENSIVE_UNIVERSITIES: University[] = [
             faculty: "Health Sciences",
             duration: "4 years",
             apsRequirement: 34,
-            description: "Pharmacy education with clinical focus (NWU specialty).",
+            description:
+              "Pharmacy education with clinical focus (NWU specialty).",
             subjects: [
               { name: "Mathematics", level: 5, isRequired: true },
               { name: "Physical Sciences", level: 6, isRequired: true },
@@ -340,7 +341,8 @@ export const COMPREHENSIVE_UNIVERSITIES: University[] = [
             faculty: "Natural and Agricultural Sciences",
             duration: "3 years",
             apsRequirement: 26,
-            description: "Indigenous knowledge systems specialization (NWU specialty).",
+            description:
+              "Indigenous knowledge systems specialization (NWU specialty).",
             subjects: [
               { name: "Life Sciences", level: 4, isRequired: true },
               { name: "English", level: 4, isRequired: true },
@@ -360,7 +362,8 @@ export const COMPREHENSIVE_UNIVERSITIES: University[] = [
             faculty: "Human and Social Sciences",
             duration: "4 years",
             apsRequirement: 26,
-            description: "Social work education with community development focus (NWU specialty).",
+            description:
+              "Social work education with community development focus (NWU specialty).",
             subjects: [
               { name: "English", level: 4, isRequired: true },
               { name: "Mathematics", level: 4, isRequired: true },
@@ -373,7 +376,6 @@ export const COMPREHENSIVE_UNIVERSITIES: University[] = [
               "Family Counselor",
               "NGO Program Manager",
             ],
-          },
           },
           {
             id: "bnurs-nursing",
@@ -940,7 +942,8 @@ export const COMPREHENSIVE_UNIVERSITIES: University[] = [
             faculty: "Human Sciences",
             duration: "3 years",
             apsRequirement: 24,
-            description: "Criminology through distance learning (UNISA specialty).",
+            description:
+              "Criminology through distance learning (UNISA specialty).",
             subjects: [
               { name: "English", level: 4, isRequired: true },
               { name: "Mathematics", level: 3, isRequired: true },
@@ -959,7 +962,8 @@ export const COMPREHENSIVE_UNIVERSITIES: University[] = [
             faculty: "Human Sciences",
             duration: "3 years",
             apsRequirement: 24,
-            description: "Corrections management specialization (UNISA specialty).",
+            description:
+              "Corrections management specialization (UNISA specialty).",
             subjects: [
               { name: "English", level: 4, isRequired: true },
               { name: "Mathematics", level: 3, isRequired: true },
