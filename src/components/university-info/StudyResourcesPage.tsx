@@ -596,7 +596,7 @@ Solution: Practice daily, use finger guidance, don't worry about speed at first 
 
 **Temperature Control:**
 • **Ventilation** - Fresh air circulation prevents drowsiness
-��� **Layered clothing** - Easy to adjust if temperature changes
+• **Layered clothing** - Easy to adjust if temperature changes
 • **Fans** - For hot weather without access to air conditioning
 • **Warmth** - Blanket or extra layers for cold weather
 
@@ -1350,10 +1350,10 @@ const StudyResourcesPage = () => {
             return (
               <div
                 key={index}
-                className="bg-gray-50 p-3 rounded-lg mb-4 mt-4 border-l-4 border-blue-400"
+                className="bg-gray-50 p-3 rounded-lg mb-4 mt-4 border-l-4 border-gray-300"
               >
-                <h4 className="font-bold text-base md:text-lg mb-0 text-blue-800 flex items-center gap-2">
-                  <Award className="h-4 w-4" />
+                <h4 className="font-bold text-base md:text-lg mb-0 text-gray-900 flex items-center gap-2">
+                  <Award className="h-4 w-4 text-gray-600" />
                   {paragraph.replace(/\*\*/g, "")}
                 </h4>
               </div>
@@ -1367,9 +1367,9 @@ const StudyResourcesPage = () => {
             return (
               <h5
                 key={index}
-                className="font-semibold text-sm md:text-base mb-2 mt-3 text-gray-800 flex items-center gap-2"
+                className="font-semibold text-sm md:text-base mb-2 mt-3 text-gray-900 flex items-center gap-2"
               >
-                <CheckSquare className="h-4 w-4 text-green-600" />
+                <CheckSquare className="h-4 w-4 text-gray-500" />
                 {paragraph.replace(/\*\*/g, "")}
               </h5>
             );
@@ -1378,7 +1378,7 @@ const StudyResourcesPage = () => {
           if (paragraph.trim().startsWith("•")) {
             return (
               <div key={index} className="flex items-start gap-2 ml-4 mb-2">
-                <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
+                <div className="w-2 h-2 bg-gray-400 rounded-full mt-2 flex-shrink-0"></div>
                 <span className="text-sm md:text-base text-gray-700">
                   {paragraph.replace("•", "").trim()}
                 </span>
@@ -1402,9 +1402,9 @@ const StudyResourcesPage = () => {
         {hasMoreContent && (
           <div className="mt-4 pt-4 border-t border-gray-200">
             <Button
-              variant="outline"
+              variant="ghost"
               onClick={() => toggleTipExpansion(tip.id)}
-              className="w-full sm:w-auto"
+              className="w-full sm:w-auto text-gray-600 hover:text-gray-900 hover:bg-gray-50"
             >
               {isExpanded ? (
                 <>
@@ -1566,40 +1566,34 @@ const StudyResourcesPage = () => {
             {filteredTips.map((tip) => (
               <Card
                 key={tip.id}
-                className="hover:shadow-lg transition-all duration-300 hover:scale-[1.02] border-l-4 border-l-blue-500"
+                className="hover:shadow-md transition-all duration-300 border border-gray-200"
               >
-                <CardHeader className="pb-4 bg-gradient-to-r from-blue-50 to-indigo-50">
+                <CardHeader className="pb-4">
                   <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between space-y-2 sm:space-y-0">
                     <div className="flex-1">
                       <CardTitle className="text-lg md:text-xl flex items-start gap-3">
-                        <div className="p-2 bg-yellow-100 rounded-full">
-                          <Lightbulb className="h-5 w-5 md:h-6 md:w-6 text-yellow-600 flex-shrink-0" />
+                        <div className="p-2 bg-gray-100 rounded-full">
+                          <Lightbulb className="h-5 w-5 md:h-6 md:w-6 text-gray-600 flex-shrink-0" />
                         </div>
-                        <span className="leading-tight text-gray-800">
+                        <span className="leading-tight text-gray-900">
                           {tip.title}
                         </span>
                       </CardTitle>
-                      <CardDescription className="mt-3 text-sm md:text-base text-gray-600 font-medium">
+                      <CardDescription className="mt-3 text-sm md:text-base text-gray-600">
                         {tip.description}
                       </CardDescription>
                     </div>
                     <div className="flex flex-col sm:items-end space-y-2">
                       <Badge
-                        variant={
-                          tip.difficulty === "beginner"
-                            ? "default"
-                            : tip.difficulty === "intermediate"
-                              ? "secondary"
-                              : "outline"
-                        }
-                        className="text-xs self-start sm:self-end font-medium"
+                        variant="outline"
+                        className="text-xs self-start sm:self-end font-medium bg-white border-gray-300"
                       >
                         <Target className="h-3 w-3 mr-1" />
                         {tip.difficulty}
                       </Badge>
                       <Badge
                         variant="outline"
-                        className="text-xs self-start sm:self-end capitalize bg-white"
+                        className="text-xs self-start sm:self-end capitalize bg-white border-gray-300"
                       >
                         <BookOpen className="h-3 w-3 mr-1" />
                         {tip.category.replace("-", " ")}
@@ -1614,7 +1608,7 @@ const StudyResourcesPage = () => {
                       <Badge
                         key={tag}
                         variant="outline"
-                        className="text-xs bg-blue-50 border-blue-200 text-blue-700"
+                        className="text-xs bg-gray-50 border-gray-200 text-gray-600"
                       >
                         #{tag}
                       </Badge>
@@ -1630,7 +1624,7 @@ const StudyResourcesPage = () => {
           {/* Featured Resources */}
           <div>
             <h3 className="text-xl md:text-2xl font-semibold mb-4 flex items-center gap-2">
-              <Star className="h-5 w-5 md:h-6 md:w-6 text-yellow-500" />
+              <Star className="h-5 w-5 md:h-6 md:w-6 text-gray-500" />
               Featured Resources
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
@@ -1709,7 +1703,7 @@ const StudyResourcesPage = () => {
           {/* All Resources */}
           <div>
             <h3 className="text-xl md:text-2xl font-semibold mb-4 flex items-center gap-2">
-              <BookOpen className="h-5 w-5 md:h-6 md:w-6 text-blue-500" />
+              <BookOpen className="h-5 w-5 md:h-6 md:w-6 text-gray-500" />
               All Resources
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
