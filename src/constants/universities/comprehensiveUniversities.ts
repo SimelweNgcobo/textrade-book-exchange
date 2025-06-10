@@ -1248,6 +1248,68 @@ export const COMPREHENSIVE_UNIVERSITIES: University[] = [
             ],
           },
           {
+            id: "bengtech-mechanical",
+            name: "BEngTech Mechanical Engineering",
+            faculty: "Engineering and the Built Environment",
+            duration: "4 years",
+            apsRequirement: 30,
+            description:
+              "Bachelor of Engineering Technology - newer program (UJ specialty).",
+            subjects: [
+              { name: "Mathematics", level: 5, isRequired: true },
+              { name: "Physical Sciences", level: 5, isRequired: true },
+              { name: "English", level: 4, isRequired: true },
+            ],
+            careerProspects: [
+              "Engineering Technologist",
+              "Production Manager",
+              "Quality Control Engineer",
+              "Technical Specialist",
+              "Operations Engineer",
+            ],
+          },
+          {
+            id: "bachelor-logistics-transportation",
+            name: "Bachelor in Logistics and Transportation Management",
+            faculty: "Management",
+            duration: "3 years",
+            apsRequirement: 28,
+            description:
+              "Specialized logistics and transport management (UJ specialty).",
+            subjects: [
+              { name: "Mathematics", level: 4, isRequired: true },
+              { name: "English", level: 5, isRequired: true },
+              { name: "Business Studies", level: 4, isRequired: false },
+            ],
+            careerProspects: [
+              "Logistics Manager",
+              "Supply Chain Coordinator",
+              "Transportation Planner",
+              "Warehouse Manager",
+              "Freight Coordinator",
+            ],
+          },
+          {
+            id: "diploma-operations-management",
+            name: "Diploma in Operations Management",
+            faculty: "Management",
+            duration: "3 years",
+            apsRequirement: 26,
+            description: "Operations management specialization (UJ specialty).",
+            subjects: [
+              { name: "Mathematics", level: 4, isRequired: true },
+              { name: "English", level: 4, isRequired: true },
+              { name: "Business Studies", level: 4, isRequired: false },
+            ],
+            careerProspects: [
+              "Operations Manager",
+              "Production Supervisor",
+              "Quality Manager",
+              "Process Coordinator",
+              "Supply Chain Specialist",
+            ],
+          },
+          {
             id: "llb",
             name: "LLB Bachelor of Laws",
             faculty: "Management and Law",
