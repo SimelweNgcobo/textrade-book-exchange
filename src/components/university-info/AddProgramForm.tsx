@@ -235,8 +235,8 @@ const AddProgramForm = () => {
 
   if (showSuccess) {
     return (
-      <Card className="max-w-2xl mx-auto">
-        <CardContent className="p-8 text-center">
+      <Card className="max-w-2xl mx-auto m-4">
+        <CardContent className="p-6 md:p-8 text-center">
           <CheckCircle className="h-16 w-16 text-green-600 mx-auto mb-4" />
           <h3 className="text-2xl font-semibold mb-2">
             Program Submitted Successfully!
