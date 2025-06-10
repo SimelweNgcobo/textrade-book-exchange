@@ -437,49 +437,61 @@ const Profile = () => {
             </div>
 
             {/* Consolidated Actions */}
-            <div className="mb-6 space-y-3">
-              <div className="grid grid-cols-2 gap-3">
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="outline" className="w-full">
-                      <BookOpen className="h-4 w-4 mr-2" />
-                      How It Works
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent className="w-56">
-                    <DropdownMenuItem onClick={handleSellerHowItWorks}>
-                      <BookOpen className="h-4 w-4 mr-2" />
-                      Seller Guide
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={handleBuyerHowItWorks}>
-                      <ShoppingCart className="h-4 w-4 mr-2" />
-                      Buyer Guide
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+            <Card className="mb-6">
+              <CardContent className="pt-6">
+                <div className="grid grid-cols-2 gap-3">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="outline" className="w-full">
+                        <BookOpen className="h-4 w-4 mr-2" />
+                        How It Works
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent className="w-56">
+                      <DropdownMenuItem onClick={handleSellerHowItWorks}>
+                        <BookOpen className="h-4 w-4 mr-2" />
+                        Seller Guide
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={handleBuyerHowItWorks}>
+                        <ShoppingCart className="h-4 w-4 mr-2" />
+                        Buyer Guide
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
 
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="outline" className="w-full">
-                      <MoreHorizontal className="h-4 w-4 mr-2" />
-                      More
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent className="w-56">
-                    <DropdownMenuItem
-                      onClick={() => navigate("/notifications")}
-                    >
-                      <AlertTriangle className="h-4 w-4 mr-2" />
-                      Notifications
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => navigate("/activity")}>
-                      <Heart className="h-4 w-4 mr-2" />
-                      Activity Log
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
-            </div>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="outline" className="w-full">
+                        <Settings className="h-4 w-4 mr-2" />
+                        Account
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent className="w-56">
+                      <DropdownMenuItem onClick={handleEditProfile}>
+                        <User className="h-4 w-4 mr-2" />
+                        Edit Profile
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem
+                        onClick={() => navigate("/notifications")}
+                      >
+                        <AlertTriangle className="h-4 w-4 mr-2" />
+                        Notifications
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => navigate("/activity")}>
+                        <Heart className="h-4 w-4 mr-2" />
+                        Activity Log
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem onClick={handleBookNotSelling}>
+                        <HelpCircle className="h-4 w-4 mr-2" />
+                        Book not selling?
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+              </CardContent>
+            </Card>
 
             {/* Main Content - Tabs (Keep as-is) */}
             <div className="w-full">
