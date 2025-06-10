@@ -267,6 +267,30 @@ const Profile = () => {
           </Button>
         </div>
 
+        {/* How It Works Buttons */}
+        <div className="mb-6">
+          <div className="flex flex-col sm:flex-row gap-3">
+            <Button
+              onClick={handleSellerHowItWorks}
+              variant="outline"
+              className="border-book-600 text-book-600 hover:bg-book-50 w-full sm:w-auto"
+              size="lg"
+            >
+              <BookOpen className="h-4 w-4 mr-2" />
+              How Being A Seller Works
+            </Button>
+            <Button
+              onClick={handleBuyerHowItWorks}
+              variant="outline"
+              className="border-blue-600 text-blue-600 hover:bg-blue-50 w-full sm:w-auto"
+              size="lg"
+            >
+              <ShoppingCart className="h-4 w-4 mr-2" />
+              How Being A Buyer Works
+            </Button>
+          </div>
+        </div>
+
         {/* Main Content - Only Tabbed Layout */}
         <div className="w-full">
           <UserProfileTabs
