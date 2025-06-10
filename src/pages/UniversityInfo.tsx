@@ -275,21 +275,9 @@ const UniversityInfo = () => {
               </Suspense>
             </TabsContent>
 
-            <TabsContent value="degrees" className="space-y-6">
-              <Suspense fallback={<LoadingSection />}>
-                <DegreeFinderSection />
-              </Suspense>
-            </TabsContent>
-
             <TabsContent value="books" className="space-y-6">
               <Suspense fallback={<LoadingSection />}>
                 <CampusBooksSection />
-              </Suspense>
-            </TabsContent>
-
-            <TabsContent value="explore" className="space-y-6">
-              <Suspense fallback={<LoadingSection />}>
-                <UniversityExplorer />
               </Suspense>
             </TabsContent>
           </Tabs>
