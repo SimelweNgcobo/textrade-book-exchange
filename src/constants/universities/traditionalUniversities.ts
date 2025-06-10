@@ -4716,6 +4716,49 @@ export const TRADITIONAL_UNIVERSITIES: University[] = [
             ],
           },
           {
+            id: "bis-information-science",
+            name: "BIS (Bachelor of Information Science)",
+            faculty: "Natural and Agricultural Sciences",
+            duration: "3 years",
+            apsRequirement: 32,
+            description:
+              "Information science in publishing and multimedia (UP specialty).",
+            subjects: [
+              { name: "Mathematics", level: 5, isRequired: true },
+              { name: "English", level: 6, isRequired: true },
+              { name: "Information Technology", level: 4, isRequired: false },
+            ],
+            careerProspects: [
+              "Information Specialist",
+              "Digital Publisher",
+              "Content Manager",
+              "Information Architect",
+              "Digital Media Producer",
+            ],
+          },
+          {
+            id: "bvsc-veterinary-science",
+            name: "BSc (Veterinary Science)",
+            faculty: "Veterinary Science",
+            duration: "6 years",
+            apsRequirement: 42,
+            description:
+              "Comprehensive veterinary education at the famous Onderstepoort campus (UP specialty).",
+            subjects: [
+              { name: "Mathematics", level: 6, isRequired: true },
+              { name: "Physical Sciences", level: 6, isRequired: true },
+              { name: "Life Sciences", level: 6, isRequired: true },
+              { name: "English", level: 5, isRequired: true },
+            ],
+            careerProspects: [
+              "Veterinarian",
+              "Animal Researcher",
+              "Veterinary Specialist",
+              "Animal Health Inspector",
+              "Wildlife Veterinarian",
+            ],
+          },
+          {
             id: "bsc-indigenous-knowledge",
             name: "BSc Indigenous Knowledge Systems",
             faculty: "Natural and Agricultural Sciences",
