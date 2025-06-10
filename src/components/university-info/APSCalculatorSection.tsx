@@ -18,7 +18,7 @@ import {
   ExternalLink,
   TrendingUp,
 } from "lucide-react";
-import APSCalculator from "@/components/university-info/APSCalculator";
+import EnhancedAPSCalculator from "@/components/university-info/EnhancedAPSCalculator";
 import { APSCalculation, EligibleDegree } from "@/types/university";
 import { useNavigate } from "react-router-dom";
 
