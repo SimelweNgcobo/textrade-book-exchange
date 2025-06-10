@@ -296,7 +296,7 @@ const UniversityExplorer = ({
                     variant="outline"
                     onClick={() => {
                       setSearchTerm("");
-                      setSelectedProvince("");
+                      setSelectedProvince("all");
                     }}
                     className="border-book-200 text-book-600 hover:bg-book-50"
                   >
