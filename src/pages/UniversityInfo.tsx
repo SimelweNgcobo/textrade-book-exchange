@@ -213,8 +213,8 @@ const UniversityInfo = () => {
           </Tabs>
         </div>
 
-        {/* Success Stories Section - Show on all tabs */}
-        <section className="relative py-16 bg-book-50 overflow-hidden">
+        {/* Success Stories Section - Show on all tabs - Mobile optimized */}
+        <section className="relative py-12 md:py-16 bg-book-50 overflow-hidden">
           {/* Background Graduation Image */}
           <div className="absolute inset-0">
             <img
@@ -226,61 +226,98 @@ const UniversityInfo = () => {
           </div>
 
           <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold text-gray-900 mb-4">
+            <div className="text-center mb-8 md:mb-12">
+              <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-3 md:mb-4">
                 Why Choose ReBooked Campus?
               </h2>
-              <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-                Everything you need for your university journey in one
-                comprehensive platform.
+              <p className="text-base md:text-lg text-gray-600 max-w-2xl mx-auto px-2">
+                <span className="hidden md:inline">
+                  Everything you need for your university journey in one
+                  comprehensive platform.
+                </span>
+                <span className="md:hidden">
+                  Your complete university journey platform.
+                </span>
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8">
               <Card className="bg-white/90 backdrop-blur-sm">
-                <CardHeader className="text-center">
-                  <div className="w-16 h-16 bg-book-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Search className="w-8 h-8 text-book-600" />
+                <CardHeader className="text-center p-4 md:p-6">
+                  <div className="w-12 h-12 md:w-16 md:h-16 bg-book-100 rounded-full flex items-center justify-center mx-auto mb-3 md:mb-4">
+                    <Search className="w-6 h-6 md:w-8 md:h-8 text-book-600" />
                   </div>
-                  <CardTitle>Complete University Guide</CardTitle>
+                  <CardTitle className="text-lg md:text-xl">
+                    <span className="hidden md:inline">
+                      Complete University Guide
+                    </span>
+                    <span className="md:hidden">University Guide</span>
+                  </CardTitle>
                 </CardHeader>
-                <CardContent className="text-center">
-                  <p className="text-gray-600">
-                    Comprehensive information about all {stats.universities}{" "}
-                    South African universities. Find programs, requirements, and
-                    make informed decisions.
+                <CardContent className="text-center p-4 md:p-6 pt-0">
+                  <p className="text-sm md:text-base text-gray-600">
+                    <span className="hidden md:inline">
+                      Comprehensive information about all {stats.universities}{" "}
+                      South African universities. Find programs, requirements,
+                      and make informed decisions.
+                    </span>
+                    <span className="md:hidden">
+                      Complete info on all {stats.universities} SA universities.
+                      Find programs and requirements.
+                    </span>
                   </p>
                 </CardContent>
               </Card>
 
               <Card className="bg-white/90 backdrop-blur-sm">
-                <CardHeader className="text-center">
-                  <div className="w-16 h-16 bg-book-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Calculator className="w-8 h-8 text-book-600" />
+                <CardHeader className="text-center p-4 md:p-6">
+                  <div className="w-12 h-12 md:w-16 md:h-16 bg-book-100 rounded-full flex items-center justify-center mx-auto mb-3 md:mb-4">
+                    <Calculator className="w-6 h-6 md:w-8 md:h-8 text-book-600" />
                   </div>
-                  <CardTitle>Smart APS Calculator</CardTitle>
+                  <CardTitle className="text-lg md:text-xl">
+                    <span className="hidden md:inline">
+                      Smart APS Calculator
+                    </span>
+                    <span className="md:hidden">APS Calculator</span>
+                  </CardTitle>
                 </CardHeader>
-                <CardContent className="text-center">
-                  <p className="text-gray-600">
-                    Calculate your Admission Point Score and discover which
-                    programs you qualify for. Get personalized recommendations
-                    instantly.
+                <CardContent className="text-center p-4 md:p-6 pt-0">
+                  <p className="text-sm md:text-base text-gray-600">
+                    <span className="hidden md:inline">
+                      Calculate your Admission Point Score and discover which
+                      programs you qualify for. Get personalized recommendations
+                      instantly.
+                    </span>
+                    <span className="md:hidden">
+                      Calculate your APS and find qualifying programs instantly.
+                    </span>
                   </p>
                 </CardContent>
               </Card>
 
-              <Card className="bg-white/90 backdrop-blur-sm">
-                <CardHeader className="text-center">
-                  <div className="w-16 h-16 bg-book-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Book className="w-8 h-8 text-book-600" />
+              <Card className="bg-white/90 backdrop-blur-sm sm:col-span-2 lg:col-span-1">
+                <CardHeader className="text-center p-4 md:p-6">
+                  <div className="w-12 h-12 md:w-16 md:h-16 bg-book-100 rounded-full flex items-center justify-center mx-auto mb-3 md:mb-4">
+                    <Book className="w-6 h-6 md:w-8 md:h-8 text-book-600" />
                   </div>
-                  <CardTitle>Student Marketplace</CardTitle>
+                  <CardTitle className="text-lg md:text-xl">
+                    <span className="hidden md:inline">
+                      Student Marketplace
+                    </span>
+                    <span className="md:hidden">Marketplace</span>
+                  </CardTitle>
                 </CardHeader>
-                <CardContent className="text-center">
-                  <p className="text-gray-600">
-                    Connect with students to buy affordable textbooks and find
-                    bursary opportunities. Save money while supporting fellow
-                    students.
+                <CardContent className="text-center p-4 md:p-6 pt-0">
+                  <p className="text-sm md:text-base text-gray-600">
+                    <span className="hidden md:inline">
+                      Connect with students to buy affordable textbooks and find
+                      bursary opportunities. Save money while supporting fellow
+                      students.
+                    </span>
+                    <span className="md:hidden">
+                      Buy affordable textbooks and find bursaries from fellow
+                      students.
+                    </span>
                   </p>
                 </CardContent>
               </Card>
