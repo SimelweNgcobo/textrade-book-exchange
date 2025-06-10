@@ -2550,6 +2550,1261 @@ export const SOUTH_AFRICAN_UNIVERSITIES: University[] = [
       },
     ],
   },
+  {
+    id: "ukzn",
+    name: "University of KwaZulu-Natal",
+    abbreviation: "UKZN",
+    fullName: "University of KwaZulu-Natal (UKZN)",
+    location: "Durban/Pietermaritzburg",
+    province: "KwaZulu-Natal",
+    logo: "https://images.unsplash.com/photo-1580582932707-520aed937b7b?w=80&h=80&fit=crop&crop=center",
+    overview:
+      "A premier research university in Africa, committed to academic excellence and social responsiveness. Known for its diverse student body and strong research output.",
+    website: "https://www.ukzn.ac.za",
+    studentPortal: "https://students.ukzn.ac.za",
+    admissionsContact: "admissions@ukzn.ac.za",
+    faculties: [
+      {
+        id: "agriculture",
+        name: "Faculty of Agriculture, Engineering and Science",
+        description:
+          "Comprehensive programs in agriculture, engineering, and natural sciences.",
+        degrees: [
+          {
+            id: "bsc-agriculture",
+            name: "BSc Agriculture",
+            faculty: "Agriculture",
+            duration: "4 years",
+            apsRequirement: 32,
+            description:
+              "Agricultural science with focus on sustainable farming and food security in Africa.",
+            subjects: [
+              { name: "Mathematics", level: 4, isRequired: true },
+              { name: "Life Sciences", level: 5, isRequired: true },
+              { name: "English", level: 4, isRequired: true },
+            ],
+            careerProspects: [
+              "Agricultural Scientist",
+              "Farm Manager",
+              "Extension Officer",
+              "Agricultural Consultant",
+              "Research Scientist",
+            ],
+          },
+          {
+            id: "beng-civil",
+            name: "BEng Civil Engineering",
+            faculty: "Agriculture",
+            duration: "4 years",
+            apsRequirement: 38,
+            description:
+              "Civil engineering with focus on infrastructure development in Africa.",
+            subjects: [
+              { name: "Mathematics", level: 6, isRequired: true },
+              { name: "Physical Sciences", level: 6, isRequired: true },
+              { name: "English", level: 4, isRequired: true },
+            ],
+            careerProspects: [
+              "Civil Engineer",
+              "Structural Engineer",
+              "Water Engineer",
+              "Transportation Engineer",
+              "Project Manager",
+            ],
+          },
+          {
+            id: "beng-electrical",
+            name: "BEng Electrical Engineering",
+            faculty: "Agriculture",
+            duration: "4 years",
+            apsRequirement: 40,
+            description:
+              "Electrical engineering with renewable energy and power systems focus.",
+            subjects: [
+              { name: "Mathematics", level: 6, isRequired: true },
+              { name: "Physical Sciences", level: 6, isRequired: true },
+              { name: "English", level: 4, isRequired: true },
+            ],
+            careerProspects: [
+              "Electrical Engineer",
+              "Power Systems Engineer",
+              "Renewable Energy Engineer",
+              "Control Systems Engineer",
+              "Project Manager",
+            ],
+          },
+          {
+            id: "bsc-computer-science",
+            name: "BSc Computer Science",
+            faculty: "Agriculture",
+            duration: "3 years",
+            apsRequirement: 35,
+            description:
+              "Computer science with artificial intelligence and data science focus.",
+            subjects: [
+              { name: "Mathematics", level: 5, isRequired: true },
+              { name: "English", level: 4, isRequired: true },
+              { name: "Information Technology", level: 4, isRequired: false },
+            ],
+            careerProspects: [
+              "Software Developer",
+              "Data Scientist",
+              "AI Specialist",
+              "Systems Analyst",
+              "IT Consultant",
+            ],
+          },
+          {
+            id: "bsc-mathematics",
+            name: "BSc Mathematics",
+            faculty: "Agriculture",
+            duration: "3 years",
+            apsRequirement: 36,
+            description:
+              "Pure and applied mathematics with statistical analysis focus.",
+            subjects: [
+              { name: "Mathematics", level: 6, isRequired: true },
+              { name: "English", level: 4, isRequired: true },
+              { name: "Physical Sciences", level: 5, isRequired: false },
+            ],
+            careerProspects: [
+              "Mathematician",
+              "Statistician",
+              "Data Analyst",
+              "Actuary",
+              "Research Scientist",
+            ],
+          },
+          {
+            id: "bsc-physics",
+            name: "BSc Physics",
+            faculty: "Agriculture",
+            duration: "3 years",
+            apsRequirement: 36,
+            description:
+              "Physics with materials science and renewable energy applications.",
+            subjects: [
+              { name: "Mathematics", level: 6, isRequired: true },
+              { name: "Physical Sciences", level: 6, isRequired: true },
+              { name: "English", level: 4, isRequired: true },
+            ],
+            careerProspects: [
+              "Physicist",
+              "Materials Scientist",
+              "Research Scientist",
+              "Engineering Consultant",
+              "Energy Analyst",
+            ],
+          },
+        ],
+      },
+      {
+        id: "health",
+        name: "Faculty of Health Sciences",
+        description:
+          "Medical and health sciences education serving the healthcare needs of KwaZulu-Natal.",
+        degrees: [
+          {
+            id: "mbchb",
+            name: "MBChB Medicine",
+            faculty: "Health Sciences",
+            duration: "6 years",
+            apsRequirement: 42,
+            description:
+              "Medical education with focus on rural health and African healthcare challenges.",
+            subjects: [
+              { name: "Mathematics", level: 5, isRequired: true },
+              { name: "Physical Sciences", level: 6, isRequired: true },
+              { name: "Life Sciences", level: 6, isRequired: true },
+              { name: "English", level: 5, isRequired: true },
+            ],
+            careerProspects: [
+              "Medical Doctor",
+              "Rural Health Practitioner",
+              "Specialist Physician",
+              "Public Health Professional",
+              "Medical Researcher",
+            ],
+          },
+          {
+            id: "bsc-nursing",
+            name: "BSc Nursing",
+            faculty: "Health Sciences",
+            duration: "4 years",
+            apsRequirement: 32,
+            description:
+              "Professional nursing with community and primary healthcare focus.",
+            subjects: [
+              { name: "Mathematics", level: 4, isRequired: true },
+              { name: "Life Sciences", level: 5, isRequired: true },
+              { name: "English", level: 4, isRequired: true },
+            ],
+            careerProspects: [
+              "Registered Nurse",
+              "Community Health Nurse",
+              "Clinical Nurse Specialist",
+              "Nurse Manager",
+              "Public Health Nurse",
+            ],
+          },
+          {
+            id: "bpharm",
+            name: "BPharm Pharmacy",
+            faculty: "Health Sciences",
+            duration: "4 years",
+            apsRequirement: 38,
+            description:
+              "Pharmaceutical sciences with clinical pharmacy and pharmaceutical care focus.",
+            subjects: [
+              { name: "Mathematics", level: 4, isRequired: true },
+              { name: "Physical Sciences", level: 6, isRequired: true },
+              { name: "Life Sciences", level: 5, isRequired: true },
+              { name: "English", level: 4, isRequired: true },
+            ],
+            careerProspects: [
+              "Pharmacist",
+              "Clinical Pharmacist",
+              "Hospital Pharmacist",
+              "Community Pharmacist",
+              "Pharmaceutical Researcher",
+            ],
+          },
+        ],
+      },
+      {
+        id: "humanities",
+        name: "Faculty of Humanities, Development and Social Sciences",
+        description:
+          "Rich humanities and social sciences programs with African and development perspectives.",
+        degrees: [
+          {
+            id: "ba-psychology",
+            name: "BA Psychology",
+            faculty: "Humanities",
+            duration: "3 years",
+            apsRequirement: 30,
+            description:
+              "Psychological science with African psychology and community mental health focus.",
+            subjects: [
+              { name: "English", level: 4, isRequired: true },
+              { name: "Mathematics", level: 3, isRequired: true },
+            ],
+            careerProspects: [
+              "Psychologist",
+              "Community Psychologist",
+              "Research Psychologist",
+              "Clinical Psychologist",
+              "Educational Psychologist",
+            ],
+          },
+          {
+            id: "ba-social-work",
+            name: "BA Social Work",
+            faculty: "Humanities",
+            duration: "4 years",
+            apsRequirement: 28,
+            description:
+              "Professional social work with community development and social justice focus.",
+            subjects: [
+              { name: "English", level: 4, isRequired: true },
+              { name: "Mathematics", level: 3, isRequired: true },
+            ],
+            careerProspects: [
+              "Social Worker",
+              "Community Development Officer",
+              "Child Protection Specialist",
+              "Family Counselor",
+              "Policy Analyst",
+            ],
+          },
+          {
+            id: "ba-development-studies",
+            name: "BA Development Studies",
+            faculty: "Humanities",
+            duration: "3 years",
+            apsRequirement: 28,
+            description:
+              "Development theory and practice with focus on African development challenges.",
+            subjects: [
+              { name: "English", level: 4, isRequired: true },
+              { name: "Mathematics", level: 3, isRequired: true },
+            ],
+            careerProspects: [
+              "Development Practitioner",
+              "Policy Analyst",
+              "NGO Professional",
+              "International Development Worker",
+              "Research Analyst",
+            ],
+          },
+          {
+            id: "ba-political-science",
+            name: "BA Political Science",
+            faculty: "Humanities",
+            duration: "3 years",
+            apsRequirement: 29,
+            description:
+              "Political science with African governance and democratic studies focus.",
+            subjects: [
+              { name: "English", level: 4, isRequired: true },
+              { name: "Mathematics", level: 3, isRequired: true },
+            ],
+            careerProspects: [
+              "Political Analyst",
+              "Policy Researcher",
+              "Government Official",
+              "Political Journalist",
+              "International Relations Specialist",
+            ],
+          },
+        ],
+      },
+      {
+        id: "education",
+        name: "Faculty of Education",
+        description:
+          "Teacher education and educational leadership preparing educators for diverse contexts.",
+        degrees: [
+          {
+            id: "bed-foundation",
+            name: "BEd Foundation Phase",
+            faculty: "Education",
+            duration: "4 years",
+            apsRequirement: 26,
+            description:
+              "Teacher training for Grade R to Grade 3 with multilingual education focus.",
+            subjects: [
+              { name: "English", level: 4, isRequired: true },
+              { name: "Mathematics", level: 4, isRequired: true },
+            ],
+            careerProspects: [
+              "Foundation Phase Teacher",
+              "Early Childhood Development Specialist",
+              "Educational Consultant",
+              "Curriculum Developer",
+            ],
+          },
+          {
+            id: "bed-intermediate",
+            name: "BEd Intermediate Phase",
+            faculty: "Education",
+            duration: "4 years",
+            apsRequirement: 26,
+            description:
+              "Teacher training for Grade 4 to Grade 6 with subject specialization.",
+            subjects: [
+              { name: "English", level: 4, isRequired: true },
+              { name: "Mathematics", level: 4, isRequired: true },
+            ],
+            careerProspects: [
+              "Intermediate Phase Teacher",
+              "Subject Specialist",
+              "Educational Manager",
+              "Curriculum Specialist",
+            ],
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: "rhodes",
+    name: "Rhodes University",
+    abbreviation: "Rhodes",
+    fullName: "Rhodes University",
+    location: "Grahamstown",
+    province: "Eastern Cape",
+    logo: "https://images.unsplash.com/photo-1607013251379-e6eecfffe234?w=80&h=80&fit=crop&crop=center",
+    overview:
+      "A prestigious residential university known for academic excellence, small class sizes, and vibrant campus life. Strong liberal arts tradition with excellent research output.",
+    website: "https://www.ru.ac.za",
+    studentPortal: "https://students.ru.ac.za",
+    admissionsContact: "admissions@ru.ac.za",
+    faculties: [
+      {
+        id: "commerce",
+        name: "Faculty of Commerce",
+        description:
+          "Business education with focus on ethical leadership and sustainable business practices.",
+        degrees: [
+          {
+            id: "bcom-accounting",
+            name: "BCom Accounting",
+            faculty: "Commerce",
+            duration: "3 years",
+            apsRequirement: 34,
+            description:
+              "Professional accounting education with strong ethical foundation.",
+            subjects: [
+              { name: "Mathematics", level: 4, isRequired: true },
+              { name: "English", level: 4, isRequired: true },
+              { name: "Accounting", level: 5, isRequired: true },
+            ],
+            careerProspects: [
+              "Chartered Accountant",
+              "Financial Manager",
+              "Auditor",
+              "Tax Consultant",
+              "Financial Analyst",
+            ],
+          },
+          {
+            id: "bcom-economics",
+            name: "BCom Economics",
+            faculty: "Commerce",
+            duration: "3 years",
+            apsRequirement: 35,
+            description:
+              "Economic theory and policy with development economics focus.",
+            subjects: [
+              { name: "Mathematics", level: 5, isRequired: true },
+              { name: "English", level: 4, isRequired: true },
+              { name: "Economics", level: 4, isRequired: false },
+            ],
+            careerProspects: [
+              "Economist",
+              "Policy Analyst",
+              "Development Economist",
+              "Banking Professional",
+              "Research Analyst",
+            ],
+          },
+          {
+            id: "bcom-business-management",
+            name: "BCom Business Management",
+            faculty: "Commerce",
+            duration: "3 years",
+            apsRequirement: 32,
+            description:
+              "Business management with entrepreneurship and leadership focus.",
+            subjects: [
+              { name: "Mathematics", level: 4, isRequired: true },
+              { name: "English", level: 4, isRequired: true },
+              { name: "Business Studies", level: 4, isRequired: false },
+            ],
+            careerProspects: [
+              "Business Manager",
+              "Entrepreneur",
+              "Management Consultant",
+              "Project Manager",
+              "Strategic Planner",
+            ],
+          },
+        ],
+      },
+      {
+        id: "humanities",
+        name: "Faculty of Humanities",
+        description:
+          "Liberal arts education with strong tradition in languages, literature, and social sciences.",
+        degrees: [
+          {
+            id: "ba-english",
+            name: "BA English Language and Literature",
+            faculty: "Humanities",
+            duration: "3 years",
+            apsRequirement: 30,
+            description:
+              "English literature and language with creative writing and critical analysis focus.",
+            subjects: [
+              { name: "English", level: 5, isRequired: true },
+              { name: "Mathematics", level: 3, isRequired: true },
+            ],
+            careerProspects: [
+              "Writer",
+              "Editor",
+              "Journalist",
+              "Teacher",
+              "Literary Critic",
+              "Publisher",
+            ],
+          },
+          {
+            id: "ba-journalism",
+            name: "BA Journalism and Media Studies",
+            faculty: "Humanities",
+            duration: "3 years",
+            apsRequirement: 32,
+            description:
+              "Journalism and media studies with digital media and investigative journalism focus.",
+            subjects: [
+              { name: "English", level: 5, isRequired: true },
+              { name: "Mathematics", level: 3, isRequired: true },
+            ],
+            careerProspects: [
+              "Journalist",
+              "Media Producer",
+              "Content Creator",
+              "Communications Manager",
+              "Digital Media Specialist",
+            ],
+          },
+          {
+            id: "ba-psychology",
+            name: "BA Psychology",
+            faculty: "Humanities",
+            duration: "3 years",
+            apsRequirement: 30,
+            description:
+              "Psychological science with strong research methodology foundation.",
+            subjects: [
+              { name: "English", level: 4, isRequired: true },
+              { name: "Mathematics", level: 3, isRequired: true },
+            ],
+            careerProspects: [
+              "Psychologist",
+              "Research Psychologist",
+              "Clinical Psychologist",
+              "Educational Psychologist",
+              "HR Professional",
+            ],
+          },
+          {
+            id: "ba-political-science",
+            name: "BA Politics and International Studies",
+            faculty: "Humanities",
+            duration: "3 years",
+            apsRequirement: 29,
+            description:
+              "Political science and international relations with African politics focus.",
+            subjects: [
+              { name: "English", level: 4, isRequired: true },
+              { name: "Mathematics", level: 3, isRequired: true },
+            ],
+            careerProspects: [
+              "Political Analyst",
+              "Diplomat",
+              "Policy Researcher",
+              "International Relations Specialist",
+              "Government Official",
+            ],
+          },
+          {
+            id: "ba-sociology",
+            name: "BA Sociology",
+            faculty: "Humanities",
+            duration: "3 years",
+            apsRequirement: 28,
+            description:
+              "Sociological analysis with focus on South African social dynamics.",
+            subjects: [
+              { name: "English", level: 4, isRequired: true },
+              { name: "Mathematics", level: 3, isRequired: true },
+            ],
+            careerProspects: [
+              "Sociologist",
+              "Social Researcher",
+              "Community Development Officer",
+              "Policy Analyst",
+              "NGO Professional",
+            ],
+          },
+        ],
+      },
+      {
+        id: "science",
+        name: "Faculty of Science",
+        description:
+          "Natural sciences with strong research focus and excellent staff-student ratios.",
+        degrees: [
+          {
+            id: "bsc-computer-science",
+            name: "BSc Computer Science",
+            faculty: "Science",
+            duration: "3 years",
+            apsRequirement: 35,
+            description:
+              "Computer science with artificial intelligence and software engineering focus.",
+            subjects: [
+              { name: "Mathematics", level: 5, isRequired: true },
+              { name: "English", level: 4, isRequired: true },
+              { name: "Information Technology", level: 4, isRequired: false },
+            ],
+            careerProspects: [
+              "Software Developer",
+              "Data Scientist",
+              "AI Specialist",
+              "Systems Analyst",
+              "Research Scientist",
+            ],
+          },
+          {
+            id: "bsc-mathematics",
+            name: "BSc Mathematics",
+            faculty: "Science",
+            duration: "3 years",
+            apsRequirement: 36,
+            description:
+              "Pure and applied mathematics with strong theoretical foundation.",
+            subjects: [
+              { name: "Mathematics", level: 6, isRequired: true },
+              { name: "English", level: 4, isRequired: true },
+              { name: "Physical Sciences", level: 5, isRequired: false },
+            ],
+            careerProspects: [
+              "Mathematician",
+              "Data Scientist",
+              "Actuary",
+              "Research Scientist",
+              "Statistical Analyst",
+            ],
+          },
+          {
+            id: "bsc-physics",
+            name: "BSc Physics",
+            faculty: "Science",
+            duration: "3 years",
+            apsRequirement: 36,
+            description:
+              "Physics with theoretical physics and materials science focus.",
+            subjects: [
+              { name: "Mathematics", level: 6, isRequired: true },
+              { name: "Physical Sciences", level: 6, isRequired: true },
+              { name: "English", level: 4, isRequired: true },
+            ],
+            careerProspects: [
+              "Physicist",
+              "Research Scientist",
+              "Materials Scientist",
+              "Engineering Consultant",
+              "Science Educator",
+            ],
+          },
+          {
+            id: "bsc-chemistry",
+            name: "BSc Chemistry",
+            faculty: "Science",
+            duration: "3 years",
+            apsRequirement: 35,
+            description:
+              "Chemistry with analytical chemistry and environmental applications focus.",
+            subjects: [
+              { name: "Mathematics", level: 5, isRequired: true },
+              { name: "Physical Sciences", level: 6, isRequired: true },
+              { name: "English", level: 4, isRequired: true },
+            ],
+            careerProspects: [
+              "Chemist",
+              "Analytical Chemist",
+              "Environmental Scientist",
+              "Quality Control Analyst",
+              "Research Scientist",
+            ],
+          },
+          {
+            id: "bsc-biology",
+            name: "BSc Biological Sciences",
+            faculty: "Science",
+            duration: "3 years",
+            apsRequirement: 34,
+            description:
+              "Biology with biodiversity and conservation biology focus.",
+            subjects: [
+              { name: "Life Sciences", level: 6, isRequired: true },
+              { name: "English", level: 4, isRequired: true },
+              { name: "Mathematics", level: 4, isRequired: true },
+            ],
+            careerProspects: [
+              "Biologist",
+              "Conservation Scientist",
+              "Research Scientist",
+              "Environmental Consultant",
+              "Marine Biologist",
+            ],
+          },
+        ],
+      },
+      {
+        id: "pharmacy",
+        name: "Faculty of Pharmacy",
+        description:
+          "Pharmaceutical education with clinical pharmacy and pharmaceutical care focus.",
+        degrees: [
+          {
+            id: "bpharm",
+            name: "BPharm Pharmacy",
+            faculty: "Pharmacy",
+            duration: "4 years",
+            apsRequirement: 38,
+            description:
+              "Pharmaceutical sciences with clinical pharmacy and community practice focus.",
+            subjects: [
+              { name: "Mathematics", level: 4, isRequired: true },
+              { name: "Physical Sciences", level: 6, isRequired: true },
+              { name: "Life Sciences", level: 5, isRequired: true },
+              { name: "English", level: 4, isRequired: true },
+            ],
+            careerProspects: [
+              "Pharmacist",
+              "Clinical Pharmacist",
+              "Community Pharmacist",
+              "Hospital Pharmacist",
+              "Pharmaceutical Researcher",
+            ],
+          },
+        ],
+      },
+      {
+        id: "law",
+        name: "Faculty of Law",
+        description:
+          "Legal education with strong foundation in constitutional law and human rights.",
+        degrees: [
+          {
+            id: "llb",
+            name: "LLB Law",
+            faculty: "Law",
+            duration: "4 years",
+            apsRequirement: 36,
+            description:
+              "Legal education with constitutional law, human rights, and environmental law focus.",
+            subjects: [
+              { name: "English", level: 5, isRequired: true },
+              { name: "Mathematics", level: 4, isRequired: true },
+            ],
+            careerProspects: [
+              "Attorney",
+              "Advocate",
+              "Human Rights Lawyer",
+              "Environmental Lawyer",
+              "Legal Advisor",
+            ],
+          },
+        ],
+      },
+      {
+        id: "education",
+        name: "Faculty of Education",
+        description:
+          "Teacher education with focus on critical pedagogy and inclusive education.",
+        degrees: [
+          {
+            id: "bed-foundation",
+            name: "BEd Foundation Phase",
+            faculty: "Education",
+            duration: "4 years",
+            apsRequirement: 26,
+            description:
+              "Teacher training for Grade R to Grade 3 with inclusive education focus.",
+            subjects: [
+              { name: "English", level: 4, isRequired: true },
+              { name: "Mathematics", level: 4, isRequired: true },
+            ],
+            careerProspects: [
+              "Foundation Phase Teacher",
+              "Inclusive Education Specialist",
+              "Educational Consultant",
+              "Curriculum Developer",
+            ],
+          },
+          {
+            id: "bed-intermediate",
+            name: "BEd Intermediate Phase",
+            faculty: "Education",
+            duration: "4 years",
+            apsRequirement: 26,
+            description:
+              "Teacher training for Grade 4 to Grade 6 with subject specialization focus.",
+            subjects: [
+              { name: "English", level: 4, isRequired: true },
+              { name: "Mathematics", level: 4, isRequired: true },
+            ],
+            careerProspects: [
+              "Intermediate Phase Teacher",
+              "Subject Specialist",
+              "Educational Manager",
+              "School Principal",
+            ],
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: "uj",
+    name: "University of Johannesburg",
+    abbreviation: "UJ",
+    fullName: "University of Johannesburg (UJ)",
+    location: "Johannesburg",
+    province: "Gauteng",
+    logo: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=80&h=80&fit=crop&crop=center",
+    overview:
+      "A dynamic and cosmopolitan university known for innovation and excellence. UJ offers world-class academic programs with a focus on global citizenship and social impact.",
+    website: "https://www.uj.ac.za",
+    studentPortal: "https://students.uj.ac.za",
+    admissionsContact: "admissions@uj.ac.za",
+    faculties: [
+      {
+        id: "engineering",
+        name: "Faculty of Engineering and the Built Environment",
+        description:
+          "Engineering education with focus on innovation and sustainable development.",
+        degrees: [
+          {
+            id: "beng-civil",
+            name: "BEng Civil Engineering",
+            faculty: "Engineering",
+            duration: "4 years",
+            apsRequirement: 38,
+            description:
+              "Civil engineering with urban infrastructure and sustainable construction focus.",
+            subjects: [
+              { name: "Mathematics", level: 6, isRequired: true },
+              { name: "Physical Sciences", level: 6, isRequired: true },
+              { name: "English", level: 4, isRequired: true },
+            ],
+            careerProspects: [
+              "Civil Engineer",
+              "Urban Planner",
+              "Construction Manager",
+              "Infrastructure Engineer",
+              "Project Manager",
+            ],
+          },
+          {
+            id: "beng-electrical",
+            name: "BEng Electrical Engineering",
+            faculty: "Engineering",
+            duration: "4 years",
+            apsRequirement: 40,
+            description:
+              "Electrical engineering with smart grid technology and renewable energy focus.",
+            subjects: [
+              { name: "Mathematics", level: 6, isRequired: true },
+              { name: "Physical Sciences", level: 6, isRequired: true },
+              { name: "English", level: 4, isRequired: true },
+            ],
+            careerProspects: [
+              "Electrical Engineer",
+              "Power Systems Engineer",
+              "Smart Grid Engineer",
+              "Renewable Energy Specialist",
+              "Automation Engineer",
+            ],
+          },
+          {
+            id: "beng-mechanical",
+            name: "BEng Mechanical Engineering",
+            faculty: "Engineering",
+            duration: "4 years",
+            apsRequirement: 39,
+            description:
+              "Mechanical engineering with manufacturing and automotive focus.",
+            subjects: [
+              { name: "Mathematics", level: 6, isRequired: true },
+              { name: "Physical Sciences", level: 6, isRequired: true },
+              { name: "English", level: 4, isRequired: true },
+            ],
+            careerProspects: [
+              "Mechanical Engineer",
+              "Automotive Engineer",
+              "Manufacturing Engineer",
+              "Design Engineer",
+              "Project Manager",
+            ],
+          },
+          {
+            id: "beng-industrial",
+            name: "BEng Industrial Engineering",
+            faculty: "Engineering",
+            duration: "4 years",
+            apsRequirement: 38,
+            description:
+              "Industrial engineering with supply chain management and optimization focus.",
+            subjects: [
+              { name: "Mathematics", level: 6, isRequired: true },
+              { name: "Physical Sciences", level: 6, isRequired: true },
+              { name: "English", level: 4, isRequired: true },
+            ],
+            careerProspects: [
+              "Industrial Engineer",
+              "Supply Chain Manager",
+              "Operations Manager",
+              "Quality Engineer",
+              "Logistics Manager",
+            ],
+          },
+        ],
+      },
+      {
+        id: "management",
+        name: "Faculty of Management",
+        description:
+          "Business and management education with focus on African business contexts.",
+        degrees: [
+          {
+            id: "bcom-accounting",
+            name: "BCom Accounting",
+            faculty: "Management",
+            duration: "3 years",
+            apsRequirement: 34,
+            description:
+              "Professional accounting with international accounting standards focus.",
+            subjects: [
+              { name: "Mathematics", level: 4, isRequired: true },
+              { name: "English", level: 4, isRequired: true },
+              { name: "Accounting", level: 5, isRequired: true },
+            ],
+            careerProspects: [
+              "Chartered Accountant",
+              "Financial Manager",
+              "Management Accountant",
+              "Auditor",
+              "Tax Consultant",
+            ],
+          },
+          {
+            id: "bcom-business-management",
+            name: "BCom Business Management",
+            faculty: "Management",
+            duration: "3 years",
+            apsRequirement: 32,
+            description:
+              "Business management with entrepreneurship and innovation focus.",
+            subjects: [
+              { name: "Mathematics", level: 4, isRequired: true },
+              { name: "English", level: 4, isRequired: true },
+              { name: "Business Studies", level: 4, isRequired: false },
+            ],
+            careerProspects: [
+              "Business Manager",
+              "Entrepreneur",
+              "Strategic Planner",
+              "Operations Manager",
+              "Management Consultant",
+            ],
+          },
+          {
+            id: "bcom-marketing",
+            name: "BCom Marketing Management",
+            faculty: "Management",
+            duration: "3 years",
+            apsRequirement: 31,
+            description:
+              "Marketing management with digital marketing and brand management focus.",
+            subjects: [
+              { name: "Mathematics", level: 4, isRequired: true },
+              { name: "English", level: 4, isRequired: true },
+            ],
+            careerProspects: [
+              "Marketing Manager",
+              "Brand Manager",
+              "Digital Marketing Specialist",
+              "Market Research Analyst",
+              "Advertising Manager",
+            ],
+          },
+          {
+            id: "bba",
+            name: "BBA Business Administration",
+            faculty: "Management",
+            duration: "3 years",
+            apsRequirement: 30,
+            description:
+              "Business administration with international business and leadership focus.",
+            subjects: [
+              { name: "Mathematics", level: 4, isRequired: true },
+              { name: "English", level: 4, isRequired: true },
+            ],
+            careerProspects: [
+              "Business Administrator",
+              "International Business Manager",
+              "Project Manager",
+              "Operations Manager",
+              "Strategic Planner",
+            ],
+          },
+        ],
+      },
+      {
+        id: "science",
+        name: "Faculty of Science",
+        description:
+          "Natural sciences with focus on innovation and technology transfer.",
+        degrees: [
+          {
+            id: "bsc-computer-science",
+            name: "BSc Computer Science",
+            faculty: "Science",
+            duration: "3 years",
+            apsRequirement: 35,
+            description:
+              "Computer science with cybersecurity and software engineering focus.",
+            subjects: [
+              { name: "Mathematics", level: 5, isRequired: true },
+              { name: "English", level: 4, isRequired: true },
+              { name: "Information Technology", level: 4, isRequired: false },
+            ],
+            careerProspects: [
+              "Software Developer",
+              "Cybersecurity Specialist",
+              "Data Scientist",
+              "Systems Analyst",
+              "IT Project Manager",
+            ],
+          },
+          {
+            id: "bsc-mathematics",
+            name: "BSc Mathematics",
+            faculty: "Science",
+            duration: "3 years",
+            apsRequirement: 36,
+            description:
+              "Pure and applied mathematics with data science applications.",
+            subjects: [
+              { name: "Mathematics", level: 6, isRequired: true },
+              { name: "English", level: 4, isRequired: true },
+              { name: "Physical Sciences", level: 5, isRequired: false },
+            ],
+            careerProspects: [
+              "Mathematician",
+              "Data Scientist",
+              "Statistician",
+              "Actuary",
+              "Financial Analyst",
+            ],
+          },
+          {
+            id: "bsc-physics",
+            name: "BSc Physics",
+            faculty: "Science",
+            duration: "3 years",
+            apsRequirement: 36,
+            description:
+              "Physics with applied physics and materials science focus.",
+            subjects: [
+              { name: "Mathematics", level: 6, isRequired: true },
+              { name: "Physical Sciences", level: 6, isRequired: true },
+              { name: "English", level: 4, isRequired: true },
+            ],
+            careerProspects: [
+              "Physicist",
+              "Materials Scientist",
+              "Research Scientist",
+              "Engineering Consultant",
+              "Technology Developer",
+            ],
+          },
+        ],
+      },
+      {
+        id: "health",
+        name: "Faculty of Health Sciences",
+        description:
+          "Health sciences education with focus on primary healthcare and community health.",
+        degrees: [
+          {
+            id: "bsc-nursing",
+            name: "BSc Nursing",
+            faculty: "Health Sciences",
+            duration: "4 years",
+            apsRequirement: 32,
+            description:
+              "Professional nursing with primary healthcare and community nursing focus.",
+            subjects: [
+              { name: "Mathematics", level: 4, isRequired: true },
+              { name: "Life Sciences", level: 5, isRequired: true },
+              { name: "English", level: 4, isRequired: true },
+            ],
+            careerProspects: [
+              "Registered Nurse",
+              "Primary Healthcare Nurse",
+              "Community Health Nurse",
+              "Nurse Manager",
+              "Public Health Nurse",
+            ],
+          },
+          {
+            id: "bsc-emergency-medical-care",
+            name: "BSc Emergency Medical Care",
+            faculty: "Health Sciences",
+            duration: "4 years",
+            apsRequirement: 33,
+            description:
+              "Emergency medical care with pre-hospital emergency medicine focus.",
+            subjects: [
+              { name: "Mathematics", level: 4, isRequired: true },
+              { name: "Life Sciences", level: 5, isRequired: true },
+              { name: "Physical Sciences", level: 4, isRequired: true },
+              { name: "English", level: 4, isRequired: true },
+            ],
+            careerProspects: [
+              "Emergency Medical Practitioner",
+              "Paramedic",
+              "Emergency Care Technician",
+              "Ambulance Service Manager",
+              "Emergency Department Coordinator",
+            ],
+          },
+        ],
+      },
+      {
+        id: "humanities",
+        name: "Faculty of Humanities",
+        description:
+          "Humanities education with focus on social justice and transformation.",
+        degrees: [
+          {
+            id: "ba-psychology",
+            name: "BA Psychology",
+            faculty: "Humanities",
+            duration: "3 years",
+            apsRequirement: 30,
+            description:
+              "Psychological science with community psychology and social psychology focus.",
+            subjects: [
+              { name: "English", level: 4, isRequired: true },
+              { name: "Mathematics", level: 3, isRequired: true },
+            ],
+            careerProspects: [
+              "Psychologist",
+              "Community Psychologist",
+              "Research Psychologist",
+              "HR Professional",
+              "Social Psychology Specialist",
+            ],
+          },
+          {
+            id: "ba-social-work",
+            name: "BA Social Work",
+            faculty: "Humanities",
+            duration: "4 years",
+            apsRequirement: 28,
+            description:
+              "Professional social work with urban social work and community development focus.",
+            subjects: [
+              { name: "English", level: 4, isRequired: true },
+              { name: "Mathematics", level: 3, isRequired: true },
+            ],
+            careerProspects: [
+              "Social Worker",
+              "Community Development Officer",
+              "Urban Social Worker",
+              "Policy Analyst",
+              "NGO Manager",
+            ],
+          },
+          {
+            id: "ba-english",
+            name: "BA English",
+            faculty: "Humanities",
+            duration: "3 years",
+            apsRequirement: 30,
+            description:
+              "English language and literature with creative writing and media studies focus.",
+            subjects: [
+              { name: "English", level: 5, isRequired: true },
+              { name: "Mathematics", level: 3, isRequired: true },
+            ],
+            careerProspects: [
+              "Writer",
+              "Editor",
+              "Journalist",
+              "Content Creator",
+              "Communications Manager",
+            ],
+          },
+        ],
+      },
+      {
+        id: "law",
+        name: "Faculty of Law",
+        description:
+          "Legal education with focus on constitutional law and social justice.",
+        degrees: [
+          {
+            id: "llb",
+            name: "LLB Law",
+            faculty: "Law",
+            duration: "4 years",
+            apsRequirement: 36,
+            description:
+              "Legal education with constitutional law, commercial law, and social justice focus.",
+            subjects: [
+              { name: "English", level: 5, isRequired: true },
+              { name: "Mathematics", level: 4, isRequired: true },
+            ],
+            careerProspects: [
+              "Attorney",
+              "Advocate",
+              "Corporate Lawyer",
+              "Human Rights Lawyer",
+              "Legal Advisor",
+            ],
+          },
+        ],
+      },
+      {
+        id: "art",
+        name: "Faculty of Art, Design and Architecture",
+        description:
+          "Creative arts education with focus on design thinking and innovation.",
+        degrees: [
+          {
+            id: "ba-fine-art",
+            name: "BA Fine Art",
+            faculty: "Art",
+            duration: "3 years",
+            apsRequirement: 26,
+            description:
+              "Fine arts with contemporary art practice and visual culture focus.",
+            subjects: [
+              { name: "English", level: 4, isRequired: true },
+              { name: "Mathematics", level: 3, isRequired: true },
+            ],
+            careerProspects: [
+              "Artist",
+              "Curator",
+              "Art Teacher",
+              "Gallery Manager",
+              "Art Therapist",
+            ],
+          },
+          {
+            id: "ba-graphic-design",
+            name: "BA Graphic Design",
+            faculty: "Art",
+            duration: "3 years",
+            apsRequirement: 28,
+            description:
+              "Graphic design with digital media and brand identity focus.",
+            subjects: [
+              { name: "English", level: 4, isRequired: true },
+              { name: "Mathematics", level: 3, isRequired: true },
+            ],
+            careerProspects: [
+              "Graphic Designer",
+              "Brand Designer",
+              "Digital Designer",
+              "Creative Director",
+              "UI/UX Designer",
+            ],
+          },
+          {
+            id: "barch",
+            name: "BArch Architecture",
+            faculty: "Art",
+            duration: "5 years",
+            apsRequirement: 36,
+            description:
+              "Architecture with sustainable design and urban planning focus.",
+            subjects: [
+              { name: "Mathematics", level: 5, isRequired: true },
+              { name: "English", level: 5, isRequired: true },
+              { name: "Physical Sciences", level: 4, isRequired: false },
+            ],
+            careerProspects: [
+              "Architect",
+              "Urban Designer",
+              "Sustainable Design Specialist",
+              "Project Manager",
+              "Heritage Architect",
+            ],
+          },
+        ],
+      },
+    ],
+  },
 ];
 
 export const UNIVERSITY_YEARS = [
