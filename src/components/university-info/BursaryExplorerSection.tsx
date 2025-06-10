@@ -32,6 +32,8 @@ import {
   FileText,
   CheckCircle,
   Filter,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 import {
   BURSARIES,
@@ -99,7 +101,7 @@ const BursaryExplorerSection = () => {
 
   const getDeadlineUrgency = (deadline: string) => {
     const now = new Date();
-    const currentMonth = now.getMonth() + 1; // 0-based to 1-based
+    const currentMonth = now.getMonth() + 1;
 
     if (deadline.includes("January") || deadline.includes("31 January")) {
       return currentMonth > 1 ? "Closed" : "Urgent";
@@ -133,9 +135,9 @@ const BursaryExplorerSection = () => {
   };
 
   return (
-    <div className="space-y-8">
-      {/* Header with Graduation Image */}
-      <div className="relative text-center space-y-4 bg-gradient-to-r from-green-50 to-blue-50 rounded-2xl p-8 overflow-hidden">
+    <div className="space-y-6 md:space-y-8 px-2 md:px-0">
+      {/* Header with Graduation Image - Mobile optimized */}
+      <div className="relative text-center space-y-3 md:space-y-4 bg-gradient-to-r from-green-50 to-blue-50 rounded-xl md:rounded-2xl p-6 md:p-8 overflow-hidden">
         <div className="absolute inset-0">
           <img
             src="https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=800&h=400&fit=crop&crop=center"
@@ -145,49 +147,61 @@ const BursaryExplorerSection = () => {
           <div className="absolute inset-0 bg-gradient-to-r from-green-50/80 to-blue-50/80" />
         </div>
         <div className="relative z-10">
-          <div className="flex items-center justify-center space-x-2 mb-4">
-            <GraduationCap className="w-8 h-8 text-book-600" />
-            <h2 className="text-3xl font-bold text-gray-900">
-              Bursary & Financial Aid Explorer
+          <div className="flex items-center justify-center space-x-2 mb-3 md:mb-4">
+            <GraduationCap className="w-6 h-6 md:w-8 md:h-8 text-book-600" />
+            <h2 className="text-xl md:text-3xl font-bold text-gray-900">
+              <span className="hidden md:inline">
+                Bursary & Financial Aid Explorer
+              </span>
+              <span className="md:hidden">Find Bursaries</span>
             </h2>
           </div>
-          <p className="text-lg text-gray-700 max-w-3xl mx-auto">
-            Discover funding opportunities for your higher education journey.
-            Find bursaries, scholarships, and financial aid programs that match
-            your profile and field of study.
+          <p className="text-sm md:text-lg text-gray-700 max-w-3xl mx-auto px-2">
+            <span className="hidden md:inline">
+              Discover funding opportunities for your higher education journey.
+              Find bursaries, scholarships, and financial aid programs that
+              match your profile and field of study.
+            </span>
+            <span className="md:hidden">
+              Find bursaries and scholarships for your studies. Search by field
+              or provider.
+            </span>
           </p>
         </div>
       </div>
 
-      {/* Filters */}
+      {/* Filters - Mobile responsive */}
       <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center space-x-2">
-            <Filter className="w-5 h-5" />
-            <span>Filter Bursaries</span>
+        <CardHeader className="pb-3 md:pb-6">
+          <CardTitle className="flex items-center space-x-2 text-lg md:text-xl">
+            <Filter className="w-4 h-4 md:w-5 md:h-5" />
+            <span className="hidden md:inline">Filter Bursaries</span>
+            <span className="md:hidden">Filter</span>
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-3 md:space-y-4">
           {/* Search */}
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
             <Input
-              placeholder="Search by bursary name, provider, or keywords..."
+              placeholder="Search bursaries..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10"
+              className="pl-10 text-sm md:text-base py-2 md:py-3"
             />
           </div>
 
-          {/* Filter Row */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          {/* Filter Row - Mobile stacked */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-3 md:gap-4">
             <Select value={selectedField} onValueChange={setSelectedField}>
-              <SelectTrigger>
+              <SelectTrigger className="text-sm md:text-base">
                 <SelectValue placeholder="Field of Study" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Fields</SelectItem>
-                {BURSARY_FIELDS_OF_STUDY.map((field) => (
+                {BURSARY_FIELDS_OF_STUDY.filter(
+                  (field) => field !== "All fields",
+                ).map((field) => (
                   <SelectItem key={field} value={field}>
                     {field}
                   </SelectItem>
@@ -199,12 +213,14 @@ const BursaryExplorerSection = () => {
               value={selectedProvince}
               onValueChange={setSelectedProvince}
             >
-              <SelectTrigger>
+              <SelectTrigger className="text-sm md:text-base">
                 <SelectValue placeholder="Province" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Provinces</SelectItem>
-                {PROVINCES.map((province) => (
+                {PROVINCES.filter(
+                  (province) => province !== "All provinces",
+                ).map((province) => (
                   <SelectItem key={province} value={province}>
                     {province}
                   </SelectItem>
@@ -212,360 +228,306 @@ const BursaryExplorerSection = () => {
               </SelectContent>
             </Select>
 
-            <Button
-              variant={showFinancialNeedOnly ? "default" : "outline"}
-              onClick={() => setShowFinancialNeedOnly(!showFinancialNeedOnly)}
-              className={
-                showFinancialNeedOnly
-                  ? "bg-book-600 hover:bg-book-700"
-                  : "border-book-200 text-book-600 hover:bg-book-50"
-              }
-            >
-              Financial Need Based
-            </Button>
-
-            <div className="text-sm text-gray-600 flex items-center">
-              Showing {filteredBursaries.length} of {BURSARIES.length} bursaries
+            <div className="flex items-center space-x-2 p-2 md:p-0 md:col-span-2">
+              <input
+                type="checkbox"
+                id="financialNeed"
+                checked={showFinancialNeedOnly}
+                onChange={(e) => setShowFinancialNeedOnly(e.target.checked)}
+                className="h-4 w-4 text-book-600 focus:ring-book-500 border-gray-300 rounded"
+              />
+              <label
+                htmlFor="financialNeed"
+                className="text-xs md:text-sm text-gray-700"
+              >
+                <span className="hidden md:inline">
+                  Financial need based only
+                </span>
+                <span className="md:hidden">Financial need only</span>
+              </label>
             </div>
           </div>
+
+          {/* Clear filters button */}
+          {(searchQuery ||
+            selectedField !== "all" ||
+            selectedProvince !== "all" ||
+            showFinancialNeedOnly) && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                setSearchQuery("");
+                setSelectedField("all");
+                setSelectedProvince("all");
+                setShowFinancialNeedOnly(false);
+              }}
+              className="text-xs md:text-sm"
+            >
+              Clear Filters
+            </Button>
+          )}
         </CardContent>
       </Card>
 
-      {/* Featured NSFAS */}
-      {filteredBursaries.some((b) => b.id === "nsfas") && (
-        <Card className="border-blue-200 bg-blue-50">
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <div>
-                <CardTitle className="text-blue-900">
-                  🇿🇦 NSFAS - National Student Financial Aid Scheme
-                </CardTitle>
-                <CardDescription className="text-blue-700">
-                  South Africa's primary government funding for students from
-                  disadvantaged backgrounds
-                </CardDescription>
-              </div>
-              <Badge className="bg-blue-100 text-blue-800 border-blue-200">
-                Government Funding
-              </Badge>
+      {/* Results Summary */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between bg-book-50 rounded-lg p-3 md:p-4">
+        <div className="flex items-center space-x-2 mb-2 sm:mb-0">
+          <CheckCircle className="w-4 h-4 md:w-5 md:h-5 text-green-600" />
+          <span className="text-sm md:text-base font-medium text-gray-900">
+            {filteredBursaries.length} bursaries found
+          </span>
+        </div>
+        {filteredBursaries.length > 0 && (
+          <Badge
+            variant="secondary"
+            className="bg-book-100 text-book-700 text-xs md:text-sm w-fit"
+          >
+            {Math.round(
+              (filteredBursaries.filter((b) => b.requirements.financialNeed)
+                .length /
+                filteredBursaries.length) *
+                100,
+            )}
+            % need-based
+          </Badge>
+        )}
+      </div>
+
+      {/* Bursaries List - Mobile optimized cards */}
+      <div className="space-y-4 md:space-y-6">
+        {filteredBursaries.length === 0 ? (
+          <Card className="p-6 md:p-8 text-center">
+            <div className="flex flex-col items-center space-y-3 md:space-y-4">
+              <Search className="w-12 h-12 md:w-16 md:h-16 text-gray-300" />
+              <h3 className="text-lg md:text-xl font-semibold text-gray-900">
+                No bursaries found
+              </h3>
+              <p className="text-sm md:text-base text-gray-600 max-w-md">
+                Try adjusting your search criteria or filters to find bursaries
+                that match your profile.
+              </p>
             </div>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="bg-white rounded-lg p-4">
-                <DollarSign className="w-6 h-6 text-blue-600 mb-2" />
-                <div className="font-semibold text-blue-900">Full Coverage</div>
-                <div className="text-sm text-blue-700">
-                  Tuition + Accommodation + Allowances
-                </div>
-              </div>
-              <div className="bg-white rounded-lg p-4">
-                <Calendar className="w-6 h-6 text-blue-600 mb-2" />
-                <div className="font-semibold text-blue-900">Deadline</div>
-                <div className="text-sm text-blue-700">31 January annually</div>
-              </div>
-              <div className="bg-white rounded-lg p-4">
-                <Info className="w-6 h-6 text-blue-600 mb-2" />
-                <div className="font-semibold text-blue-900">Eligibility</div>
-                <div className="text-sm text-blue-700">
-                  Household income ≤ R350,000
-                </div>
-              </div>
-            </div>
+          </Card>
+        ) : (
+          filteredBursaries.map((bursary) => {
+            const isExpanded = expandedBursary === bursary.id;
+            const urgency = getDeadlineUrgency(bursary.applicationDeadline);
+            const fundingLevel = getFundingLevel(bursary.amount);
 
-            <Alert className="border-blue-200 bg-blue-50">
-              <Info className="h-4 w-4" />
-              <AlertDescription className="text-blue-800">
-                <strong>Priority Application:</strong> NSFAS is the largest
-                source of student funding in South Africa. Apply early at{" "}
-                <a
-                  href="https://www.nsfas.org.za"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="underline font-semibold"
-                >
-                  www.nsfas.org.za
-                </a>
-              </AlertDescription>
-            </Alert>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Bursary Grid */}
-      <div className="space-y-6">
-        {filteredBursaries.map((bursary) => {
-          const isExpanded = expandedBursary === bursary.id;
-          const urgency = getDeadlineUrgency(bursary.applicationDeadline);
-
-          return (
-            <Card
-              key={bursary.id}
-              className="hover:shadow-lg transition-shadow"
-            >
-              <CardHeader>
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center space-x-3 mb-2">
-                      <CardTitle className="text-xl text-gray-900">
-                        {bursary.name}
-                      </CardTitle>
-                      <Badge className={getBursaryTypeColor(bursary)}>
-                        {bursary.provider.includes("Government")
-                          ? "Government"
-                          : "Corporate"}
-                      </Badge>
-                      <Badge className={getDeadlineColor(urgency)}>
+            return (
+              <Card
+                key={bursary.id}
+                className="hover:shadow-lg transition-shadow"
+              >
+                <CardHeader className="pb-3 md:pb-4">
+                  <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between space-y-2 sm:space-y-0">
+                    <div className="flex-1">
+                      <div className="flex flex-wrap items-center gap-2 mb-2">
+                        <CardTitle className="text-lg md:text-xl font-bold text-gray-900">
+                          {bursary.name}
+                        </CardTitle>
+                        <Badge
+                          className={`text-xs ${getBursaryTypeColor(bursary)}`}
+                        >
+                          {bursary.id === "nsfas"
+                            ? "NSFAS"
+                            : bursary.provider.includes("Government")
+                              ? "Government"
+                              : "Private"}
+                        </Badge>
+                      </div>
+                      <CardDescription className="text-sm md:text-base">
+                        {bursary.provider}
+                      </CardDescription>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      <Badge className={`text-xs ${getDeadlineColor(urgency)}`}>
                         {urgency}
                       </Badge>
-                    </div>
-                    <CardDescription className="text-gray-600">
-                      {bursary.provider}
-                    </CardDescription>
-                  </div>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => toggleExpanded(bursary.id)}
-                    className="border-book-200 text-book-600 hover:bg-book-50"
-                  >
-                    {isExpanded ? "Show Less" : "Show More"}
-                  </Button>
-                </div>
-              </CardHeader>
-
-              <CardContent className="space-y-4">
-                <p className="text-gray-700 leading-relaxed">
-                  {bursary.description}
-                </p>
-
-                {/* Key Info */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="bg-gray-50 rounded-lg p-3">
-                    <div className="flex items-center space-x-2 mb-1">
-                      <DollarSign className="w-4 h-4 text-book-600" />
-                      <span className="font-semibold text-gray-900">
-                        Funding
-                      </span>
-                    </div>
-                    <div className="text-sm text-gray-600">
-                      {getFundingLevel(bursary.amount)}
+                      <Badge variant="outline" className="text-xs">
+                        {fundingLevel}
+                      </Badge>
                     </div>
                   </div>
+                </CardHeader>
 
-                  <div className="bg-gray-50 rounded-lg p-3">
-                    <div className="flex items-center space-x-2 mb-1">
-                      <Clock className="w-4 h-4 text-book-600" />
-                      <span className="font-semibold text-gray-900">
-                        Deadline
-                      </span>
-                    </div>
-                    <div className="text-sm text-gray-600">
-                      {bursary.applicationDeadline}
-                    </div>
-                  </div>
+                <CardContent className="space-y-3 md:space-y-4">
+                  <p className="text-sm md:text-base text-gray-600 leading-relaxed">
+                    {bursary.description}
+                  </p>
 
-                  <div className="bg-gray-50 rounded-lg p-3">
-                    <div className="flex items-center space-x-2 mb-1">
-                      <GraduationCap className="w-4 h-4 text-book-600" />
-                      <span className="font-semibold text-gray-900">
-                        Fields
-                      </span>
-                    </div>
-                    <div className="text-sm text-gray-600">
-                      {bursary.fieldsOfStudy.slice(0, 2).join(", ")}
-                      {bursary.fieldsOfStudy.length > 2 && " +more"}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Fields of Study Tags */}
-                <div className="flex flex-wrap gap-2">
-                  {bursary.fieldsOfStudy.slice(0, 6).map((field, index) => (
-                    <Badge
-                      key={index}
-                      variant="secondary"
-                      className="bg-book-50 text-book-700"
-                    >
-                      {field}
-                    </Badge>
-                  ))}
-                  {bursary.fieldsOfStudy.length > 6 && (
-                    <Badge
-                      variant="secondary"
-                      className="bg-gray-100 text-gray-700"
-                    >
-                      +{bursary.fieldsOfStudy.length - 6} more
-                    </Badge>
-                  )}
-                </div>
-
-                {/* Expanded Content */}
-                {isExpanded && (
-                  <>
-                    <Separator />
-
-                    <div className="space-y-6">
-                      {/* Detailed Funding */}
+                  {/* Key Info Grid - Mobile stacked */}
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4">
+                    <div className="flex items-center space-x-2">
+                      <DollarSign className="w-4 h-4 text-green-600 flex-shrink-0" />
                       <div>
-                        <h4 className="font-semibold text-gray-900 mb-2">
-                          Funding Details
-                        </h4>
-                        <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                          <p className="text-green-800">{bursary.amount}</p>
+                        <div className="text-xs md:text-sm text-gray-500">
+                          Amount
+                        </div>
+                        <div className="text-xs md:text-sm font-medium text-gray-900 line-clamp-2">
+                          {bursary.amount}
                         </div>
                       </div>
+                    </div>
 
+                    <div className="flex items-center space-x-2">
+                      <Calendar className="w-4 h-4 text-blue-600 flex-shrink-0" />
+                      <div>
+                        <div className="text-xs md:text-sm text-gray-500">
+                          Deadline
+                        </div>
+                        <div className="text-xs md:text-sm font-medium text-gray-900">
+                          {bursary.applicationDeadline}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center space-x-2">
+                      <GraduationCap className="w-4 h-4 text-purple-600 flex-shrink-0" />
+                      <div>
+                        <div className="text-xs md:text-sm text-gray-500">
+                          Fields
+                        </div>
+                        <div className="text-xs md:text-sm font-medium text-gray-900">
+                          {bursary.fieldsOfStudy.slice(0, 2).join(", ")}
+                          {bursary.fieldsOfStudy.length > 2 && "..."}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Expand/Collapse Button */}
+                  <div className="flex justify-between items-center pt-2 border-t">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => toggleExpanded(bursary.id)}
+                      className="text-book-600 hover:text-book-700 text-sm md:text-base"
+                    >
+                      {isExpanded ? (
+                        <>
+                          <span>Less Details</span>
+                          <ChevronUp className="w-4 h-4 ml-1" />
+                        </>
+                      ) : (
+                        <>
+                          <span>More Details</span>
+                          <ChevronDown className="w-4 h-4 ml-1" />
+                        </>
+                      )}
+                    </Button>
+
+                    <Button
+                      size="sm"
+                      className="bg-book-600 hover:bg-book-700 text-white text-xs md:text-sm"
+                      onClick={() => window.open(bursary.website, "_blank")}
+                    >
+                      Apply Now
+                      <ExternalLink className="w-3 h-3 md:w-4 md:h-4 ml-1" />
+                    </Button>
+                  </div>
+
+                  {/* Expanded Details */}
+                  {isExpanded && (
+                    <div className="space-y-3 md:space-y-4 pt-3 md:pt-4 border-t">
                       {/* Eligibility Criteria */}
                       <div>
-                        <h4 className="font-semibold text-gray-900 mb-3">
-                          Eligibility Requirements
+                        <h4 className="font-semibold text-gray-900 mb-2 text-sm md:text-base flex items-center">
+                          <CheckCircle className="w-4 h-4 mr-2 text-green-600" />
+                          Eligibility Criteria
                         </h4>
-                        <div className="space-y-2">
+                        <ul className="space-y-1">
                           {bursary.eligibilityCriteria.map(
                             (criteria, index) => (
-                              <div
+                              <li
                                 key={index}
-                                className="flex items-start space-x-2"
+                                className="text-xs md:text-sm text-gray-600 flex items-start"
                               >
-                                <CheckCircle className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
-                                <span className="text-sm text-gray-700">
-                                  {criteria}
-                                </span>
-                              </div>
+                                <span className="w-1.5 h-1.5 bg-book-600 rounded-full mt-2 mr-2 flex-shrink-0"></span>
+                                {criteria}
+                              </li>
                             ),
                           )}
-                        </div>
+                        </ul>
                       </div>
 
                       {/* Application Process */}
                       <div>
-                        <h4 className="font-semibold text-gray-900 mb-2">
-                          How to Apply
+                        <h4 className="font-semibold text-gray-900 mb-2 text-sm md:text-base flex items-center">
+                          <FileText className="w-4 h-4 mr-2 text-blue-600" />
+                          Application Process
                         </h4>
-                        <div className="bg-book-50 border border-book-200 rounded-lg p-4">
-                          <p className="text-book-800 text-sm">
-                            {bursary.applicationProcess}
-                          </p>
-                        </div>
+                        <p className="text-xs md:text-sm text-gray-600">
+                          {bursary.applicationProcess}
+                        </p>
                       </div>
 
                       {/* Contact Information */}
                       <div>
-                        <h4 className="font-semibold text-gray-900 mb-3">
+                        <h4 className="font-semibold text-gray-900 mb-2 text-sm md:text-base flex items-center">
+                          <Phone className="w-4 h-4 mr-2 text-purple-600" />
                           Contact Information
                         </h4>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div className="flex items-center space-x-2">
-                            <Phone className="w-4 h-4 text-book-600" />
-                            <span className="text-sm text-gray-700">
-                              {bursary.contactInfo}
-                            </span>
-                          </div>
-                          {bursary.website && (
-                            <div className="flex items-center space-x-2">
-                              <ExternalLink className="w-4 h-4 text-book-600" />
-                              <a
-                                href={bursary.website}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="text-sm text-book-600 hover:text-book-700 underline"
-                              >
-                                Visit Website
-                              </a>
-                            </div>
-                          )}
+                        <p className="text-xs md:text-sm text-gray-600">
+                          {bursary.contactInfo}
+                        </p>
+                      </div>
+
+                      {/* Fields of Study */}
+                      <div>
+                        <h4 className="font-semibold text-gray-900 mb-2 text-sm md:text-base">
+                          Fields of Study
+                        </h4>
+                        <div className="flex flex-wrap gap-1 md:gap-2">
+                          {bursary.fieldsOfStudy.map((field, index) => (
+                            <Badge
+                              key={index}
+                              variant="outline"
+                              className="text-xs"
+                            >
+                              {field}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Provinces */}
+                      <div>
+                        <h4 className="font-semibold text-gray-900 mb-2 text-sm md:text-base flex items-center">
+                          <MapPin className="w-4 h-4 mr-2 text-red-600" />
+                          Available Provinces
+                        </h4>
+                        <div className="flex flex-wrap gap-1 md:gap-2">
+                          {bursary.provinces.map((province, index) => (
+                            <Badge
+                              key={index}
+                              variant="secondary"
+                              className="text-xs"
+                            >
+                              {province}
+                            </Badge>
+                          ))}
                         </div>
                       </div>
                     </div>
-                  </>
-                )}
-
-                {/* Action Buttons */}
-                <div className="flex space-x-3 pt-4">
-                  {bursary.website && (
-                    <Button
-                      onClick={() => window.open(bursary.website, "_blank")}
-                      className="bg-book-600 hover:bg-book-700 text-white"
-                    >
-                      <ExternalLink className="w-4 h-4 mr-2" />
-                      Apply Now
-                    </Button>
                   )}
-
-                  <Button
-                    variant="outline"
-                    onClick={() => toggleExpanded(bursary.id)}
-                    className="border-book-200 text-book-600 hover:bg-book-50"
-                  >
-                    <FileText className="w-4 h-4 mr-2" />
-                    {isExpanded ? "Hide" : "View"} Details
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          );
-        })}
+                </CardContent>
+              </Card>
+            );
+          })
+        )}
       </div>
 
-      {/* No Results */}
-      {filteredBursaries.length === 0 && (
-        <div className="text-center py-12">
-          <GraduationCap className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 mb-2">
-            No bursaries found
-          </h3>
-          <p className="text-gray-600 mb-4">
-            Try adjusting your search criteria or filters to find relevant
-            funding opportunities.
-          </p>
-          <Button
-            variant="outline"
-            onClick={() => {
-              setSearchQuery("");
-              setSelectedField("all");
-              setSelectedProvince("all");
-              setShowFinancialNeedOnly(false);
-            }}
-            className="border-book-200 text-book-600 hover:bg-book-50"
-          >
-            Clear All Filters
-          </Button>
-        </div>
-      )}
-
-      {/* Application Tips */}
-      <Card className="border-book-200 bg-book-50">
-        <CardHeader>
-          <CardTitle className="text-book-800">💡 Application Tips</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <h4 className="font-semibold text-book-800 mb-3">
-                Before You Apply
-              </h4>
-              <ul className="space-y-2 text-sm text-book-700">
-                <li>• Gather all required documents early</li>
-                <li>• Check eligibility criteria carefully</li>
-                <li>• Apply to multiple bursaries to increase chances</li>
-                <li>• Keep track of deadlines with a calendar</li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-semibold text-book-800 mb-3">
-                Increase Your Chances
-              </h4>
-              <ul className="space-y-2 text-sm text-book-700">
-                <li>• Write compelling motivation letters</li>
-                <li>• Maintain good academic performance</li>
-                <li>• Get involved in community activities</li>
-                <li>• Apply early - don't wait for deadlines</li>
-              </ul>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+      {/* Help Section */}
+      <Alert>
+        <Info className="h-4 w-4" />
+        <AlertDescription className="text-sm md:text-base">
+          <strong>Need help with applications?</strong> Contact your school's
+          guidance counselor or university's financial aid office for assistance
+          with bursary applications and requirements.
+        </AlertDescription>
+      </Alert>
     </div>
   );
 };
