@@ -496,6 +496,47 @@ export const UNIVERSITIES_OF_TECHNOLOGY: University[] = [
             ],
           },
           {
+            id: "diploma-nature-conservation",
+            name: "Diploma in Nature Conservation",
+            faculty: "Applied and Computer Sciences",
+            duration: "3 years",
+            apsRequirement: 24,
+            description:
+              "Nature conservation and wildlife management (MUT specialty).",
+            subjects: [
+              { name: "Life Sciences", level: 4, isRequired: true },
+              { name: "English", level: 4, isRequired: true },
+              { name: "Geography", level: 4, isRequired: false },
+            ],
+            careerProspects: [
+              "Conservation Officer",
+              "Wildlife Researcher",
+              "Game Ranger",
+              "Environmental Educator",
+              "Park Manager",
+            ],
+          },
+          {
+            id: "diploma-chemical-engineering",
+            name: "Diploma in Chemical Engineering",
+            faculty: "Engineering",
+            duration: "3 years",
+            apsRequirement: 28,
+            description: "Chemical engineering technology (MUT specialty).",
+            subjects: [
+              { name: "Mathematics", level: 5, isRequired: true },
+              { name: "Physical Sciences", level: 5, isRequired: true },
+              { name: "English", level: 4, isRequired: true },
+            ],
+            careerProspects: [
+              "Chemical Engineering Technician",
+              "Process Technician",
+              "Quality Control Technician",
+              "Production Supervisor",
+              "Plant Operator",
+            ],
+          },
+          {
             id: "bachelor-computer-science",
             name: "Bachelor of Computer Science",
             faculty: "Informatics and Design",
