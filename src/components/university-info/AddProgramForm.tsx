@@ -256,8 +256,8 @@ const AddProgramForm = () => {
 
   if (!user) {
     return (
-      <Card className="max-w-2xl mx-auto">
-        <CardContent className="p-8 text-center">
+      <Card className="max-w-2xl mx-auto m-4">
+        <CardContent className="p-6 md:p-8 text-center">
           <AlertCircle className="h-16 w-16 text-orange-600 mx-auto mb-4" />
           <h3 className="text-2xl font-semibold mb-2">Login Required</h3>
           <p className="text-gray-600 mb-6">
