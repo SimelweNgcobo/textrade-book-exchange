@@ -604,23 +604,37 @@ const AddProgramForm = () => {
           </Alert>
 
           <div className="flex flex-col sm:flex-row gap-3">
-            <Button
-              onClick={handleSubmit}
-              disabled={isSubmitting}
-              className="flex-1"
-            >
-              {isSubmitting ? (
-                <>
-                  <Clock className="h-4 w-4 mr-2 animate-spin" />
-                  Submitting...
-                </>
-              ) : (
-                <>
-                  <Send className="h-4 w-4 mr-2" />
-                  Submit Program for Review
-                </>
-              )}
-            </Button>
+            <div className="flex flex-col sm:flex-row gap-3">
+              <Button
+                type="submit"
+                onClick={handleSubmit}
+                disabled={isSubmitting}
+                className="flex-1"
+                size="lg"
+              >
+                {isSubmitting ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
+                    Submitting...
+                  </>
+                ) : (
+                  <>
+                    <Send className="h-4 w-4 mr-2" />
+                    Submit Program for Review
+                  </>
+                )}
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={resetForm}
+                disabled={isSubmitting}
+                className="w-full sm:w-auto"
+                size="lg"
+              >
+                Reset Form
+              </Button>
+            </div>
           </div>
         </CardContent>
       </Card>
