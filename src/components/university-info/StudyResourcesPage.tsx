@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import {
   Card,
   CardContent,
@@ -38,6 +38,8 @@ import {
   Award,
   AlertCircle,
   Bookmark,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 import { StudyTip, StudyResource } from "@/types/university";
 
@@ -100,7 +102,7 @@ const REAL_STUDY_TIPS: StudyTip[] = [
 
 **BEFORE you start reading:**
 • **Preview the chapter** - Read headings, subheadings, and summary first
-• **Set a purpose** - What do you need to learn from this?
+�� **Set a purpose** - What do you need to learn from this?
 • **Check your knowledge** - What do you already know about this topic?
 • **Time yourself** - How long will this take? Set realistic goals
 
@@ -300,7 +302,7 @@ Solution: Practice daily, use finger guidance, don't worry about speed at first 
 
 **Calculation Problems:**
 • **Show all working** - You get marks for method even if answer is wrong
-��� **Check your answer** - Does it make sense?
+• **Check your answer** - Does it make sense?
 • **Practice speed** - Know your formulas by heart
 • **Double-check units** - Make sure units are correct
 
@@ -468,7 +470,7 @@ Solution: Practice daily, use finger guidance, don't worry about speed at first 
 
 **Why Environment Matters:**
 • **Cognitive load theory** - Cluttered spaces increase mental fatigue
-• **Conditioning** - Your brain associates specific spaces with specific activities  
+• **Conditioning** - Your brain associates specific spaces with specific activities
 • **Sensory processing** - Too much stimulation reduces concentration
 • **Mood influence** - Environment affects motivation and energy levels
 
@@ -575,7 +577,7 @@ Solution: Practice daily, use finger guidance, don't worry about speed at first 
 **Digital Distractions:**
 • **Phone management** - Silent mode, airplane mode, or separate room
 • **Social media** - Log out of accounts, use website blockers
-�� **Notifications** - Turn off non-essential app notifications
+• **Notifications** - Turn off non-essential app notifications
 • **Entertainment** - No Netflix, games, or music videos during study
 
 **Family and Social Distractions:**
@@ -773,7 +775,7 @@ Solution: Practice daily, use finger guidance, don't worry about speed at first 
 • Constant exhaustion despite rest
 • Loss of interest in subjects you used to enjoy
 • Irritability and mood swings
-• Physical symptoms (headaches, stomach aches)
+�� Physical symptoms (headaches, stomach aches)
 • Procrastination and avoidance
 
 **Burnout recovery:**
@@ -1259,6 +1261,7 @@ const StudyResourcesPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [difficultyFilter, setDifficultyFilter] = useState("all");
+  const [expandedTips, setExpandedTips] = useState<Set<string>>(new Set());
 
   // Filter tips based on search and filters
   const filteredTips = REAL_STUDY_TIPS.filter((tip) => {
@@ -1300,6 +1303,112 @@ const StudyResourcesPage = () => {
     // Simulate download
     console.log(`Downloading ${resource.title}`);
     // In a real app, this would trigger an actual download
+  };
+
+  const toggleTipExpansion = (tipId: string) => {
+    const newExpanded = new Set(expandedTips);
+    if (newExpanded.has(tipId)) {
+      newExpanded.delete(tipId);
+    } else {
+      newExpanded.add(tipId);
+    }
+    setExpandedTips(newExpanded);
+  };
+
+  const renderTipContent = (tip: StudyTip) => {
+    const isExpanded = expandedTips.has(tip.id);
+    const paragraphs = tip.content.split("\n");
+    const previewLength = 3; // Show first 3 paragraphs in collapsed state
+
+    const contentToShow = isExpanded
+      ? paragraphs
+      : paragraphs.slice(0, previewLength);
+    const hasMoreContent = paragraphs.length > previewLength;
+
+    return (
+      <div className="prose prose-sm md:prose-base max-w-none">
+        {contentToShow.map((paragraph, index) => {
+          // Main headings
+          if (
+            paragraph.trim().startsWith("**") &&
+            paragraph.trim().endsWith("**") &&
+            paragraph.length > 10
+          ) {
+            return (
+              <div
+                key={index}
+                className="bg-gray-50 p-3 rounded-lg mb-4 mt-4 border-l-4 border-blue-400"
+              >
+                <h4 className="font-bold text-base md:text-lg mb-0 text-blue-800 flex items-center gap-2">
+                  <Award className="h-4 w-4" />
+                  {paragraph.replace(/\*\*/g, "")}
+                </h4>
+              </div>
+            );
+          }
+          // Sub-headings
+          if (
+            paragraph.trim().startsWith("**") &&
+            paragraph.trim().endsWith("**")
+          ) {
+            return (
+              <h5
+                key={index}
+                className="font-semibold text-sm md:text-base mb-2 mt-3 text-gray-800 flex items-center gap-2"
+              >
+                <CheckSquare className="h-4 w-4 text-green-600" />
+                {paragraph.replace(/\*\*/g, "")}
+              </h5>
+            );
+          }
+          // Bullet points
+          if (paragraph.trim().startsWith("•")) {
+            return (
+              <div key={index} className="flex items-start gap-2 ml-4 mb-2">
+                <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
+                <span className="text-sm md:text-base text-gray-700">
+                  {paragraph.replace("•", "").trim()}
+                </span>
+              </div>
+            );
+          }
+          // Regular paragraphs
+          if (paragraph.trim()) {
+            return (
+              <p
+                key={index}
+                className="mb-3 text-sm md:text-base text-gray-700 leading-relaxed"
+              >
+                {paragraph}
+              </p>
+            );
+          }
+          return <div key={index} className="h-2" />;
+        })}
+
+        {hasMoreContent && (
+          <div className="mt-4 pt-4 border-t border-gray-200">
+            <Button
+              variant="outline"
+              onClick={() => toggleTipExpansion(tip.id)}
+              className="w-full sm:w-auto"
+            >
+              {isExpanded ? (
+                <>
+                  <ChevronUp className="h-4 w-4 mr-2" />
+                  Show Less
+                </>
+              ) : (
+                <>
+                  <ChevronDown className="h-4 w-4 mr-2" />
+                  Read More
+                </>
+              )}
+            </Button>
+          </div>
+        )}
+      </div>
+    );
   };
 
   const getCategoryIcon = (category: string) => {
@@ -1486,69 +1595,7 @@ const StudyResourcesPage = () => {
                   </div>
                 </CardHeader>
                 <CardContent className="bg-white">
-                  <div className="prose prose-sm md:prose-base max-w-none">
-                    {tip.content.split("\n").map((paragraph, index) => {
-                      // Main headings
-                      if (
-                        paragraph.trim().startsWith("**") &&
-                        paragraph.trim().endsWith("**") &&
-                        paragraph.length > 10
-                      ) {
-                        return (
-                          <div
-                            key={index}
-                            className="bg-gray-50 p-3 rounded-lg mb-4 mt-4 border-l-4 border-blue-400"
-                          >
-                            <h4 className="font-bold text-base md:text-lg mb-0 text-blue-800 flex items-center gap-2">
-                              <Award className="h-4 w-4" />
-                              {paragraph.replace(/\*\*/g, "")}
-                            </h4>
-                          </div>
-                        );
-                      }
-                      // Sub-headings
-                      if (
-                        paragraph.trim().startsWith("**") &&
-                        paragraph.trim().endsWith("**")
-                      ) {
-                        return (
-                          <h5
-                            key={index}
-                            className="font-semibold text-sm md:text-base mb-2 mt-3 text-gray-800 flex items-center gap-2"
-                          >
-                            <CheckSquare className="h-4 w-4 text-green-600" />
-                            {paragraph.replace(/\*\*/g, "")}
-                          </h5>
-                        );
-                      }
-                      // Bullet points
-                      if (paragraph.trim().startsWith("•")) {
-                        return (
-                          <div
-                            key={index}
-                            className="flex items-start gap-2 ml-4 mb-2"
-                          >
-                            <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
-                            <span className="text-sm md:text-base text-gray-700">
-                              {paragraph.replace("•", "").trim()}
-                            </span>
-                          </div>
-                        );
-                      }
-                      // Regular paragraphs
-                      if (paragraph.trim()) {
-                        return (
-                          <p
-                            key={index}
-                            className="mb-3 text-sm md:text-base text-gray-700 leading-relaxed"
-                          >
-                            {paragraph}
-                          </p>
-                        );
-                      }
-                      return <div key={index} className="h-2" />;
-                    })}
-                  </div>
+                  {renderTipContent(tip)}
                   <div className="flex flex-wrap gap-2 mt-6 pt-4 border-t border-gray-100">
                     {tip.tags.map((tag) => (
                       <Badge
