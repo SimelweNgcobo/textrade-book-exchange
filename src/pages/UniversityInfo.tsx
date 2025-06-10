@@ -26,6 +26,7 @@ import {
 import CampusNavbar from "@/components/CampusNavbar";
 import SEO from "@/components/SEO";
 import UniversityGrid from "@/components/university-info/UniversityGrid";
+import UniversityExplorer from "@/components/university-info/UniversityExplorer";
 import APSCalculatorSection from "@/components/university-info/APSCalculatorSection";
 import BursaryExplorerSection from "@/components/university-info/BursaryExplorerSection";
 import CampusBooksSection from "@/components/university-info/CampusBooksSection";
