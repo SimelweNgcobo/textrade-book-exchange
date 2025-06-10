@@ -48,6 +48,7 @@ const UniversityExplorer = ({
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedProvince, setSelectedProvince] = useState<string>("all");
+  const [showAdvancedSearch, setShowAdvancedSearch] = useState(false);
 
   const provinces = [
     "Eastern Cape",
