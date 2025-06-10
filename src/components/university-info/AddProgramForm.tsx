@@ -290,7 +290,7 @@ const AddProgramForm = () => {
           </div>
         </CardHeader>
 
-        <CardContent className="space-y-6">
+        <CardContent className="space-y-4 md:space-y-6">
           {/* University Selection */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
