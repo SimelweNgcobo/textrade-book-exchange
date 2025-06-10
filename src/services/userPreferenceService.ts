@@ -1,4 +1,6 @@
 
+import { ActivityService } from "@/services/activityService";
+
 const FIRST_UPLOAD_KEY = 'rebooked_first_upload_completed';
 
 export const hasCompletedFirstUpload = (userId: string): boolean => {
@@ -16,3 +18,5 @@ export const markFirstUploadCompleted = (userId: string): void => {
     localStorage.setItem(FIRST_UPLOAD_KEY, JSON.stringify(completedUsers));
   }
 };
+
+export { ActivityService };
