@@ -44,25 +44,38 @@ export const useNotifications = (): NotificationHookReturn => {
   useEffect(() => {
     if (!isAuthenticated || !user) return;
 
-    const channel = supabase
-      .channel("notifications")
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "notifications",
-          filter: `user_id=eq.${user.id}`,
-        },
-        () => {
-          refreshNotifications();
-        },
-      )
-      .subscribe();
+    try {
+      const channel = supabase
+        .channel("notifications")
+        .on(
+          "postgres_changes",
+          {
+            event: "*",
+            schema: "public",
+            table: "notifications",
+            filter: `user_id=eq.${user.id}`,
+          },
+          () => {
+            refreshNotifications().catch((error) => {
+              console.error(
+                "Error refreshing notifications from subscription:",
+                error,
+              );
+            });
+          },
+        )
+        .subscribe();
 
-    return () => {
-      supabase.removeChannel(channel);
-    };
+      return () => {
+        try {
+          supabase.removeChannel(channel);
+        } catch (error) {
+          console.error("Error removing notification channel:", error);
+        }
+      };
+    } catch (error) {
+      console.error("Error setting up notification subscription:", error);
+    }
   }, [user, isAuthenticated, refreshNotifications]);
 
   const unreadCount = notifications.filter((n) => !n.read).length;
