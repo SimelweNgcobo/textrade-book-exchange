@@ -379,27 +379,8 @@ export const APS_POINTS_SYSTEM = {
   1: 1, // 0-29%
 };
 
-export const SUBJECTS_LIST = [
-  "Mathematics",
-  "Mathematical Literacy",
-  "English",
-  "Afrikaans",
-  "Physical Sciences",
-  "Life Sciences",
-  "Accounting",
-  "Business Studies",
-  "Economics",
-  "Geography",
-  "History",
-  "Information Technology",
-  "Life Orientation",
-  "Consumer Studies",
-  "Tourism",
-  "Agricultural Sciences",
-  "Engineering Graphics and Design",
-  "Technical Mathematics",
-  "Technical Sciences",
-];
+// Import from the new subjects file for consistency
+export { SOUTH_AFRICAN_SUBJECTS as SUBJECTS_LIST } from "./subjects";
 
 export const calculateAPSPoints = (percentage: number): number => {
   if (percentage >= 80) return 7;
