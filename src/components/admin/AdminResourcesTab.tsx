@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Card,
   CardContent,
@@ -52,6 +52,11 @@ import {
   TrendingUp,
   CheckCircle,
   AlertCircle,
+  Save,
+  X,
+  MoreHorizontal,
+  Filter,
+  Search,
 } from "lucide-react";
 import {
   StudyTip,
@@ -60,8 +65,8 @@ import {
 } from "@/types/university";
 import { toast } from "sonner";
 
-// Sample data - in real app this would come from your backend
-const SAMPLE_TIPS: StudyTip[] = [
+// Initial data - in real app this would come from your backend
+const INITIAL_TIPS: StudyTip[] = [
   {
     id: "tip-1",
     title: "The Pomodoro Technique for Focused Study",
@@ -69,15 +74,26 @@ const SAMPLE_TIPS: StudyTip[] = [
     category: "time-management",
     difficulty: "beginner",
     tags: ["productivity", "focus", "time-management"],
-    content: "Sample content...",
+    content: "The Pomodoro Technique is a time management method...",
     isActive: true,
     createdAt: "2024-01-15T10:00:00Z",
     updatedAt: "2024-01-15T10:00:00Z",
   },
-  // Add more sample tips...
+  {
+    id: "tip-2",
+    title: "Active Reading Strategies",
+    description: "Transform passive reading into active learning",
+    category: "study-techniques",
+    difficulty: "intermediate",
+    tags: ["reading", "comprehension", "notes"],
+    content: "Active reading involves engaging with the text...",
+    isActive: true,
+    createdAt: "2024-01-16T10:00:00Z",
+    updatedAt: "2024-01-16T10:00:00Z",
+  },
 ];
 
-const SAMPLE_RESOURCES: StudyResource[] = [
+const INITIAL_RESOURCES: StudyResource[] = [
   {
     id: "resource-1",
     title: "Weekly Study Planner Template",
@@ -91,10 +107,22 @@ const SAMPLE_RESOURCES: StudyResource[] = [
     createdAt: "2024-01-15T10:00:00Z",
     updatedAt: "2024-01-15T10:00:00Z",
   },
-  // Add more sample resources...
+  {
+    id: "resource-2",
+    title: "Mathematics Formula Sheet",
+    description: "Essential formulas for Grades 10-12",
+    type: "pdf",
+    category: "study-guides",
+    downloadUrl: "#",
+    tags: ["mathematics", "formulas", "reference"],
+    isActive: true,
+    isFeatured: false,
+    createdAt: "2024-01-16T10:00:00Z",
+    updatedAt: "2024-01-16T10:00:00Z",
+  },
 ];
 
-const SAMPLE_SUBMITTED_PROGRAMS: UserSubmittedProgram[] = [
+const INITIAL_PROGRAMS: UserSubmittedProgram[] = [
   {
     id: "prog-1",
     universityId: "uj",
@@ -120,64 +148,176 @@ const SAMPLE_SUBMITTED_PROGRAMS: UserSubmittedProgram[] = [
     submittedAt: "2024-01-20T10:00:00Z",
     status: "pending",
   },
-  // Add more sample submissions...
 ];
 
 const AdminResourcesTab = () => {
   const [activeTab, setActiveTab] = useState("tips");
-  const [tips, setTips] = useState<StudyTip[]>(SAMPLE_TIPS);
-  const [resources, setResources] = useState<StudyResource[]>(SAMPLE_RESOURCES);
-  const [submittedPrograms, setSubmittedPrograms] = useState<
-    UserSubmittedProgram[]
-  >(SAMPLE_SUBMITTED_PROGRAMS);
-  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
-  const [editingItem, setEditingItem] = useState<any>(null);
+  const [tips, setTips] = useState<StudyTip[]>(INITIAL_TIPS);
+  const [resources, setResources] =
+    useState<StudyResource[]>(INITIAL_RESOURCES);
+  const [submittedPrograms, setSubmittedPrograms] =
+    useState<UserSubmittedProgram[]>(INITIAL_PROGRAMS);
 
-  // Form state for creating/editing
-  const [formData, setFormData] = useState<any>({});
+  // Dialog states
+  const [isCreateTipOpen, setIsCreateTipOpen] = useState(false);
+  const [isCreateResourceOpen, setIsCreateResourceOpen] = useState(false);
+  const [editingTip, setEditingTip] = useState<StudyTip | null>(null);
+  const [editingResource, setEditingResource] = useState<StudyResource | null>(
+    null,
+  );
 
+  // Search and filter states
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterCategory, setFilterCategory] = useState("all");
+  const [filterStatus, setFilterStatus] = useState("all");
+
+  // Form states
+  const [tipForm, setTipForm] = useState<Partial<StudyTip>>({
+    title: "",
+    description: "",
+    category: "general",
+    difficulty: "beginner",
+    tags: [],
+    content: "",
+  });
+
+  const [resourceForm, setResourceForm] = useState<Partial<StudyResource>>({
+    title: "",
+    description: "",
+    type: "pdf",
+    category: "study-guides",
+    url: "",
+    downloadUrl: "",
+    tags: [],
+    isFeatured: false,
+  });
+
+  // Handle tip creation
   const handleCreateTip = () => {
+    if (!tipForm.title || !tipForm.description || !tipForm.content) {
+      toast.error("Please fill in all required fields");
+      return;
+    }
+
     const newTip: StudyTip = {
       id: `tip-${Date.now()}`,
-      title: formData.title || "",
-      description: formData.description || "",
-      category: formData.category || "general",
-      difficulty: formData.difficulty || "beginner",
-      tags: formData.tags?.split(",").map((t: string) => t.trim()) || [],
-      content: formData.content || "",
+      title: tipForm.title!,
+      description: tipForm.description!,
+      category: tipForm.category as StudyTip["category"],
+      difficulty: tipForm.difficulty as StudyTip["difficulty"],
+      tags:
+        typeof tipForm.tags === "string"
+          ? tipForm.tags.split(",").map((t) => t.trim())
+          : tipForm.tags || [],
+      content: tipForm.content!,
       isActive: true,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
 
     setTips([...tips, newTip]);
-    setIsCreateDialogOpen(false);
-    setFormData({});
+    setIsCreateTipOpen(false);
+    setTipForm({
+      title: "",
+      description: "",
+      category: "general",
+      difficulty: "beginner",
+      tags: [],
+      content: "",
+    });
     toast.success("Study tip created successfully!");
   };
 
+  // Handle resource creation
   const handleCreateResource = () => {
+    if (!resourceForm.title || !resourceForm.description) {
+      toast.error("Please fill in all required fields");
+      return;
+    }
+
     const newResource: StudyResource = {
       id: `resource-${Date.now()}`,
-      title: formData.title || "",
-      description: formData.description || "",
-      type: formData.type || "article",
-      category: formData.category || "study-guides",
-      url: formData.url,
-      downloadUrl: formData.downloadUrl,
-      tags: formData.tags?.split(",").map((t: string) => t.trim()) || [],
+      title: resourceForm.title!,
+      description: resourceForm.description!,
+      type: resourceForm.type as StudyResource["type"],
+      category: resourceForm.category as StudyResource["category"],
+      url: resourceForm.url,
+      downloadUrl: resourceForm.downloadUrl,
+      tags:
+        typeof resourceForm.tags === "string"
+          ? resourceForm.tags.split(",").map((t) => t.trim())
+          : resourceForm.tags || [],
       isActive: true,
-      isFeatured: formData.isFeatured || false,
+      isFeatured: resourceForm.isFeatured || false,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
 
     setResources([...resources, newResource]);
-    setIsCreateDialogOpen(false);
-    setFormData({});
+    setIsCreateResourceOpen(false);
+    setResourceForm({
+      title: "",
+      description: "",
+      type: "pdf",
+      category: "study-guides",
+      url: "",
+      downloadUrl: "",
+      tags: [],
+      isFeatured: false,
+    });
     toast.success("Resource created successfully!");
   };
 
+  // Handle tip editing
+  const handleEditTip = (tip: StudyTip) => {
+    setEditingTip(tip);
+    setTipForm({
+      ...tip,
+      tags: tip.tags.join(", "),
+    });
+    setIsCreateTipOpen(true);
+  };
+
+  const handleUpdateTip = () => {
+    if (
+      !editingTip ||
+      !tipForm.title ||
+      !tipForm.description ||
+      !tipForm.content
+    ) {
+      toast.error("Please fill in all required fields");
+      return;
+    }
+
+    const updatedTip: StudyTip = {
+      ...editingTip,
+      title: tipForm.title!,
+      description: tipForm.description!,
+      category: tipForm.category as StudyTip["category"],
+      difficulty: tipForm.difficulty as StudyTip["difficulty"],
+      tags:
+        typeof tipForm.tags === "string"
+          ? tipForm.tags.split(",").map((t) => t.trim())
+          : tipForm.tags || [],
+      content: tipForm.content!,
+      updatedAt: new Date().toISOString(),
+    };
+
+    setTips(tips.map((t) => (t.id === editingTip.id ? updatedTip : t)));
+    setIsCreateTipOpen(false);
+    setEditingTip(null);
+    setTipForm({
+      title: "",
+      description: "",
+      category: "general",
+      difficulty: "beginner",
+      tags: [],
+      content: "",
+    });
+    toast.success("Study tip updated successfully!");
+  };
+
+  // Other handlers
   const handleApproveProgram = (programId: string) => {
     setSubmittedPrograms((prev) =>
       prev.map((p) =>
@@ -211,7 +351,11 @@ const AdminResourcesTab = () => {
 
   const toggleTipStatus = (tipId: string) => {
     setTips((prev) =>
-      prev.map((t) => (t.id === tipId ? { ...t, isActive: !t.isActive } : t)),
+      prev.map((t) =>
+        t.id === tipId
+          ? { ...t, isActive: !t.isActive, updatedAt: new Date().toISOString() }
+          : t,
+      ),
     );
     toast.success("Tip status updated!");
   };
@@ -219,7 +363,9 @@ const AdminResourcesTab = () => {
   const toggleResourceStatus = (resourceId: string) => {
     setResources((prev) =>
       prev.map((r) =>
-        r.id === resourceId ? { ...r, isActive: !r.isActive } : r,
+        r.id === resourceId
+          ? { ...r, isActive: !r.isActive, updatedAt: new Date().toISOString() }
+          : r,
       ),
     );
     toast.success("Resource status updated!");
@@ -228,11 +374,60 @@ const AdminResourcesTab = () => {
   const toggleResourceFeatured = (resourceId: string) => {
     setResources((prev) =>
       prev.map((r) =>
-        r.id === resourceId ? { ...r, isFeatured: !r.isFeatured } : r,
+        r.id === resourceId
+          ? {
+              ...r,
+              isFeatured: !r.isFeatured,
+              updatedAt: new Date().toISOString(),
+            }
+          : r,
       ),
     );
     toast.success("Resource featured status updated!");
   };
+
+  const deleteTip = (tipId: string) => {
+    if (confirm("Are you sure you want to delete this tip?")) {
+      setTips(tips.filter((t) => t.id !== tipId));
+      toast.success("Tip deleted successfully!");
+    }
+  };
+
+  const deleteResource = (resourceId: string) => {
+    if (confirm("Are you sure you want to delete this resource?")) {
+      setResources(resources.filter((r) => r.id !== resourceId));
+      toast.success("Resource deleted successfully!");
+    }
+  };
+
+  // Filtering
+  const filteredTips = tips.filter((tip) => {
+    const matchesSearch =
+      tip.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      tip.description.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory =
+      filterCategory === "all" || tip.category === filterCategory;
+    const matchesStatus =
+      filterStatus === "all" ||
+      (filterStatus === "active" && tip.isActive) ||
+      (filterStatus === "inactive" && !tip.isActive);
+
+    return matchesSearch && matchesCategory && matchesStatus;
+  });
+
+  const filteredResources = resources.filter((resource) => {
+    const matchesSearch =
+      resource.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      resource.description.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory =
+      filterCategory === "all" || resource.category === filterCategory;
+    const matchesStatus =
+      filterStatus === "all" ||
+      (filterStatus === "active" && resource.isActive) ||
+      (filterStatus === "inactive" && !resource.isActive);
+
+    return matchesSearch && matchesCategory && matchesStatus;
+  });
 
   const getTypeIcon = (type: string) => {
     switch (type) {
@@ -278,63 +473,137 @@ const AdminResourcesTab = () => {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="space-y-4 md:space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h2 className="text-3xl font-bold">Resource Management</h2>
-          <p className="text-gray-600">
+          <h2 className="text-2xl md:text-3xl font-bold">
+            Resource Management
+          </h2>
+          <p className="text-gray-600 text-sm md:text-base">
             Manage study tips, resources, and user-submitted programs
           </p>
         </div>
       </div>
 
+      {/* Search and Filter Bar */}
+      <Card>
+        <CardContent className="p-4">
+          <div className="flex flex-col sm:flex-row gap-4">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+              <Input
+                placeholder="Search resources..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+            <div className="flex flex-col sm:flex-row gap-2">
+              <Select value={filterCategory} onValueChange={setFilterCategory}>
+                <SelectTrigger className="w-full sm:w-48">
+                  <SelectValue placeholder="Category" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Categories</SelectItem>
+                  <SelectItem value="time-management">
+                    Time Management
+                  </SelectItem>
+                  <SelectItem value="study-techniques">
+                    Study Techniques
+                  </SelectItem>
+                  <SelectItem value="exam-prep">Exam Prep</SelectItem>
+                  <SelectItem value="motivation">Motivation</SelectItem>
+                  <SelectItem value="study-guides">Study Guides</SelectItem>
+                </SelectContent>
+              </Select>
+              <Select value={filterStatus} onValueChange={setFilterStatus}>
+                <SelectTrigger className="w-full sm:w-32">
+                  <SelectValue placeholder="Status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Status</SelectItem>
+                  <SelectItem value="active">Active</SelectItem>
+                  <SelectItem value="inactive">Inactive</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="tips" className="flex items-center gap-2">
-            <Lightbulb className="h-4 w-4" />
-            Study Tips ({tips.length})
+          <TabsTrigger
+            value="tips"
+            className="flex items-center gap-1 md:gap-2 text-xs md:text-sm"
+          >
+            <Lightbulb className="h-3 w-3 md:h-4 md:w-4" />
+            <span className="hidden sm:inline">Study Tips</span>
+            <span className="sm:hidden">Tips</span>({filteredTips.length})
           </TabsTrigger>
-          <TabsTrigger value="resources" className="flex items-center gap-2">
-            <BookOpen className="h-4 w-4" />
-            Resources ({resources.length})
+          <TabsTrigger
+            value="resources"
+            className="flex items-center gap-1 md:gap-2 text-xs md:text-sm"
+          >
+            <BookOpen className="h-3 w-3 md:h-4 md:w-4" />
+            <span className="hidden sm:inline">Resources</span>
+            <span className="sm:hidden">Files</span>({filteredResources.length})
           </TabsTrigger>
-          <TabsTrigger value="submissions" className="flex items-center gap-2">
-            <AlertCircle className="h-4 w-4" />
-            Program Submissions (
+          <TabsTrigger
+            value="submissions"
+            className="flex items-center gap-1 md:gap-2 text-xs md:text-sm"
+          >
+            <AlertCircle className="h-3 w-3 md:h-4 md:w-4" />
+            <span className="hidden sm:inline">Submissions</span>
+            <span className="sm:hidden">New</span>(
             {submittedPrograms.filter((p) => p.status === "pending").length})
           </TabsTrigger>
         </TabsList>
 
         {/* Study Tips Tab */}
-        <TabsContent value="tips" className="space-y-6">
-          <div className="flex justify-between items-center">
-            <h3 className="text-xl font-semibold">Study Tips</h3>
-            <Dialog
-              open={isCreateDialogOpen}
-              onOpenChange={setIsCreateDialogOpen}
-            >
+        <TabsContent value="tips" className="space-y-4 md:space-y-6">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+            <h3 className="text-lg md:text-xl font-semibold">Study Tips</h3>
+            <Dialog open={isCreateTipOpen} onOpenChange={setIsCreateTipOpen}>
               <DialogTrigger asChild>
-                <Button onClick={() => setFormData({})}>
+                <Button
+                  onClick={() => {
+                    setEditingTip(null);
+                    setTipForm({
+                      title: "",
+                      description: "",
+                      category: "general",
+                      difficulty: "beginner",
+                      tags: [],
+                      content: "",
+                    });
+                  }}
+                >
                   <Plus className="h-4 w-4 mr-2" />
-                  Add Study Tip
+                  <span className="hidden sm:inline">Add Study Tip</span>
+                  <span className="sm:hidden">Add</span>
                 </Button>
               </DialogTrigger>
-              <DialogContent className="max-w-2xl">
+              <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
-                  <DialogTitle>Create New Study Tip</DialogTitle>
+                  <DialogTitle>
+                    {editingTip ? "Edit Study Tip" : "Create New Study Tip"}
+                  </DialogTitle>
                   <DialogDescription>
-                    Add a new study tip to help students improve their learning.
+                    {editingTip
+                      ? "Update the study tip information."
+                      : "Add a new study tip to help students improve their learning."}
                   </DialogDescription>
                 </DialogHeader>
                 <div className="space-y-4">
                   <div>
                     <label className="block text-sm font-medium mb-2">
-                      Title
+                      Title *
                     </label>
                     <Input
-                      value={formData.title || ""}
+                      value={tipForm.title || ""}
                       onChange={(e) =>
-                        setFormData((prev) => ({
+                        setTipForm((prev) => ({
                           ...prev,
                           title: e.target.value,
                         }))
@@ -344,12 +613,12 @@ const AdminResourcesTab = () => {
                   </div>
                   <div>
                     <label className="block text-sm font-medium mb-2">
-                      Description
+                      Description *
                     </label>
                     <Input
-                      value={formData.description || ""}
+                      value={tipForm.description || ""}
                       onChange={(e) =>
-                        setFormData((prev) => ({
+                        setTipForm((prev) => ({
                           ...prev,
                           description: e.target.value,
                         }))
@@ -357,15 +626,18 @@ const AdminResourcesTab = () => {
                       placeholder="Brief description"
                     />
                   </div>
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-medium mb-2">
                         Category
                       </label>
                       <Select
-                        value={formData.category || ""}
+                        value={tipForm.category || ""}
                         onValueChange={(value) =>
-                          setFormData((prev) => ({ ...prev, category: value }))
+                          setTipForm((prev) => ({
+                            ...prev,
+                            category: value as StudyTip["category"],
+                          }))
                         }
                       >
                         <SelectTrigger>
@@ -391,11 +663,11 @@ const AdminResourcesTab = () => {
                         Difficulty
                       </label>
                       <Select
-                        value={formData.difficulty || ""}
+                        value={tipForm.difficulty || ""}
                         onValueChange={(value) =>
-                          setFormData((prev) => ({
+                          setTipForm((prev) => ({
                             ...prev,
-                            difficulty: value,
+                            difficulty: value as StudyTip["difficulty"],
                           }))
                         }
                       >
@@ -417,9 +689,13 @@ const AdminResourcesTab = () => {
                       Tags (comma-separated)
                     </label>
                     <Input
-                      value={formData.tags || ""}
+                      value={
+                        typeof tipForm.tags === "string"
+                          ? tipForm.tags
+                          : tipForm.tags?.join(", ") || ""
+                      }
                       onChange={(e) =>
-                        setFormData((prev) => ({
+                        setTipForm((prev) => ({
                           ...prev,
                           tags: e.target.value,
                         }))
@@ -429,12 +705,12 @@ const AdminResourcesTab = () => {
                   </div>
                   <div>
                     <label className="block text-sm font-medium mb-2">
-                      Content
+                      Content *
                     </label>
                     <Textarea
-                      value={formData.content || ""}
+                      value={tipForm.content || ""}
                       onChange={(e) =>
-                        setFormData((prev) => ({
+                        setTipForm((prev) => ({
                           ...prev,
                           content: e.target.value,
                         }))
@@ -443,14 +719,22 @@ const AdminResourcesTab = () => {
                       rows={8}
                     />
                   </div>
-                  <div className="flex gap-3">
-                    <Button onClick={handleCreateTip} className="flex-1">
-                      Create Tip
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    <Button
+                      onClick={editingTip ? handleUpdateTip : handleCreateTip}
+                      className="flex-1"
+                    >
+                      <Save className="h-4 w-4 mr-2" />
+                      {editingTip ? "Update Tip" : "Create Tip"}
                     </Button>
                     <Button
                       variant="outline"
-                      onClick={() => setIsCreateDialogOpen(false)}
+                      onClick={() => {
+                        setIsCreateTipOpen(false);
+                        setEditingTip(null);
+                      }}
                     >
+                      <X className="h-4 w-4 mr-2" />
                       Cancel
                     </Button>
                   </div>
@@ -461,90 +745,145 @@ const AdminResourcesTab = () => {
 
           <Card>
             <CardContent className="p-0">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Title</TableHead>
-                    <TableHead>Category</TableHead>
-                    <TableHead>Difficulty</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {tips.map((tip) => (
-                    <TableRow key={tip.id}>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          {getCategoryIcon(tip.category)}
-                          <div>
-                            <div className="font-medium">{tip.title}</div>
-                            <div className="text-sm text-gray-500">
-                              {tip.description}
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="min-w-[250px]">Title</TableHead>
+                      <TableHead className="hidden md:table-cell">
+                        Category
+                      </TableHead>
+                      <TableHead className="hidden lg:table-cell">
+                        Difficulty
+                      </TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead className="w-[120px]">Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredTips.map((tip) => (
+                      <TableRow key={tip.id}>
+                        <TableCell>
+                          <div className="flex items-start gap-2">
+                            {getCategoryIcon(tip.category)}
+                            <div className="min-w-0">
+                              <div className="font-medium text-sm truncate">
+                                {tip.title}
+                              </div>
+                              <div className="text-xs text-gray-500 line-clamp-2">
+                                {tip.description}
+                              </div>
+                              <div className="flex flex-wrap gap-1 mt-1 md:hidden">
+                                <Badge variant="outline" className="text-xs">
+                                  {tip.category.replace("-", " ")}
+                                </Badge>
+                                <Badge
+                                  className={`text-xs ${
+                                    tip.difficulty === "beginner"
+                                      ? "bg-green-100 text-green-800"
+                                      : tip.difficulty === "intermediate"
+                                        ? "bg-yellow-100 text-yellow-800"
+                                        : "bg-red-100 text-red-800"
+                                  }`}
+                                >
+                                  {tip.difficulty}
+                                </Badge>
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant="outline">
-                          {tip.category.replace("-", " ")}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <Badge
-                          className={
-                            tip.difficulty === "beginner"
-                              ? "bg-green-100 text-green-800"
-                              : tip.difficulty === "intermediate"
-                                ? "bg-yellow-100 text-yellow-800"
-                                : "bg-red-100 text-red-800"
-                          }
-                        >
-                          {tip.difficulty}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant={tip.isActive ? "default" : "secondary"}>
-                          {tip.isActive ? "Active" : "Inactive"}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex gap-2">
-                          <Button variant="outline" size="sm">
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => toggleTipStatus(tip.id)}
+                        </TableCell>
+                        <TableCell className="hidden md:table-cell">
+                          <Badge variant="outline" className="text-xs">
+                            {tip.category.replace("-", " ")}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="hidden lg:table-cell">
+                          <Badge
+                            className={`text-xs ${
+                              tip.difficulty === "beginner"
+                                ? "bg-green-100 text-green-800"
+                                : tip.difficulty === "intermediate"
+                                  ? "bg-yellow-100 text-yellow-800"
+                                  : "bg-red-100 text-red-800"
+                            }`}
                           >
-                            <Eye className="h-4 w-4" />
-                          </Button>
-                          <Button variant="outline" size="sm">
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                            {tip.difficulty}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          <Badge
+                            variant={tip.isActive ? "default" : "secondary"}
+                            className="text-xs"
+                          >
+                            {tip.isActive ? "Active" : "Inactive"}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex gap-1">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleEditTip(tip)}
+                            >
+                              <Edit className="h-3 w-3" />
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => toggleTipStatus(tip.id)}
+                            >
+                              <Eye className="h-3 w-3" />
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => deleteTip(tip.id)}
+                            >
+                              <Trash2 className="h-3 w-3" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
 
         {/* Resources Tab */}
-        <TabsContent value="resources" className="space-y-6">
-          <div className="flex justify-between items-center">
-            <h3 className="text-xl font-semibold">Study Resources</h3>
-            <Dialog>
+        <TabsContent value="resources" className="space-y-4 md:space-y-6">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+            <h3 className="text-lg md:text-xl font-semibold">
+              Study Resources
+            </h3>
+            <Dialog
+              open={isCreateResourceOpen}
+              onOpenChange={setIsCreateResourceOpen}
+            >
               <DialogTrigger asChild>
-                <Button>
+                <Button
+                  onClick={() => {
+                    setEditingResource(null);
+                    setResourceForm({
+                      title: "",
+                      description: "",
+                      type: "pdf",
+                      category: "study-guides",
+                      url: "",
+                      downloadUrl: "",
+                      tags: [],
+                      isFeatured: false,
+                    });
+                  }}
+                >
                   <Plus className="h-4 w-4 mr-2" />
-                  Add Resource
+                  <span className="hidden sm:inline">Add Resource</span>
+                  <span className="sm:hidden">Add</span>
                 </Button>
               </DialogTrigger>
-              <DialogContent className="max-w-2xl">
+              <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
                   <DialogTitle>Create New Resource</DialogTitle>
                   <DialogDescription>
@@ -552,12 +891,172 @@ const AdminResourcesTab = () => {
                   </DialogDescription>
                 </DialogHeader>
                 <div className="space-y-4">
-                  {/* Resource form fields similar to tips */}
-                  <div className="flex gap-3">
+                  <div>
+                    <label className="block text-sm font-medium mb-2">
+                      Title *
+                    </label>
+                    <Input
+                      value={resourceForm.title || ""}
+                      onChange={(e) =>
+                        setResourceForm((prev) => ({
+                          ...prev,
+                          title: e.target.value,
+                        }))
+                      }
+                      placeholder="Enter resource title"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-2">
+                      Description *
+                    </label>
+                    <Textarea
+                      value={resourceForm.description || ""}
+                      onChange={(e) =>
+                        setResourceForm((prev) => ({
+                          ...prev,
+                          description: e.target.value,
+                        }))
+                      }
+                      placeholder="Brief description"
+                      rows={3}
+                    />
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium mb-2">
+                        Type
+                      </label>
+                      <Select
+                        value={resourceForm.type || ""}
+                        onValueChange={(value) =>
+                          setResourceForm((prev) => ({
+                            ...prev,
+                            type: value as StudyResource["type"],
+                          }))
+                        }
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select type" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="pdf">PDF Document</SelectItem>
+                          <SelectItem value="video">Video</SelectItem>
+                          <SelectItem value="template">Template</SelectItem>
+                          <SelectItem value="tool">Tool</SelectItem>
+                          <SelectItem value="article">Article</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-2">
+                        Category
+                      </label>
+                      <Select
+                        value={resourceForm.category || ""}
+                        onValueChange={(value) =>
+                          setResourceForm((prev) => ({
+                            ...prev,
+                            category: value as StudyResource["category"],
+                          }))
+                        }
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select category" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="study-guides">
+                            Study Guides
+                          </SelectItem>
+                          <SelectItem value="time-management">
+                            Time Management
+                          </SelectItem>
+                          <SelectItem value="exam-prep">Exam Prep</SelectItem>
+                          <SelectItem value="research">Research</SelectItem>
+                          <SelectItem value="presentations">
+                            Presentations
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-2">
+                      URL (for videos/online resources)
+                    </label>
+                    <Input
+                      value={resourceForm.url || ""}
+                      onChange={(e) =>
+                        setResourceForm((prev) => ({
+                          ...prev,
+                          url: e.target.value,
+                        }))
+                      }
+                      placeholder="https://example.com/resource"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-2">
+                      Download URL (for files)
+                    </label>
+                    <Input
+                      value={resourceForm.downloadUrl || ""}
+                      onChange={(e) =>
+                        setResourceForm((prev) => ({
+                          ...prev,
+                          downloadUrl: e.target.value,
+                        }))
+                      }
+                      placeholder="https://example.com/download"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-2">
+                      Tags (comma-separated)
+                    </label>
+                    <Input
+                      value={
+                        typeof resourceForm.tags === "string"
+                          ? resourceForm.tags
+                          : resourceForm.tags?.join(", ") || ""
+                      }
+                      onChange={(e) =>
+                        setResourceForm((prev) => ({
+                          ...prev,
+                          tags: e.target.value,
+                        }))
+                      }
+                      placeholder="mathematics, formulas, reference"
+                    />
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      id="featured"
+                      checked={resourceForm.isFeatured || false}
+                      onChange={(e) =>
+                        setResourceForm((prev) => ({
+                          ...prev,
+                          isFeatured: e.target.checked,
+                        }))
+                      }
+                    />
+                    <label htmlFor="featured" className="text-sm font-medium">
+                      Featured Resource
+                    </label>
+                  </div>
+                  <div className="flex flex-col sm:flex-row gap-3">
                     <Button onClick={handleCreateResource} className="flex-1">
+                      <Save className="h-4 w-4 mr-2" />
                       Create Resource
                     </Button>
-                    <Button variant="outline">Cancel</Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => setIsCreateResourceOpen(false)}
+                    >
+                      <X className="h-4 w-4 mr-2" />
+                      Cancel
+                    </Button>
                   </div>
                 </div>
               </DialogContent>
@@ -566,116 +1065,146 @@ const AdminResourcesTab = () => {
 
           <Card>
             <CardContent className="p-0">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Resource</TableHead>
-                    <TableHead>Type</TableHead>
-                    <TableHead>Category</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {resources.map((resource) => (
-                    <TableRow key={resource.id}>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          {getTypeIcon(resource.type)}
-                          <div>
-                            <div className="font-medium flex items-center gap-2">
-                              {resource.title}
-                              {resource.isFeatured && (
-                                <Star className="h-4 w-4 text-yellow-500" />
-                              )}
-                            </div>
-                            <div className="text-sm text-gray-500">
-                              {resource.description}
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="min-w-[250px]">Resource</TableHead>
+                      <TableHead className="hidden md:table-cell">
+                        Type
+                      </TableHead>
+                      <TableHead className="hidden lg:table-cell">
+                        Category
+                      </TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead className="w-[140px]">Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredResources.map((resource) => (
+                      <TableRow key={resource.id}>
+                        <TableCell>
+                          <div className="flex items-start gap-2">
+                            {getTypeIcon(resource.type)}
+                            <div className="min-w-0">
+                              <div className="font-medium text-sm flex items-center gap-2">
+                                <span className="truncate">
+                                  {resource.title}
+                                </span>
+                                {resource.isFeatured && (
+                                  <Star className="h-3 w-3 text-yellow-500 flex-shrink-0" />
+                                )}
+                              </div>
+                              <div className="text-xs text-gray-500 line-clamp-2">
+                                {resource.description}
+                              </div>
+                              <div className="flex flex-wrap gap-1 mt-1 md:hidden">
+                                <Badge variant="outline" className="text-xs">
+                                  {resource.type}
+                                </Badge>
+                                <Badge variant="outline" className="text-xs">
+                                  {resource.category.replace("-", " ")}
+                                </Badge>
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant="outline">{resource.type}</Badge>
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant="outline">
-                          {resource.category.replace("-", " ")}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex gap-1">
-                          <Badge
-                            variant={
-                              resource.isActive ? "default" : "secondary"
-                            }
-                          >
-                            {resource.isActive ? "Active" : "Inactive"}
+                        </TableCell>
+                        <TableCell className="hidden md:table-cell">
+                          <Badge variant="outline" className="text-xs">
+                            {resource.type}
                           </Badge>
-                          {resource.isFeatured && (
-                            <Badge className="bg-yellow-100 text-yellow-800">
-                              Featured
+                        </TableCell>
+                        <TableCell className="hidden lg:table-cell">
+                          <Badge variant="outline" className="text-xs">
+                            {resource.category.replace("-", " ")}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex flex-col gap-1">
+                            <Badge
+                              variant={
+                                resource.isActive ? "default" : "secondary"
+                              }
+                              className="text-xs"
+                            >
+                              {resource.isActive ? "Active" : "Inactive"}
                             </Badge>
-                          )}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex gap-2">
-                          <Button variant="outline" size="sm">
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => toggleResourceFeatured(resource.id)}
-                          >
-                            <Star className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => toggleResourceStatus(resource.id)}
-                          >
-                            <Eye className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                            {resource.isFeatured && (
+                              <Badge className="bg-yellow-100 text-yellow-800 text-xs">
+                                Featured
+                              </Badge>
+                            )}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex gap-1">
+                            <Button variant="outline" size="sm">
+                              <Edit className="h-3 w-3" />
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() =>
+                                toggleResourceFeatured(resource.id)
+                              }
+                            >
+                              <Star className="h-3 w-3" />
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => toggleResourceStatus(resource.id)}
+                            >
+                              <Eye className="h-3 w-3" />
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => deleteResource(resource.id)}
+                            >
+                              <Trash2 className="h-3 w-3" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
 
         {/* Program Submissions Tab */}
-        <TabsContent value="submissions" className="space-y-6">
-          <div className="flex justify-between items-center">
-            <h3 className="text-xl font-semibold">User Program Submissions</h3>
+        <TabsContent value="submissions" className="space-y-4 md:space-y-6">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+            <h3 className="text-lg md:text-xl font-semibold">
+              User Program Submissions
+            </h3>
             <Badge className="bg-yellow-100 text-yellow-800">
               {submittedPrograms.filter((p) => p.status === "pending").length}{" "}
               Pending Review
             </Badge>
           </div>
 
-          <div className="grid gap-6">
+          <div className="grid gap-4 md:gap-6">
             {submittedPrograms.map((program) => (
               <Card key={program.id}>
-                <CardHeader>
-                  <div className="flex justify-between items-start">
+                <CardHeader className="pb-3">
+                  <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3">
                     <div>
-                      <CardTitle className="text-lg">
+                      <CardTitle className="text-base md:text-lg">
                         {program.programName}
                       </CardTitle>
-                      <CardDescription>
+                      <CardDescription className="text-sm">
                         {program.universityName} - {program.facultyName}
                       </CardDescription>
                     </div>
                     {getStatusBadge(program.status)}
                   </div>
                 </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                     <div>
                       <strong>Duration:</strong> {program.duration}
                     </div>
@@ -684,96 +1213,80 @@ const AdminResourcesTab = () => {
                     </div>
                   </div>
 
-                  <div className="mb-4">
-                    <strong>Description:</strong>
-                    <p className="text-gray-600 mt-1">{program.description}</p>
+                  <div>
+                    <strong className="text-sm">Description:</strong>
+                    <p className="text-gray-600 mt-1 text-sm">
+                      {program.description}
+                    </p>
                   </div>
 
-                  <div className="mb-4">
-                    <strong>Subject Requirements:</strong>
+                  <div>
+                    <strong className="text-sm">Subject Requirements:</strong>
                     <div className="flex flex-wrap gap-2 mt-1">
                       {program.subjects.map((subject, index) => (
-                        <Badge key={index} variant="outline">
+                        <Badge
+                          key={index}
+                          variant="outline"
+                          className="text-xs"
+                        >
                           {subject.name} (Level {subject.level})
                           {subject.isRequired && (
-                            <span className="text-red-500">*</span>
+                            <span className="text-red-500 ml-1">*</span>
                           )}
                         </Badge>
                       ))}
                     </div>
                   </div>
 
-                  <div className="mb-4">
-                    <strong>Career Prospects:</strong>
+                  <div>
+                    <strong className="text-sm">Career Prospects:</strong>
                     <div className="flex flex-wrap gap-2 mt-1">
                       {program.careerProspects.map((career, index) => (
-                        <Badge key={index} variant="secondary">
+                        <Badge
+                          key={index}
+                          variant="secondary"
+                          className="text-xs"
+                        >
                           {career}
                         </Badge>
                       ))}
                     </div>
                   </div>
 
-                  <div className="text-sm text-gray-500 mb-4">
+                  <div className="text-xs text-gray-500">
                     Submitted on{" "}
                     {new Date(program.submittedAt).toLocaleDateString()}
                   </div>
 
                   {program.status === "pending" && (
-                    <div className="flex gap-3">
+                    <div className="flex flex-col sm:flex-row gap-3">
                       <Button
                         onClick={() => handleApproveProgram(program.id!)}
-                        className="bg-green-600 hover:bg-green-700"
+                        className="bg-green-600 hover:bg-green-700 w-full sm:w-auto"
                       >
                         <CheckCircle className="h-4 w-4 mr-2" />
                         Approve
                       </Button>
-                      <Dialog>
-                        <DialogTrigger asChild>
-                          <Button
-                            variant="outline"
-                            className="border-red-300 text-red-600"
-                          >
-                            Reject
-                          </Button>
-                        </DialogTrigger>
-                        <DialogContent>
-                          <DialogHeader>
-                            <DialogTitle>Reject Program Submission</DialogTitle>
-                            <DialogDescription>
-                              Please provide a reason for rejecting this program
-                              submission.
-                            </DialogDescription>
-                          </DialogHeader>
-                          <div className="space-y-4">
-                            <Textarea
-                              placeholder="Reason for rejection..."
-                              rows={4}
-                            />
-                            <div className="flex gap-3">
-                              <Button
-                                variant="destructive"
-                                onClick={() =>
-                                  handleRejectProgram(
-                                    program.id!,
-                                    "Sample rejection reason",
-                                  )
-                                }
-                              >
-                                Reject Program
-                              </Button>
-                              <Button variant="outline">Cancel</Button>
-                            </div>
-                          </div>
-                        </DialogContent>
-                      </Dialog>
+                      <Button
+                        variant="outline"
+                        className="border-red-300 text-red-600 w-full sm:w-auto"
+                        onClick={() => {
+                          const reason = prompt(
+                            "Please provide a reason for rejection:",
+                          );
+                          if (reason) handleRejectProgram(program.id!, reason);
+                        }}
+                      >
+                        <X className="h-4 w-4 mr-2" />
+                        Reject
+                      </Button>
                     </div>
                   )}
 
                   {program.reviewNotes && (
                     <Alert className="mt-4">
                       <AlertCircle className="h-4 w-4" />
-                      <AlertDescription>
+                      <AlertDescription className="text-sm">
                         <strong>Review Notes:</strong> {program.reviewNotes}
                       </AlertDescription>
                     </Alert>
