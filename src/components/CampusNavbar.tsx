@@ -8,6 +8,8 @@ import {
   GraduationCap,
   Search,
   BookOpen,
+  Lightbulb,
+  Plus,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
