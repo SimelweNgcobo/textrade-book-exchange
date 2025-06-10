@@ -315,25 +315,65 @@ export const COMPREHENSIVE_UNIVERSITIES: University[] = [
         degrees: [
           {
             id: "bpharm",
-            name: "BPharm Pharmacy",
+            name: "Bachelor of Pharmacy",
             faculty: "Health Sciences",
             duration: "4 years",
-            apsRequirement: 35,
-            description:
-              "Pharmacy education with clinical focus (NWU specialty).",
+            apsRequirement: 34,
+            description: "Pharmacy education with clinical focus (NWU specialty).",
             subjects: [
               { name: "Mathematics", level: 5, isRequired: true },
               { name: "Physical Sciences", level: 6, isRequired: true },
-              { name: "Life Sciences", level: 5, isRequired: true },
+              { name: "Life Sciences", level: 6, isRequired: true },
               { name: "English", level: 4, isRequired: true },
             ],
             careerProspects: [
               "Pharmacist",
               "Clinical Pharmacist",
               "Hospital Pharmacist",
+              "Community Pharmacist",
               "Pharmaceutical Researcher",
-              "Drug Safety Specialist",
             ],
+          },
+          {
+            id: "bsc-indigenous-knowledge-systems",
+            name: "BSc Indigenous Knowledge Systems",
+            faculty: "Natural and Agricultural Sciences",
+            duration: "3 years",
+            apsRequirement: 26,
+            description: "Indigenous knowledge systems specialization (NWU specialty).",
+            subjects: [
+              { name: "Life Sciences", level: 4, isRequired: true },
+              { name: "English", level: 4, isRequired: true },
+              { name: "Indigenous Language", level: 4, isRequired: false },
+            ],
+            careerProspects: [
+              "Indigenous Knowledge Researcher",
+              "Cultural Heritage Specialist",
+              "Community Development Worker",
+              "Traditional Medicine Researcher",
+              "Environmental Educator",
+            ],
+          },
+          {
+            id: "bsw-social-work",
+            name: "Bachelor of Social Work",
+            faculty: "Human and Social Sciences",
+            duration: "4 years",
+            apsRequirement: 26,
+            description: "Social work education with community development focus (NWU specialty).",
+            subjects: [
+              { name: "English", level: 4, isRequired: true },
+              { name: "Mathematics", level: 4, isRequired: true },
+              { name: "Life Sciences", level: 4, isRequired: false },
+            ],
+            careerProspects: [
+              "Social Worker",
+              "Community Development Worker",
+              "Child Protection Officer",
+              "Family Counselor",
+              "NGO Program Manager",
+            ],
+          },
           },
           {
             id: "bnurs-nursing",
@@ -900,8 +940,7 @@ export const COMPREHENSIVE_UNIVERSITIES: University[] = [
             faculty: "Human Sciences",
             duration: "3 years",
             apsRequirement: 24,
-            description:
-              "Criminology through distance learning (UNISA specialty).",
+            description: "Criminology through distance learning (UNISA specialty).",
             subjects: [
               { name: "English", level: 4, isRequired: true },
               { name: "Mathematics", level: 3, isRequired: true },
@@ -920,8 +959,7 @@ export const COMPREHENSIVE_UNIVERSITIES: University[] = [
             faculty: "Human Sciences",
             duration: "3 years",
             apsRequirement: 24,
-            description:
-              "Corrections management specialization (UNISA specialty).",
+            description: "Corrections management specialization (UNISA specialty).",
             subjects: [
               { name: "English", level: 4, isRequired: true },
               { name: "Mathematics", level: 3, isRequired: true },
