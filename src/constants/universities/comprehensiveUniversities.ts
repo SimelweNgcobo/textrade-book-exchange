@@ -8,7 +8,7 @@ export const COMPREHENSIVE_UNIVERSITIES: University[] = [
     fullName: "North-West University (NWU)",
     location: "Potchefstroom",
     province: "North West",
-    logo: "https://images.unsplash.com/photo-1607013251379-e6eecfffe234?w=80&h=80&fit=crop&crop=center",
+    logo: "/logos/universities/university-of-north-west.svg",
     overview:
       "A comprehensive university committed to academic excellence and social transformation through innovative teaching, learning and research.",
     website: "https://www.nwu.ac.za",
@@ -842,7 +842,7 @@ export const COMPREHENSIVE_UNIVERSITIES: University[] = [
     fullName: "University of Venda (UNIVEN)",
     location: "Thohoyandou",
     province: "Limpopo",
-    logo: "https://images.unsplash.com/photo-1607013251379-e6eecfffe234?w=80&h=80&fit=crop&crop=center",
+    logo: "/logos/universities/university-of-venda.svg",
     overview:
       "A comprehensive university committed to social responsibility and the pursuit of excellence in education, research and community engagement.",
     website: "https://www.univen.ac.za",
@@ -1241,7 +1241,7 @@ export const COMPREHENSIVE_UNIVERSITIES: University[] = [
     fullName: "University of South Africa (UNISA)",
     location: "Pretoria",
     province: "Gauteng",
-    logo: "https://images.unsplash.com/photo-1607013251379-e6eecfffe234?w=80&h=80&fit=crop&crop=center",
+    logo: "/logos/universities/unisa.svg",
     overview:
       "Africa's largest open distance learning institution, offering quality education accessible to all through innovative online learning platforms.",
     website: "https://www.unisa.ac.za",
@@ -1692,7 +1692,7 @@ export const COMPREHENSIVE_UNIVERSITIES: University[] = [
     fullName: "University of Mpumalanga (UMP)",
     location: "Nelspruit",
     province: "Mpumalanga",
-    logo: "https://images.unsplash.com/photo-1607013251379-e6eecfffe234?w=80&h=80&fit=crop&crop=center",
+    logo: "/logos/universities/university-of-mpumalanga.svg",
     overview:
       "A young, dynamic university committed to transforming communities through accessible higher education and research.",
     website: "https://www.ump.ac.za",
@@ -2513,9 +2513,9 @@ export const COMPREHENSIVE_UNIVERSITIES: University[] = [
     name: "University of Zululand",
     abbreviation: "UniZulu",
     fullName: "University of Zululand (UniZulu)",
-    location: "KwaDlangezwa",
+    location: "Richards Bay",
     province: "KwaZulu-Natal",
-    logo: "https://images.unsplash.com/photo-1607013251379-e6eecfffe234?w=80&h=80&fit=crop&crop=center",
+    logo: "/logos/universities/university-of-zululand.svg",
     overview:
       "A comprehensive university rooted in African values and committed to academic excellence and community engagement.",
     website: "https://www.unizulu.ac.za",
@@ -2748,7 +2748,7 @@ export const COMPREHENSIVE_UNIVERSITIES: University[] = [
     fullName: "University of Johannesburg (UJ)",
     location: "Johannesburg",
     province: "Gauteng",
-    logo: "https://images.unsplash.com/photo-1607013251379-e6eecfffe234?w=80&h=80&fit=crop&crop=center",
+    logo: "/logos/universities/university-of-johannesburg.svg",
     overview:
       "A vibrant, multicultural comprehensive university that combines academic excellence with innovation and sustainability.",
     website: "https://www.uj.ac.za",

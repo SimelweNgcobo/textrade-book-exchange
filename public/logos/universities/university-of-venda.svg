@@ -1,0 +1,44 @@
+<svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="400" height="300" fill="white"/>
+  
+  <!-- University of Venda emblem -->
+  <g transform="translate(200, 120)">
+    <!-- Main shield shape -->
+    <path d="M0,-60 L50,-40 L60,0 L50,40 L0,60 L-50,40 L-60,0 L-50,-40 Z" fill="#1E40AF" stroke="#DC2626" stroke-width="3"/>
+    
+    <!-- Crown/rays at top -->
+    <g transform="translate(0, -60)">
+      <path d="M-30,-20 L-20,-35 L-10,-25 L0,-35 L10,-25 L20,-35 L30,-20 L20,-10 L-20,-10 Z" fill="#B8860B"/>
+      <!-- Center diamond -->
+      <path d="M-8,-15 L0,-25 L8,-15 L0,-5 Z" fill="#DC2626"/>
+      <!-- Small gear/cog -->
+      <circle cx="0" cy="-15" r="8" fill="#DC2626"/>
+      <circle cx="0" cy="-15" r="4" fill="white"/>
+    </g>
+    
+    <!-- Traditional pot in center -->
+    <g transform="translate(0, -10)">
+      <!-- Pot body -->
+      <ellipse cx="0" cy="0" rx="25" ry="15" fill="#8B4513"/>
+      <!-- Pot rim -->
+      <ellipse cx="0" cy="-15" rx="28" ry="8" fill="#A0522D"/>
+      <!-- Decorative pattern -->
+      <path d="M-20,-5 Q0,0 20,-5 M-15,5 Q0,10 15,5" stroke="#DC2626" stroke-width="2" fill="none"/>
+    </g>
+    
+    <!-- Curved elements on sides -->
+    <g transform="translate(-30, 0)">
+      <path d="M0,-20 Q-15,-10 Q-15,10 Q0,20" stroke="#DC2626" stroke-width="4" fill="none"/>
+    </g>
+    <g transform="translate(30, 0)">
+      <path d="M0,-20 Q15,-10 Q15,10 Q0,20" stroke="#DC2626" stroke-width="4" fill="none"/>
+    </g>
+    
+    <!-- Blue dot at bottom -->
+    <circle cx="0" cy="40" r="8" fill="#1E40AF"/>
+  </g>
+  
+  <!-- University name -->
+  <text x="200" y="220" text-anchor="middle" fill="#1E40AF" font-family="Arial, sans-serif" font-size="32" font-weight="bold">University of Venda</text>
+</svg>

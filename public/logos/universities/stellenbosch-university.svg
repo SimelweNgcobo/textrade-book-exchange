@@ -1,0 +1,33 @@
+<svg viewBox="0 0 400 350" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="400" height="350" fill="white"/>
+  
+  <!-- Stellenbosch University logo -->
+  <g transform="translate(200, 120)">
+    <!-- Stylized S shapes -->
+    <g fill="#B8860B">
+      <!-- Left S -->
+      <path d="M-50,-40 Q-70,-20 Q-50,0 Q-30,20 Q-50,40 Q-70,20 Q-50,0 Q-30,-20 Q-50,-40" fill="#B8860B"/>
+      
+      <!-- Center S -->
+      <path d="M0,-40 Q-20,-20 Q0,0 Q20,20 Q0,40 Q-20,20 Q0,0 Q20,-20 Q0,-40" fill="#B8860B"/>
+      
+      <!-- Right S -->
+      <path d="M50,-40 Q30,-20 Q50,0 Q70,20 Q50,40 Q30,20 Q50,0 Q70,-20 Q50,-40" fill="#B8860B"/>
+    </g>
+    
+    <!-- Connecting elements -->
+    <g stroke="#B8860B" stroke-width="3" fill="none">
+      <path d="M-30,-20 Q-10,-10 Q10,-20"/>
+      <path d="M-30,20 Q-10,10 Q10,20"/>
+      <path d="M30,-20 Q50,-10 Q70,-20"/>
+      <path d="M30,20 Q50,10 Q70,20"/>
+    </g>
+  </g>
+  
+  <!-- University name -->
+  <text x="200" y="220" text-anchor="middle" fill="#8B1538" font-family="Arial, sans-serif" font-size="32" font-weight="bold">Stellenbosch</text>
+  <text x="200" y="250" text-anchor="middle" fill="#8B1538" font-family="Arial, sans-serif" font-size="20">UNIVERSITY</text>
+  <text x="200" y="270" text-anchor="middle" fill="#8B1538" font-family="Arial, sans-serif" font-size="16">IYUNIVESITHI</text>
+  <text x="200" y="290" text-anchor="middle" fill="#8B1538" font-family="Arial, sans-serif" font-size="16">UNIVERSITEIT</text>
+</svg>

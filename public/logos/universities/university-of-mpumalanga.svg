@@ -1,0 +1,37 @@
+<svg viewBox="0 0 600 400" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="600" height="400" fill="white"/>
+  
+  <!-- Main shield -->
+  <g transform="translate(150, 100)">
+    <path d="M0,0 L80,0 Q90,0 90,10 L90,120 Q90,130 80,140 L45,160 L0,140 Q-10,130 -10,120 L-10,10 Q-10,0 0,0 Z" fill="#1E40AF" stroke="#1E40AF" stroke-width="2"/>
+    
+    <!-- Inner sections -->
+    <!-- Top yellow section with sun rays -->
+    <rect x="0" y="10" width="70" height="30" fill="#F59E0B"/>
+    <g transform="translate(35, 25)">
+      <!-- Sun rays -->
+      <path d="M0,-10 L3,-15 L-3,-15 Z M10,-7 L15,-10 L10,-4 Z M10,7 L15,10 L10,4 Z M0,10 L3,15 L-3,15 Z M-10,7 L-15,10 L-10,4 Z M-10,-7 L-15,-10 L-10,-4 Z" fill="white"/>
+    </g>
+    
+    <!-- Green section with fields -->
+    <rect x="0" y="40" width="70" height="30" fill="#16A34A"/>
+    <g transform="translate(10, 55)">
+      <!-- Field lines -->
+      <path d="M0,0 L50,0 M0,5 L50,5 M0,10 L50,10" stroke="#F59E0B" stroke-width="2"/>
+    </g>
+    
+    <!-- Red section -->
+    <rect x="0" y="70" width="70" height="30" fill="#DC2626"/>
+    
+    <!-- Bottom white section -->
+    <rect x="0" y="100" width="70" height="30" fill="white"/>
+  </g>
+  
+  <!-- University name -->
+  <text x="300" y="300" text-anchor="middle" fill="#1E40AF" font-family="Arial, sans-serif" font-size="42" font-weight="bold">UNIVERSITY OF</text>
+  <text x="300" y="340" text-anchor="middle" fill="#1E40AF" font-family="Arial, sans-serif" font-size="42" font-weight="bold">MPUMALANGA</text>
+  
+  <!-- Tagline -->
+  <text x="300" y="370" text-anchor="middle" fill="#6B7280" font-family="Arial, sans-serif" font-size="18" font-style="italic">Creating Opportunities</text>
+</svg>
