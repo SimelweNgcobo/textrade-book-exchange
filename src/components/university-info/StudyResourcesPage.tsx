@@ -46,7 +46,8 @@ const REAL_STUDY_TIPS: StudyTip[] = [
   {
     id: "tip-1",
     title: "The Pomodoro Technique: Maximize Focus in 25-Minute Sprints",
-    description: "Boost productivity with proven time-blocking method used by top students",
+    description:
+      "Boost productivity with proven time-blocking method used by top students",
     category: "time-management",
     difficulty: "beginner",
     tags: ["productivity", "focus", "time-management"],
@@ -88,9 +89,10 @@ const REAL_STUDY_TIPS: StudyTip[] = [
     updatedAt: "2024-01-15T10:00:00Z",
   },
   {
-    id: "tip-2", 
+    id: "tip-2",
     title: "Active Reading: Transform Textbooks into Knowledge",
-    description: "Turn passive page-turning into powerful learning with proven techniques",
+    description:
+      "Turn passive page-turning into powerful learning with proven techniques",
     category: "study-techniques",
     difficulty: "intermediate",
     tags: ["reading", "comprehension", "note-taking"],
@@ -255,7 +257,7 @@ Don't try to read fast - aim to understand deeply. It's better to read 5 pages a
 • Remember: one exam doesn't define you
 
 **Emergency strategies:**
-• If you blank out: write anything related to the topic
+��� If you blank out: write anything related to the topic
 • If running out of time: answer in point form
 • If question seems impossible: move on and come back
 • If feeling overwhelmed: take 30 seconds to breathe deeply
@@ -410,7 +412,8 @@ Don't try to read fast - aim to understand deeply. It's better to read 5 pages a
   {
     id: "tip-5",
     title: "Staying Motivated: From Burnout to Breakthrough",
-    description: "Mental strategies to maintain drive throughout your academic journey",
+    description:
+      "Mental strategies to maintain drive throughout your academic journey",
     category: "motivation",
     difficulty: "intermediate",
     tags: ["motivation", "goals", "mindset", "burnout"],
@@ -627,7 +630,6 @@ I. Main Topic
       2. Detail
    B. Supporting idea
 II. Next Main Topic
-```
 
 **Best for:** Mathematics, Physical Sciences, structured subjects
 • Clear hierarchy of information
@@ -804,7 +806,8 @@ const REAL_STUDY_RESOURCES: StudyResource[] = [
   {
     id: "resource-1",
     title: "Complete Study Planner Template (South African Calendar)",
-    description: "Comprehensive weekly and monthly planner designed for SA school terms, public holidays, and exam periods",
+    description:
+      "Comprehensive weekly and monthly planner designed for SA school terms, public holidays, and exam periods",
     type: "template",
     category: "time-management",
     downloadUrl: "#download-study-planner",
@@ -818,9 +821,10 @@ const REAL_STUDY_RESOURCES: StudyResource[] = [
   {
     id: "resource-2",
     title: "Matric Exam Timetable & Countdown Tracker 2024",
-    description: "Official NSC exam dates with built-in countdown timer and preparation milestones",
+    description:
+      "Official NSC exam dates with built-in countdown timer and preparation milestones",
     type: "template",
-    category: "exam-prep", 
+    category: "exam-prep",
     downloadUrl: "#download-exam-tracker",
     tags: ["matric", "NSC", "exams", "countdown", "2024"],
     isActive: true,
@@ -832,7 +836,8 @@ const REAL_STUDY_RESOURCES: StudyResource[] = [
   {
     id: "resource-3",
     title: "Mathematics Formula Sheet (Grades 10-12)",
-    description: "Complete collection of essential formulas for Functions, Calculus, Trigonometry, and Statistics",
+    description:
+      "Complete collection of essential formulas for Functions, Calculus, Trigonometry, and Statistics",
     type: "pdf",
     category: "study-guides",
     downloadUrl: "#download-math-formulas",
@@ -846,11 +851,18 @@ const REAL_STUDY_RESOURCES: StudyResource[] = [
   {
     id: "resource-4",
     title: "Physical Sciences Practical Investigation Guide",
-    description: "Step-by-step guide for conducting and writing up physics and chemistry practicals",
+    description:
+      "Step-by-step guide for conducting and writing up physics and chemistry practicals",
     type: "pdf",
     category: "study-guides",
     downloadUrl: "#download-science-practicals",
-    tags: ["physical-sciences", "practicals", "physics", "chemistry", "investigations"],
+    tags: [
+      "physical-sciences",
+      "practicals",
+      "physics",
+      "chemistry",
+      "investigations",
+    ],
     isActive: true,
     isFeatured: false,
     author: "Science Education Initiative",
@@ -860,7 +872,8 @@ const REAL_STUDY_RESOURCES: StudyResource[] = [
   {
     id: "resource-5",
     title: "Life Sciences Study Cards: Human Body Systems",
-    description: "Printable flashcards covering circulatory, respiratory, digestive, and nervous systems",
+    description:
+      "Printable flashcards covering circulatory, respiratory, digestive, and nervous systems",
     type: "template",
     category: "study-guides",
     downloadUrl: "#download-biology-cards",
@@ -874,11 +887,18 @@ const REAL_STUDY_RESOURCES: StudyResource[] = [
   {
     id: "resource-6",
     title: "English Essay Writing Framework",
-    description: "Complete guide to structuring essays for literature, creative writing, and comprehension",
+    description:
+      "Complete guide to structuring essays for literature, creative writing, and comprehension",
     type: "pdf",
     category: "study-guides",
     downloadUrl: "#download-essay-guide",
-    tags: ["english", "essay-writing", "literature", "creative-writing", "comprehension"],
+    tags: [
+      "english",
+      "essay-writing",
+      "literature",
+      "creative-writing",
+      "comprehension",
+    ],
     isActive: true,
     isFeatured: true,
     author: "English Teachers Association SA",
@@ -888,11 +908,18 @@ const REAL_STUDY_RESOURCES: StudyResource[] = [
   {
     id: "resource-7",
     title: "Accounting T-Account Practice Sheets",
-    description: "Printable practice sheets for mastering debits, credits, and financial statements",
+    description:
+      "Printable practice sheets for mastering debits, credits, and financial statements",
     type: "template",
     category: "study-guides",
     downloadUrl: "#download-accounting-practice",
-    tags: ["accounting", "t-accounts", "debits", "credits", "financial-statements"],
+    tags: [
+      "accounting",
+      "t-accounts",
+      "debits",
+      "credits",
+      "financial-statements",
+    ],
     isActive: true,
     isFeatured: false,
     author: "Accounting Education SA",
@@ -902,7 +929,8 @@ const REAL_STUDY_RESOURCES: StudyResource[] = [
   {
     id: "resource-8",
     title: "History Timeline Maker Template",
-    description: "Create visual timelines for any historical period with this customizable template",
+    description:
+      "Create visual timelines for any historical period with this customizable template",
     type: "template",
     category: "study-guides",
     downloadUrl: "#download-timeline-maker",
@@ -916,7 +944,8 @@ const REAL_STUDY_RESOURCES: StudyResource[] = [
   {
     id: "resource-9",
     title: "Geography Map Skills Workbook",
-    description: "Practice exercises for map reading, scale calculation, and topographic interpretation",
+    description:
+      "Practice exercises for map reading, scale calculation, and topographic interpretation",
     type: "pdf",
     category: "study-guides",
     downloadUrl: "#download-geography-maps",
@@ -930,7 +959,8 @@ const REAL_STUDY_RESOURCES: StudyResource[] = [
   {
     id: "resource-10",
     title: "Study Group Organization Kit",
-    description: "Complete guide to forming and running effective study groups, with meeting templates",
+    description:
+      "Complete guide to forming and running effective study groups, with meeting templates",
     type: "pdf",
     category: "time-management",
     downloadUrl: "#download-study-group-kit",
@@ -944,7 +974,8 @@ const REAL_STUDY_RESOURCES: StudyResource[] = [
   {
     id: "resource-11",
     title: "Memory Palace Technique Guide",
-    description: "Learn to build memory palaces for remembering large amounts of information",
+    description:
+      "Learn to build memory palaces for remembering large amounts of information",
     type: "pdf",
     category: "study-guides",
     downloadUrl: "#download-memory-palace",
@@ -958,7 +989,8 @@ const REAL_STUDY_RESOURCES: StudyResource[] = [
   {
     id: "resource-12",
     title: "Stress Management for Students Workbook",
-    description: "Practical exercises and techniques for managing academic stress and anxiety",
+    description:
+      "Practical exercises and techniques for managing academic stress and anxiety",
     type: "pdf",
     category: "exam-prep",
     downloadUrl: "#download-stress-management",
@@ -976,57 +1008,82 @@ const StudyResourcesPage = () => {
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [selectedDifficulty, setSelectedDifficulty] = useState("all");
 
-  const filteredTips = REAL_STUDY_TIPS.filter(tip => {
-    const matchesSearch = tip.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         tip.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         tip.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()));
-    const matchesCategory = selectedCategory === "all" || tip.category === selectedCategory;
-    const matchesDifficulty = selectedDifficulty === "all" || tip.difficulty === selectedDifficulty;
-    
+  const filteredTips = REAL_STUDY_TIPS.filter((tip) => {
+    const matchesSearch =
+      tip.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      tip.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      tip.tags.some((tag) =>
+        tag.toLowerCase().includes(searchTerm.toLowerCase()),
+      );
+    const matchesCategory =
+      selectedCategory === "all" || tip.category === selectedCategory;
+    const matchesDifficulty =
+      selectedDifficulty === "all" || tip.difficulty === selectedDifficulty;
+
     return matchesSearch && matchesCategory && matchesDifficulty;
   });
 
-  const filteredResources = REAL_STUDY_RESOURCES.filter(resource => {
-    const matchesSearch = resource.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         resource.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         resource.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()));
-    const matchesCategory = selectedCategory === "all" || resource.category === selectedCategory;
-    
+  const filteredResources = REAL_STUDY_RESOURCES.filter((resource) => {
+    const matchesSearch =
+      resource.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      resource.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      resource.tags.some((tag) =>
+        tag.toLowerCase().includes(searchTerm.toLowerCase()),
+      );
+    const matchesCategory =
+      selectedCategory === "all" || resource.category === selectedCategory;
+
     return matchesSearch && matchesCategory;
   });
 
   const getTypeIcon = (type: string) => {
     switch (type) {
-      case "pdf": return <FileText className="h-4 w-4" />;
-      case "video": return <Play className="h-4 w-4" />;
-      case "template": return <Download className="h-4 w-4" />;
-      case "tool": return <Target className="h-4 w-4" />;
-      default: return <BookOpen className="h-4 w-4" />;
+      case "pdf":
+        return <FileText className="h-4 w-4" />;
+      case "video":
+        return <Play className="h-4 w-4" />;
+      case "template":
+        return <Download className="h-4 w-4" />;
+      case "tool":
+        return <Target className="h-4 w-4" />;
+      default:
+        return <BookOpen className="h-4 w-4" />;
     }
   };
 
   const getCategoryIcon = (category: string) => {
     switch (category) {
-      case "time-management": return <Clock className="h-5 w-5" />;
-      case "study-techniques": return <Brain className="h-5 w-5" />;
-      case "exam-prep": return <Target className="h-5 w-5" />;
-      case "motivation": return <TrendingUp className="h-5 w-5" />;
-      default: return <BookOpen className="h-5 w-5" />;
+      case "time-management":
+        return <Clock className="h-5 w-5" />;
+      case "study-techniques":
+        return <Brain className="h-5 w-5" />;
+      case "exam-prep":
+        return <Target className="h-5 w-5" />;
+      case "motivation":
+        return <TrendingUp className="h-5 w-5" />;
+      default:
+        return <BookOpen className="h-5 w-5" />;
     }
   };
 
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
-      case "beginner": return "bg-green-100 text-green-800";
-      case "intermediate": return "bg-yellow-100 text-yellow-800";
-      case "advanced": return "bg-red-100 text-red-800";
-      default: return "bg-gray-100 text-gray-800";
+      case "beginner":
+        return "bg-green-100 text-green-800";
+      case "intermediate":
+        return "bg-yellow-100 text-yellow-800";
+      case "advanced":
+        return "bg-red-100 text-red-800";
+      default:
+        return "bg-gray-100 text-gray-800";
     }
   };
 
   const handleDownload = (resource: StudyResource) => {
     // Simulate download - in real app this would trigger actual download
-    alert(`Downloading: ${resource.title}\n\nThis would normally start your download. The resource includes: ${resource.description}`);
+    alert(
+      `Downloading: ${resource.title}\n\nThis would normally start your download. The resource includes: ${resource.description}`,
+    );
   };
 
   return (
@@ -1035,10 +1092,13 @@ const StudyResourcesPage = () => {
       <div className="text-center space-y-3 md:space-y-4">
         <div className="flex items-center justify-center gap-2 md:gap-3">
           <Lightbulb className="h-8 w-8 md:h-10 md:w-10 text-yellow-600" />
-          <h1 className="text-2xl md:text-4xl font-bold">Study Resources & Tips</h1>
+          <h1 className="text-2xl md:text-4xl font-bold">
+            Study Resources & Tips
+          </h1>
         </div>
         <p className="text-sm md:text-lg text-gray-600 max-w-3xl mx-auto">
-          Master your studies with expert tips, proven techniques, and practical resources designed specifically for South African students.
+          Master your studies with expert tips, proven techniques, and practical
+          resources designed specifically for South African students.
         </p>
       </div>
 
@@ -1055,24 +1115,34 @@ const StudyResourcesPage = () => {
                 className="pl-10"
               />
             </div>
-            
+
             <div className="flex flex-col sm:flex-row gap-3">
-              <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+              <Select
+                value={selectedCategory}
+                onValueChange={setSelectedCategory}
+              >
                 <SelectTrigger className="w-full sm:w-48">
                   <Filter className="h-4 w-4 mr-2" />
                   <SelectValue placeholder="Category" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Categories</SelectItem>
-                  <SelectItem value="time-management">Time Management</SelectItem>
-                  <SelectItem value="study-techniques">Study Techniques</SelectItem>
+                  <SelectItem value="time-management">
+                    Time Management
+                  </SelectItem>
+                  <SelectItem value="study-techniques">
+                    Study Techniques
+                  </SelectItem>
                   <SelectItem value="exam-prep">Exam Preparation</SelectItem>
                   <SelectItem value="motivation">Motivation</SelectItem>
                   <SelectItem value="study-guides">Study Guides</SelectItem>
                 </SelectContent>
               </Select>
 
-              <Select value={selectedDifficulty} onValueChange={setSelectedDifficulty}>
+              <Select
+                value={selectedDifficulty}
+                onValueChange={setSelectedDifficulty}
+              >
                 <SelectTrigger className="w-full sm:w-40">
                   <SelectValue placeholder="Level" />
                 </SelectTrigger>
@@ -1094,14 +1164,15 @@ const StudyResourcesPage = () => {
           <TabsTrigger value="tips" className="flex items-center gap-2 text-sm">
             <Lightbulb className="h-4 w-4" />
             <span className="hidden sm:inline">Study Tips</span>
-            <span className="sm:hidden">Tips</span>
-            ({filteredTips.length})
+            <span className="sm:hidden">Tips</span>({filteredTips.length})
           </TabsTrigger>
-          <TabsTrigger value="resources" className="flex items-center gap-2 text-sm">
+          <TabsTrigger
+            value="resources"
+            className="flex items-center gap-2 text-sm"
+          >
             <BookOpen className="h-4 w-4" />
             <span className="hidden sm:inline">Resources</span>
-            <span className="sm:hidden">Files</span>
-            ({filteredResources.length})
+            <span className="sm:hidden">Files</span>({filteredResources.length})
           </TabsTrigger>
         </TabsList>
 
@@ -1114,7 +1185,9 @@ const StudyResourcesPage = () => {
                     <div className="flex items-center gap-3">
                       {getCategoryIcon(tip.category)}
                       <div>
-                        <CardTitle className="text-lg md:text-xl leading-tight">{tip.title}</CardTitle>
+                        <CardTitle className="text-lg md:text-xl leading-tight">
+                          {tip.title}
+                        </CardTitle>
                         <CardDescription className="mt-1 text-sm">
                           {tip.description}
                         </CardDescription>
@@ -1125,19 +1198,19 @@ const StudyResourcesPage = () => {
                         {tip.difficulty}
                       </Badge>
                       <Badge variant="outline" className="text-xs">
-                        {tip.category.replace('-', ' ')}
+                        {tip.category.replace("-", " ")}
                       </Badge>
                     </div>
                   </div>
                 </CardHeader>
-                
+
                 <CardContent>
                   <div className="prose max-w-none text-sm md:text-base">
                     <div className="whitespace-pre-line text-gray-700 leading-relaxed">
                       {tip.content}
                     </div>
                   </div>
-                  
+
                   <div className="flex flex-wrap gap-2 mt-4">
                     {tip.tags.map((tag) => (
                       <Badge key={tag} variant="secondary" className="text-xs">
@@ -1159,67 +1232,83 @@ const StudyResourcesPage = () => {
               Featured Resources
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-              {filteredResources.filter(r => r.isFeatured).map((resource) => (
-                <Card key={resource.id} className="overflow-hidden hover:shadow-lg transition-shadow">
-                  <CardHeader className="pb-3">
-                    <div className="flex items-center gap-2 mb-2">
-                      {getTypeIcon(resource.type)}
-                      <Badge variant="outline" className="text-xs">
-                        {resource.type}
-                      </Badge>
-                      {resource.isFeatured && (
-                        <Star className="h-4 w-4 text-yellow-500 fill-current" />
-                      )}
-                    </div>
-                    <CardTitle className="text-base md:text-lg leading-tight">{resource.title}</CardTitle>
-                    <CardDescription className="text-sm">{resource.description}</CardDescription>
-                  </CardHeader>
-                  
-                  <CardContent>
-                    <div className="flex flex-wrap gap-1 mb-4">
-                      {resource.tags.slice(0, 3).map((tag) => (
-                        <Badge key={tag} variant="secondary" className="text-xs">
-                          {tag}
+              {filteredResources
+                .filter((r) => r.isFeatured)
+                .map((resource) => (
+                  <Card
+                    key={resource.id}
+                    className="overflow-hidden hover:shadow-lg transition-shadow"
+                  >
+                    <CardHeader className="pb-3">
+                      <div className="flex items-center gap-2 mb-2">
+                        {getTypeIcon(resource.type)}
+                        <Badge variant="outline" className="text-xs">
+                          {resource.type}
                         </Badge>
-                      ))}
-                      {resource.tags.length > 3 && (
-                        <Badge variant="secondary" className="text-xs">
-                          +{resource.tags.length - 3}
-                        </Badge>
+                        {resource.isFeatured && (
+                          <Star className="h-4 w-4 text-yellow-500 fill-current" />
+                        )}
+                      </div>
+                      <CardTitle className="text-base md:text-lg leading-tight">
+                        {resource.title}
+                      </CardTitle>
+                      <CardDescription className="text-sm">
+                        {resource.description}
+                      </CardDescription>
+                    </CardHeader>
+
+                    <CardContent>
+                      <div className="flex flex-wrap gap-1 mb-4">
+                        {resource.tags.slice(0, 3).map((tag) => (
+                          <Badge
+                            key={tag}
+                            variant="secondary"
+                            className="text-xs"
+                          >
+                            {tag}
+                          </Badge>
+                        ))}
+                        {resource.tags.length > 3 && (
+                          <Badge variant="secondary" className="text-xs">
+                            +{resource.tags.length - 3}
+                          </Badge>
+                        )}
+                      </div>
+
+                      <Button
+                        className="w-full"
+                        onClick={() => handleDownload(resource)}
+                      >
+                        {resource.type === "template" ||
+                        resource.type === "pdf" ? (
+                          <>
+                            <Download className="h-4 w-4 mr-2" />
+                            Download
+                          </>
+                        ) : (
+                          <>
+                            <Play className="h-4 w-4 mr-2" />
+                            Access
+                          </>
+                        )}
+                      </Button>
+
+                      {resource.author && (
+                        <p className="text-xs text-gray-500 mt-2">
+                          By {resource.author}
+                        </p>
                       )}
-                    </div>
-                    
-                    <Button 
-                      className="w-full" 
-                      onClick={() => handleDownload(resource)}
-                    >
-                      {resource.type === 'template' || resource.type === 'pdf' ? (
-                        <>
-                          <Download className="h-4 w-4 mr-2" />
-                          Download
-                        </>
-                      ) : (
-                        <>
-                          <Play className="h-4 w-4 mr-2" />
-                          Access
-                        </>
-                      )}
-                    </Button>
-                    
-                    {resource.author && (
-                      <p className="text-xs text-gray-500 mt-2">
-                        By {resource.author}
-                      </p>
-                    )}
-                  </CardContent>
-                </Card>
-              ))}
+                    </CardContent>
+                  </Card>
+                ))}
             </div>
           </div>
 
           {/* All Resources */}
           <div>
-            <h3 className="text-xl md:text-2xl font-semibold mb-4">All Resources</h3>
+            <h3 className="text-xl md:text-2xl font-semibold mb-4">
+              All Resources
+            </h3>
             <div className="grid gap-3 md:gap-4">
               {filteredResources.map((resource) => (
                 <Card key={resource.id}>
@@ -1230,14 +1319,18 @@ const StudyResourcesPage = () => {
                           {getTypeIcon(resource.type)}
                         </div>
                         <div className="min-w-0 flex-1">
-                          <h4 className="font-semibold text-sm md:text-base">{resource.title}</h4>
-                          <p className="text-xs md:text-sm text-gray-600 mt-1">{resource.description}</p>
+                          <h4 className="font-semibold text-sm md:text-base">
+                            {resource.title}
+                          </h4>
+                          <p className="text-xs md:text-sm text-gray-600 mt-1">
+                            {resource.description}
+                          </p>
                           <div className="flex flex-wrap gap-2 mt-2">
                             <Badge variant="outline" className="text-xs">
                               {resource.type}
                             </Badge>
                             <Badge variant="secondary" className="text-xs">
-                              {resource.category.replace('-', ' ')}
+                              {resource.category.replace("-", " ")}
                             </Badge>
                             {resource.isFeatured && (
                               <Badge className="bg-yellow-100 text-yellow-800 text-xs">
@@ -1252,13 +1345,14 @@ const StudyResourcesPage = () => {
                           )}
                         </div>
                       </div>
-                      
-                      <Button 
+
+                      <Button
                         variant="outline"
                         onClick={() => handleDownload(resource)}
                         className="w-full sm:w-auto flex-shrink-0"
                       >
-                        {resource.type === 'template' || resource.type === 'pdf' ? (
+                        {resource.type === "template" ||
+                        resource.type === "pdf" ? (
                           <>
                             <Download className="h-4 w-4 mr-2" />
                             Download
@@ -1283,10 +1377,13 @@ const StudyResourcesPage = () => {
       <Card className="bg-gradient-to-r from-blue-50 to-indigo-50">
         <CardContent className="p-6 md:p-8 text-center">
           <Users className="h-10 w-10 md:h-12 md:w-12 text-blue-600 mx-auto mb-4" />
-          <h3 className="text-xl md:text-2xl font-semibold mb-2">Need More Help?</h3>
+          <h3 className="text-xl md:text-2xl font-semibold mb-2">
+            Need More Help?
+          </h3>
           <p className="text-gray-600 mb-6 max-w-2xl mx-auto text-sm md:text-base">
-            Join thousands of South African students who are mastering their studies with our comprehensive resources.
-            Get personalized study plans and connect with fellow learners.
+            Join thousands of South African students who are mastering their
+            studies with our comprehensive resources. Get personalized study
+            plans and connect with fellow learners.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button size="lg" className="w-full sm:w-auto">
