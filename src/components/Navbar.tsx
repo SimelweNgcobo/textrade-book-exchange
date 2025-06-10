@@ -235,6 +235,15 @@ const Navbar = () => {
                   </div>
 
                   <Link
+                    to="/notifications"
+                    className="flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-book-600 rounded-md"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    <NotificationBadge className="mr-2" iconSize="w-4 h-4" />
+                    <span>Notifications</span>
+                  </Link>
+
+                  <Link
                     to="/profile"
                     className="block px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-book-600 rounded-md"
                     onClick={() => setIsMenuOpen(false)}
