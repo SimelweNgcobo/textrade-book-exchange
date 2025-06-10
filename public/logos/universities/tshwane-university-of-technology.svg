@@ -1,0 +1,38 @@
+<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+  <!-- White background -->
+  <circle cx="60" cy="60" r="60" fill="white"/>
+  
+  <!-- TUT logo -->
+  <g transform="translate(60, 60)">
+    <!-- Outer circle -->
+    <circle cx="0" cy="0" r="50" fill="#1E40AF"/>
+    
+    <!-- Inner white circle -->
+    <circle cx="0" cy="0" r="40" fill="white"/>
+    
+    <!-- Person figure at top -->
+    <g transform="translate(0, -20)">
+      <circle cx="0" cy="-8" r="5" fill="#1E40AF"/>
+      <rect x="-4" y="-4" width="8" height="10" fill="#1E40AF" rx="2"/>
+      <path d="M-6,6 L-4,-2 L4,-2 L6,6" fill="#1E40AF"/>
+    </g>
+    
+    <!-- Hexagonal shape in center -->
+    <g transform="translate(0, 5)">
+      <!-- Yellow hexagon -->
+      <path d="M-12,-6 L-6,-12 L6,-12 L12,-6 L12,6 L6,12 L-6,12 L-12,6 Z" fill="#F59E0B"/>
+      <!-- Blue inner hexagon -->
+      <path d="M-9,-4 L-4,-9 L4,-9 L9,-4 L9,4 L4,9 L-4,9 L-9,4 Z" fill="#1E40AF"/>
+      <!-- Red center -->
+      <path d="M-6,-3 L-3,-6 L3,-6 L6,-3 L6,3 L3,6 L-3,6 L-6,3 Z" fill="#DC2626"/>
+    </g>
+    
+    <!-- Curved design elements -->
+    <g stroke="#1E40AF" stroke-width="2" fill="none">
+      <path d="M-30,-12 Q-20,-18 Q-8,-12"/>
+      <path d="M8,-12 Q20,-18 Q30,-12"/>
+      <path d="M-30,12 Q-20,18 Q-8,12"/>
+      <path d="M8,12 Q20,18 Q30,12"/>
+    </g>
+  </g>
+</svg>

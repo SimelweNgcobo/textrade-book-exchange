@@ -21,6 +21,7 @@ import AdminUsersTab from "@/components/admin/AdminUsersTab";
 import AdminListingsTab from "@/components/admin/AdminListingsTab";
 import AdminSettingsTab from "@/components/admin/AdminSettingsTab";
 import AdminContactTab from "@/components/admin/AdminContactTab";
+import AdminResourcesTab from "@/components/admin/AdminResourcesTab";
 
 import ErrorFallback from "@/components/ErrorFallback";
 import LoadingSpinner from "@/components/LoadingSpinner";
@@ -236,7 +237,7 @@ const AdminDashboard = () => {
 
       <Tabs defaultValue="earnings" className="space-y-4">
         <TabsList
-          className={`${isMobile ? "grid grid-cols-5 h-auto" : "grid grid-cols-5"} w-full`}
+          className={`${isMobile ? "grid grid-cols-6 h-auto" : "grid grid-cols-6"} w-full`}
         >
           <TabsTrigger
             value="earnings"
@@ -278,6 +279,12 @@ const AdminDashboard = () => {
             )}
           </TabsTrigger>
           <TabsTrigger
+            value="resources"
+            className={isMobile ? "text-xs px-2 py-2" : ""}
+          >
+            {isMobile ? "Resources" : "Resources"}
+          </TabsTrigger>
+          <TabsTrigger
             value="settings"
             className={isMobile ? "text-xs px-2 py-2" : ""}
           >
@@ -302,6 +309,10 @@ const AdminDashboard = () => {
 
         <TabsContent value="contact" className="space-y-4">
           <AdminContactTab />
+        </TabsContent>
+
+        <TabsContent value="resources" className="space-y-4">
+          <AdminResourcesTab />
         </TabsContent>
 
         <TabsContent value="settings" className="space-y-4">

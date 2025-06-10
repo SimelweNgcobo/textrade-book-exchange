@@ -197,9 +197,9 @@ const FacultyDetail = () => {
             <CardContent>
               {faculty.degrees.length > 0 ? (
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  {faculty.degrees.map((degree) => (
+                  {faculty.degrees.map((degree, index) => (
                     <Card
-                      key={degree.id}
+                      key={`${universityId}-${facultyId}-${degree.id}-${index}`}
                       className="cursor-pointer hover:shadow-lg transition-all duration-200 border-2 hover:border-book-300"
                       onClick={() => handleCourseClick(degree.id)}
                     >

@@ -39,8 +39,8 @@ import {
 import {
   BURSARIES,
   BURSARY_FIELDS_OF_STUDY,
-  PROVINCES,
-} from "@/constants/bursaries";
+} from "@/constants/enhancedBursaries";
+import { PROVINCES } from "@/constants/bursaries";
 import { BursaryFilters } from "@/types/university";
 
 const BursaryExplorer = () => {

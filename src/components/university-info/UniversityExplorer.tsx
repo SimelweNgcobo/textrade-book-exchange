@@ -47,7 +47,7 @@ const UniversityExplorer = ({
 }: UniversityExplorerProps) => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedProvince, setSelectedProvince] = useState<string>("");
+  const [selectedProvince, setSelectedProvince] = useState<string>("all");
   const [showAdvancedSearch, setShowAdvancedSearch] = useState(false);
 
   const provinces = [
@@ -72,7 +72,7 @@ const UniversityExplorer = ({
         university.location.toLowerCase().includes(searchTerm.toLowerCase());
 
       const matchesProvince =
-        !selectedProvince || university.province === selectedProvince;
+        selectedProvince === "all" || university.province === selectedProvince;
 
       return matchesSearch && matchesProvince;
     });
@@ -103,7 +103,7 @@ const UniversityExplorer = ({
       </div>
 
       {/* Advanced Search Section */}
-      {(searchTerm || selectedProvince || showAdvancedSearch) && (
+      {(searchTerm || selectedProvince !== "all" || showAdvancedSearch) && (
         <section className="py-12 bg-gray-50">
           <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto">
@@ -167,7 +167,7 @@ const UniversityExplorer = ({
                           <SelectValue placeholder="All Provinces" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="">All Provinces</SelectItem>
+                          <SelectItem value="all">All Provinces</SelectItem>
                           {provinces.map((province) => (
                             <SelectItem key={province} value={province}>
                               {province}
@@ -179,14 +179,14 @@ const UniversityExplorer = ({
                   </div>
 
                   {/* Clear Filters */}
-                  {(searchTerm || selectedProvince) && (
+                  {(searchTerm || selectedProvince !== "all") && (
                     <div className="flex justify-end">
                       <Button
                         variant="outline"
                         size="sm"
                         onClick={() => {
                           setSearchTerm("");
-                          setSelectedProvince("");
+                          setSelectedProvince("all");
                         }}
                       >
                         Clear All Filters
@@ -297,7 +297,7 @@ const UniversityExplorer = ({
                     variant="outline"
                     onClick={() => {
                       setSearchTerm("");
-                      setSelectedProvince("");
+                      setSelectedProvince("all");
                     }}
                     className="border-book-200 text-book-600 hover:bg-book-50"
                   >
@@ -311,7 +311,7 @@ const UniversityExplorer = ({
       )}
 
       {/* Browse by Region Section */}
-      {!searchTerm && !selectedProvince && (
+      {!searchTerm && selectedProvince === "all" && (
         <section className="py-16 bg-book-50">
           <div className="container mx-auto px-4">
             <div className="text-center mb-12">

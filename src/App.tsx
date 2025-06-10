@@ -42,6 +42,8 @@ import UniversityInfo from "./pages/UniversityInfo";
 import UniversityProfile from "./pages/UniversityProfile";
 import FacultyDetail from "./pages/FacultyDetail";
 import CourseDetail from "./pages/CourseDetail";
+import StudyResources from "./pages/StudyResources";
+import AddProgram from "./pages/AddProgram";
 
 import "./App.css";
 
@@ -95,6 +97,11 @@ function App() {
                       path="/university/:universityId/faculty/:facultyId/course/:courseId"
                       element={<CourseDetail />}
                     />
+                    <Route
+                      path="/study-resources"
+                      element={<StudyResources />}
+                    />
+                    <Route path="/add-program" element={<AddProgram />} />
 
                     {/* Public user profiles - no authentication required */}
                     <Route path="/user/:id" element={<UserProfile />} />

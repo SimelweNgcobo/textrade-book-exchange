@@ -1,10 +1,16 @@
 import { APSSubject, APSCalculation, EligibleDegree } from "@/types/university";
 import { COMMON_DEGREES, calculateAPSPoints } from "@/constants/degrees";
 import { SOUTH_AFRICAN_UNIVERSITIES } from "@/constants/universities";
+import { isNonContributing } from "@/constants/subjects";
 
 export const calculateAPS = (subjects: APSSubject[]): APSCalculation => {
-  // Calculate total APS score
-  const totalScore = subjects.reduce(
+  // Filter out non-contributing subjects (like Life Orientation) for APS calculation
+  const contributingSubjects = subjects.filter(
+    (subject) => !isNonContributing(subject.name),
+  );
+
+  // Calculate total APS score from contributing subjects only
+  const totalScore = contributingSubjects.reduce(
     (total, subject) => total + subject.points,
     0,
   );

@@ -1,0 +1,32 @@
+<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+  <!-- White background -->
+  <circle cx="60" cy="60" r="60" fill="white"/>
+  
+  <!-- Main shield -->
+  <g transform="translate(60, 60)">
+    <!-- Shield outline -->
+    <path d="M-25,-35 L25,-35 Q30,-35 30,-30 L30,20 Q30,25 25,30 L0,35 L-25,30 Q-30,25 -30,20 L-30,-30 Q-30,-35 -25,-35 Z" fill="#1E40AF" stroke="#1E40AF" stroke-width="2"/>
+    
+    <!-- Inner sections -->
+    <!-- Top yellow section with sun -->
+    <rect x="-22" y="-30" width="44" height="15" fill="#F59E0B"/>
+    <g transform="translate(0, -22)">
+      <!-- Sun rays -->
+      <path d="M0,-6 L2,-9 L-2,-9 Z M6,-4 L9,-6 L6,-2 Z M6,4 L9,6 L6,2 Z M0,6 L2,9 L-2,9 Z M-6,4 L-9,6 L-6,2 Z M-6,-4 L-9,-6 L-6,-2 Z" fill="white"/>
+      <circle cx="0" cy="0" r="3" fill="white"/>
+    </g>
+    
+    <!-- Green section with fields -->
+    <rect x="-22" y="-15" width="44" height="15" fill="#16A34A"/>
+    <g transform="translate(-15, -7)">
+      <!-- Field lines -->
+      <path d="M0,0 L30,0 M0,3 L30,3 M0,6 L30,6" stroke="#F59E0B" stroke-width="1"/>
+    </g>
+    
+    <!-- Red section -->
+    <rect x="-22" y="0" width="44" height="15" fill="#DC2626"/>
+    
+    <!-- White bottom section -->
+    <rect x="-22" y="15" width="44" height="10" fill="white"/>
+  </g>
+</svg>
