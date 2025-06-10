@@ -422,7 +422,7 @@ export const TRADITIONAL_UNIVERSITIES: University[] = [
         ],
       },
       {
-        id: "humanities",
+        id: "uct-humanities",
         name: "Faculty of Humanities",
         description:
           "Leading humanities education with focus on critical thinking and social understanding.",
@@ -1082,7 +1082,7 @@ export const TRADITIONAL_UNIVERSITIES: University[] = [
         ],
       },
       {
-        id: "education",
+        id: "uct-education",
         name: "Faculty of Education",
         description: "Teacher training and educational development programs.",
         degrees: [
