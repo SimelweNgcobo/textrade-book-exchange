@@ -8,7 +8,7 @@ export const UNIVERSITIES_OF_TECHNOLOGY: University[] = [
     fullName: "Cape Peninsula University of Technology (CPUT)",
     location: "Cape Town",
     province: "Western Cape",
-    logo: "https://images.unsplash.com/photo-1607013251379-e6eecfffe234?w=80&h=80&fit=crop&crop=center",
+    logo: "/logos/universities/tshwane-university-of-technology.svg",
     overview:
       "A leading university of technology providing quality education and training in response to South Africa's skills needs.",
     website: "https://www.cput.ac.za",
