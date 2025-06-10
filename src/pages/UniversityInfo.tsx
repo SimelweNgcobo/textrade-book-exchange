@@ -178,7 +178,7 @@ const UniversityInfo = () => {
               <PopularUniversities />
 
               {/* Quick Tools Section */}
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid md:grid-cols-2 gap-6">
                 <Card
                   className="hover:shadow-lg transition-shadow cursor-pointer"
                   onClick={() => handleTabChange("aps-calculator")}
