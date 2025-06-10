@@ -570,4 +570,422 @@ export const TRADITIONAL_UNIVERSITIES: University[] = [
       },
     ],
   },
+  {
+    id: "stellenbosch",
+    name: "Stellenbosch University",
+    abbreviation: "SU",
+    fullName: "Stellenbosch University (SU)",
+    location: "Stellenbosch",
+    province: "Western Cape",
+    logo: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=80&h=80&fit=crop&crop=center",
+    overview:
+      "One of South Africa's leading research universities, known for academic excellence and beautiful campus surrounded by mountains and vineyards.",
+    website: "https://www.sun.ac.za",
+    studentPortal: "https://students.sun.ac.za",
+    admissionsContact: "admissions@sun.ac.za",
+    faculties: [
+      {
+        id: "economic",
+        name: "Faculty of Economic and Management Sciences",
+        description:
+          "Comprehensive business education with programs in accounting, economics, and management.",
+        degrees: [
+          {
+            id: "bcom-accounting",
+            name: "BCom Accounting",
+            faculty: "Economic and Management Sciences",
+            duration: "3 years",
+            apsRequirement: 35,
+            description:
+              "Comprehensive accounting program preparing students for professional practice in the field of accounting.",
+            subjects: [
+              { name: "Mathematics", level: 4, isRequired: true },
+              { name: "English", level: 4, isRequired: true },
+              { name: "Accounting", level: 5, isRequired: true },
+            ],
+            careerProspects: [
+              "Chartered Accountant",
+              "Financial Manager",
+              "Auditor",
+              "Tax Consultant",
+              "Management Accountant",
+            ],
+          },
+          {
+            id: "bcom-economics",
+            name: "BCom Economics",
+            faculty: "Economic and Management Sciences",
+            duration: "3 years",
+            apsRequirement: 35,
+            description:
+              "Study economic theory and policy with focus on South African and global economic issues.",
+            subjects: [
+              { name: "Mathematics", level: 5, isRequired: true },
+              { name: "English", level: 4, isRequired: true },
+            ],
+            careerProspects: [
+              "Economist",
+              "Policy Analyst",
+              "Research Analyst",
+              "Investment Analyst",
+              "Development Economist",
+            ],
+          },
+        ],
+      },
+      {
+        id: "engineering",
+        name: "Faculty of Engineering",
+        description:
+          "Leading engineering education with strong industry connections.",
+        degrees: [
+          {
+            id: "beng-civil",
+            name: "BEng Civil Engineering",
+            faculty: "Engineering",
+            duration: "4 years",
+            apsRequirement: 38,
+            description:
+              "Comprehensive civil engineering program covering structural, water, and transportation engineering.",
+            subjects: [
+              { name: "Mathematics", level: 7, isRequired: true },
+              { name: "Physical Sciences", level: 6, isRequired: true },
+              { name: "English", level: 4, isRequired: true },
+            ],
+            careerProspects: [
+              "Civil Engineer",
+              "Structural Engineer",
+              "Water Engineer",
+              "Transportation Engineer",
+              "Project Manager",
+            ],
+          },
+        ],
+      },
+      {
+        id: "medicine",
+        name: "Faculty of Medicine and Health Sciences",
+        description:
+          "Prestigious medical education with excellent clinical training facilities.",
+        degrees: [
+          {
+            id: "mbchb",
+            name: "MBChB Medicine",
+            faculty: "Medicine and Health Sciences",
+            duration: "6 years",
+            apsRequirement: 42,
+            description:
+              "Comprehensive medical degree preparing students for medical practice.",
+            subjects: [
+              { name: "Mathematics", level: 6, isRequired: true },
+              { name: "Physical Sciences", level: 6, isRequired: true },
+              { name: "Life Sciences", level: 6, isRequired: true },
+              { name: "English", level: 5, isRequired: true },
+            ],
+            careerProspects: [
+              "Medical Doctor",
+              "Specialist Physician",
+              "Surgeon",
+              "Medical Researcher",
+              "Public Health Officer",
+            ],
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: "up",
+    name: "University of Pretoria",
+    abbreviation: "UP",
+    fullName: "University of Pretoria (UP)",
+    location: "Pretoria",
+    province: "Gauteng",
+    logo: "https://images.unsplash.com/photo-1599582909646-0685d46f5510?w=80&h=80&fit=crop&crop=center",
+    overview:
+      "One of South Africa's top research universities with a proud tradition of academic excellence. Known for its comprehensive range of programs and strong alumni network.",
+    website: "https://www.up.ac.za",
+    studentPortal: "https://students.up.ac.za",
+    admissionsContact: "admissions@up.ac.za",
+    faculties: [
+      {
+        id: "ems",
+        name: "Faculty of Economic and Management Sciences",
+        description:
+          "Leading business and economic education with strong industry connections.",
+        degrees: [
+          {
+            id: "bcom-accounting",
+            name: "BCom Accounting",
+            faculty: "Economic and Management Sciences",
+            duration: "3 years",
+            apsRequirement: 35,
+            description:
+              "Comprehensive accounting program with strong focus on professional practice.",
+            subjects: [
+              { name: "Mathematics", level: 4, isRequired: true },
+              { name: "English", level: 4, isRequired: true },
+              { name: "Accounting", level: 5, isRequired: true },
+            ],
+            careerProspects: [
+              "Chartered Accountant",
+              "Financial Manager",
+              "Auditor",
+              "Tax Specialist",
+              "Management Consultant",
+            ],
+          },
+        ],
+      },
+      {
+        id: "engineering",
+        name: "Faculty of Engineering, Built Environment and Information Technology",
+        description:
+          "Comprehensive engineering education with cutting-edge facilities.",
+        degrees: [
+          {
+            id: "beng-civil",
+            name: "BEng Civil Engineering",
+            faculty:
+              "Engineering, Built Environment and Information Technology",
+            duration: "4 years",
+            apsRequirement: 38,
+            description:
+              "Comprehensive civil engineering program with strong practical components.",
+            subjects: [
+              { name: "Mathematics", level: 7, isRequired: true },
+              { name: "Physical Sciences", level: 6, isRequired: true },
+              { name: "English", level: 4, isRequired: true },
+            ],
+            careerProspects: [
+              "Civil Engineer",
+              "Structural Engineer",
+              "Project Manager",
+              "Construction Manager",
+              "Consulting Engineer",
+            ],
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: "ukzn",
+    name: "University of KwaZulu-Natal",
+    abbreviation: "UKZN",
+    fullName: "University of KwaZulu-Natal (UKZN)",
+    location: "Durban",
+    province: "KwaZulu-Natal",
+    logo: "https://images.unsplash.com/photo-1580582932707-520aed937b7b?w=80&h=80&fit=crop&crop=center",
+    overview:
+      "A leading African university positioned for global excellence and African advancement through innovation and collaborative engagement.",
+    website: "https://www.ukzn.ac.za",
+    studentPortal: "https://students.ukzn.ac.za",
+    admissionsContact: "admissions@ukzn.ac.za",
+    faculties: [
+      {
+        id: "health",
+        name: "College of Health Sciences",
+        description:
+          "Comprehensive health sciences education with excellent clinical facilities.",
+        degrees: [
+          {
+            id: "mbchb",
+            name: "MBChB Medicine",
+            faculty: "Health Sciences",
+            duration: "6 years",
+            apsRequirement: 42,
+            description:
+              "Comprehensive medical degree with strong focus on African health challenges.",
+            subjects: [
+              { name: "Mathematics", level: 6, isRequired: true },
+              { name: "Physical Sciences", level: 6, isRequired: true },
+              { name: "Life Sciences", level: 6, isRequired: true },
+              { name: "English", level: 5, isRequired: true },
+            ],
+            careerProspects: [
+              "Medical Doctor",
+              "Specialist Physician",
+              "Surgeon",
+              "Medical Researcher",
+              "Public Health Officer",
+            ],
+          },
+        ],
+      },
+      {
+        id: "agriculture",
+        name: "School of Agricultural, Earth and Environmental Sciences",
+        description:
+          "Leading agricultural and environmental sciences education.",
+        degrees: [
+          {
+            id: "bsc-agriculture",
+            name: "BSc Agriculture",
+            faculty: "Agricultural, Earth and Environmental Sciences",
+            duration: "4 years",
+            apsRequirement: 30,
+            description:
+              "Comprehensive agricultural science program focusing on sustainable farming practices.",
+            subjects: [
+              { name: "Mathematics", level: 4, isRequired: true },
+              { name: "Physical Sciences", level: 4, isRequired: true },
+              { name: "Life Sciences", level: 5, isRequired: true },
+              { name: "English", level: 4, isRequired: true },
+            ],
+            careerProspects: [
+              "Agricultural Scientist",
+              "Farm Manager",
+              "Agricultural Consultant",
+              "Extension Officer",
+              "Research Scientist",
+            ],
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: "rhodes",
+    name: "Rhodes University",
+    abbreviation: "Rhodes",
+    fullName: "Rhodes University",
+    location: "Grahamstown (Makhanda)",
+    province: "Eastern Cape",
+    logo: "https://images.unsplash.com/photo-1607013251379-e6eecfffe234?w=80&h=80&fit=crop&crop=center",
+    overview:
+      "A small university with a big reputation for academic excellence and vibrant campus life.",
+    website: "https://www.ru.ac.za",
+    studentPortal: "https://students.ru.ac.za",
+    admissionsContact: "admissions@ru.ac.za",
+    faculties: [
+      {
+        id: "humanities",
+        name: "Faculty of Humanities",
+        description: "Leading humanities education with strong research focus.",
+        degrees: [
+          {
+            id: "ba-english",
+            name: "BA English",
+            faculty: "Humanities",
+            duration: "3 years",
+            apsRequirement: 26,
+            description:
+              "Comprehensive English studies program with focus on literature and language.",
+            subjects: [{ name: "English", level: 5, isRequired: true }],
+            careerProspects: [
+              "Teacher",
+              "Writer",
+              "Editor",
+              "Journalist",
+              "Communications Specialist",
+            ],
+          },
+        ],
+      },
+      {
+        id: "science",
+        name: "Faculty of Science",
+        description:
+          "Excellent science education with strong research opportunities.",
+        degrees: [
+          {
+            id: "bsc-computer-science",
+            name: "BSc Computer Science",
+            faculty: "Science",
+            duration: "3 years",
+            apsRequirement: 32,
+            description:
+              "Comprehensive computer science program with strong theoretical foundation.",
+            subjects: [
+              { name: "Mathematics", level: 5, isRequired: true },
+              { name: "Physical Sciences", level: 4, isRequired: false },
+              { name: "English", level: 4, isRequired: true },
+            ],
+            careerProspects: [
+              "Software Developer",
+              "Systems Analyst",
+              "Database Administrator",
+              "IT Consultant",
+              "Research Scientist",
+            ],
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: "uj",
+    name: "University of Johannesburg",
+    abbreviation: "UJ",
+    fullName: "University of Johannesburg (UJ)",
+    location: "Johannesburg",
+    province: "Gauteng",
+    logo: "https://images.unsplash.com/photo-1607013251379-e6eecfffe234?w=80&h=80&fit=crop&crop=center",
+    overview:
+      "A vibrant, cosmopolitan university offering world-class academic programs with a focus on innovation and excellence.",
+    website: "https://www.uj.ac.za",
+    studentPortal: "https://students.uj.ac.za",
+    admissionsContact: "admissions@uj.ac.za",
+    faculties: [
+      {
+        id: "engineering",
+        name: "Faculty of Engineering and the Built Environment",
+        description:
+          "Innovative engineering education with strong industry partnerships.",
+        degrees: [
+          {
+            id: "beng-civil",
+            name: "BEng Civil Engineering",
+            faculty: "Engineering and the Built Environment",
+            duration: "4 years",
+            apsRequirement: 37,
+            description:
+              "Comprehensive civil engineering program with focus on infrastructure development.",
+            subjects: [
+              { name: "Mathematics", level: 6, isRequired: true },
+              { name: "Physical Sciences", level: 6, isRequired: true },
+              { name: "English", level: 4, isRequired: true },
+            ],
+            careerProspects: [
+              "Civil Engineer",
+              "Structural Engineer",
+              "Project Manager",
+              "Construction Manager",
+              "Infrastructure Planner",
+            ],
+          },
+        ],
+      },
+      {
+        id: "management",
+        name: "College of Business and Economics",
+        description:
+          "Leading business education with strong focus on entrepreneurship.",
+        degrees: [
+          {
+            id: "bcom-accounting",
+            name: "BCom Accounting",
+            faculty: "Business and Economics",
+            duration: "3 years",
+            apsRequirement: 33,
+            description:
+              "Comprehensive accounting program with practical focus.",
+            subjects: [
+              { name: "Mathematics", level: 4, isRequired: true },
+              { name: "English", level: 4, isRequired: true },
+              { name: "Accounting", level: 4, isRequired: true },
+            ],
+            careerProspects: [
+              "Chartered Accountant",
+              "Financial Manager",
+              "Auditor",
+              "Tax Consultant",
+              "Business Analyst",
+            ],
+          },
+        ],
+      },
+    ],
+  },
 ];
