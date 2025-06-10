@@ -311,6 +311,10 @@ const AdminDashboard = () => {
           <AdminContactTab />
         </TabsContent>
 
+        <TabsContent value="resources" className="space-y-4">
+          <AdminResourcesTab />
+        </TabsContent>
+
         <TabsContent value="settings" className="space-y-4">
           <AdminSettingsTab
             broadcastMessage={broadcastMessage}
