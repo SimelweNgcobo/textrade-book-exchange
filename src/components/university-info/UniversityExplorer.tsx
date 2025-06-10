@@ -1,10 +1,22 @@
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   Search,
   MapPin,
@@ -14,7 +26,9 @@ import {
   GraduationCap,
   ArrowRight,
   Star,
-  TrendingUp
+  TrendingUp,
+  Filter,
+  ChevronDown,
 } from "lucide-react";
 import { SOUTH_AFRICAN_UNIVERSITIES } from "@/constants/universities";
 import { University } from "@/types/university";
@@ -27,28 +41,47 @@ interface UniversityExplorerProps {
   onViewBooks: (universityId: string) => void;
 }
 
-const UniversityExplorer = ({ onUniversitySelect, onViewBooks }: UniversityExplorerProps) => {
+const UniversityExplorer = ({
+  onUniversitySelect,
+  onViewBooks,
+}: UniversityExplorerProps) => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedProvince, setSelectedProvince] = useState<string>("");
   const [showAdvancedSearch, setShowAdvancedSearch] = useState(false);
 
-  const provinces = ["Eastern Cape", "Free State", "Gauteng", "KwaZulu-Natal", "Limpopo", "Mpumalanga", "Northern Cape", "North West", "Western Cape"];
+  const provinces = [
+    "Eastern Cape",
+    "Free State",
+    "Gauteng",
+    "KwaZulu-Natal",
+    "Limpopo",
+    "Mpumalanga",
+    "Northern Cape",
+    "North West",
+    "Western Cape",
+  ];
 
   const filteredUniversities = useMemo(() => {
-    return SOUTH_AFRICAN_UNIVERSITIES.filter(university => {
-      const matchesSearch = university.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           university.abbreviation.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           university.location.toLowerCase().includes(searchTerm.toLowerCase());
+    return SOUTH_AFRICAN_UNIVERSITIES.filter((university) => {
+      const matchesSearch =
+        university.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        university.abbreviation
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase()) ||
+        university.location.toLowerCase().includes(searchTerm.toLowerCase());
 
-      const matchesProvince = !selectedProvince || university.province === selectedProvince;
+      const matchesProvince =
+        !selectedProvince || university.province === selectedProvince;
 
       return matchesSearch && matchesProvince;
     });
   }, [searchTerm, selectedProvince]);
 
   const handleUniversitySelect = (university: University) => {
-    document.getElementById('university-details')?.scrollIntoView({ behavior: 'smooth' });
+    document
+      .getElementById("university-details")
+      ?.scrollIntoView({ behavior: "smooth" });
     onUniversitySelect(university);
   };
 
@@ -75,259 +108,254 @@ const UniversityExplorer = ({ onUniversitySelect, onViewBooks }: UniversityExplo
           <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto">
               <div className="text-center mb-8">
-                <h2 className="text-3xl font-bold text-gray-900 mb-4">Advanced University Search</h2>
+                <h2 className="text-3xl font-bold text-gray-900 mb-4">
+                  Search Results
+                </h2>
                 <p className="text-lg text-gray-600">
-                  Find universities that match your specific requirements
+                  {filteredUniversities.length} universities match your criteria
                 </p>
               </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {featuredUniversities.map((university) => (
-              <Card key={university.id} className="group hover:shadow-2xl transition-all duration-300 bg-white/80 backdrop-blur-sm border-0 hover:-translate-y-2">
-                <CardHeader className="pb-4">
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="w-12 h-12 bg-book-600 rounded-xl flex items-center justify-center">
-                      <GraduationCap className="h-6 w-6 text-white" />
-                    </div>
-                    <div>
-                    <CardTitle className="text-lg font-bold text-gray-900 group-hover:text-book-600 transition-colors">
-                        {university.abbreviation}
-                      </CardTitle>
-                      <CardDescription className="text-sm text-gray-600">
-                        {university.name}
-                      </CardDescription>
-                    </div>
-                  </div>
 
-                  <div className="flex items-center text-sm text-gray-600">
-                    <MapPin className="h-4 w-4 mr-1" />
-                    {university.location}, {university.province}
+              {/* Advanced Filters */}
+              <Card className="mb-8">
+                <CardHeader className="pb-4">
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="flex items-center gap-2">
+                      <Filter className="h-5 w-5" />
+                      Search Filters
+                    </CardTitle>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setShowAdvancedSearch(!showAdvancedSearch)}
+                    >
+                      <ChevronDown
+                        className={`h-4 w-4 transition-transform ${showAdvancedSearch ? "rotate-180" : ""}`}
+                      />
+                    </Button>
                   </div>
                 </CardHeader>
 
                 <CardContent className="space-y-4">
-                  <p className="text-sm text-gray-600 line-clamp-3">
-                    {university.overview}
-                  </p>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {/* Search Input */}
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-gray-700">
+                        Search Universities
+                      </label>
+                      <div className="relative">
+                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                        <Input
+                          placeholder="University name or location..."
+                          value={searchTerm}
+                          onChange={(e) => setSearchTerm(e.target.value)}
+                          className="pl-10"
+                        />
+                      </div>
+                    </div>
 
-                  <div className="flex flex-wrap gap-1">
-                    {university.faculties.slice(0, 2).map((faculty) => (
-                      <Badge key={faculty.id} variant="secondary" className="text-xs">
-                        {faculty.name.replace("Faculty of ", "")}
-                      </Badge>
-                    ))}
-                    {university.faculties.length > 2 && (
-                      <Badge variant="outline" className="text-xs">
-                        +{university.faculties.length - 2} more
-                      </Badge>
-                    )}
+                    {/* Province Filter */}
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-gray-700">
+                        Province
+                      </label>
+                      <Select
+                        value={selectedProvince}
+                        onValueChange={setSelectedProvince}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="All Provinces" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="">All Provinces</SelectItem>
+                          {provinces.map((province) => (
+                            <SelectItem key={province} value={province}>
+                              {province}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
                   </div>
 
-                  <div className="flex gap-2 pt-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleUniversityClick(university)}
-                      className="flex-1 text-xs group-hover:border-book-300 group-hover:bg-book-50"
-                    >
-                      <Users className="h-3 w-3 mr-1" />
-                      View Details
-                    </Button>
-                    <Button
-                      size="sm"
-                      onClick={() => onViewBooks(university.id)}
-                      className="flex-1 text-xs bg-book-600 hover:bg-book-700"
-                    >
-                      <BookOpen className="h-3 w-3 mr-1" />
-                      Campus Books
-                    </Button>
-                  </div>
+                  {/* Clear Filters */}
+                  {(searchTerm || selectedProvince) && (
+                    <div className="flex justify-end">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          setSearchTerm("");
+                          setSelectedProvince("");
+                        }}
+                      >
+                        Clear All Filters
+                      </Button>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
-            ))}
-          </div>
-        </div>
 
-        {/* Search and Filter Section */}
-        <Card className="mb-8 bg-white/80 backdrop-blur-sm border-0 shadow-xl">
-          <CardHeader>
-            <CardTitle className="text-xl font-bold text-gray-900 flex items-center gap-2">
-              <Search className="h-5 w-5 text-indigo-600" />
-              Explore All Universities
-            </CardTitle>
-            <CardDescription>
-              Search and filter through all South African universities to find your perfect match.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex flex-col md:flex-row gap-4">
-              <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                <Input
-                  placeholder="Search universities by name, abbreviation, or location..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 border-gray-200 focus:border-indigo-300 focus:ring-indigo-200"
-                />
+              {/* Search Results Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filteredUniversities.map((university) => (
+                  <Card
+                    key={university.id}
+                    className="group cursor-pointer transition-all duration-200 hover:shadow-lg hover:border-book-300 border-2 border-transparent hover:scale-[1.02]"
+                    onClick={() => handleUniversitySelect(university)}
+                  >
+                    <CardHeader className="pb-4">
+                      <div className="flex items-start justify-between">
+                        <div className="flex items-center space-x-3">
+                          {university.logo ? (
+                            <div className="w-12 h-12 rounded-lg bg-white border border-gray-200 p-2 flex items-center justify-center">
+                              <img
+                                src={university.logo}
+                                alt={`${university.name} logo`}
+                                className="w-full h-full object-contain"
+                              />
+                            </div>
+                          ) : (
+                            <div className="w-12 h-12 bg-book-100 rounded-lg flex items-center justify-center">
+                              <span className="text-book-600 font-bold text-sm">
+                                {university.abbreviation}
+                              </span>
+                            </div>
+                          )}
+                          <div className="flex-1 min-w-0">
+                            <h3 className="font-bold text-lg text-gray-900 group-hover:text-book-600 transition-colors leading-tight">
+                              {university.name}
+                            </h3>
+                            <p className="text-sm text-gray-500 font-medium">
+                              {university.abbreviation}
+                            </p>
+                          </div>
+                        </div>
+                        <ArrowRight className="w-5 h-5 text-gray-400 group-hover:text-book-600 transition-colors" />
+                      </div>
+
+                      <div className="flex items-center space-x-2 mt-3">
+                        <MapPin className="w-4 h-4 text-gray-400" />
+                        <span className="text-sm text-gray-600">
+                          {university.location}
+                        </span>
+                        <Badge
+                          variant="secondary"
+                          className="bg-book-50 text-book-700 text-xs"
+                        >
+                          {university.province}
+                        </Badge>
+                      </div>
+                    </CardHeader>
+
+                    <CardContent className="pt-0">
+                      <p className="text-sm text-gray-600 leading-relaxed mb-4 line-clamp-3">
+                        {university.overview}
+                      </p>
+
+                      <div className="flex space-x-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="flex-1 text-xs border-book-200 text-book-600 hover:bg-book-50"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleUniversitySelect(university);
+                          }}
+                        >
+                          View Details
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="flex-1 text-xs border-book-200 text-book-600 hover:bg-book-50"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onViewBooks(university.id);
+                          }}
+                        >
+                          Books
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
               </div>
-        <Select value={selectedProvince || "all"} onValueChange={(value) => setSelectedProvince(value === "all" ? "" : value)}>
-          <SelectTrigger className="sm:w-48">
-            <SelectValue placeholder="Filter by province" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Provinces</SelectItem>
-                  {provinces.map((province) => (
-                    <SelectItem key={province} value={province}>
-                      {province}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
 
-            <div className="flex items-center justify-between text-sm text-gray-600">
-              <span>{filteredUniversities.length} universities found</span>
-              <div className="flex gap-2">
-                <Button
-                  variant={viewMode === "grid" ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setViewMode("grid")}
-                >
-                  Grid
-                </Button>
-                <Button
-                  variant={viewMode === "list" ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setViewMode("list")}
-                >
-                  List
-                </Button>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Universities Grid */}
-        <div className={viewMode === "grid" ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" : "space-y-4"}>
-          {filteredUniversities.map((university) => (
-            <Card key={university.id} className="group hover:shadow-xl transition-all duration-300 cursor-pointer bg-white/60 backdrop-blur-sm border-0 hover:bg-white/80">
-              <CardHeader className="pb-3">
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <CardTitle className="text-lg font-semibold text-gray-900 group-hover:text-indigo-600 transition-colors">
-                      {university.abbreviation}
-                    </CardTitle>
-                    <CardDescription className="font-medium text-gray-700 mt-1">
-                      {university.name}
-                    </CardDescription>
-                  </div>
-                  <TrendingUp className="h-5 w-5 text-green-500 opacity-0 group-hover:opacity-100 transition-opacity" />
-                </div>
-
-                <div className="flex items-center text-sm text-gray-600 mt-2">
-                  <MapPin className="h-4 w-4 mr-1" />
-                  {university.location}, {university.province}
-                </div>
-              </CardHeader>
-
-              <CardContent className="space-y-4">
-                <p className="text-sm text-gray-600 line-clamp-2">
-                  {university.overview}
-                </p>
-
-                <div className="space-y-2">
-                  <h4 className="text-sm font-medium text-gray-800">Key Faculties:</h4>
-                  <div className="flex flex-wrap gap-1">
-                    {university.faculties.slice(0, 3).map((faculty) => (
-                      <Badge key={faculty.id} variant="secondary" className="text-xs">
-                        {faculty.name.replace("Faculty of ", "").replace("School of ", "")}
-                      </Badge>
-                    ))}
-                    {university.faculties.length > 3 && (
-                      <Badge variant="outline" className="text-xs">
-                        +{university.faculties.length - 3} more
-                      </Badge>
-                    )}
-                  </div>
-                </div>
-
-                <div className="flex flex-col sm:flex-row gap-2 pt-2">
+              {/* No Results */}
+              {filteredUniversities.length === 0 && (
+                <div className="text-center py-12">
+                  <Search className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">
+                    No universities found
+                  </h3>
+                  <p className="text-gray-600 mb-4">
+                    Try adjusting your search criteria to find what you're
+                    looking for.
+                  </p>
                   <Button
                     variant="outline"
-                    size="sm"
-                    onClick={() => handleUniversityClick(university)}
-                    className="flex-1 text-xs border-indigo-200 hover:bg-indigo-50 hover:border-indigo-300"
+                    onClick={() => {
+                      setSearchTerm("");
+                      setSelectedProvince("");
+                    }}
+                    className="border-book-200 text-book-600 hover:bg-book-50"
                   >
-                    <Users className="h-3 w-3 mr-1" />
-                    View Details
-                  </Button>
-                  <Button
-                    size="sm"
-                    onClick={() => onViewBooks(university.id)}
-                    className="flex-1 text-xs bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700"
-                  >
-                    <BookOpen className="h-3 w-3 mr-1" />
-                    Campus Books
+                    Clear Filters
                   </Button>
                 </div>
-
-                {university.website && (
-                  <div className="pt-2 border-t border-gray-100">
-                    <a
-                      href={university.website}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center text-xs text-indigo-600 hover:text-indigo-700 transition-colors"
-                    >
-                      <ExternalLink className="h-3 w-3 mr-1" />
-                      Official Website
-                    </a>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-
-        {filteredUniversities.length === 0 && (
-          <div className="text-center py-16">
-            <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Search className="h-8 w-8 text-gray-400" />
+              )}
             </div>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No universities found</h3>
-            <p className="text-gray-600 mb-4">
-              Try adjusting your search terms or province filter.
-            </p>
-            <Button
-              variant="outline"
-              onClick={() => {
-                setSearchTerm("");
-                setSelectedProvince("");
-              }}
-            >
-              Clear Filters
-            </Button>
           </div>
-        )}
+        </section>
+      )}
 
-        {/* Call to Action */}
-        <div className="text-center mt-16">
-          <div className="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-3xl p-8 text-white">
-            <h2 className="text-2xl font-bold mb-4">Ready to Start Your University Journey?</h2>
-            <p className="text-indigo-100 mb-6 max-w-2xl mx-auto">
-              Calculate your APS score, explore degree programs, and find the perfect university for your future.
-            </p>
-            <Button
-              size="lg"
-              onClick={() => document.getElementById('aps-calculator')?.scrollIntoView({ behavior: 'smooth' })}
-              className="bg-white text-indigo-600 hover:bg-gray-100 font-semibold"
-            >
-              Calculate Your APS Score
-              <ArrowRight className="h-5 w-5 ml-2" />
-            </Button>
+      {/* Browse by Region Section */}
+      {!searchTerm && !selectedProvince && (
+        <section className="py-16 bg-book-50">
+          <div className="container mx-auto px-4">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl font-bold text-gray-900 mb-4">
+                Browse by Region
+              </h2>
+              <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+                Explore universities by province to find institutions in your
+                preferred location
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              {provinces.map((province) => {
+                const provinceUniversities = SOUTH_AFRICAN_UNIVERSITIES.filter(
+                  (uni) => uni.province === province,
+                );
+
+                return (
+                  <Card
+                    key={province}
+                    className="cursor-pointer transition-all duration-200 hover:shadow-lg hover:border-book-300 border-2 border-transparent hover:scale-105"
+                    onClick={() => setSelectedProvince(province)}
+                  >
+                    <CardContent className="p-6 text-center">
+                      <MapPin className="w-8 h-8 text-book-600 mx-auto mb-3" />
+                      <h3 className="font-bold text-lg text-gray-900 mb-2">
+                        {province}
+                      </h3>
+                      <p className="text-sm text-gray-600">
+                        {provinceUniversities.length}{" "}
+                        {provinceUniversities.length === 1
+                          ? "university"
+                          : "universities"}
+                      </p>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
           </div>
-        </div>
-      </div>
-    </section>
+        </section>
+      )}
+    </div>
   );
 };
 
