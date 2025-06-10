@@ -230,10 +230,17 @@ function AuthProvider({ children }: { children: ReactNode }) {
 
   // Set up auth listener
   const setupAuthListener = useCallback(() => {
+    console.log("[AuthContext] Setting up auth listener...");
+
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
       try {
+        console.log("[AuthContext] Auth state changed:", {
+          event,
+          hasSession: !!session,
+        });
+
         if (event === "SIGNED_OUT") {
           handleSignOut();
         } else if (session) {
@@ -244,11 +251,14 @@ function AuthProvider({ children }: { children: ReactNode }) {
           setIsLoading(false);
         }
       } catch (error) {
+        console.error("[AuthContext] Auth state change handler error:", error);
         handleError(error, "Auth State Change Handler");
+        setIsLoading(false); // Ensure loading stops even on error
       }
     });
 
     return () => {
+      console.log("[AuthContext] Cleaning up auth listener");
       subscription.unsubscribe();
     };
   }, [authInitialized, handleAuthStateChange, handleSignOut, handleError]);
