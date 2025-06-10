@@ -173,27 +173,18 @@ export const createUserProfile = async (user: User): Promise<Profile> => {
       );
     }
 
-    console.log("Profile created successfully:", newProfile.name);
-
-    // Safely check admin status
-    let isAdmin = false;
-    try {
-      console.log("🔍 createUserProfile: Checking admin status for:", user.id);
-      isAdmin = await isAdminUser(user.id);
-      console.log("✅ createUserProfile: Admin status result:", isAdmin);
-    } catch (adminError) {
-      console.warn(
-        "⚠️ createUserProfile: Admin status check failed, defaulting to false",
-      );
-      logError("Admin status check in createUserProfile", adminError);
-      isAdmin = false; // Default to non-admin if check fails
-    }
+    console.log(
+      "Profile created successfully:",
+      newProfile.name,
+      "Admin:",
+      isAdmin,
+    );
 
     return {
       id: newProfile.id,
       name: newProfile.name,
       email: newProfile.email,
-      isAdmin,
+      isAdmin: newProfile.is_admin || false, // Use the admin status from database
       status: newProfile.status,
       profile_picture_url: newProfile.profile_picture_url,
       bio: newProfile.bio,
