@@ -167,7 +167,7 @@ const UniversityExplorer = ({
                           <SelectValue placeholder="All Provinces" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="">All Provinces</SelectItem>
+                          <SelectItem value="all">All Provinces</SelectItem>
                           {provinces.map((province) => (
                             <SelectItem key={province} value={province}>
                               {province}
