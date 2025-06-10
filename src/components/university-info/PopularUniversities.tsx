@@ -230,26 +230,32 @@ const PopularUniversities = ({
 
         {/* View All Universities Button */}
         {showViewAll && !showAll && (
-          <div className="text-center">
+          <div className="text-center px-4">
             <Button
               onClick={() => setShowAll(true)}
-              className="bg-book-600 hover:bg-book-700 text-white px-8 py-3 text-lg font-medium"
+              className="bg-book-600 hover:bg-book-700 text-white px-6 md:px-8 py-3 text-sm md:text-lg font-medium w-full sm:w-auto"
             >
-              View All {SOUTH_AFRICAN_UNIVERSITIES.length} Universities
-              <ArrowRight className="w-5 h-5 ml-2" />
+              <span className="hidden sm:inline">
+                View All {SOUTH_AFRICAN_UNIVERSITIES.length} Universities
+              </span>
+              <span className="sm:hidden">View All Universities</span>
+              <ArrowRight className="w-4 h-4 md:w-5 md:h-5 ml-2" />
             </Button>
           </div>
         )}
 
         {/* Show Less Button */}
         {showAll && showViewAll && (
-          <div className="text-center">
+          <div className="text-center px-4">
             <Button
               variant="outline"
               onClick={() => setShowAll(false)}
-              className="border-book-200 text-book-600 hover:bg-book-50 px-8 py-3"
+              className="border-book-200 text-book-600 hover:bg-book-50 px-6 md:px-8 py-3 w-full sm:w-auto"
             >
-              Show Popular Universities Only
+              <span className="hidden sm:inline">
+                Show Popular Universities Only
+              </span>
+              <span className="sm:hidden">Show Popular Only</span>
             </Button>
           </div>
         )}
