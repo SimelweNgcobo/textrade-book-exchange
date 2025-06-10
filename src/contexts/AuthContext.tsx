@@ -443,22 +443,47 @@ function AuthProvider({ children }: { children: ReactNode }) {
   // Initialize auth and set up listener on mount
   useEffect(() => {
     let cleanup: (() => void) | undefined;
+    let isMounted = true;
 
     const setup = async () => {
       try {
+        console.log("[AuthContext] Starting setup...");
+
+        // Add overall timeout for the entire setup process
+        const setupTimeout = setTimeout(() => {
+          if (isMounted) {
+            console.error("[AuthContext] Setup timeout - forcing completion");
+            setIsLoading(false);
+            setAuthInitialized(true);
+            setInitError(
+              "Authentication setup timed out. Please refresh the page.",
+            );
+          }
+        }, 15000); // 15 second timeout
+
         await initializeAuth();
-        cleanup = setupAuthListener();
+
+        if (isMounted) {
+          cleanup = setupAuthListener();
+          clearTimeout(setupTimeout);
+        }
       } catch (error) {
-        handleError(error, "AuthProvider Setup");
-        setInitError(`Authentication setup failed: ${getErrorMessage(error)}`);
-        setIsLoading(false);
-        setAuthInitialized(true);
+        if (isMounted) {
+          console.error("[AuthContext] Setup failed:", error);
+          handleError(error, "AuthProvider Setup");
+          setInitError(
+            `Authentication setup failed: ${getErrorMessage(error)}`,
+          );
+          setIsLoading(false);
+          setAuthInitialized(true);
+        }
       }
     };
 
     setup();
 
     return () => {
+      isMounted = false;
       if (cleanup) {
         cleanup();
       }
