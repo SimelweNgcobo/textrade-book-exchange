@@ -47,8 +47,7 @@ const UniversityExplorer = ({
 }: UniversityExplorerProps) => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedProvince, setSelectedProvince] = useState<string>("");
-  const [showAdvancedSearch, setShowAdvancedSearch] = useState(false);
+  const [selectedProvince, setSelectedProvince] = useState<string>("all");
 
   const provinces = [
     "Eastern Cape",
@@ -72,7 +71,7 @@ const UniversityExplorer = ({
         university.location.toLowerCase().includes(searchTerm.toLowerCase());
 
       const matchesProvince =
-        !selectedProvince || university.province === selectedProvince;
+        selectedProvince === "all" || university.province === selectedProvince;
 
       return matchesSearch && matchesProvince;
     });
