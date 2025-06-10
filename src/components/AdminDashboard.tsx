@@ -279,6 +279,12 @@ const AdminDashboard = () => {
             )}
           </TabsTrigger>
           <TabsTrigger
+            value="resources"
+            className={isMobile ? "text-xs px-2 py-2" : ""}
+          >
+            {isMobile ? "Resources" : "Resources"}
+          </TabsTrigger>
+          <TabsTrigger
             value="settings"
             className={isMobile ? "text-xs px-2 py-2" : ""}
           >
