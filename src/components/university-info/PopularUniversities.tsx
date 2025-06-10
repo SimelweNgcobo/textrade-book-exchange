@@ -106,14 +106,14 @@ const PopularUniversities = ({
             return (
               <Card
                 key={university.id}
-                className="group cursor-pointer transition-all duration-200 hover:shadow-xl hover:border-book-300 border-2 border-transparent hover:scale-[1.02]"
+                className="group cursor-pointer transition-all duration-200 hover:shadow-xl hover:border-book-300 border-2 border-transparent hover:scale-[1.02] h-full"
                 onClick={() => handleUniversityClick(university)}
               >
-                <CardHeader className="pb-4">
+                <CardHeader className="pb-3 md:pb-4 p-4 md:p-6">
                   <div className="flex items-start justify-between">
-                    <div className="flex items-center space-x-3">
+                    <div className="flex items-center space-x-2 md:space-x-3 flex-1 min-w-0">
                       {university.logo ? (
-                        <div className="w-14 h-14 rounded-xl bg-white border border-gray-200 p-2 flex items-center justify-center shadow-sm">
+                        <div className="w-10 h-10 md:w-14 md:h-14 rounded-lg md:rounded-xl bg-white border border-gray-200 p-1.5 md:p-2 flex items-center justify-center shadow-sm flex-shrink-0">
                           <img
                             src={university.logo}
                             alt={`${university.name} logo`}
@@ -134,71 +134,77 @@ const PopularUniversities = ({
                             className="logo-fallback w-full h-full bg-book-100 rounded-lg flex items-center justify-center"
                             style={{ display: "none" }}
                           >
-                            <span className="text-book-600 font-bold text-sm">
+                            <span className="text-book-600 font-bold text-xs md:text-sm">
                               {university.abbreviation}
                             </span>
                           </div>
                         </div>
                       ) : (
-                        <div className="w-14 h-14 bg-book-100 rounded-xl flex items-center justify-center shadow-sm">
-                          <span className="text-book-600 font-bold text-sm">
+                        <div className="w-10 h-10 md:w-14 md:h-14 bg-book-100 rounded-lg md:rounded-xl flex items-center justify-center shadow-sm flex-shrink-0">
+                          <span className="text-book-600 font-bold text-xs md:text-sm">
                             {university.abbreviation}
                           </span>
                         </div>
                       )}
                       <div className="flex-1 min-w-0">
-                        <h3 className="font-bold text-lg text-gray-900 group-hover:text-book-600 transition-colors leading-tight">
+                        <h3 className="font-bold text-sm md:text-lg text-gray-900 group-hover:text-book-600 transition-colors leading-tight">
                           {university.name}
                         </h3>
-                        <p className="text-sm text-gray-500 font-medium">
+                        <p className="text-xs md:text-sm text-gray-500 font-medium">
                           {university.abbreviation}
                         </p>
                       </div>
                     </div>
-                    <ChevronRight className="w-5 h-5 text-gray-400 group-hover:text-book-600 transition-colors flex-shrink-0" />
+                    <ChevronRight className="w-4 h-4 md:w-5 md:h-5 text-gray-400 group-hover:text-book-600 transition-colors flex-shrink-0" />
                   </div>
 
-                  <div className="flex items-center space-x-2 mt-3">
-                    <MapPin className="w-4 h-4 text-gray-400" />
-                    <span className="text-sm text-gray-600">
+                  <div className="flex items-center space-x-2 mt-2 md:mt-3">
+                    <MapPin className="w-3 h-3 md:w-4 md:h-4 text-gray-400 flex-shrink-0" />
+                    <span className="text-xs md:text-sm text-gray-600 truncate">
                       {university.location}
                     </span>
                     <Badge
                       variant="secondary"
-                      className="bg-book-50 text-book-700 text-xs"
+                      className="bg-book-50 text-book-700 text-xs flex-shrink-0"
                     >
                       {university.province}
                     </Badge>
                   </div>
                 </CardHeader>
 
-                <CardContent className="pt-0">
-                  <p className="text-sm text-gray-600 leading-relaxed mb-4 line-clamp-3">
+                <CardContent className="pt-0 p-4 md:p-6 md:pt-0">
+                  <p className="text-xs md:text-sm text-gray-600 leading-relaxed mb-3 md:mb-4 line-clamp-2 md:line-clamp-3">
                     {university.overview}
                   </p>
 
-                  {/* Quick Stats */}
-                  <div className="grid grid-cols-3 gap-3 mb-4">
-                    <div className="text-center bg-gray-50 rounded-lg p-2">
-                      <Users className="w-4 h-4 text-book-600 mx-auto mb-1" />
+                  {/* Quick Stats - Mobile optimized */}
+                  <div className="grid grid-cols-3 gap-2 md:gap-3 mb-3 md:mb-4">
+                    <div className="text-center bg-gray-50 rounded-lg p-1.5 md:p-2">
+                      <Users className="w-3 h-3 md:w-4 md:h-4 text-book-600 mx-auto mb-0.5 md:mb-1" />
                       <div className="text-xs font-semibold text-book-600">
                         {stats.students}
                       </div>
-                      <div className="text-xs text-gray-500">Students</div>
+                      <div className="text-xs text-gray-500 hidden md:block">
+                        Students
+                      </div>
                     </div>
-                    <div className="text-center bg-gray-50 rounded-lg p-2">
-                      <Calendar className="w-4 h-4 text-book-600 mx-auto mb-1" />
+                    <div className="text-center bg-gray-50 rounded-lg p-1.5 md:p-2">
+                      <Calendar className="w-3 h-3 md:w-4 md:h-4 text-book-600 mx-auto mb-0.5 md:mb-1" />
                       <div className="text-xs font-semibold text-book-600">
                         {stats.established}
                       </div>
-                      <div className="text-xs text-gray-500">Est.</div>
+                      <div className="text-xs text-gray-500 hidden md:block">
+                        Est.
+                      </div>
                     </div>
-                    <div className="text-center bg-gray-50 rounded-lg p-2">
-                      <Star className="w-4 h-4 text-book-600 mx-auto mb-1" />
+                    <div className="text-center bg-gray-50 rounded-lg p-1.5 md:p-2">
+                      <Star className="w-3 h-3 md:w-4 md:h-4 text-book-600 mx-auto mb-0.5 md:mb-1" />
                       <div className="text-xs font-semibold text-book-600">
                         {stats.faculties}
                       </div>
-                      <div className="text-xs text-gray-500">Faculties</div>
+                      <div className="text-xs text-gray-500 hidden md:block">
+                        Faculties
+                      </div>
                     </div>
                   </div>
 
@@ -206,13 +212,14 @@ const PopularUniversities = ({
                   <Button
                     variant="outline"
                     size="sm"
-                    className="w-full text-xs border-book-200 text-book-600 hover:bg-book-50"
+                    className="w-full text-xs md:text-sm border-book-200 text-book-600 hover:bg-book-50 py-2"
                     onClick={(e) => {
                       e.stopPropagation();
                       handleUniversityClick(university);
                     }}
                   >
-                    Explore University
+                    <span className="hidden md:inline">Explore University</span>
+                    <span className="md:hidden">Explore</span>
                     <ArrowRight className="w-3 h-3 ml-1" />
                   </Button>
                 </CardContent>
