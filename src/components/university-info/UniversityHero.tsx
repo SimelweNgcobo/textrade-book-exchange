@@ -76,7 +76,7 @@ const UniversityHero = ({
   ];
 
   return (
-    <section className="relative bg-gradient-to-br from-book-50 to-white py-20 overflow-hidden">
+    <section className="relative bg-gradient-to-br from-book-50 to-white py-12 md:py-20 overflow-hidden">
       {/* Background Study Image */}
       <div className="absolute inset-0">
         <img
@@ -88,47 +88,58 @@ const UniversityHero = ({
       </div>
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center space-y-8">
+        <div className="text-center space-y-6 md:space-y-8">
           {/* Badge */}
-          <div className="inline-flex items-center gap-2 px-6 py-3 bg-book-100 rounded-full text-book-700 text-sm font-medium">
-            <Star className="h-4 w-4" />
-            South Africa's Complete University Guide
+          <div className="inline-flex items-center gap-2 px-4 py-2 md:px-6 md:py-3 bg-book-100 rounded-full text-book-700 text-xs md:text-sm font-medium">
+            <Star className="h-3 w-3 md:h-4 md:w-4" />
+            <span className="hidden sm:inline">
+              South Africa's Complete University Guide
+            </span>
+            <span className="sm:hidden">Complete University Guide</span>
           </div>
 
           {/* Main Hero Content */}
-          <div className="space-y-6">
-            <h1 className="text-4xl md:text-6xl font-bold text-gray-900">
+          <div className="space-y-4 md:space-y-6">
+            <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold text-gray-900 px-2">
               <span className="text-book-600">Discover Your</span>
               <br />
               <span className="text-gray-900">University Journey</span>
             </h1>
 
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-              Explore comprehensive information about all South African
-              universities, calculate your APS, find bursaries, and connect with
-              students selling textbooks. Your complete guide to higher
-              education success.
+            <p className="text-base md:text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed px-4">
+              <span className="hidden md:inline">
+                Explore comprehensive information about all South African
+                universities, calculate your APS, find bursaries, and connect
+                with students selling textbooks. Your complete guide to higher
+                education success.
+              </span>
+              <span className="md:hidden">
+                Find your perfect university, calculate your APS, discover
+                bursaries, and buy textbooks. Your complete guide to higher
+                education.
+              </span>
             </p>
           </div>
 
-          {/* Search Bar */}
-          <div className="max-w-2xl mx-auto">
+          {/* Search Bar - Mobile optimized */}
+          <div className="max-w-2xl mx-auto px-4">
             <form onSubmit={handleSearch} className="relative">
               <div className="relative">
-                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <Search className="absolute left-3 md:left-4 top-1/2 transform -translate-y-1/2 w-4 h-4 md:w-5 md:h-5 text-gray-400" />
                 <Input
                   type="text"
-                  placeholder="Search universities, programs, or locations..."
+                  placeholder="Search universities, programs..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-12 pr-4 py-4 text-lg border-2 border-book-200 rounded-2xl focus:border-book-400 focus:ring-4 focus:ring-book-100 bg-white/80 backdrop-blur-sm"
+                  className="pl-10 md:pl-12 pr-16 md:pr-20 py-3 md:py-4 text-sm md:text-lg border-2 border-book-200 rounded-xl md:rounded-2xl focus:border-book-400 focus:ring-4 focus:ring-book-100 bg-white/80 backdrop-blur-sm"
                 />
               </div>
               <Button
                 type="submit"
-                className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-book-600 hover:bg-book-700 text-white px-6 py-2 rounded-xl"
+                className="absolute right-1 md:right-2 top-1/2 transform -translate-y-1/2 bg-book-600 hover:bg-book-700 text-white px-3 md:px-6 py-1.5 md:py-2 rounded-lg md:rounded-xl text-sm md:text-base"
               >
-                Search
+                <span className="hidden md:inline">Search</span>
+                <Search className="w-4 h-4 md:hidden" />
               </Button>
             </form>
           </div>
@@ -136,11 +147,11 @@ const UniversityHero = ({
           {/* Quick Stats */}
           <UniversityStats
             totalUniversities={SOUTH_AFRICAN_UNIVERSITIES.length}
-            className="mb-12"
+            className="mb-8 md:mb-12"
           />
 
-          {/* Quick Actions */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+          {/* Quick Actions - Mobile responsive grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 max-w-5xl mx-auto px-2">
             {quickActions.map((action, index) => {
               const Icon = action.icon;
               return (
