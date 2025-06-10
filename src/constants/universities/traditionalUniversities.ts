@@ -3075,7 +3075,7 @@ export const TRADITIONAL_UNIVERSITIES: University[] = [
     fullName: "University of Pretoria (UP)",
     location: "Pretoria",
     province: "Gauteng",
-    logo: "https://images.unsplash.com/photo-1599582909646-0685d46f5510?w=80&h=80&fit=crop&crop=center",
+    logo: "/logos/universities/university-of-pretoria.svg",
     overview:
       "One of South Africa's top research universities with a proud tradition of academic excellence. Known for its comprehensive range of programs and strong alumni network.",
     website: "https://www.up.ac.za",
