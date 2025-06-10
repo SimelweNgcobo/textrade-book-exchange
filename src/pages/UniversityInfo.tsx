@@ -109,7 +109,7 @@ const UniversityInfo = () => {
             onValueChange={handleTabChange}
             className="w-full"
           >
-            <TabsList className="grid w-full grid-cols-3 lg:grid-cols-6 mb-8 h-auto">
+            <TabsList className="grid w-full grid-cols-2 lg:grid-cols-4 mb-8 h-auto">
               <TabsTrigger
                 value="overview"
                 className="flex flex-col items-center gap-1 py-3"
@@ -132,25 +132,11 @@ const UniversityInfo = () => {
                 <span className="text-xs">Bursaries</span>
               </TabsTrigger>
               <TabsTrigger
-                value="degrees"
-                className="flex flex-col items-center gap-1 py-3"
-              >
-                <GraduationCap className="h-4 w-4" />
-                <span className="text-xs">Degrees</span>
-              </TabsTrigger>
-              <TabsTrigger
                 value="books"
                 className="flex flex-col items-center gap-1 py-3"
               >
                 <BookOpen className="h-4 w-4" />
                 <span className="text-xs">Textbooks</span>
-              </TabsTrigger>
-              <TabsTrigger
-                value="explore"
-                className="flex flex-col items-center gap-1 py-3"
-              >
-                <Search className="h-4 w-4" />
-                <span className="text-xs">Explore</span>
               </TabsTrigger>
             </TabsList>
 
