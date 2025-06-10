@@ -102,8 +102,51 @@ export const TRADITIONAL_UNIVERSITIES: University[] = [
               "Conservation Scientist",
               "Environmental Officer",
               "Sustainability Specialist",
-              "Climate Researcher",
+              "Climate Change Analyst",
             ],
+          },
+          {
+            id: "bsc-mathematical-sciences",
+            name: "BSc Mathematical Sciences",
+            faculty: "Science",
+            duration: "3 years",
+            apsRequirement: 38,
+            description:
+              "Pure and applied mathematics with strong analytical focus.",
+            subjects: [
+              { name: "Mathematics", level: 7, isRequired: true },
+              { name: "Physical Sciences", level: 5, isRequired: false },
+              { name: "English", level: 5, isRequired: true },
+            ],
+            careerProspects: [
+              "Mathematician",
+              "Actuary",
+              "Data Scientist",
+              "Financial Analyst",
+              "Research Scientist",
+            ],
+          },
+          {
+            id: "bsc-computer-science",
+            name: "BSc Computer Science",
+            faculty: "Science",
+            duration: "3 years",
+            apsRequirement: 42,
+            description:
+              "Comprehensive computer science program with strong theoretical foundation.",
+            subjects: [
+              { name: "Mathematics", level: 6, isRequired: true },
+              { name: "English", level: 5, isRequired: true },
+              { name: "Physical Sciences", level: 5, isRequired: false },
+            ],
+            careerProspects: [
+              "Software Developer",
+              "Data Scientist",
+              "Systems Analyst",
+              "Research Scientist",
+              "AI Specialist",
+            ],
+          },
           },
           {
             id: "bsc-mathematical-sciences",
@@ -4721,8 +4764,7 @@ export const TRADITIONAL_UNIVERSITIES: University[] = [
             faculty: "Natural and Agricultural Sciences",
             duration: "3 years",
             apsRequirement: 32,
-            description:
-              "Information science in publishing and multimedia (UP specialty).",
+            description: "Information science in publishing and multimedia (UP specialty).",
             subjects: [
               { name: "Mathematics", level: 5, isRequired: true },
               { name: "English", level: 6, isRequired: true },
@@ -4742,8 +4784,7 @@ export const TRADITIONAL_UNIVERSITIES: University[] = [
             faculty: "Veterinary Science",
             duration: "6 years",
             apsRequirement: 42,
-            description:
-              "Comprehensive veterinary education at the famous Onderstepoort campus (UP specialty).",
+            description: "Comprehensive veterinary education at the famous Onderstepoort campus (UP specialty).",
             subjects: [
               { name: "Mathematics", level: 6, isRequired: true },
               { name: "Physical Sciences", level: 6, isRequired: true },
