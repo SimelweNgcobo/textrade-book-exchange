@@ -110,6 +110,32 @@ const CampusNavbar = () => {
               <BookOpen className="w-4 h-4 mr-2" />
               Campus & Books
             </Button>
+
+            <Button
+              variant="ghost"
+              onClick={() => handleNavigation("/study-resources")}
+              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                isActive("/study-resources")
+                  ? "bg-book-50 text-book-600"
+                  : "text-gray-600 hover:text-book-600 hover:bg-book-50"
+              }`}
+            >
+              <Lightbulb className="w-4 h-4 mr-2" />
+              Study Tips
+            </Button>
+
+            <Button
+              variant="ghost"
+              onClick={() => handleNavigation("/add-program")}
+              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                isActive("/add-program")
+                  ? "bg-book-50 text-book-600"
+                  : "text-gray-600 hover:text-book-600 hover:bg-book-50"
+              }`}
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Add Program
+            </Button>
           </div>
 
           {/* Back to Marketplace Button */}
