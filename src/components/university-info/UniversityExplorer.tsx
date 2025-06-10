@@ -30,6 +30,9 @@ import {
 } from "lucide-react";
 import { SOUTH_AFRICAN_UNIVERSITIES } from "@/constants/universities";
 import { University } from "@/types/university";
+import PopularUniversities from "./PopularUniversities";
+import UniversityHero from "./UniversityHero";
+import UniversityStats from "./UniversityStats";
 
 interface UniversityExplorerProps {
   onUniversitySelect: (university: University) => void;
