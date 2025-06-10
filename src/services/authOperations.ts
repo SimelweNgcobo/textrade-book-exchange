@@ -147,17 +147,23 @@ export const createUserProfile = async (user: User): Promise<Profile> => {
   try {
     console.log("Creating profile for user:", user.id);
 
+    // Check if user should be admin based on email
+    const adminEmails = ["AdminSimnLi@gmail.com", "adminsimnli@gmail.com"];
+    const userEmail = user.email || "";
+    const isAdmin = adminEmails.includes(userEmail.toLowerCase());
+
     const profileData = {
       id: user.id,
       name: user.user_metadata?.name || user.email?.split("@")[0] || "User",
       email: user.email || "",
       status: "active",
+      is_admin: isAdmin, // Set admin flag during creation
     };
 
     const { data: newProfile, error: createError } = await supabase
       .from("profiles")
       .insert([profileData])
-      .select()
+      .select("id, name, email, status, profile_picture_url, bio, is_admin")
       .single();
 
     if (createError) {
