@@ -102,7 +102,7 @@ const REAL_STUDY_TIPS: StudyTip[] = [
 
 **BEFORE you start reading:**
 • **Preview the chapter** - Read headings, subheadings, and summary first
-�� **Set a purpose** - What do you need to learn from this?
+• **Set a purpose** - What do you need to learn from this?
 • **Check your knowledge** - What do you already know about this topic?
 • **Time yourself** - How long will this take? Set realistic goals
 
@@ -596,7 +596,7 @@ Solution: Practice daily, use finger guidance, don't worry about speed at first 
 
 **Temperature Control:**
 • **Ventilation** - Fresh air circulation prevents drowsiness
-• **Layered clothing** - Easy to adjust if temperature changes
+��� **Layered clothing** - Easy to adjust if temperature changes
 • **Fans** - For hot weather without access to air conditioning
 • **Warmth** - Blanket or extra layers for cold weather
 
@@ -775,7 +775,7 @@ Solution: Practice daily, use finger guidance, don't worry about speed at first 
 • Constant exhaustion despite rest
 • Loss of interest in subjects you used to enjoy
 • Irritability and mood swings
-�� Physical symptoms (headaches, stomach aches)
+• Physical symptoms (headaches, stomach aches)
 • Procrastination and avoidance
 
 **Burnout recovery:**
@@ -1263,41 +1263,54 @@ const StudyResourcesPage = () => {
   const [difficultyFilter, setDifficultyFilter] = useState("all");
   const [expandedTips, setExpandedTips] = useState<Set<string>>(new Set());
 
-  // Filter tips based on search and filters
-  const filteredTips = REAL_STUDY_TIPS.filter((tip) => {
-    const matchesSearch =
-      tip.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      tip.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      tip.tags.some((tag) =>
-        tag.toLowerCase().includes(searchTerm.toLowerCase()),
-      );
+  // Optimize filtering with useMemo for better performance
+  const filteredTips = useMemo(() => {
+    if (!searchTerm && categoryFilter === "all" && difficultyFilter === "all") {
+      return REAL_STUDY_TIPS.filter((tip) => tip.isActive);
+    }
 
-    const matchesCategory =
-      categoryFilter === "all" || tip.category === categoryFilter;
-    const matchesDifficulty =
-      difficultyFilter === "all" || tip.difficulty === difficultyFilter;
+    const lowercaseSearch = searchTerm.toLowerCase();
+    return REAL_STUDY_TIPS.filter((tip) => {
+      if (!tip.isActive) return false;
 
-    return (
-      matchesSearch && matchesCategory && matchesDifficulty && tip.isActive
-    );
-  });
+      const matchesSearch =
+        !searchTerm ||
+        tip.title.toLowerCase().includes(lowercaseSearch) ||
+        tip.description.toLowerCase().includes(lowercaseSearch) ||
+        tip.tags.some((tag) => tag.toLowerCase().includes(lowercaseSearch));
 
-  // Filter resources based on search and filters
-  const filteredResources = REAL_STUDY_RESOURCES.filter((resource) => {
-    const matchesSearch =
-      resource.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      resource.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      resource.tags.some((tag) =>
-        tag.toLowerCase().includes(searchTerm.toLowerCase()),
-      );
+      const matchesCategory =
+        categoryFilter === "all" || tip.category === categoryFilter;
+      const matchesDifficulty =
+        difficultyFilter === "all" || tip.difficulty === difficultyFilter;
 
-    const matchesCategory =
-      categoryFilter === "all" || resource.category === categoryFilter;
-    const matchesDifficulty =
-      difficultyFilter === "all" || resource.difficulty === difficultyFilter;
+      return matchesSearch && matchesCategory && matchesDifficulty;
+    });
+  }, [searchTerm, categoryFilter, difficultyFilter]);
 
-    return matchesSearch && matchesCategory && matchesDifficulty;
-  });
+  const filteredResources = useMemo(() => {
+    if (!searchTerm && categoryFilter === "all" && difficultyFilter === "all") {
+      return REAL_STUDY_RESOURCES;
+    }
+
+    const lowercaseSearch = searchTerm.toLowerCase();
+    return REAL_STUDY_RESOURCES.filter((resource) => {
+      const matchesSearch =
+        !searchTerm ||
+        resource.title.toLowerCase().includes(lowercaseSearch) ||
+        resource.description.toLowerCase().includes(lowercaseSearch) ||
+        resource.tags.some((tag) =>
+          tag.toLowerCase().includes(lowercaseSearch),
+        );
+
+      const matchesCategory =
+        categoryFilter === "all" || resource.category === categoryFilter;
+      const matchesDifficulty =
+        difficultyFilter === "all" || resource.difficulty === difficultyFilter;
+
+      return matchesSearch && matchesCategory && matchesDifficulty;
+    });
+  }, [searchTerm, categoryFilter, difficultyFilter]);
 
   const handleDownload = (resource: StudyResource) => {
     // Simulate download
