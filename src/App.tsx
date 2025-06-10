@@ -38,6 +38,10 @@ import EditBook from "./pages/EditBook";
 import Cart from "./pages/Cart";
 import Report from "./pages/Report";
 import Shipping from "./pages/Shipping";
+import UniversityInfo from "./pages/UniversityInfo";
+import UniversityProfile from "./pages/UniversityProfile";
+import FacultyDetail from "./pages/FacultyDetail";
+import CourseDetail from "./pages/CourseDetail";
 
 import "./App.css";
 
@@ -75,6 +79,22 @@ function App() {
                     <Route path="/contact" element={<ContactUs />} />
                     <Route path="/report" element={<Report />} />
                     <Route path="/shipping" element={<Shipping />} />
+                    <Route
+                      path="/university-info"
+                      element={<UniversityInfo />}
+                    />
+                    <Route
+                      path="/university/:universityId"
+                      element={<UniversityProfile />}
+                    />
+                    <Route
+                      path="/university/:universityId/faculty/:facultyId"
+                      element={<FacultyDetail />}
+                    />
+                    <Route
+                      path="/university/:universityId/faculty/:facultyId/course/:courseId"
+                      element={<CourseDetail />}
+                    />
 
                     {/* Public user profiles - no authentication required */}
                     <Route path="/user/:id" element={<UserProfile />} />
