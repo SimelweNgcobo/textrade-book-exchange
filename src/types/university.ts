@@ -54,3 +54,152 @@ export interface University {
   studentPopulation?: number;
   campuses?: string[];
 }
+
+// APS Calculator Types
+export interface APSSubject {
+  name: string;
+  marks: number;
+  level: number;
+  points: number;
+}
+
+export interface EligibleDegree {
+  degree: Degree;
+  university: University;
+  meetsRequirement: boolean;
+  apsGap?: number;
+}
+
+export interface APSCalculation {
+  subjects: APSSubject[];
+  totalScore: number;
+  eligibleDegrees: EligibleDegree[];
+}
+
+// Bursary Types
+export interface BursaryRequirements {
+  academicRequirement: string;
+  financialNeed: boolean;
+  workCommitment?: boolean;
+  citizenship?: string;
+  age?: {
+    min?: number;
+    max?: number;
+  };
+}
+
+export interface Bursary {
+  id: string;
+  name: string;
+  provider: string;
+  description: string;
+  amount: string;
+  eligibilityCriteria: string[];
+  applicationDeadline: string;
+  applicationProcess: string;
+  contactInfo: string;
+  website?: string;
+  fieldsOfStudy: string[];
+  provinces: string[];
+  requirements: BursaryRequirements;
+  isActive?: boolean;
+  priority?: "high" | "medium" | "low";
+}
+
+export interface BursaryFilters {
+  searchTerm?: string;
+  fieldOfStudy?: string;
+  province?: string;
+  financialNeed?: boolean;
+  maxAmount?: number;
+  deadline?: string;
+}
+
+// User-submitted Program Types
+export interface UserSubmittedProgram {
+  id?: string;
+  universityId: string;
+  universityName: string;
+  facultyId: string;
+  facultyName: string;
+  programName: string;
+  duration: string;
+  apsRequirement: number;
+  description: string;
+  subjects: Subject[];
+  careerProspects: string[];
+  submittedBy: string;
+  submittedAt: string;
+  status: "pending" | "approved" | "rejected";
+  reviewedBy?: string;
+  reviewedAt?: string;
+  reviewNotes?: string;
+}
+
+// Study Resources Types
+export interface StudyTip {
+  id: string;
+  title: string;
+  description: string;
+  category:
+    | "time-management"
+    | "study-techniques"
+    | "exam-prep"
+    | "motivation"
+    | "general";
+  difficulty: "beginner" | "intermediate" | "advanced";
+  tags: string[];
+  content: string;
+  author?: string;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface StudyResource {
+  id: string;
+  title: string;
+  description: string;
+  type: "pdf" | "video" | "article" | "tool" | "template";
+  category:
+    | "study-guides"
+    | "time-management"
+    | "exam-prep"
+    | "research"
+    | "presentations";
+  url?: string;
+  downloadUrl?: string;
+  thumbnail?: string;
+  tags: string[];
+  isActive: boolean;
+  isFeatured: boolean;
+  author?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface TimeTableEntry {
+  id: string;
+  subject: string;
+  startTime: string;
+  endTime: string;
+  day: string;
+  color: string;
+  location?: string;
+  notes?: string;
+}
+
+export interface StudyPlan {
+  id: string;
+  name: string;
+  description: string;
+  startDate: string;
+  endDate: string;
+  subjects: string[];
+  goals: string[];
+  schedule: TimeTableEntry[];
+  userId: string;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
