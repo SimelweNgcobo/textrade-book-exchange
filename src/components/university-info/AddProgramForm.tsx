@@ -214,12 +214,22 @@ const AddProgramForm = () => {
       // Here you would typically send to your backend
       console.log("Submitting program:", submissionData);
 
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      // Simulate API call with proper error handling
+      await new Promise((resolve, reject) => {
+        setTimeout(() => {
+          // Simulate random success/failure for demo
+          if (Math.random() > 0.1) {
+            // 90% success rate
+            resolve(true);
+          } else {
+            reject(new Error("Network error"));
+          }
+        }, 1000);
+      });
 
       setShowSuccess(true);
       toast.success(
-        "Program submitted successfully! It will be reviewed by our team.",
+        "Program submitted successfully! Our team will review it within 2-3 business days.",
       );
 
       // Reset form
@@ -236,11 +246,30 @@ const AddProgramForm = () => {
         careerProspects: [""],
       });
     } catch (error) {
-      toast.error("Failed to submit program. Please try again.");
-      console.error("Submission error:", error);
+      console.error("Error submitting program:", error);
+      toast.error(
+        "Failed to submit program. Please check your connection and try again.",
+      );
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const resetForm = () => {
+    setFormData({
+      universityId: "",
+      universityName: "",
+      facultyId: "",
+      facultyName: "",
+      programName: "",
+      duration: "",
+      apsRequirement: 0,
+      description: "",
+      subjects: [],
+      careerProspects: [""],
+    });
+    setShowSuccess(false);
+    toast.success("Form has been reset");
   };
 
   if (showSuccess) {
