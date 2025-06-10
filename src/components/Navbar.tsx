@@ -101,7 +101,13 @@ const Navbar = () => {
             {isAuthenticated ? (
               <>
                 <CartButton />
-                <NotificationBadge />
+                <Link
+                  to="/notifications"
+                  className="relative p-2 text-gray-600 hover:text-book-600 transition-colors"
+                  title="View notifications"
+                >
+                  <NotificationBadge />
+                </Link>
 
                 <Link to="/create-listing">
                   <Button
