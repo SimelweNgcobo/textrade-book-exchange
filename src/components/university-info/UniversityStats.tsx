@@ -45,20 +45,29 @@ const UniversityStats = ({
   ];
 
   const baseClasses =
-    "bg-white/60 backdrop-blur-sm rounded-2xl p-4 text-center border border-white/20 shadow-sm";
+    "bg-white/60 backdrop-blur-sm rounded-xl md:rounded-2xl p-3 md:p-4 text-center border border-white/20 shadow-sm";
 
   if (layout === "horizontal") {
     return (
-      <div className={`flex flex-wrap justify-center gap-4 ${className}`}>
+      <div
+        className={`flex flex-wrap justify-center gap-3 md:gap-4 ${className}`}
+      >
         {stats.map((stat, index) => {
           const Icon = stat.icon;
           return (
-            <div key={index} className={`${baseClasses} min-w-[120px]`}>
-              <Icon className={`h-6 w-6 mx-auto mb-2 ${stat.color}`} />
-              <div className={`text-2xl font-bold ${stat.color}`}>
+            <div
+              key={index}
+              className={`${baseClasses} min-w-[100px] md:min-w-[120px]`}
+            >
+              <Icon
+                className={`h-5 w-5 md:h-6 md:w-6 mx-auto mb-1 md:mb-2 ${stat.color}`}
+              />
+              <div className={`text-lg md:text-2xl font-bold ${stat.color}`}>
                 {stat.value}
               </div>
-              <div className="text-sm text-gray-600">{stat.label}</div>
+              <div className="text-xs md:text-sm text-gray-600">
+                {stat.label}
+              </div>
             </div>
           );
         })}
@@ -67,16 +76,20 @@ const UniversityStats = ({
   }
 
   return (
-    <div className={`grid grid-cols-2 md:grid-cols-4 gap-4 ${className}`}>
+    <div
+      className={`grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 ${className}`}
+    >
       {stats.map((stat, index) => {
         const Icon = stat.icon;
         return (
           <div key={index} className={baseClasses}>
-            <Icon className={`h-6 w-6 mx-auto mb-2 ${stat.color}`} />
-            <div className={`text-2xl font-bold ${stat.color}`}>
+            <Icon
+              className={`h-5 w-5 md:h-6 md:w-6 mx-auto mb-1 md:mb-2 ${stat.color}`}
+            />
+            <div className={`text-lg md:text-2xl font-bold ${stat.color}`}>
               {stat.value}
             </div>
-            <div className="text-sm text-gray-600">{stat.label}</div>
+            <div className="text-xs md:text-sm text-gray-600">{stat.label}</div>
           </div>
         );
       })}
