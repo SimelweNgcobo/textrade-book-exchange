@@ -22,27 +22,6 @@ export const TRADITIONAL_UNIVERSITIES: University[] = [
           "Leading scientific education and research with state-of-the-art facilities covering all major scientific disciplines.",
         degrees: [
           {
-            id: "bsc-computer-science",
-            name: "BSc Computer Science",
-            faculty: "Science",
-            duration: "3 years",
-            apsRequirement: 42,
-            description:
-              "Comprehensive computer science program with strong theoretical foundation and practical applications.",
-            subjects: [
-              { name: "Mathematics", level: 6, isRequired: true },
-              { name: "English", level: 5, isRequired: true },
-              { name: "Physical Sciences", level: 5, isRequired: false },
-            ],
-            careerProspects: [
-              "Software Developer",
-              "Data Scientist",
-              "Systems Analyst",
-              "Research Scientist",
-              "AI Specialist",
-            ],
-          },
-          {
             id: "bsc-biological-sciences",
             name: "BSc Biological Sciences",
             faculty: "Science",
@@ -53,7 +32,7 @@ export const TRADITIONAL_UNIVERSITIES: University[] = [
             subjects: [
               { name: "Life Sciences", level: 6, isRequired: true },
               { name: "Mathematics", level: 5, isRequired: true },
-              { name: "English", level: 4, isRequired: true },
+              { name: "English", level: 5, isRequired: true },
             ],
             careerProspects: [
               "Biologist",
