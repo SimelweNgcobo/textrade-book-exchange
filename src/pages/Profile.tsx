@@ -28,6 +28,8 @@ const Profile = () => {
   const [isBookNotSellingDialogOpen, setIsBookNotSellingDialogOpen] =
     useState(false);
   const [isReportIssueDialogOpen, setIsReportIssueDialogOpen] = useState(false);
+  const [isSellerHowItWorksOpen, setIsSellerHowItWorksOpen] = useState(false);
+  const [isBuyerHowItWorksOpen, setIsBuyerHowItWorksOpen] = useState(false);
   const [addressData, setAddressData] = useState<any>(null);
   const [activeListings, setActiveListings] = useState<Book[]>([]);
   const [isLoadingAddress, setIsLoadingAddress] = useState(false);
