@@ -1,4 +1,5 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { useEffect } from "react";
 import { AuthProvider } from "./contexts/AuthContext";
 import { CartProvider } from "./contexts/CartContext";
@@ -10,7 +11,10 @@ import AuthErrorBoundary from "./components/AuthErrorBoundary";
 import OAuthRedirectHandler from "./components/OAuthRedirectHandler";
 import BroadcastManager from "./components/BroadcastManager";
 
-// Pages
+// Landing Page (Temporary)
+import LandingPage from "./pages/LandingPage";
+
+// Pages (preserved but temporarily hidden)
 import Index from "./pages/Index";
 import BookListing from "./pages/BookListing";
 import BookDetails from "./pages/BookDetails";
@@ -41,7 +45,40 @@ import Shipping from "./pages/Shipping";
 
 import "./App.css";
 
+// Temporary flag to control access to the full app
+const ENABLE_FULL_APP = false; // Set to true when ready to unlock the app
+
 function App() {
+  // If the full app is disabled, redirect everything to landing page
+  if (!ENABLE_FULL_APP) {
+    return (
+      <ErrorBoundary level="app">
+        <AuthErrorBoundary>
+          <AuthProvider>
+            <CartProvider>
+              <Router>
+                <ScrollToTop />
+                <OAuthRedirectHandler />
+                <div className="min-h-screen bg-gray-50">
+                  <ErrorBoundary level="page">
+                    <Routes>
+                      <Route path="/" element={<LandingPage />} />
+                      <Route path="/landing" element={<LandingPage />} />
+                      {/* Redirect all other routes to landing page */}
+                      <Route path="*" element={<Navigate to="/" replace />} />
+                    </Routes>
+                  </ErrorBoundary>
+                </div>
+                <BroadcastManager />
+              </Router>
+            </CartProvider>
+          </AuthProvider>
+        </AuthErrorBoundary>
+      </ErrorBoundary>
+    );
+  }
+
+  // Full app functionality (preserved for when ready to launch)
   return (
     <ErrorBoundary level="app">
       <AuthErrorBoundary>
