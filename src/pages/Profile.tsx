@@ -202,6 +202,14 @@ const Profile = () => {
     setIsReportIssueDialogOpen(true);
   };
 
+  const handleSellerHowItWorks = () => {
+    setIsSellerHowItWorksOpen(true);
+  };
+
+  const handleBuyerHowItWorks = () => {
+    setIsBuyerHowItWorksOpen(true);
+  };
+
   if (!profile || !user) {
     return (
       <Layout>
