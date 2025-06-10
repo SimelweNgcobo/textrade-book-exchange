@@ -895,6 +895,46 @@ export const COMPREHENSIVE_UNIVERSITIES: University[] = [
             ],
           },
           {
+            id: "ba-criminology",
+            name: "BA Criminology",
+            faculty: "Human Sciences",
+            duration: "3 years",
+            apsRequirement: 24,
+            description:
+              "Criminology through distance learning (UNISA specialty).",
+            subjects: [
+              { name: "English", level: 4, isRequired: true },
+              { name: "Mathematics", level: 3, isRequired: true },
+            ],
+            careerProspects: [
+              "Criminologist",
+              "Police Officer",
+              "Crime Analyst",
+              "Security Manager",
+              "Forensic Investigator",
+            ],
+          },
+          {
+            id: "ba-corrections-management",
+            name: "BA Corrections Management",
+            faculty: "Human Sciences",
+            duration: "3 years",
+            apsRequirement: 24,
+            description:
+              "Corrections management specialization (UNISA specialty).",
+            subjects: [
+              { name: "English", level: 4, isRequired: true },
+              { name: "Mathematics", level: 3, isRequired: true },
+            ],
+            careerProspects: [
+              "Correctional Officer",
+              "Prison Manager",
+              "Rehabilitation Specialist",
+              "Probation Officer",
+              "Corrections Administrator",
+            ],
+          },
+          {
             id: "bachelor-indigenous-knowledge",
             name: "Bachelor of Indigenous Knowledge Systems",
             faculty: "Mathematical and Natural Sciences",
