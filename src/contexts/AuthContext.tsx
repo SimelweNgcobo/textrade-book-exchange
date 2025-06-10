@@ -114,34 +114,59 @@ function AuthProvider({ children }: { children: ReactNode }) {
   const handleAuthStateChange = useCallback(
     async (session: Session, event?: string) => {
       try {
+        console.log("[AuthContext] Handling auth state change:", {
+          event,
+          userId: session.user?.id,
+        });
         setSession(session);
         setUser(session.user);
 
         if (session.user) {
           try {
-            const userProfile = await fetchUserProfile(session.user);
-            setProfile(userProfile);
+            // Add timeout for profile fetching
+            const profilePromise = fetchUserProfile(session.user);
+            const timeoutPromise = new Promise((_, reject) => {
+              setTimeout(
+                () => reject(new Error("Profile fetch timeout")),
+                5000,
+              );
+            });
 
-            // Add login notification for authenticated users
+            const userProfile = await Promise.race([
+              profilePromise,
+              timeoutPromise,
+            ]);
+            setProfile(userProfile as any);
+            console.log("[AuthContext] Profile loaded successfully");
+
+            // Add login notification for authenticated users (non-blocking)
             if (event === "SIGNED_IN") {
-              try {
-                await addNotification({
-                  userId: session.user.id,
-                  title: "Welcome back!",
-                  message: `You have successfully logged in at ${new Date().toLocaleString()}`,
-                  type: "success",
-                  read: false,
-                });
-              } catch (error) {
+              addNotification({
+                userId: session.user.id,
+                title: "Welcome back!",
+                message: `You have successfully logged in at ${new Date().toLocaleString()}`,
+                type: "success",
+                read: false,
+              }).catch(() => {
                 // Silently fail notification creation
-              }
+              });
             }
           } catch (profileError) {
+            console.error("[AuthContext] Profile fetch failed:", profileError);
             handleError(profileError, "Fetch Profile");
-            // Don't throw here, allow login to continue without profile
+            // Set a minimal profile to prevent blocking
+            setProfile({
+              id: session.user.id,
+              name: session.user.email || "User",
+              email: session.user.email || "",
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString(),
+              isAdmin: false,
+            });
           }
         }
       } catch (error) {
+        console.error("[AuthContext] Auth state change failed:", error);
         handleError(error, "Auth State Change");
       }
     },
