@@ -329,6 +329,66 @@ export const generateStandardFaculties = (universityName: string) => [
           "Research Scientist",
         ],
       },
+      {
+        id: "bsc-physics",
+        name: "BSc Physics",
+        faculty: "Science",
+        duration: "3 years",
+        apsRequirement: 38,
+        description: "Study of fundamental laws governing the universe.",
+        subjects: [
+          { name: "Physical Sciences", level: 6, isRequired: true },
+          { name: "Mathematics", level: 7, isRequired: true },
+          { name: "English", level: 4, isRequired: true },
+        ],
+        careerProspects: [
+          "Physicist",
+          "Research Scientist",
+          "Data Analyst",
+          "Engineering Physicist",
+          "Science Teacher",
+        ],
+      },
+      {
+        id: "bsc-chemistry",
+        name: "BSc Chemistry",
+        faculty: "Science",
+        duration: "3 years",
+        apsRequirement: 36,
+        description: "Study of matter, its properties, and chemical reactions.",
+        subjects: [
+          { name: "Physical Sciences", level: 6, isRequired: true },
+          { name: "Mathematics", level: 6, isRequired: true },
+          { name: "English", level: 4, isRequired: true },
+        ],
+        careerProspects: [
+          "Chemist",
+          "Pharmaceutical Researcher",
+          "Quality Control Analyst",
+          "Chemical Engineer",
+          "Forensic Scientist",
+        ],
+      },
+      {
+        id: "bsc-biology",
+        name: "BSc Biological Sciences",
+        faculty: "Science",
+        duration: "3 years",
+        apsRequirement: 35,
+        description: "Comprehensive study of living organisms.",
+        subjects: [
+          { name: "Life Sciences", level: 6, isRequired: true },
+          { name: "Mathematics", level: 5, isRequired: true },
+          { name: "English", level: 5, isRequired: true },
+        ],
+        careerProspects: [
+          "Biologist",
+          "Research Scientist",
+          "Conservation Scientist",
+          "Biotechnologist",
+          "Environmental Consultant",
+        ],
+      },
     ],
   },
   {
@@ -404,9 +464,75 @@ export const generateStandardFaculties = (universityName: string) => [
       },
     ],
   },
+  {
+    id: "engineering",
+    name: "Faculty of Engineering",
+    description: `Engineering education and innovation at ${universityName}.`,
+    degrees: [
+      COMMON_DEGREE_TEMPLATES.mechanicalEngineering,
+      COMMON_DEGREE_TEMPLATES.electricalEngineering,
+      COMMON_DEGREE_TEMPLATES.civilEngineering,
+      {
+        id: "beng-chemical",
+        name: "BEng Chemical Engineering",
+        faculty: "Engineering",
+        duration: "4 years",
+        apsRequirement: 38,
+        description: "Chemical processes and industrial applications.",
+        subjects: [
+          { name: "Mathematics", level: 6, isRequired: true },
+          { name: "Physical Sciences", level: 6, isRequired: true },
+          { name: "English", level: 5, isRequired: true },
+        ],
+        careerProspects: [
+          "Chemical Engineer",
+          "Process Engineer",
+          "Environmental Engineer",
+          "Plant Manager",
+          "Research Engineer",
+        ],
+      },
+    ],
+  },
+  {
+    id: "health-sciences",
+    name: "Faculty of Health Sciences",
+    description: `Health sciences and medical education at ${universityName}.`,
+    degrees: [
+      COMMON_DEGREE_TEMPLATES.nursing,
+      COMMON_DEGREE_TEMPLATES.pharmacy,
+      {
+        id: "bsc-physiotherapy",
+        name: "BSc Physiotherapy",
+        faculty: "Health Sciences",
+        duration: "4 years",
+        apsRequirement: 35,
+        description: "Physical therapy and rehabilitation science.",
+        subjects: [
+          { name: "English", level: 5, isRequired: true },
+          { name: "Life Sciences", level: 6, isRequired: true },
+          { name: "Mathematics", level: 5, isRequired: true },
+          { name: "Physical Sciences", level: 5, isRequired: true },
+        ],
+        careerProspects: [
+          "Physiotherapist",
+          "Sports Therapist",
+          "Rehabilitation Specialist",
+          "Clinical Researcher",
+          "Healthcare Manager",
+        ],
+      },
+    ],
+  },
+  {
+    id: "law",
+    name: "Faculty of Law",
+    description: `Legal education and jurisprudence at ${universityName}.`,
+    degrees: [COMMON_DEGREE_TEMPLATES.law],
+  },
 ];
 
-// Universities that need program completion
+// Universities that need program completion - now all will be checked
 export const UNIVERSITIES_NEEDING_PROGRAMS = [
   "univen",
   "ul",
@@ -424,4 +550,7 @@ export const UNIVERSITIES_NEEDING_PROGRAMS = [
   "ufs",
   "uwc",
   "ufh",
+  "nmu",
+  "uj",
+  "unisa",
 ];

@@ -11,39 +11,50 @@ import {
 // Function to ensure all universities have complete programs
 const ensureCompletePrograms = (universities: University[]): University[] => {
   return universities.map((university) => {
-    // Check if university needs more programs
-    if (UNIVERSITIES_NEEDING_PROGRAMS.includes(university.id)) {
-      // If university has very few faculties/degrees, add standard ones
-      if (
-        university.faculties.length <= 2 ||
-        university.faculties.some((f) => f.degrees.length <= 3)
-      ) {
-        const standardFaculties = generateStandardFaculties(university.name);
+    // Calculate total degrees for this university
+    const totalDegrees = university.faculties.reduce(
+      (total, faculty) => total + faculty.degrees.length,
+      0,
+    );
 
-        // Merge existing faculties with standard ones, avoiding duplicates
-        const mergedFaculties = [...university.faculties];
+    // If university has less than 15 degrees or very few faculties, enhance it
+    if (totalDegrees < 15 || university.faculties.length <= 3) {
+      const standardFaculties = generateStandardFaculties(university.name);
 
-        standardFaculties.forEach((standardFaculty) => {
-          const existingFaculty = mergedFaculties.find(
-            (f) => f.id === standardFaculty.id,
+      // Start with existing faculties
+      const mergedFaculties = [...university.faculties];
+
+      // Add missing faculties or enhance existing ones
+      standardFaculties.forEach((standardFaculty) => {
+        const existingFacultyIndex = mergedFaculties.findIndex(
+          (f) =>
+            f.id === standardFaculty.id ||
+            f.name
+              .toLowerCase()
+              .includes(standardFaculty.name.toLowerCase().split(" ")[2] || ""),
+        );
+
+        if (existingFacultyIndex === -1) {
+          // Add entirely new faculty
+          mergedFaculties.push(standardFaculty);
+        } else {
+          // Enhance existing faculty with more degrees
+          const existingFaculty = mergedFaculties[existingFacultyIndex];
+          const newDegrees = standardFaculty.degrees.filter(
+            (degree) =>
+              !existingFaculty.degrees.some(
+                (existing) =>
+                  existing.id === degree.id ||
+                  existing.name.toLowerCase() === degree.name.toLowerCase(),
+              ),
           );
-          if (!existingFaculty) {
-            mergedFaculties.push(standardFaculty);
-          } else if (existingFaculty.degrees.length < 5) {
-            // Add missing degrees to existing faculty
-            const newDegrees = standardFaculty.degrees.filter(
-              (degree) =>
-                !existingFaculty.degrees.some(
-                  (existing) => existing.id === degree.id,
-                ),
-            );
-            existingFaculty.degrees.push(...newDegrees);
-          }
-        });
+          existingFaculty.degrees.push(...newDegrees);
+        }
+      });
 
-        return { ...university, faculties: mergedFaculties };
-      }
+      return { ...university, faculties: mergedFaculties };
     }
+
     return university;
   });
 };
