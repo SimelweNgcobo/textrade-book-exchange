@@ -1,33 +1,28 @@
-<svg viewBox="0 0 400 350" xmlns="http://www.w3.org/2000/svg">
-  <!-- Background -->
-  <rect width="400" height="350" fill="white"/>
+<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+  <!-- White background -->
+  <circle cx="60" cy="60" r="60" fill="white"/>
   
   <!-- Stellenbosch University logo -->
-  <g transform="translate(200, 120)">
-    <!-- Stylized S shapes -->
+  <g transform="translate(60, 60)">
+    <!-- Stylized flowing S shapes -->
     <g fill="#B8860B">
-      <!-- Left S -->
-      <path d="M-50,-40 Q-70,-20 Q-50,0 Q-30,20 Q-50,40 Q-70,20 Q-50,0 Q-30,-20 Q-50,-40" fill="#B8860B"/>
+      <!-- Main S shape -->
+      <path d="M-25,-30 Q-35,-15 Q-25,0 Q-15,15 Q-25,30 Q-35,15 Q-25,0 Q-15,-15 Q-25,-30" fill="#B8860B"/>
       
-      <!-- Center S -->
-      <path d="M0,-40 Q-20,-20 Q0,0 Q20,20 Q0,40 Q-20,20 Q0,0 Q20,-20 Q0,-40" fill="#B8860B"/>
+      <!-- Center flowing element -->
+      <path d="M0,-30 Q-10,-15 Q0,0 Q10,15 Q0,30 Q-10,15 Q0,0 Q10,-15 Q0,-30" fill="#B8860B"/>
       
-      <!-- Right S -->
-      <path d="M50,-40 Q30,-20 Q50,0 Q70,20 Q50,40 Q30,20 Q50,0 Q70,-20 Q50,-40" fill="#B8860B"/>
+      <!-- Right S shape -->
+      <path d="M25,-30 Q15,-15 Q25,0 Q35,15 Q25,30 Q15,15 Q25,0 Q35,-15 Q25,-30" fill="#B8860B"/>
     </g>
     
-    <!-- Connecting elements -->
-    <g stroke="#B8860B" stroke-width="3" fill="none">
-      <path d="M-30,-20 Q-10,-10 Q10,-20"/>
-      <path d="M-30,20 Q-10,10 Q10,20"/>
-      <path d="M30,-20 Q50,-10 Q70,-20"/>
-      <path d="M30,20 Q50,10 Q70,20"/>
+    <!-- Connecting flow elements -->
+    <g stroke="#B8860B" stroke-width="2" fill="none">
+      <path d="M-15,-15 Q0,-8 Q15,-15"/>
+      <path d="M-15,15 Q0,8 Q15,15"/>
     </g>
+    
+    <!-- Central accent -->
+    <circle cx="0" cy="0" r="3" fill="#8B1538"/>
   </g>
-  
-  <!-- University name -->
-  <text x="200" y="220" text-anchor="middle" fill="#8B1538" font-family="Arial, sans-serif" font-size="32" font-weight="bold">Stellenbosch</text>
-  <text x="200" y="250" text-anchor="middle" fill="#8B1538" font-family="Arial, sans-serif" font-size="20">UNIVERSITY</text>
-  <text x="200" y="270" text-anchor="middle" fill="#8B1538" font-family="Arial, sans-serif" font-size="16">IYUNIVESITHI</text>
-  <text x="200" y="290" text-anchor="middle" fill="#8B1538" font-family="Arial, sans-serif" font-size="16">UNIVERSITEIT</text>
 </svg>

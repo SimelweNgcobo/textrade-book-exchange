@@ -1,40 +1,36 @@
-<svg viewBox="0 0 400 200" xmlns="http://www.w3.org/2000/svg">
-  <!-- Background -->
-  <rect width="400" height="200" fill="white"/>
+<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+  <!-- White background -->
+  <circle cx="60" cy="60" r="60" fill="white"/>
   
   <!-- UNISA emblem -->
-  <g transform="translate(200, 80)">
+  <g transform="translate(60, 60)">
     <!-- Outer circle -->
-    <circle cx="0" cy="0" r="60" fill="#8B1538" stroke="#F59E0B" stroke-width="3"/>
+    <circle cx="0" cy="0" r="45" fill="#8B1538" stroke="#F59E0B" stroke-width="2"/>
     
     <!-- Inner white circle -->
-    <circle cx="0" cy="0" r="50" fill="white"/>
+    <circle cx="0" cy="0" r="35" fill="white"/>
     
     <!-- Eye symbol at top -->
-    <g transform="translate(0, -25)">
-      <ellipse cx="0" cy="0" rx="15" ry="8" fill="#8B1538"/>
-      <ellipse cx="0" cy="0" rx="8" ry="5" fill="white"/>
-      <circle cx="0" cy="0" r="3" fill="#8B1538"/>
+    <g transform="translate(0, -18)">
+      <ellipse cx="0" cy="0" rx="12" ry="6" fill="#8B1538"/>
+      <ellipse cx="0" cy="0" rx="6" ry="4" fill="white"/>
+      <circle cx="0" cy="0" r="2" fill="#8B1538"/>
     </g>
     
     <!-- Traditional patterns -->
-    <g transform="translate(0, 10)">
+    <g transform="translate(0, 8)">
       <!-- Cross/X pattern -->
-      <path d="M-20,-20 L20,20 M20,-20 L-20,20" stroke="#8B1538" stroke-width="3"/>
+      <path d="M-15,-15 L15,15 M15,-15 L-15,15" stroke="#8B1538" stroke-width="2"/>
       <!-- Diamond in center -->
-      <path d="M0,-10 L10,0 L0,10 L-10,0 Z" fill="#F59E0B"/>
+      <path d="M0,-8 L8,0 L0,8 L-8,0 Z" fill="#F59E0B"/>
     </g>
     
     <!-- Flame/feather elements around -->
     <g>
-      <path d="M-40,-30 Q-35,-40 Q-30,-35 Q-35,-25" stroke="#DC2626" stroke-width="2" fill="none"/>
-      <path d="M40,-30 Q35,-40 Q30,-35 Q35,-25" stroke="#DC2626" stroke-width="2" fill="none"/>
-      <path d="M-40,30 Q-35,40 Q-30,35 Q-35,25" stroke="#DC2626" stroke-width="2" fill="none"/>
-      <path d="M40,30 Q35,40 Q30,35 Q35,25" stroke="#DC2626" stroke-width="2" fill="none"/>
+      <path d="M-30,-22 Q-26,-30 Q-22,-26 Q-26,-18" stroke="#DC2626" stroke-width="1.5" fill="none"/>
+      <path d="M30,-22 Q26,-30 Q22,-26 Q26,-18" stroke="#DC2626" stroke-width="1.5" fill="none"/>
+      <path d="M-30,22 Q-26,30 Q-22,26 Q-26,18" stroke="#DC2626" stroke-width="1.5" fill="none"/>
+      <path d="M30,22 Q26,30 Q22,26 Q26,18" stroke="#DC2626" stroke-width="1.5" fill="none"/>
     </g>
   </g>
-  
-  <!-- UNISA text -->
-  <text x="200" y="160" text-anchor="middle" fill="#8B1538" font-family="Arial, sans-serif" font-size="24" font-weight="bold">UNISA</text>
-  <text x="200" y="180" text-anchor="middle" fill="#8B1538" font-family="Arial, sans-serif" font-size="12">UNIVERSITY OF SOUTH AFRICA</text>
 </svg>

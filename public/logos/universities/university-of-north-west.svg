@@ -1,25 +1,29 @@
-<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-  <!-- Background -->
-  <rect width="200" height="200" fill="#8B1593"/>
+<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+  <!-- Purple background -->
+  <circle cx="60" cy="60" r="60" fill="#8B1593"/>
   
-  <!-- UNW logo - simplified interlocking design -->
-  <g transform="translate(100, 100)">
+  <!-- NWU logo - interlocking design -->
+  <g transform="translate(60, 60)">
     <!-- Main interlocking shapes -->
     <g fill="white">
       <!-- First curved element -->
-      <path d="M-40,-20 Q-60,-40 Q-40,-60 Q-20,-40 Q-40,-20 Z" fill="white"/>
-      <path d="M-40,-20 Q-20,0 Q0,-20 Q-20,-40 Q-40,-20 Z" fill="white"/>
+      <path d="M-20,-10 Q-30,-20 Q-20,-30 Q-10,-20 Q-20,-10" fill="white"/>
+      <path d="M-20,-10 Q-10,0 Q0,-10 Q-10,-20 Q-20,-10" fill="white"/>
       
       <!-- Second curved element -->
-      <path d="M40,-20 Q60,-40 Q40,-60 Q20,-40 Q40,-20 Z" fill="white"/>
-      <path d="M40,-20 Q20,0 Q0,-20 Q20,-40 Q40,-20 Z" fill="white"/>
+      <path d="M20,-10 Q30,-20 Q20,-30 Q10,-20 Q20,-10" fill="white"/>
+      <path d="M20,-10 Q10,0 Q0,-10 Q10,-20 Q20,-10" fill="white"/>
       
       <!-- Bottom connecting element -->
-      <path d="M-30,20 Q0,40 Q30,20 Q0,0 Q-30,20 Z" fill="white"/>
+      <path d="M-15,10 Q0,20 Q15,10 Q0,0 Q-15,10" fill="white"/>
       
       <!-- Central connecting piece -->
-      <circle cx="0" cy="-20" r="15" fill="white"/>
-      <circle cx="0" cy="-20" r="8" fill="#8B1593"/>
+      <circle cx="0" cy="-10" r="8" fill="white"/>
+      <circle cx="0" cy="-10" r="4" fill="#8B1593"/>
+      
+      <!-- Side elements -->
+      <path d="M-35,-5 Q-25,0 Q-35,5 Q-30,0 Q-35,-5" fill="white"/>
+      <path d="M35,-5 Q25,0 Q35,5 Q30,0 Q35,-5" fill="white"/>
     </g>
   </g>
 </svg>
