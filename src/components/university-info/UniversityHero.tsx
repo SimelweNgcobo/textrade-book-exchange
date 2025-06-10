@@ -160,21 +160,22 @@ const UniversityHero = ({
                   className="group cursor-pointer transition-all duration-300 hover:shadow-xl hover:scale-105 bg-white/80 backdrop-blur-sm border-white/20"
                   onClick={() => handleToolNavigation(action.tool)}
                 >
-                  <div className="p-6 text-center">
+                  <div className="p-4 md:p-6 text-center">
                     <div
-                      className={`w-16 h-16 ${action.color} ${action.hoverColor} rounded-2xl flex items-center justify-center mx-auto mb-4 transition-colors shadow-lg`}
+                      className={`w-12 h-12 md:w-16 md:h-16 ${action.color} ${action.hoverColor} rounded-xl md:rounded-2xl flex items-center justify-center mx-auto mb-3 md:mb-4 transition-colors shadow-lg`}
                     >
-                      <Icon className="w-8 h-8 text-white" />
+                      <Icon className="w-6 h-6 md:w-8 md:h-8 text-white" />
                     </div>
-                    <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-book-600 transition-colors">
+                    <h3 className="text-lg md:text-xl font-bold text-gray-900 mb-2 group-hover:text-book-600 transition-colors">
                       {action.title}
                     </h3>
-                    <p className="text-gray-600 text-sm leading-relaxed mb-4">
+                    <p className="text-gray-600 text-xs md:text-sm leading-relaxed mb-3 md:mb-4 px-1">
                       {action.description}
                     </p>
-                    <div className="flex items-center justify-center text-book-600 font-medium group-hover:text-book-700 transition-colors">
-                      Get Started
-                      <ArrowRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
+                    <div className="flex items-center justify-center text-book-600 font-medium group-hover:text-book-700 transition-colors text-sm md:text-base">
+                      <span className="hidden md:inline">Get Started</span>
+                      <span className="md:hidden">Start</span>
+                      <ArrowRight className="w-3 h-3 md:w-4 md:h-4 ml-1 group-hover:translate-x-1 transition-transform" />
                     </div>
                   </div>
                 </Card>
