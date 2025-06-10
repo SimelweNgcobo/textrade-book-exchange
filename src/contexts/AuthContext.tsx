@@ -213,6 +213,13 @@ function AuthProvider({ children }: { children: ReactNode }) {
 
       console.log("[AuthContext] Starting auth initialization...");
 
+      // Perform health check in development
+      if (process.env.NODE_ENV === "development") {
+        performHealthChecks().catch(() => {
+          console.warn("[AuthContext] Health check failed, but continuing...");
+        });
+      }
+
       // Add timeout for auth initialization - increased to 20 seconds
       const timeoutPromise = new Promise((_, reject) => {
         setTimeout(
