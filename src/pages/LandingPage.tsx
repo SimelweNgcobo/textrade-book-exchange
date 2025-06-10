@@ -11,7 +11,6 @@ import {
   ShieldCheck,
   Users,
   Truck,
-  Star,
   CheckCircle,
   Mail,
   Heart,
@@ -20,6 +19,10 @@ import {
   GraduationCap,
   MapPin,
   DollarSign,
+  Star,
+  Globe,
+  Award,
+  Clock,
   Filter,
   MessageSquare,
   CreditCard,
@@ -69,37 +72,37 @@ const LandingPage = () => {
       icon: Search,
       title: "Smart Search & Filtering",
       description: "Advanced search by title, author, ISBN, subject, university, or course code",
-      color: "bg-book-100 text-book-600",
+      color: "bg-blue-100 text-blue-600",
     },
     {
       icon: ShieldCheck,
       title: "Secure & Verified",
       description: "Student verification, secure payments, and buyer protection policies",
-      color: "bg-book-100 text-book-600",
+      color: "bg-green-100 text-green-600",
     },
     {
       icon: Truck,
       title: "Nationwide Delivery",
       description: "Reliable shipping partnerships covering all major cities and campuses",
-      color: "bg-book-100 text-book-600",
+      color: "bg-purple-100 text-purple-600",
     },
     {
       icon: Filter,
       title: "Condition Grading",
       description: "Detailed condition ratings with photos to ensure transparency",
-      color: "bg-book-100 text-book-600",
+      color: "bg-orange-100 text-orange-600",
     },
     {
       icon: MessageSquare,
       title: "Direct Communication",
       description: "Built-in messaging system for buyer-seller communication",
-      color: "bg-book-100 text-book-600",
+      color: "bg-teal-100 text-teal-600",
     },
     {
       icon: CreditCard,
       title: "Flexible Payments",
       description: "Multiple payment options including mobile money and bank transfers",
-      color: "bg-book-100 text-book-600",
+      color: "bg-indigo-100 text-indigo-600",
     },
   ];
 
@@ -114,7 +117,7 @@ const LandingPage = () => {
         "Campus locations and facilities",
         "Application deadlines and procedures"
       ],
-      color: "bg-book-100 text-book-600",
+      color: "bg-blue-100 text-blue-600",
     },
     {
       icon: Calculator,
@@ -126,7 +129,7 @@ const LandingPage = () => {
         "Course minimum requirements checker",
         "Alternative qualification support"
       ],
-      color: "bg-book-100 text-book-600",
+      color: "bg-green-100 text-green-600",
     },
     {
       icon: DollarSign,
@@ -138,7 +141,7 @@ const LandingPage = () => {
         "Merit-based scholarships",
         "Industry-specific funding programs"
       ],
-      color: "bg-book-100 text-book-600",
+      color: "bg-purple-100 text-purple-600",
     },
     {
       icon: BookOpen,
@@ -150,7 +153,7 @@ const LandingPage = () => {
         "Study group connections",
         "Past paper repositories"
       ],
-      color: "bg-book-100 text-book-600",
+      color: "bg-orange-100 text-orange-600",
     },
   ];
 
@@ -194,11 +197,11 @@ const LandingPage = () => {
       <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2 text-book-600">
+            <div className="flex items-center space-x-2 text-blue-600">
               <BookOpen className="h-8 w-8" />
               <span className="text-xl font-bold">ReBooked Solutions</span>
             </div>
-            <div className="text-book-600">
+            <div className="text-blue-600">
               <span className="text-sm font-medium">Coming Soon</span>
             </div>
           </div>
@@ -206,17 +209,17 @@ const LandingPage = () => {
       </header>
 
       {/* Hero Section */}
-      <section className="py-16 sm:py-24 bg-gradient-to-br from-book-50 to-white">
+      <section className="py-16 sm:py-24 bg-gradient-to-br from-blue-50 to-white">
         <div className="container mx-auto px-4 text-center">
           <div className="max-w-4xl mx-auto">
             <div className="mb-6">
-              <span className="inline-flex items-center bg-book-100 text-book-700 px-4 py-2 rounded-full text-sm font-medium border border-book-200">
+              <span className="inline-flex items-center bg-blue-100 text-blue-700 px-4 py-2 rounded-full text-sm font-medium border border-blue-200">
                 Launching Soon
               </span>
             </div>
             <h1 className="text-4xl sm:text-6xl font-bold text-gray-900 mb-6 leading-tight">
               Pre-Loved Pages,{" "}
-              <span className="text-book-600">
+              <span className="text-blue-600">
                 New Adventures
               </span>
             </h1>
@@ -231,13 +234,13 @@ const LandingPage = () => {
                   placeholder="Enter your email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="flex-1 h-12 text-base border-2 border-gray-200 focus:border-book-500"
+                  className="flex-1 h-12 text-base border-2 border-gray-200 focus:border-blue-500"
                   required
                 />
                 <Button
                   type="submit"
                   disabled={isSubmitting}
-                  className="bg-book-600 hover:bg-book-700 h-12 px-6 whitespace-nowrap"
+                  className="bg-blue-600 hover:bg-blue-700 h-12 px-6 whitespace-nowrap"
                 >
                   {isSubmitting ? (
                     "Joining..."
@@ -262,7 +265,7 @@ const LandingPage = () => {
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4 flex items-center justify-center gap-3">
-              <BookOpen className="h-8 w-8 text-book-600" />
+              <BookOpen className="h-8 w-8 text-blue-600" />
               The ReBooked Marketplace
             </h2>
             <p className="text-lg text-gray-700 max-w-4xl mx-auto">
@@ -294,8 +297,8 @@ const LandingPage = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div className="space-y-4">
                 <div className="flex items-start gap-3">
-                  <div className="bg-book-100 rounded-full w-8 h-8 flex items-center justify-center flex-shrink-0">
-                    <Star className="h-4 w-4 text-book-600" />
+                  <div className="bg-blue-100 rounded-full w-8 h-8 flex items-center justify-center flex-shrink-0">
+                    <Star className="h-4 w-4 text-blue-600" />
                   </div>
                   <div>
                     <p className="font-semibold text-gray-900">Save Up to 70%</p>
@@ -303,8 +306,8 @@ const LandingPage = () => {
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
-                  <div className="bg-book-100 rounded-full w-8 h-8 flex items-center justify-center flex-shrink-0">
-                    <MapPin className="h-4 w-4 text-book-600" />
+                  <div className="bg-green-100 rounded-full w-8 h-8 flex items-center justify-center flex-shrink-0">
+                    <Globe className="h-4 w-4 text-green-600" />
                   </div>
                   <div>
                     <p className="font-semibold text-gray-900">Nationwide Network</p>
@@ -312,8 +315,8 @@ const LandingPage = () => {
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
-                  <div className="bg-book-100 rounded-full w-8 h-8 flex items-center justify-center flex-shrink-0">
-                    <CheckCircle className="h-4 w-4 text-book-600" />
+                  <div className="bg-purple-100 rounded-full w-8 h-8 flex items-center justify-center flex-shrink-0">
+                    <Award className="h-4 w-4 text-purple-600" />
                   </div>
                   <div>
                     <p className="font-semibold text-gray-900">Quality Guaranteed</p>
@@ -323,8 +326,8 @@ const LandingPage = () => {
               </div>
               <div className="space-y-4">
                 <div className="flex items-start gap-3">
-                  <div className="bg-book-100 rounded-full w-8 h-8 flex items-center justify-center flex-shrink-0">
-                    <TrendingUp className="h-4 w-4 text-book-600" />
+                  <div className="bg-orange-100 rounded-full w-8 h-8 flex items-center justify-center flex-shrink-0">
+                    <Clock className="h-4 w-4 text-orange-600" />
                   </div>
                   <div>
                     <p className="font-semibold text-gray-900">Quick Turnaround</p>
@@ -332,8 +335,8 @@ const LandingPage = () => {
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
-                  <div className="bg-book-100 rounded-full w-8 h-8 flex items-center justify-center flex-shrink-0">
-                    <Package className="h-4 w-4 text-book-600" />
+                  <div className="bg-teal-100 rounded-full w-8 h-8 flex items-center justify-center flex-shrink-0">
+                    <Package className="h-4 w-4 text-teal-600" />
                   </div>
                   <div>
                     <p className="font-semibold text-gray-900">Hassle-Free Shipping</p>
@@ -341,8 +344,8 @@ const LandingPage = () => {
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
-                  <div className="bg-book-100 rounded-full w-8 h-8 flex items-center justify-center flex-shrink-0">
-                    <Target className="h-4 w-4 text-book-600" />
+                  <div className="bg-indigo-100 rounded-full w-8 h-8 flex items-center justify-center flex-shrink-0">
+                    <Target className="h-4 w-4 text-indigo-600" />
                   </div>
                   <div>
                     <p className="font-semibold text-gray-900">Student-Focused</p>
@@ -360,7 +363,7 @@ const LandingPage = () => {
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4 flex items-center justify-center gap-3">
-              <GraduationCap className="h-8 w-8 text-book-600" />
+              <GraduationCap className="h-8 w-8 text-blue-600" />
               ReBooked Campus: Your Academic Journey Companion
             </h2>
             <p className="text-lg text-gray-700 max-w-5xl mx-auto mb-8">
@@ -387,7 +390,7 @@ const LandingPage = () => {
                   <div className="space-y-2">
                     {feature.details.map((detail, detailIndex) => (
                       <div key={detailIndex} className="flex items-center gap-2">
-                        <CheckCircle className="h-4 w-4 text-book-500 flex-shrink-0" />
+                        <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
                         <span className="text-sm text-gray-600">{detail}</span>
                       </div>
                     ))}
@@ -399,27 +402,27 @@ const LandingPage = () => {
 
           <div className="bg-white rounded-2xl p-8 max-w-6xl mx-auto border border-gray-200">
             <h3 className="text-2xl font-bold text-center text-gray-900 mb-8 flex items-center justify-center gap-2">
-              <MapPin className="h-6 w-6 text-book-600" />
+              <MapPin className="h-6 w-6 text-blue-600" />
               Your Complete University Experience
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               <div className="text-center">
-                <div className="bg-book-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
-                  <Building2 className="h-8 w-8 text-book-600" />
+                <div className="bg-blue-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                  <Building2 className="h-8 w-8 text-blue-600" />
                 </div>
                 <h4 className="font-semibold text-gray-900 mb-2">Explore Institutions</h4>
                 <p className="text-sm text-gray-700">Discover universities, colleges, and specialized institutions across South Africa with detailed profiles and requirements.</p>
               </div>
               <div className="text-center">
-                <div className="bg-book-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
-                  <FileText className="h-8 w-8 text-book-600" />
+                <div className="bg-green-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                  <FileText className="h-8 w-8 text-green-600" />
                 </div>
                 <h4 className="font-semibold text-gray-900 mb-2">Plan Your Path</h4>
                 <p className="text-sm text-gray-700">Use our tools to calculate requirements, plan course sequences, and track your academic progress.</p>
               </div>
               <div className="text-center">
-                <div className="bg-book-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
-                  <Bookmark className="h-8 w-8 text-book-600" />
+                <div className="bg-purple-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                  <Bookmark className="h-8 w-8 text-purple-600" />
                 </div>
                 <h4 className="font-semibold text-gray-900 mb-2">Secure Funding</h4>
                 <p className="text-sm text-gray-700">Access comprehensive funding databases, application guidance, and deadline tracking for bursaries and scholarships.</p>
@@ -445,11 +448,11 @@ const LandingPage = () => {
             {howItWorks.map((step, index) => (
               <div key={index} className="text-center">
                 <div className="relative mb-6">
-                  <div className="bg-book-600 text-white rounded-full w-16 h-16 flex items-center justify-center mx-auto text-xl font-bold">
+                  <div className="bg-blue-600 text-white rounded-full w-16 h-16 flex items-center justify-center mx-auto text-xl font-bold">
                     {step.step}
                   </div>
-                  <div className="bg-book-100 rounded-full w-20 h-20 flex items-center justify-center mx-auto mt-4">
-                    <step.icon className="h-8 w-8 text-book-600" />
+                  <div className="bg-blue-100 rounded-full w-20 h-20 flex items-center justify-center mx-auto mt-4">
+                    <step.icon className="h-8 w-8 text-blue-600" />
                   </div>
                 </div>
                 <h3 className="text-xl font-semibold text-gray-900 mb-3">
@@ -467,7 +470,7 @@ const LandingPage = () => {
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4 flex items-center justify-center gap-3">
-              <Heart className="h-8 w-8 text-book-600" />
+              <Heart className="h-8 w-8 text-blue-600" />
               Why Trust ReBooked?
             </h2>
             <p className="text-lg text-gray-700">
@@ -479,7 +482,7 @@ const LandingPage = () => {
             {trustStats.map((stat, index) => (
               <div key={index} className="text-center">
                 <div className="bg-white rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4 shadow-lg">
-                  <stat.icon className="h-8 w-8 text-book-600" />
+                  <stat.icon className="h-8 w-8 text-blue-600" />
                 </div>
                 <h3 className="font-semibold text-gray-900">{stat.label}</h3>
                 <p className="text-sm text-gray-700">{stat.desc}</p>
@@ -490,7 +493,7 @@ const LandingPage = () => {
       </section>
 
       {/* Final CTA Section */}
-      <section className="py-16 bg-book-600 text-white">
+      <section className="py-16 bg-blue-600 text-white">
         <div className="container mx-auto px-4 text-center">
           <h2 className="text-3xl sm:text-4xl font-bold mb-4">
             Ready to Transform Your Academic Experience?
@@ -511,7 +514,7 @@ const LandingPage = () => {
             <Button
               type="submit"
               disabled={isSubmitting}
-              className="bg-white text-book-600 hover:bg-gray-100 h-12 px-8 font-semibold whitespace-nowrap"
+              className="bg-white text-blue-600 hover:bg-gray-100 h-12 px-8 font-semibold whitespace-nowrap"
             >
               {isSubmitting ? "Joining..." : "Get Early Access"}
             </Button>
