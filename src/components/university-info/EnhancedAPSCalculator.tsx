@@ -30,14 +30,23 @@ import {
   Filter,
   Eye,
   Users,
+  Star,
+  School,
 } from "lucide-react";
-import { APSSubject, APSCalculation, EligibleDegree } from "@/types/university";
+import {
+  APSSubject,
+  APSCalculation,
+  EligibleDegree,
+  University,
+  Degree,
+} from "@/types/university";
 import {
   SOUTH_AFRICAN_SUBJECTS,
   SUBJECT_CATEGORIES,
   isNonContributing,
   getSubjectCategory,
 } from "@/constants/subjects";
+import { SOUTH_AFRICAN_UNIVERSITIES } from "@/constants/universities";
 import {
   calculateAPS,
   convertPercentageToPoints,
@@ -63,14 +72,51 @@ const EnhancedAPSCalculator = ({
   const [showAllPrograms, setShowAllPrograms] = useState(false);
   const [customSubject, setCustomSubject] = useState("");
 
+  // Create calculation with real university data
   const calculation = useMemo(() => {
-    // Filter out LO and subjects with no marks for APS calculation
     const contributingSubjects = subjects.filter(
       (s) => !isNonContributing(s.name) && s.marks > 0,
     );
 
     if (contributingSubjects.length >= 6) {
-      return calculateAPS(contributingSubjects);
+      const totalScore = contributingSubjects.reduce(
+        (total, subject) => total + subject.points,
+        0,
+      );
+
+      // Get all degrees from all universities
+      const eligibleDegrees: EligibleDegree[] = [];
+
+      SOUTH_AFRICAN_UNIVERSITIES.forEach((university) => {
+        university.faculties.forEach((faculty) => {
+          faculty.degrees.forEach((degree) => {
+            const meetsRequirement = totalScore >= degree.apsRequirement;
+            const apsGap = meetsRequirement
+              ? 0
+              : degree.apsRequirement - totalScore;
+
+            eligibleDegrees.push({
+              degree,
+              university,
+              meetsRequirement,
+              apsGap: apsGap > 0 ? apsGap : undefined,
+            });
+          });
+        });
+      });
+
+      // Sort by eligibility and APS requirement
+      eligibleDegrees.sort((a, b) => {
+        if (a.meetsRequirement && !b.meetsRequirement) return -1;
+        if (!a.meetsRequirement && b.meetsRequirement) return 1;
+        return a.degree.apsRequirement - b.degree.apsRequirement;
+      });
+
+      return {
+        subjects: contributingSubjects,
+        totalScore,
+        eligibleDegrees,
+      };
     }
     return null;
   }, [subjects]);
@@ -197,14 +243,16 @@ const EnhancedAPSCalculator = ({
   const groupedNearlyQualified = groupByFaculty(nearlyQualifiedDegrees);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 md:space-y-6">
       <Card>
-        <CardHeader>
-          <div className="flex items-center space-x-2">
-            <Calculator className="h-8 w-8" />
-            <div>
-              <CardTitle>Enhanced APS Calculator</CardTitle>
-              <CardDescription>
+        <CardHeader className="pb-4">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-3 space-y-2 sm:space-y-0">
+            <Calculator className="h-6 w-6 md:h-8 md:w-8 text-blue-600" />
+            <div className="flex-1">
+              <CardTitle className="text-lg md:text-xl">
+                Enhanced APS Calculator
+              </CardTitle>
+              <CardDescription className="text-sm">
                 Calculate your Admission Point Score with Life Orientation (LO)
                 properly handled. LO is required but doesn't contribute to your
                 APS score.
@@ -213,10 +261,10 @@ const EnhancedAPSCalculator = ({
           </div>
         </CardHeader>
 
-        <CardContent className="space-y-6">
+        <CardContent className="space-y-4 md:space-y-6">
           {/* Progress Indicator */}
-          <div className="bg-gray-50 p-4 rounded-lg">
-            <div className="flex justify-between items-center mb-2">
+          <div className="bg-gray-50 p-3 md:p-4 rounded-lg">
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-2 space-y-1 sm:space-y-0">
               <span className="text-sm font-medium">
                 Contributing Subjects: {contributingSubjectsCount}/6 minimum
               </span>
@@ -235,17 +283,21 @@ const EnhancedAPSCalculator = ({
           </div>
 
           {/* Subjects Input */}
-          <div className="space-y-4">
+          <div className="space-y-3">
             {subjects.map((subject, index) => (
-              <div key={index} className="flex gap-3 items-center">
-                <div className="flex-1">
+              <div
+                key={index}
+                className="flex flex-col sm:flex-row gap-2 sm:gap-3 items-start sm:items-center p-3 border rounded-lg bg-white"
+              >
+                {/* Subject Selection */}
+                <div className="w-full sm:flex-1">
                   <Select
                     value={subject.name}
                     onValueChange={(value) =>
                       updateSubject(index, "name", value)
                     }
                   >
-                    <SelectTrigger>
+                    <SelectTrigger className="w-full">
                       <SelectValue placeholder="Select subject" />
                     </SelectTrigger>
                     <SelectContent>
@@ -265,12 +317,17 @@ const EnhancedAPSCalculator = ({
                             </div>
                             {categorySubjects.map((subjectName) => (
                               <SelectItem key={subjectName} value={subjectName}>
-                                {subjectName}
-                                {isNonContributing(subjectName) && (
-                                  <Badge variant="secondary" className="ml-2">
-                                    Non-contributing
-                                  </Badge>
-                                )}
+                                <div className="flex items-center justify-between w-full">
+                                  <span className="text-sm">{subjectName}</span>
+                                  {isNonContributing(subjectName) && (
+                                    <Badge
+                                      variant="secondary"
+                                      className="ml-2 text-xs"
+                                    >
+                                      Non-contributing
+                                    </Badge>
+                                  )}
+                                </div>
                               </SelectItem>
                             ))}
                           </div>
@@ -280,7 +337,8 @@ const EnhancedAPSCalculator = ({
                   </Select>
                 </div>
 
-                <div className="w-24">
+                {/* Mark Input */}
+                <div className="w-full sm:w-24">
                   <Input
                     type="number"
                     placeholder="Mark %"
@@ -290,22 +348,28 @@ const EnhancedAPSCalculator = ({
                     onChange={(e) =>
                       updateSubject(index, "marks", e.target.value)
                     }
+                    className="text-center"
                   />
                 </div>
 
-                <div className="w-16 text-center">
+                {/* Points Display */}
+                <div className="flex items-center justify-between sm:justify-center w-full sm:w-16">
+                  <span className="text-sm sm:hidden">Points:</span>
                   <Badge variant={subject.points > 0 ? "default" : "secondary"}>
                     {subject.points} pts
                   </Badge>
                 </div>
 
+                {/* Remove Button */}
                 {!isNonContributing(subject.name) && subjects.length > 3 && (
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={() => removeSubject(index)}
+                    className="w-full sm:w-auto"
                   >
-                    <Minus className="h-4 w-4" />
+                    <Minus className="h-4 w-4 sm:mr-0 mr-2" />
+                    <span className="sm:hidden">Remove</span>
                   </Button>
                 )}
               </div>
@@ -313,9 +377,13 @@ const EnhancedAPSCalculator = ({
           </div>
 
           {/* Add Subject Options */}
-          <div className="flex gap-2">
+          <div className="flex flex-col sm:flex-row gap-2">
             {subjects.length < 8 && (
-              <Button variant="outline" onClick={addSubject}>
+              <Button
+                variant="outline"
+                onClick={addSubject}
+                className="w-full sm:w-auto"
+              >
                 <Plus className="h-4 w-4 mr-2" />
                 Add Subject ({subjects.length}/8)
               </Button>
@@ -324,17 +392,19 @@ const EnhancedAPSCalculator = ({
 
           {/* Custom Subject Input */}
           <div className="border-t pt-4">
-            <div className="flex gap-2">
+            <div className="flex flex-col sm:flex-row gap-2">
               <Input
                 placeholder="Add custom subject (if not in list)"
                 value={customSubject}
                 onChange={(e) => setCustomSubject(e.target.value)}
                 onKeyPress={(e) => e.key === "Enter" && addCustomSubject()}
+                className="flex-1"
               />
               <Button
                 variant="outline"
                 onClick={addCustomSubject}
                 disabled={!customSubject.trim() || subjects.length >= 8}
+                className="w-full sm:w-auto"
               >
                 Add Custom
               </Button>
@@ -343,11 +413,11 @@ const EnhancedAPSCalculator = ({
 
           {/* Current APS Display */}
           <div className="bg-blue-50 p-4 rounded-lg">
-            <div className="flex justify-between items-center">
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center space-y-1 sm:space-y-0">
               <span className="font-medium">
                 Current APS Total (excluding LO):
               </span>
-              <span className="text-2xl font-bold text-blue-600">
+              <span className="text-xl md:text-2xl font-bold text-blue-600">
                 {currentAPSTotal} points
               </span>
             </div>
@@ -370,7 +440,7 @@ const EnhancedAPSCalculator = ({
           )}
 
           {/* Action Buttons */}
-          <div className="flex gap-3">
+          <div className="flex flex-col sm:flex-row gap-3">
             <Button
               onClick={calculateResults}
               disabled={!isReadyToCalculate}
@@ -379,7 +449,11 @@ const EnhancedAPSCalculator = ({
               <Calculator className="h-4 w-4 mr-2" />
               Calculate APS & Find Programs
             </Button>
-            <Button variant="outline" onClick={resetCalculator}>
+            <Button
+              variant="outline"
+              onClick={resetCalculator}
+              className="w-full sm:w-auto"
+            >
               Reset
             </Button>
           </div>
@@ -387,13 +461,16 @@ const EnhancedAPSCalculator = ({
           {/* Results Section */}
           {showResults && calculation && (
             <div className="border-t pt-6 space-y-4">
-              <div className="flex items-center justify-between">
-                <h3 className="text-xl font-semibold">Your APS Results</h3>
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0">
+                <h3 className="text-lg md:text-xl font-semibold">
+                  Your APS Results
+                </h3>
                 <div className="flex gap-2">
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={() => setShowAllPrograms(!showAllPrograms)}
+                    className="text-sm"
                   >
                     <Eye className="h-4 w-4 mr-2" />
                     {showAllPrograms
@@ -403,11 +480,14 @@ const EnhancedAPSCalculator = ({
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {/* Stats Cards */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <Card>
                   <CardContent className="p-4 text-center">
-                    <div className="text-gray-600">Your Total APS Score</div>
-                    <div className="text-3xl font-bold text-green-600">
+                    <div className="text-gray-600 text-sm">
+                      Your Total APS Score
+                    </div>
+                    <div className="text-2xl md:text-3xl font-bold text-green-600">
                       {calculation.totalScore}
                     </div>
                   </CardContent>
@@ -415,8 +495,10 @@ const EnhancedAPSCalculator = ({
 
                 <Card>
                   <CardContent className="p-4 text-center">
-                    <div className="text-gray-600">Qualified Programs</div>
-                    <div className="text-3xl font-bold text-blue-600">
+                    <div className="text-gray-600 text-sm">
+                      Qualified Programs
+                    </div>
+                    <div className="text-2xl md:text-3xl font-bold text-blue-600">
                       {qualifiedDegrees.length}
                     </div>
                   </CardContent>
@@ -424,8 +506,10 @@ const EnhancedAPSCalculator = ({
 
                 <Card>
                   <CardContent className="p-4 text-center">
-                    <div className="text-gray-600">Nearly Qualified</div>
-                    <div className="text-3xl font-bold text-orange-600">
+                    <div className="text-gray-600 text-sm">
+                      Nearly Qualified
+                    </div>
+                    <div className="text-2xl md:text-3xl font-bold text-orange-600">
                       {nearlyQualifiedDegrees.length}
                     </div>
                   </CardContent>
@@ -433,11 +517,11 @@ const EnhancedAPSCalculator = ({
               </div>
 
               {/* Faculty Filter */}
-              <div className="flex items-center gap-3">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-3">
                 <Filter className="h-4 w-4" />
                 <span className="text-sm font-medium">Filter by Faculty:</span>
                 <Select value={facultyFilter} onValueChange={setFacultyFilter}>
-                  <SelectTrigger className="w-48">
+                  <SelectTrigger className="w-full sm:w-48">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -461,17 +545,21 @@ const EnhancedAPSCalculator = ({
                 <TabsList className="grid w-full grid-cols-2">
                   <TabsTrigger
                     value="qualified"
-                    className="flex items-center gap-2"
+                    className="flex items-center gap-2 text-sm"
                   >
                     <CheckCircle className="h-4 w-4" />
-                    Qualified Programs ({qualifiedDegrees.length})
+                    <span className="hidden sm:inline">Qualified Programs</span>
+                    <span className="sm:hidden">Qualified</span>(
+                    {qualifiedDegrees.length})
                   </TabsTrigger>
                   <TabsTrigger
                     value="nearly"
-                    className="flex items-center gap-2"
+                    className="flex items-center gap-2 text-sm"
                   >
                     <AlertCircle className="h-4 w-4" />
-                    Nearly Qualified ({nearlyQualifiedDegrees.length})
+                    <span className="hidden sm:inline">Nearly Qualified</span>
+                    <span className="sm:hidden">Nearly</span>(
+                    {nearlyQualifiedDegrees.length})
                   </TabsTrigger>
                 </TabsList>
 
@@ -480,44 +568,48 @@ const EnhancedAPSCalculator = ({
                     ([faculty, degrees]) => (
                       <Card key={faculty}>
                         <CardHeader className="pb-3">
-                          <CardTitle className="text-lg flex items-center gap-2">
-                            <Users className="h-5 w-5" />
-                            {faculty} ({degrees.length} programs)
+                          <CardTitle className="text-base md:text-lg flex items-center gap-2">
+                            <School className="h-4 w-4 md:h-5 md:w-5" />
+                            <span className="truncate">{faculty}</span>
+                            <Badge variant="outline" className="text-xs">
+                              {degrees.length}
+                            </Badge>
                           </CardTitle>
                         </CardHeader>
                         <CardContent>
                           <div className="grid gap-3">
                             {degrees
-                              .slice(0, showAllPrograms ? undefined : 5)
+                              .slice(0, showAllPrograms ? undefined : 3)
                               .map((ed, index) => (
                                 <div
                                   key={index}
                                   className="border rounded-lg p-3 bg-green-50"
                                 >
-                                  <div className="flex justify-between items-start">
-                                    <div>
-                                      <h4 className="font-semibold">
+                                  <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start space-y-2 sm:space-y-0">
+                                    <div className="flex-1">
+                                      <h4 className="font-semibold text-sm md:text-base">
                                         {ed.degree.name}
                                       </h4>
                                       <p className="text-sm text-gray-600">
                                         {ed.university.name}
                                       </p>
-                                      <p className="text-sm text-gray-500 mt-1">
+                                      <p className="text-xs md:text-sm text-gray-500 mt-1 line-clamp-2">
                                         {ed.degree.description}
                                       </p>
                                     </div>
-                                    <Badge className="bg-green-100 text-green-800">
+                                    <Badge className="bg-green-100 text-green-800 text-xs self-start">
                                       APS: {ed.degree.apsRequirement}
                                     </Badge>
                                   </div>
                                 </div>
                               ))}
-                            {degrees.length > 5 && !showAllPrograms && (
+                            {degrees.length > 3 && !showAllPrograms && (
                               <Button
                                 variant="outline"
                                 onClick={() => setShowAllPrograms(true)}
+                                className="text-sm"
                               >
-                                Show {degrees.length - 5} more programs
+                                Show {degrees.length - 3} more programs
                               </Button>
                             )}
                           </div>
@@ -532,29 +624,32 @@ const EnhancedAPSCalculator = ({
                     ([faculty, degrees]) => (
                       <Card key={faculty}>
                         <CardHeader className="pb-3">
-                          <CardTitle className="text-lg flex items-center gap-2">
-                            <Users className="h-5 w-5" />
-                            {faculty} ({degrees.length} programs)
+                          <CardTitle className="text-base md:text-lg flex items-center gap-2">
+                            <School className="h-4 w-4 md:h-5 md:w-5" />
+                            <span className="truncate">{faculty}</span>
+                            <Badge variant="outline" className="text-xs">
+                              {degrees.length}
+                            </Badge>
                           </CardTitle>
                         </CardHeader>
                         <CardContent>
                           <div className="grid gap-3">
                             {degrees
-                              .slice(0, showAllPrograms ? undefined : 5)
+                              .slice(0, showAllPrograms ? undefined : 3)
                               .map((ed, index) => (
                                 <div
                                   key={index}
                                   className="border rounded-lg p-3 bg-orange-50"
                                 >
-                                  <div className="flex justify-between items-start">
-                                    <div>
-                                      <h4 className="font-semibold">
+                                  <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start space-y-2 sm:space-y-0">
+                                    <div className="flex-1">
+                                      <h4 className="font-semibold text-sm md:text-base">
                                         {ed.degree.name}
                                       </h4>
                                       <p className="text-sm text-gray-600">
                                         {ed.university.name}
                                       </p>
-                                      <p className="text-sm text-gray-500 mt-1">
+                                      <p className="text-xs md:text-sm text-gray-500 mt-1 line-clamp-2">
                                         {ed.degree.description}
                                       </p>
                                       {ed.apsGap && (
@@ -565,19 +660,20 @@ const EnhancedAPSCalculator = ({
                                     </div>
                                     <Badge
                                       variant="outline"
-                                      className="border-orange-300 text-orange-800"
+                                      className="border-orange-300 text-orange-800 text-xs self-start"
                                     >
                                       APS: {ed.degree.apsRequirement}
                                     </Badge>
                                   </div>
                                 </div>
                               ))}
-                            {degrees.length > 5 && !showAllPrograms && (
+                            {degrees.length > 3 && !showAllPrograms && (
                               <Button
                                 variant="outline"
                                 onClick={() => setShowAllPrograms(true)}
+                                className="text-sm"
                               >
-                                Show {degrees.length - 5} more programs
+                                Show {degrees.length - 3} more programs
                               </Button>
                             )}
                           </div>
