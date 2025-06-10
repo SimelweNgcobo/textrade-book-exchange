@@ -66,9 +66,10 @@ export const fetchUserProfile = async (user: User): Promise<Profile | null> => {
   try {
     console.log("Fetching profile for user:", user.id);
 
+    // Fetch profile with admin status in a single query when possible
     const { data: profile, error: profileError } = await supabase
       .from("profiles")
-      .select("*")
+      .select("id, name, email, status, profile_picture_url, bio, is_admin")
       .eq("id", user.id)
       .single();
 
@@ -90,18 +91,30 @@ export const fetchUserProfile = async (user: User): Promise<Profile | null> => {
       return await createUserProfile(user);
     }
 
-    // Safely check admin status
+    // Check admin status - first check the profile flag, then fallback to email check
     let isAdmin = false;
-    try {
-      console.log("🔍 fetchUserProfile: Checking admin status for:", user.id);
-      isAdmin = await isAdminUser(user.id);
-      console.log("✅ fetchUserProfile: Admin status result:", isAdmin);
-    } catch (adminError) {
-      console.warn(
-        "⚠️ fetchUserProfile: Admin status check failed, defaulting to false",
-      );
-      logError("Admin status check in fetchUserProfile", adminError);
-      isAdmin = false; // Default to non-admin if check fails
+
+    if (profile.is_admin === true) {
+      isAdmin = true;
+      console.log("✅ Admin status from profile flag:", isAdmin);
+    } else {
+      // Quick email-based admin check without additional database calls
+      const adminEmails = ["AdminSimnLi@gmail.com", "adminsimnli@gmail.com"];
+      const userEmail = profile.email || user.email || "";
+      isAdmin = adminEmails.includes(userEmail.toLowerCase());
+
+      if (isAdmin) {
+        console.log("✅ Admin status from email check:", isAdmin);
+        // Update admin flag in background (non-blocking)
+        supabase
+          .from("profiles")
+          .update({ is_admin: true })
+          .eq("id", user.id)
+          .then(() => console.log("✅ Admin flag updated in background"))
+          .catch(() =>
+            console.warn("⚠️ Failed to update admin flag in background"),
+          );
+      }
     }
 
     console.log(
