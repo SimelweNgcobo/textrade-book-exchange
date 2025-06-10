@@ -237,7 +237,7 @@ const AdminDashboard = () => {
 
       <Tabs defaultValue="earnings" className="space-y-4">
         <TabsList
-          className={`${isMobile ? "grid grid-cols-5 h-auto" : "grid grid-cols-5"} w-full`}
+          className={`${isMobile ? "grid grid-cols-6 h-auto" : "grid grid-cols-6"} w-full`}
         >
           <TabsTrigger
             value="earnings"
