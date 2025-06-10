@@ -657,7 +657,7 @@ Solution: Practice daily, use finger guidance, don't worry about speed at first 
 **Seasonal Changes:**
 • **Lighting adjustment** - Account for changing daylight hours
 • **Temperature control** - Adapt to weather changes
-• **Schedule modification** - Adjust for seasonal schedule changes
+�� **Schedule modification** - Adjust for seasonal schedule changes
 • **Space refresh** - Occasional rearrangement to maintain interest
 
 **TROUBLESHOOTING COMMON PROBLEMS:**
@@ -1350,10 +1350,10 @@ const StudyResourcesPage = () => {
             return (
               <div
                 key={index}
-                className="bg-gray-50 p-3 rounded-lg mb-4 mt-4 border-l-4 border-gray-300"
+                className="bg-green-50 p-3 rounded-lg mb-4 mt-4 border-l-4 border-green-300"
               >
                 <h4 className="font-bold text-base md:text-lg mb-0 text-gray-900 flex items-center gap-2">
-                  <Award className="h-4 w-4 text-gray-600" />
+                  <Award className="h-4 w-4 text-green-600" />
                   {paragraph.replace(/\*\*/g, "")}
                 </h4>
               </div>
@@ -1378,7 +1378,7 @@ const StudyResourcesPage = () => {
           if (paragraph.trim().startsWith("•")) {
             return (
               <div key={index} className="flex items-start gap-2 ml-4 mb-2">
-                <div className="w-2 h-2 bg-gray-400 rounded-full mt-2 flex-shrink-0"></div>
+                <div className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0"></div>
                 <span className="text-sm md:text-base text-gray-700">
                   {paragraph.replace("•", "").trim()}
                 </span>
@@ -1404,7 +1404,7 @@ const StudyResourcesPage = () => {
             <Button
               variant="ghost"
               onClick={() => toggleTipExpansion(tip.id)}
-              className="w-full sm:w-auto text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+              className="w-full sm:w-auto text-green-600 hover:text-green-700 hover:bg-green-50"
             >
               {isExpanded ? (
                 <>
@@ -1566,14 +1566,14 @@ const StudyResourcesPage = () => {
             {filteredTips.map((tip) => (
               <Card
                 key={tip.id}
-                className="hover:shadow-md transition-all duration-300 border border-gray-200"
+                className="hover:shadow-md transition-all duration-300 border border-gray-200 hover:border-green-200"
               >
                 <CardHeader className="pb-4">
                   <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between space-y-2 sm:space-y-0">
                     <div className="flex-1">
                       <CardTitle className="text-lg md:text-xl flex items-start gap-3">
-                        <div className="p-2 bg-gray-100 rounded-full">
-                          <Lightbulb className="h-5 w-5 md:h-6 md:w-6 text-gray-600 flex-shrink-0" />
+                        <div className="p-2 bg-green-50 rounded-full">
+                          <Lightbulb className="h-5 w-5 md:h-6 md:w-6 text-green-600 flex-shrink-0" />
                         </div>
                         <span className="leading-tight text-gray-900">
                           {tip.title}
@@ -1624,7 +1624,7 @@ const StudyResourcesPage = () => {
           {/* Featured Resources */}
           <div>
             <h3 className="text-xl md:text-2xl font-semibold mb-4 flex items-center gap-2">
-              <Star className="h-5 w-5 md:h-6 md:w-6 text-gray-500" />
+              <Star className="h-5 w-5 md:h-6 md:w-6 text-green-500" />
               Featured Resources
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
@@ -1703,7 +1703,7 @@ const StudyResourcesPage = () => {
           {/* All Resources */}
           <div>
             <h3 className="text-xl md:text-2xl font-semibold mb-4 flex items-center gap-2">
-              <BookOpen className="h-5 w-5 md:h-6 md:w-6 text-gray-500" />
+              <BookOpen className="h-5 w-5 md:h-6 md:w-6 text-green-500" />
               All Resources
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
