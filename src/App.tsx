@@ -97,6 +97,11 @@ function App() {
                       path="/university/:universityId/faculty/:facultyId/course/:courseId"
                       element={<CourseDetail />}
                     />
+                    <Route
+                      path="/study-resources"
+                      element={<StudyResources />}
+                    />
+                    <Route path="/add-program" element={<AddProgram />} />
 
                     {/* Public user profiles - no authentication required */}
                     <Route path="/user/:id" element={<UserProfile />} />
