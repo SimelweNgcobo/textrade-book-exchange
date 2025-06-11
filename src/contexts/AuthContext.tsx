@@ -239,7 +239,7 @@ function AuthProvider({ children }: { children: ReactNode }) {
       const {
         data: { session: currentSession },
         error: sessionError,
-      } = result as any;
+      } = result as { data: { session: Session | null }; error: Error | null };
 
       if (sessionError) {
         console.error("[AuthContext] Session error:", sessionError);
