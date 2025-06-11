@@ -111,7 +111,7 @@ const EnhancedModerationDashboard = () => {
     }
   };
 
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     try {
       setError(null);
       setIsLoading(true);
@@ -137,7 +137,7 @@ const EnhancedModerationDashboard = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [retryCount, handleError]);
 
   const filterData = () => {
     if (activeTab === "suspended") {
