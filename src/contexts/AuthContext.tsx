@@ -175,18 +175,14 @@ function AuthProvider({ children }: { children: ReactNode }) {
             };
 
             setProfile(fallbackProfile);
-            console.log(
-              "[AuthContext] Using fallback profile due to fetch error",
-            );
+            console.log("[AuthContext] Using fallback profile due to fetch error");
 
             // Try to create/fix profile in background (non-blocking)
             fetchUserProfile(session.user)
               .then((profile) => {
                 if (profile) {
                   setProfile(profile);
-                  console.log(
-                    "[AuthContext] Background profile fetch successful",
-                  );
+                  console.log("[AuthContext] Background profile fetch successful");
                 }
               })
               .catch((bgError) => {
@@ -194,27 +190,6 @@ function AuthProvider({ children }: { children: ReactNode }) {
                   message: bgError instanceof Error ? bgError.message : String(bgError),
                   type: bgError instanceof Error ? bgError.constructor.name : typeof bgError,
                 });
-              });
-          }
-        }
-              "[AuthContext] Using fallback profile due to fetch error",
-            );
-
-            // Try to create/fix profile in background (non-blocking)
-            fetchUserProfile(session.user)
-              .then((profile) => {
-                if (profile) {
-                  setProfile(profile);
-                  console.log(
-                    "[AuthContext] Background profile fetch successful",
-                  );
-                }
-              })
-              .catch(() => {
-                // Silently fail background fetch
-                console.warn(
-                  "[AuthContext] Background profile fetch also failed",
-                );
               });
           }
         }
