@@ -271,7 +271,9 @@ const CampusBooks = ({
                 <SelectValue placeholder="Select university" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Universities</SelectItem>
+                <SelectItem key="all-universities" value="all">
+                  All Universities
+                </SelectItem>
                 {SOUTH_AFRICAN_UNIVERSITIES_SIMPLE.map((university) => (
                   <SelectItem key={university.id} value={university.id}>
                     {university.abbreviation}
