@@ -18,6 +18,11 @@ import {
 import { addNotification } from "@/services/notificationService";
 import { logError, getUserErrorMessage } from "@/utils/errorUtils";
 
+// Import debug utilities for development
+if (process.env.NODE_ENV === "development") {
+  import("@/utils/debugHelpers");
+}
+
 interface UserStats {
   totalBooks: number;
   soldBooks: number;
@@ -166,12 +171,37 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
                   : typeof profileError,
               name:
                 profileError instanceof Error ? profileError.name : undefined,
+              code:
+                (profileError as any)?.code ||
+                (profileError as any)?.error_code,
+              details:
+                (profileError as any)?.details || (profileError as any)?.hint,
+              userId: session.user?.id,
               userAgent: navigator.userAgent,
               online: navigator.onLine,
               timestamp: new Date().toISOString(),
+              url: window.location.href,
             };
 
             console.error("[AuthContext] Profile fetch failed:", errorDetails);
+
+            // In development, provide additional debugging
+            if (process.env.NODE_ENV === "development") {
+              console.warn(
+                "🔧 [AuthContext] Debug: Raw error object type:",
+                typeof profileError,
+              );
+              console.warn(
+                "🔧 [AuthContext] Debug: Raw error string:",
+                String(profileError),
+              );
+              if (profileError && typeof profileError === "object") {
+                console.warn(
+                  "🔧 [AuthContext] Debug: Error object keys:",
+                  Object.keys(profileError),
+                );
+              }
+            }
 
             if (session?.user) {
               // Create fallback profile with available session data
