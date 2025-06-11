@@ -57,15 +57,16 @@ const EnhancedModerationDashboard = () => {
     loadData();
     // Don't set up realtime subscription immediately to avoid overload
     const timer = setTimeout(() => {
+      loadData();
       setupRealtimeSubscription();
     }, 2000);
 
     return () => clearTimeout(timer);
-  }, []);
+  }, [loadData, setupRealtimeSubscription]);
 
   useEffect(() => {
     filterData();
-  }, [reports, suspendedUsers, activeTab]);
+  }, [reports, suspendedUsers, activeTab, filterData]);
 
   const setupRealtimeSubscription = () => {
     try {
