@@ -1,92 +1,62 @@
 import React, {
   createContext,
   useContext,
-  useState,
   useEffect,
+  useState,
   useCallback,
   ReactNode,
 } from "react";
 import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
-import { getUserStats, updateLastActive } from "@/services/userStatsService";
-import { isAdminUser } from "@/services/admin/adminAuthService";
 import {
-  loginUser,
-  registerUser,
-  logoutUser,
   fetchUserProfile,
+  logoutUser,
   Profile,
 } from "@/services/authOperations";
-import { UserStats } from "@/types/address";
-import { logError, getErrorMessage } from "@/utils/errorUtils";
-import { ActivityService } from "@/services/activityService";
 import { addNotification } from "@/services/notificationService";
-import { performHealthChecks } from "@/utils/healthCheck";
+import { logError, getUserErrorMessage } from "@/utils/errorUtils";
+
+interface UserStats {
+  totalBooks: number;
+  soldBooks: number;
+  totalEarnings: number;
+}
+
+export interface UserProfile extends Profile {
+  totalBooks?: number;
+  soldBooks?: number;
+  totalEarnings?: number;
+}
 
 interface AuthContextType {
   user: User | null;
-  profile: Profile | null;
+  profile: UserProfile | null;
   session: Session | null;
-  isLoading: boolean;
   isAuthenticated: boolean;
   isAdmin: boolean;
+  isLoading: boolean;
   userStats: UserStats | null;
+  authInitialized: boolean;
   initError: string | null;
-  loadUserStats: () => Promise<void>;
-  checkAdminStatus: (userId: string) => Promise<boolean>;
-  login: (email: string, password: string) => Promise<void>;
-  register: (name: string, email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   refreshProfile: () => Promise<void>;
 }
 
-export const AuthContext = createContext<AuthContextType | undefined>(
-  undefined,
-);
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Safe hook that doesn't throw when outside provider
-export function useAuth() {
+export const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {
     throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
+};
+
+interface AuthProviderProps {
+  children: ReactNode;
 }
 
-// Safe hook that returns null values when outside provider
-export function useSafeAuth() {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    return {
-      user: null,
-      profile: null,
-      session: null,
-      isLoading: false,
-      isAuthenticated: false,
-      isAdmin: false,
-      userStats: null,
-      initError: "AuthProvider not available",
-      loadUserStats: async () => {},
-      checkAdminStatus: async () => false,
-      login: async () => {
-        throw new Error("AuthProvider not available");
-      },
-      register: async () => {
-        throw new Error("AuthProvider not available");
-      },
-      logout: async () => {
-        throw new Error("AuthProvider not available");
-      },
-      refreshProfile: async () => {
-        throw new Error("AuthProvider not available");
-      },
-    };
-  }
-  return context;
-}
-
-function AuthProvider({ children }: { children: ReactNode }) {
+export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [session, setSession] = useState<Session | null>(null);
@@ -111,7 +81,7 @@ function AuthProvider({ children }: { children: ReactNode }) {
     setUserStats(null);
   }, []);
 
-  // Handle auth state changes
+  // Handle auth state changes with improved error handling
   const handleAuthStateChange = useCallback(
     async (session: Session, event?: string) => {
       try {
@@ -124,12 +94,12 @@ function AuthProvider({ children }: { children: ReactNode }) {
 
         if (session.user) {
           try {
-            // Add timeout for profile fetching - increased to 15 seconds
+            // Add timeout for profile fetching with retry logic
             const profilePromise = fetchUserProfile(session.user);
             const timeoutPromise = new Promise((_, reject) => {
               setTimeout(
                 () => reject(new Error("Profile fetch timeout")),
-                15000,
+                20000, // Increased timeout for better mobile support
               );
             });
 
@@ -137,6 +107,7 @@ function AuthProvider({ children }: { children: ReactNode }) {
               profilePromise,
               timeoutPromise,
             ]);
+
             setProfile(userProfile as UserProfile);
             console.log("[AuthContext] Profile loaded successfully");
 
@@ -148,60 +119,95 @@ function AuthProvider({ children }: { children: ReactNode }) {
                 message: `You have successfully logged in at ${new Date().toLocaleString()}`,
                 type: "success",
                 read: false,
-              }).catch(() => {
-                // Silently fail notification creation
+              }).catch((notifError) => {
+                console.warn(
+                  "[AuthContext] Failed to create login notification:",
+                  {
+                    message:
+                      notifError instanceof Error
+                        ? notifError.message
+                        : String(notifError),
+                  },
+                );
               });
             }
-        } catch (profileError) {
-          console.error("[AuthContext] Profile fetch failed:", {
-            message: profileError instanceof Error ? profileError.message : String(profileError),
-            stack: profileError instanceof Error ? profileError.stack : undefined,
-            type: profileError instanceof Error ? profileError.constructor.name : typeof profileError,
-          });
+          } catch (profileError) {
+            console.error("[AuthContext] Profile fetch failed:", {
+              message:
+                profileError instanceof Error
+                  ? profileError.message
+                  : String(profileError),
+              stack:
+                profileError instanceof Error ? profileError.stack : undefined,
+              type:
+                profileError instanceof Error
+                  ? profileError.constructor.name
+                  : typeof profileError,
+              userAgent: navigator.userAgent,
+              online: navigator.onLine,
+            });
 
-          if (session?.user) {
-            // Create fallback profile with available session data
-            const fallbackProfile = {
-              id: session.user.id,
-              name:
-                session.user.user_metadata?.name ||
-                session.user.email?.split("@")[0] ||
-                "User",
-              email: session.user.email || "",
-              isAdmin: false,
-              status: "active",
-              profile_picture_url: session.user.user_metadata?.avatar_url,
-              bio: undefined,
-            };
+            if (session?.user) {
+              // Create fallback profile with available session data
+              const fallbackProfile = {
+                id: session.user.id,
+                name:
+                  session.user.user_metadata?.name ||
+                  session.user.email?.split("@")[0] ||
+                  "User",
+                email: session.user.email || "",
+                isAdmin: false,
+                status: "active",
+                profile_picture_url: session.user.user_metadata?.avatar_url,
+                bio: undefined,
+              };
 
-            setProfile(fallbackProfile);
-            console.log("[AuthContext] Using fallback profile due to fetch error");
+              setProfile(fallbackProfile);
+              console.log(
+                "[AuthContext] Using fallback profile due to fetch error",
+              );
 
-            // Try to create/fix profile in background (non-blocking)
-            fetchUserProfile(session.user)
-              .then((profile) => {
-                if (profile) {
-                  setProfile(profile);
-                  console.log("[AuthContext] Background profile fetch successful");
-                }
-              })
-              .catch((bgError) => {
-                console.warn("[AuthContext] Background profile fetch failed:", {
-                  message: bgError instanceof Error ? bgError.message : String(bgError),
-                  type: bgError instanceof Error ? bgError.constructor.name : typeof bgError,
+              // Try to create/fix profile in background (non-blocking)
+              fetchUserProfile(session.user)
+                .then((profile) => {
+                  if (profile) {
+                    setProfile(profile);
+                    console.log(
+                      "[AuthContext] Background profile fetch successful",
+                    );
+                  }
+                })
+                .catch((bgError) => {
+                  console.warn(
+                    "[AuthContext] Background profile fetch failed:",
+                    {
+                      message:
+                        bgError instanceof Error
+                          ? bgError.message
+                          : String(bgError),
+                      type:
+                        bgError instanceof Error
+                          ? bgError.constructor.name
+                          : typeof bgError,
+                    },
+                  );
                 });
-              });
+            }
           }
         }
       } catch (error) {
-        console.error("[AuthContext] Auth state change failed:", error);
+        console.error("[AuthContext] Auth state change failed:", {
+          message: error instanceof Error ? error.message : String(error),
+          stack: error instanceof Error ? error.stack : undefined,
+          type: error instanceof Error ? error.constructor.name : typeof error,
+        });
         handleError(error, "Auth State Change");
       }
     },
     [handleError],
   );
 
-  // Initialize auth
+  // Initialize auth with better error handling
   const initializeAuth = useCallback(async () => {
     if (authInitialized) {
       return;
@@ -213,365 +219,148 @@ function AuthProvider({ children }: { children: ReactNode }) {
 
       console.log("[AuthContext] Starting auth initialization...");
 
-      // Perform health check in development
-      if (process.env.NODE_ENV === "development") {
-        performHealthChecks().catch(() => {
-          console.warn("[AuthContext] Health check failed, but continuing...");
-        });
-      }
-
-      // Add timeout for auth initialization - increased to 20 seconds
-      const timeoutPromise = new Promise((_, reject) => {
-        setTimeout(
-          () => reject(new Error("Auth initialization timeout")),
-          20000,
-        );
-      });
-
-      const authPromise = supabase.auth.getSession();
-
-      const result = await Promise.race([authPromise, timeoutPromise]);
-
-      if (!result || typeof result !== "object" || !("data" in result)) {
-        throw new Error("Invalid auth response");
-      }
-
+      // Get initial session with network error handling
       const {
-        data: { session: currentSession },
-        error: sessionError,
-      } = result as { data: { session: Session | null }; error: Error | null };
+        data: { session },
+        error,
+      } = await supabase.auth.getSession();
 
-      if (sessionError) {
-        console.error("[AuthContext] Session error:", sessionError);
-        throw sessionError;
+      if (error) {
+        console.error("[AuthContext] Failed to get session:", {
+          message: error.message,
+          code: error.name,
+        });
+        setInitError(
+          getUserErrorMessage(error, "Failed to initialize authentication"),
+        );
+        return;
       }
 
-      console.log(
-        "[AuthContext] Session retrieved:",
-        currentSession ? "exists" : "null",
-      );
-
-      if (currentSession) {
-        await handleAuthStateChange(currentSession);
+      if (session) {
+        console.log("[AuthContext] Found existing session");
+        await handleAuthStateChange(session);
+      } else {
+        console.log("[AuthContext] No existing session found");
       }
 
       setAuthInitialized(true);
-      console.log("[AuthContext] Auth initialization completed successfully");
     } catch (error) {
-      console.error("[AuthContext] Auth initialization failed:", error);
-      handleError(error, "Initialize Authentication");
-
-      // More user-friendly error message
-      if (error instanceof Error && error.message.includes("timeout")) {
-        setInitError(
-          "Connection timeout. Please check your internet connection and refresh the page.",
-        );
-      } else {
-        setInitError(`Authentication setup failed. Please refresh the page.`);
-      }
-
-      setAuthInitialized(true); // Set to true even on error to prevent infinite loading
+      const errorMessage = getUserErrorMessage(
+        error,
+        "Failed to initialize authentication",
+      );
+      console.error("[AuthContext] Auth initialization failed:", {
+        message: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined,
+        type: error instanceof Error ? error.constructor.name : typeof error,
+        online: navigator.onLine,
+      });
+      setInitError(errorMessage);
+      handleError(error, "Initialize Auth");
     } finally {
       setIsLoading(false);
     }
   }, [authInitialized, handleAuthStateChange, handleError]);
 
-  // Set up auth listener
-  const setupAuthListener = useCallback(() => {
-    console.log("[AuthContext] Setting up auth listener...");
-
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (event, session) => {
-      try {
-        console.log("[AuthContext] Auth state changed:", {
-          event,
-          hasSession: !!session,
-        });
-
-        if (event === "SIGNED_OUT") {
-          handleSignOut();
-        } else if (session) {
-          await handleAuthStateChange(session, event);
-        }
-
-        if (authInitialized) {
-          setIsLoading(false);
-        }
-      } catch (error) {
-        console.error("[AuthContext] Auth state change handler error:", error);
-        handleError(error, "Auth State Change Handler");
-        setIsLoading(false); // Ensure loading stops even on error
-      }
-    });
-
-    return () => {
-      console.log("[AuthContext] Cleaning up auth listener");
-      subscription.unsubscribe();
-    };
-  }, [authInitialized, handleAuthStateChange, handleSignOut, handleError]);
-
-  // Auth operations
-  const login = useCallback(async (email: string, password: string) => {
-    try {
-      setIsLoading(true);
-
-      // Use the basic login function to avoid circular dependencies
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-
-      if (error) {
-        // Enhanced error handling
-        let errorMessage = "Login failed. Please try again.";
-        const errorMsg = getErrorMessage(error);
-
-        if (errorMsg.includes("Invalid login credentials")) {
-          // Check if user might need email verification
-          try {
-            const { data: profile } = await supabase
-              .from("profiles")
-              .select("created_at")
-              .eq("email", email)
-              .single();
-
-            if (profile) {
-              const createdAt = new Date(profile.created_at);
-              const now = new Date();
-              const daysSinceCreation =
-                (now.getTime() - createdAt.getTime()) / (1000 * 60 * 60 * 24);
-
-              if (daysSinceCreation <= 7) {
-                errorMessage =
-                  "Your email address may not be verified yet. Please check your email and click the verification link.";
-              } else {
-                errorMessage =
-                  "Incorrect email or password. Please check your credentials and try again.";
-              }
-            } else {
-              errorMessage =
-                "No account found with this email address. Please register first.";
-            }
-          } catch (profileError) {
-            errorMessage =
-              "Invalid email or password. Please check your credentials.";
-          }
-        } else if (errorMsg.includes("Email not confirmed")) {
-          errorMessage =
-            "Please check your email and click the confirmation link to verify your account.";
-        } else if (errorMsg.includes("Too many requests")) {
-          errorMessage =
-            "Too many login attempts. Please wait a few minutes before trying again.";
-        }
-
-        toast.error(errorMessage, { duration: 3000 });
-        throw error;
-      }
-
-      if (data.session) {
-        toast.success("Login successful!", { duration: 2000 });
-
-        // Log the login activity
-        try {
-          const loginResult = await ActivityService.logLogin(
-            data.session.user.id,
-          );
-          if (!loginResult.success) {
-            // Silently fail activity logging
-          }
-        } catch (activityError) {
-          // Silently fail activity logging
-        }
-
-        // The auth state change handler will update the context
-        return data;
-      }
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
-  const register = useCallback(
-    async (name: string, email: string, password: string) => {
-      try {
-        setIsLoading(true);
-        await registerUser(name, email, password);
-        toast.success(
-          "Registration successful! Please check your email to confirm your account.",
-          { duration: 4000 },
-        );
-      } catch (error: unknown) {
-        logError("Registration failed", error);
-
-        let errorMessage = "Registration failed. Please try again.";
-        const errorMsg = getErrorMessage(error);
-
-        if (errorMsg.includes("already registered")) {
-          errorMessage = "An account with this email already exists.";
-        }
-
-        toast.error(errorMessage);
-        throw error;
-      } finally {
-        setIsLoading(false);
-      }
-    },
-    [],
-  );
-
-  const logout = useCallback(async () => {
-    try {
-      setIsLoading(true);
-      await logoutUser();
-      toast.success("Successfully logged out. See you next time!", {
-        duration: 2000,
-      });
-    } catch (error) {
-      logError("Logout failed", error);
-      toast.error("Logout failed. Please try again.", { duration: 3000 });
-      throw error;
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
+  // Refresh profile function
   const refreshProfile = useCallback(async () => {
     if (!user) return;
 
     try {
-      const userProfile = await fetchUserProfile(user);
-      setProfile(userProfile);
+      const updatedProfile = await fetchUserProfile(user);
+      if (updatedProfile) {
+        setProfile(updatedProfile);
+        console.log("[AuthContext] Profile refreshed successfully");
+      }
     } catch (error) {
-      logError("Error refreshing profile", error);
+      console.error("[AuthContext] Failed to refresh profile:", {
+        message: error instanceof Error ? error.message : String(error),
+      });
       handleError(error, "Refresh Profile");
     }
   }, [user, handleError]);
 
-  const loadUserStats = useCallback(async () => {
-    if (!user) return;
-
+  // Logout function
+  const logout = useCallback(async () => {
     try {
-      const stats = await getUserStats(user.id);
-      setUserStats(stats);
+      await logoutUser();
+      handleSignOut();
+      console.log("[AuthContext] Logout successful");
     } catch (error) {
-      logError("Error loading user stats", error);
+      console.error("[AuthContext] Logout failed:", {
+        message: error instanceof Error ? error.message : String(error),
+      });
+      handleError(error, "Logout");
+      // Force sign out even if logout fails
+      handleSignOut();
     }
-  }, [user]);
+  }, [handleSignOut, handleError]);
 
-  const updateUserActivity = useCallback(async () => {
-    if (!user) return;
-
-    try {
-      await updateLastActive(user.id);
-    } catch (error) {
-      logError("Error updating last active", error);
-    }
-  }, [user]);
-
-  const checkAdminStatus = useCallback(
-    async (userId: string): Promise<boolean> => {
-      try {
-        if (!userId) {
-          return false;
-        }
-
-        const adminStatus = await isAdminUser(userId);
-        return adminStatus;
-      } catch (error) {
-        logError("AuthContext admin status check failed", error);
-        return false;
-      }
-    },
-    [],
-  );
-
-  // Initialize auth and set up listener on mount
+  // Set up auth listener
   useEffect(() => {
-    let cleanup: (() => void) | undefined;
-    let isMounted = true;
-    let setupTimeout: NodeJS.Timeout;
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log("[AuthContext] Auth state changed:", event);
 
-    const setup = async () => {
-      try {
-        console.log("[AuthContext] Starting setup...");
-
-        // Add overall timeout for the entire setup process - reduced to 8 seconds
-        setupTimeout = setTimeout(() => {
-          if (isMounted) {
-            console.warn(
-              "[AuthContext] Setup timeout - continuing without full auth",
-            );
-            setIsLoading(false);
-            setAuthInitialized(true);
-            setInitError(null); // Don't show error for timeout, just continue
-          }
-        }, 8000);
-
-        await initializeAuth();
-
-        if (isMounted) {
-          cleanup = setupAuthListener();
-          clearTimeout(setupTimeout);
-        }
-      } catch (error) {
-        if (isMounted) {
-          console.error("[AuthContext] Setup failed:", error);
-          handleError(error, "AuthProvider Setup");
-
-          // Don't show user-facing error in development
-          if (process.env.NODE_ENV === "production") {
-            setInitError(
-              `Authentication setup failed: ${getErrorMessage(error)}`,
-            );
-          }
-
-          setIsLoading(false);
-          setAuthInitialized(true);
-          clearTimeout(setupTimeout);
-        }
+      if (event === "SIGNED_OUT" || !session) {
+        handleSignOut();
+        setIsLoading(false);
+        return;
       }
-    };
 
-    setup();
+      if (event === "SIGNED_IN" || event === "TOKEN_REFRESHED") {
+        await handleAuthStateChange(session, event);
+      }
+
+      setIsLoading(false);
+    });
 
     return () => {
-      isMounted = false;
-      if (cleanup) {
-        cleanup();
-      }
-      if (setupTimeout) {
-        clearTimeout(setupTimeout);
+      subscription.unsubscribe();
+    };
+  }, [handleAuthStateChange, handleSignOut]);
+
+  // Initialize auth on mount
+  useEffect(() => {
+    initializeAuth();
+  }, [initializeAuth]);
+
+  // Network status monitoring
+  useEffect(() => {
+    const handleOnline = () => {
+      console.log("[AuthContext] Network connection restored");
+      if (!authInitialized && !isLoading) {
+        initializeAuth();
       }
     };
-  }, []); // Empty dependency array - only run once on mount
 
-  // Load user stats and update activity when user/profile changes
-  useEffect(() => {
-    if (user && profile && authInitialized) {
-      loadUserStats();
-      updateUserActivity();
-    }
-  }, [user, profile, authInitialized, loadUserStats, updateUserActivity]);
+    const handleOffline = () => {
+      console.log("[AuthContext] Network connection lost");
+    };
+
+    window.addEventListener("online", handleOnline);
+    window.addEventListener("offline", handleOffline);
+
+    return () => {
+      window.removeEventListener("online", handleOnline);
+      window.removeEventListener("offline", handleOffline);
+    };
+  }, [authInitialized, isLoading, initializeAuth]);
 
   const value: AuthContextType = {
     user,
     profile,
     session,
-    isLoading,
     isAuthenticated,
     isAdmin,
+    isLoading,
     userStats,
+    authInitialized,
     initError,
-    loadUserStats,
-    checkAdminStatus,
-    login,
-    register,
     logout,
     refreshProfile,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
-}
-
-export { AuthProvider };
+};
