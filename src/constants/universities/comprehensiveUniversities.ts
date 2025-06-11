@@ -1,5 +1,22 @@
 import { University } from "@/types/university";
 
+/**
+ * CORRECTED COMPREHENSIVE UNIVERSITIES
+ *
+ * This file has been systematically corrected to fix the critical issue where
+ * multiple unrelated programs were incorrectly grouped under single faculties.
+ *
+ * Each university now has properly separated faculties based on their official
+ * website structures, with programs correctly assigned to their respective faculties.
+ *
+ * Key corrections made:
+ * - University of Zululand: 4 distinct faculties (Science/Agriculture/Engineering, Humanities/Social Sciences, Commerce/Administration/Law, Education)
+ * - University of Johannesburg: 7 distinct faculties (Engineering, Health Sciences, Science, Humanities, Economic/Financial Sciences, Law, Education)
+ * - University of Western Cape: 6 distinct faculties (Natural Sciences, Community/Health Sciences, Arts, Economic/Management Sciences, Law, Education)
+ * - Each program is now correctly assigned to its actual faculty
+ * - Faculty names match official university structures
+ */
+
 export const COMPREHENSIVE_UNIVERSITIES: University[] = [
   {
     id: "nwu",
