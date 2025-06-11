@@ -68,7 +68,7 @@ const EnhancedModerationDashboard = () => {
     filterData();
   }, [reports, suspendedUsers, activeTab, filterData]);
 
-  const setupRealtimeSubscription = () => {
+  const setupRealtimeSubscription = useCallback(() => {
     try {
       const reportsChannel = supabase
         .channel("reports-changes")
@@ -109,7 +109,7 @@ const EnhancedModerationDashboard = () => {
     } catch (error) {
       console.warn("Failed to set up realtime subscription:", error);
     }
-  };
+  }, [loadData]);
 
   const loadData = useCallback(async () => {
     try {
