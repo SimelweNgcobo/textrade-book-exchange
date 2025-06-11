@@ -310,16 +310,16 @@ const EnhancedAPSCalculatorV2 = ({
               {subjects.map((subject, index) => (
                 <div
                   key={`subject-${index}-${subject.name}`}
-                  className="flex items-center gap-3"
+                  className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3 p-2 border rounded-lg"
                 >
-                  <div className="flex-1">
+                  <div className="flex-1 w-full">
                     <Select
                       value={subject.name}
                       onValueChange={(value) =>
                         updateSubject(index, "name", value)
                       }
                     >
-                      <SelectTrigger>
+                      <SelectTrigger className="w-full">
                         <SelectValue placeholder="Select subject" />
                       </SelectTrigger>
                       <SelectContent>
@@ -339,61 +339,75 @@ const EnhancedAPSCalculatorV2 = ({
                       </SelectContent>
                     </Select>
                   </div>
-                  <div className="w-24">
-                    <Input
-                      type="number"
-                      placeholder="Mark %"
-                      min="0"
-                      max="100"
-                      value={subject.marks || ""}
-                      onChange={(e) =>
-                        updateSubject(
-                          index,
-                          "marks",
-                          parseInt(e.target.value) || 0,
-                        )
-                      }
-                    />
+                  <div className="flex items-center gap-2 w-full sm:w-auto">
+                    <div className="flex-1 sm:w-24">
+                      <Input
+                        type="number"
+                        placeholder="Mark %"
+                        min="0"
+                        max="100"
+                        value={subject.marks || ""}
+                        onChange={(e) =>
+                          updateSubject(
+                            index,
+                            "marks",
+                            parseInt(e.target.value) || 0,
+                          )
+                        }
+                        className="w-full"
+                      />
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Badge
+                        variant={subject.points > 0 ? "default" : "secondary"}
+                        className="min-w-[3rem] justify-center"
+                      >
+                        {subject.points}
+                      </Badge>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => removeSubject(index)}
+                        disabled={
+                          subject.name === "Life Orientation" ||
+                          subjects.length <= 3
+                        }
+                        className="shrink-0"
+                      >
+                        <Minus className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </div>
-                  <div className="w-16 text-center">
-                    <Badge
-                      variant={subject.points > 0 ? "default" : "secondary"}
-                    >
-                      {subject.points}
-                    </Badge>
-                  </div>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => removeSubject(index)}
-                    disabled={
-                      subject.name === "Life Orientation" ||
-                      subjects.length <= 3
-                    }
-                  >
-                    <Minus className="h-4 w-4" />
-                  </Button>
                 </div>
               ))}
             </div>
 
             {/* Add Custom Subject */}
-            <div className="flex gap-2">
+            <div className="flex flex-col sm:flex-row gap-2">
               <Input
                 placeholder="Add custom subject..."
                 value={customSubject}
                 onChange={(e) => setCustomSubject(e.target.value)}
                 onKeyPress={(e) => e.key === "Enter" && addCustomSubject()}
+                className="flex-1"
               />
-              <Button
-                onClick={addCustomSubject}
-                disabled={!customSubject.trim()}
-              >
-                Add
-              </Button>
-              <Button onClick={addSubject} disabled={subjects.length >= 8}>
-                <Plus className="h-4 w-4" />
-              </Button>
+              <div className="flex gap-2">
+                <Button
+                  onClick={addCustomSubject}
+                  disabled={!customSubject.trim()}
+                  className="flex-1 sm:flex-none"
+                >
+                  Add Custom
+                </Button>
+                <Button
+                  onClick={addSubject}
+                  disabled={subjects.length >= 8}
+                  className="flex-1 sm:flex-none"
+                >
+                  <Plus className="h-4 w-4 sm:mr-2" />
+                  <span className="hidden sm:inline">Add Subject</span>
+                </Button>
+              </div>
             </div>
 
             {/* Status and Calculate */}
