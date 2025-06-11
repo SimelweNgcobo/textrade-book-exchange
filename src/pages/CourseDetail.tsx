@@ -256,17 +256,29 @@ const CourseDetail = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {course.careerProspects.map((career, index) => (
-                      <div
-                        key={index}
-                        className="flex items-center space-x-3 p-3 bg-book-50 rounded-lg"
-                      >
-                        <Award className="w-5 h-5 text-book-600 flex-shrink-0" />
-                        <span className="font-medium text-gray-900">
-                          {career}
-                        </span>
+                    {(course.careerProspects || []).length > 0 ? (
+                      (course.careerProspects || []).map((career, index) => (
+                        <div
+                          key={index}
+                          className="flex items-center space-x-3 p-3 bg-book-50 rounded-lg"
+                        >
+                          <Award className="w-5 h-5 text-book-600 flex-shrink-0" />
+                          <span className="font-medium text-gray-900">
+                            {career || "Career opportunity"}
+                          </span>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="col-span-full text-center py-8 text-gray-500">
+                        <Users className="w-12 h-12 mx-auto mb-4 text-gray-400" />
+                        <p>
+                          Career information is being updated for this program.
+                        </p>
+                        <p className="text-sm mt-2">
+                          Contact the university for detailed career guidance.
+                        </p>
                       </div>
-                    ))}
+                    )}
                   </div>
                 </CardContent>
               </Card>
