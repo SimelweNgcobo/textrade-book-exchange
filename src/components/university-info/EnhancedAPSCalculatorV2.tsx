@@ -500,12 +500,12 @@ const EnhancedAPSCalculatorV2 = ({
                     <SelectValue placeholder="Filter by Faculty" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem key="all-faculties" value="all">
+                    <SelectItem key="filter-faculty-all" value="all">
                       All Faculties
                     </SelectItem>
-                    {availableFaculties.map((faculty) => (
+                    {availableFaculties.map((faculty, index) => (
                       <SelectItem
-                        key={`faculty-filter-${faculty}`}
+                        key={`filter-faculty-${index}-${faculty.replace(/\s+/g, "-").toLowerCase()}`}
                         value={faculty}
                       >
                         {faculty}
