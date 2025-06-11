@@ -14,12 +14,14 @@ import { ApplicationInfo } from "@/types/university";
 interface UniversityApplicationInfoProps {
   applicationInfo: ApplicationInfo;
   universityName: string;
+  universityAbbreviation?: string;
   website: string;
 }
 
 const UniversityApplicationInfo = ({
   applicationInfo,
   universityName,
+  universityAbbreviation,
   website,
 }: UniversityApplicationInfoProps) => {
   const isApplicationOpen = applicationInfo.isOpen;
@@ -154,11 +156,14 @@ const UniversityApplicationInfo = ({
         {/* Action Button */}
         <div className="pt-2">
           <Button
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white text-sm sm:text-base"
             onClick={() => window.open(website, "_blank")}
           >
             <ExternalLink className="h-4 w-4 mr-2" />
-            Apply at {universityName}
+            <span className="hidden sm:inline">Apply at {universityName}</span>
+            <span className="sm:hidden">
+              Apply at {universityAbbreviation || universityName}
+            </span>
           </Button>
         </div>
 
