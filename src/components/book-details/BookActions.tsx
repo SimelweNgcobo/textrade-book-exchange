@@ -78,13 +78,17 @@ const BookActions = ({
           {/* Secondary Actions */}
           <div className="pt-3 border-t border-gray-200 space-y-2">
             <Button
-              onClick={onViewSellerProfile}
+              onClick={() => {
+                const listingsUrl = `${window.location.origin}/books?seller=${book?.seller_id}`;
+                navigator.clipboard.writeText(listingsUrl);
+                alert("Seller listings link copied to clipboard!");
+              }}
               variant="outline"
               className="w-full"
               size="sm"
             >
               <User className="mr-2 h-4 w-4" />
-              View Profile
+              Share Listings
             </Button>
             <Button
               onClick={onShare}
