@@ -108,8 +108,24 @@ const Profile = () => {
   }, [user?.id, loadUserAddresses, loadActiveListings]);
 
   const handleSaveAddresses = async (
-    pickup: any,
-    shipping: any,
+    pickup: {
+      complex: string;
+      unitNumber: string;
+      streetAddress: string;
+      suburb: string;
+      city: string;
+      province: string;
+      postalCode: string;
+    },
+    shipping: {
+      complex: string;
+      unitNumber: string;
+      streetAddress: string;
+      suburb: string;
+      city: string;
+      province: string;
+      postalCode: string;
+    },
     same: boolean,
   ) => {
     if (!user?.id) return;
