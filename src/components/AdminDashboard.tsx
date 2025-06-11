@@ -55,7 +55,7 @@ const AdminDashboard = () => {
     loadDashboardData();
   }, [loadDashboardData]);
 
-  const loadDashboardData = async () => {
+  const loadDashboardData = useCallback(async () => {
     setIsLoading(true);
     setError(null);
 
