@@ -88,7 +88,7 @@ const Verify = () => {
             toast.error(errorMessage);
           }
         }
-      } catch (error: any) {
+      } catch (error: unknown) {
         console.error("❌ Email verification exception:", error);
         setStatus("error");
 
