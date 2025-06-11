@@ -35,15 +35,21 @@ const FacultyDetail = () => {
 
   useEffect(() => {
     if (universityId && facultyId) {
-      const foundUniversity = SOUTH_AFRICAN_UNIVERSITIES.find(
-        (uni) => uni.id === universityId,
-      );
-      if (foundUniversity) {
-        setUniversity(foundUniversity);
-        const foundFaculty = foundUniversity.faculties.find(
-          (fac) => fac.id === facultyId,
+      try {
+        const foundUniversity = SOUTH_AFRICAN_UNIVERSITIES.find(
+          (uni) => uni.id === universityId,
         );
-        setFaculty(foundFaculty || null);
+        if (foundUniversity) {
+          setUniversity(foundUniversity);
+          const foundFaculty = foundUniversity.faculties?.find(
+            (fac) => fac.id === facultyId,
+          );
+          setFaculty(foundFaculty || null);
+        }
+      } catch (error) {
+        console.error("Error loading university/faculty data:", error);
+        setUniversity(null);
+        setFaculty(null);
       }
     }
   }, [universityId, facultyId]);
