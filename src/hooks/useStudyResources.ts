@@ -37,9 +37,9 @@ export const useStudyResources = ({
         );
 
       const matchesCategory =
-        !selectedCategory || tip.category === selectedCategory;
+        selectedCategory === "all" || tip.category === selectedCategory;
       const matchesDifficulty =
-        !selectedDifficulty || tip.difficulty === selectedDifficulty;
+        selectedDifficulty === "all" || tip.difficulty === selectedDifficulty;
 
       return matchesSearch && matchesCategory && matchesDifficulty;
     });
@@ -57,10 +57,12 @@ export const useStudyResources = ({
         );
 
       const matchesCategory =
-        !selectedCategory || resource.category === selectedCategory;
+        selectedCategory === "all" || resource.category === selectedCategory;
       const matchesDifficulty =
-        !selectedDifficulty || resource.difficulty === selectedDifficulty;
-      const matchesType = !selectedType || resource.type === selectedType;
+        selectedDifficulty === "all" ||
+        resource.difficulty === selectedDifficulty;
+      const matchesType =
+        selectedType === "all" || resource.type === selectedType;
 
       return (
         matchesSearch && matchesCategory && matchesDifficulty && matchesType
