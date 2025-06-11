@@ -81,7 +81,10 @@ const BursaryExplorer = () => {
     });
   }, [searchTerm, filters]);
 
-  const updateFilter = (key: keyof BursaryFilters, value: any) => {
+  const updateFilter = (
+    key: keyof BursaryFilters,
+    value: string | boolean | undefined,
+  ) => {
     setFilters((prev) => ({ ...prev, [key]: value }));
   };
 
@@ -302,7 +305,9 @@ const BursaryExplorer = () => {
                   <SelectValue placeholder="Field of study" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All fields</SelectItem>
+                  <SelectItem key="all-fields" value="all">
+                    All fields
+                  </SelectItem>
                   {BURSARY_FIELDS_OF_STUDY.map((field) => (
                     <SelectItem key={field} value={field}>
                       {field}
@@ -321,7 +326,9 @@ const BursaryExplorer = () => {
                   <SelectValue placeholder="Province" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All provinces</SelectItem>
+                  <SelectItem key="all-provinces" value="all">
+                    All provinces
+                  </SelectItem>
                   {PROVINCES.map((province) => (
                     <SelectItem key={province} value={province}>
                       {province}
@@ -351,8 +358,12 @@ const BursaryExplorer = () => {
                   <SelectValue placeholder="View mode" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="grid">Grid View</SelectItem>
-                  <SelectItem value="list">List View</SelectItem>
+                  <SelectItem key="view-grid" value="grid">
+                    Grid View
+                  </SelectItem>
+                  <SelectItem key="view-list" value="list">
+                    List View
+                  </SelectItem>
                 </SelectContent>
               </Select>
 

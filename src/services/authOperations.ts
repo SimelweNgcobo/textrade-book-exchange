@@ -2,6 +2,11 @@ import { User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { isAdminUser } from "@/services/admin/adminAuthService";
 import { logError, getErrorMessage } from "@/utils/errorUtils";
+import {
+  retryWithBackoff,
+  logNetworkError,
+  getNetworkStatus,
+} from "@/utils/networkUtils";
 
 export interface Profile {
   id: string;
@@ -20,7 +25,11 @@ export const loginUser = async (email: string, password: string) => {
   });
 
   if (error) {
-    console.error("Login error:", error);
+    console.error("Login error:", {
+      message: error.message,
+      code: error.name || error.code,
+      details: error.details || error.hint,
+    });
     throw error;
   }
 
@@ -45,7 +54,11 @@ export const registerUser = async (
   });
 
   if (error) {
-    console.error("Registration error:", error);
+    console.error("Registration error:", {
+      message: error.message,
+      code: error.name || error.code,
+      details: error.details || error.hint,
+    });
     throw error;
   }
 
@@ -56,7 +69,11 @@ export const registerUser = async (
 export const logoutUser = async () => {
   const { error } = await supabase.auth.signOut();
   if (error) {
-    console.error("Logout error:", error);
+    console.error("Logout error:", {
+      message: error.message,
+      code: error.name || error.code,
+      details: error.details || error.hint,
+    });
     throw error;
   }
   console.log("Logout successful");
@@ -66,12 +83,16 @@ export const fetchUserProfile = async (user: User): Promise<Profile | null> => {
   try {
     console.log("Fetching profile for user:", user.id);
 
-    // Fetch profile with admin status in a single query when possible
-    const { data: profile, error: profileError } = await supabase
-      .from("profiles")
-      .select("id, name, email, status, profile_picture_url, bio, is_admin")
-      .eq("id", user.id)
-      .single();
+    // Wrap the Supabase call in retry logic for network errors
+    const result = await retryWithBackoff(async () => {
+      return await supabase
+        .from("profiles")
+        .select("id, name, email, status, profile_picture_url, bio, is_admin")
+        .eq("id", user.id)
+        .single();
+    });
+
+    const { data: profile, error: profileError } = result;
 
     if (profileError) {
       logError("Error fetching profile", profileError);
@@ -160,11 +181,16 @@ export const createUserProfile = async (user: User): Promise<Profile> => {
       is_admin: isAdmin, // Set admin flag during creation
     };
 
-    const { data: newProfile, error: createError } = await supabase
-      .from("profiles")
-      .insert([profileData])
-      .select("id, name, email, status, profile_picture_url, bio, is_admin")
-      .single();
+    // Use retry logic for profile creation as well
+    const result = await retryWithBackoff(async () => {
+      return await supabase
+        .from("profiles")
+        .insert([profileData])
+        .select("id, name, email, status, profile_picture_url, bio, is_admin")
+        .single();
+    });
+
+    const { data: newProfile, error: createError } = result;
 
     if (createError) {
       logError("Error creating profile", createError);

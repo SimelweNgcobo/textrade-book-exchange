@@ -1,12 +1,16 @@
 import { University } from "@/types/university";
-import { TRADITIONAL_UNIVERSITIES } from "./traditionalUniversities";
-import { UNIVERSITIES_OF_TECHNOLOGY } from "./technicalUniversities";
-import { COMPREHENSIVE_UNIVERSITIES } from "./comprehensiveUniversities";
+import {
+  ALL_26_SA_UNIVERSITIES,
+  UNIVERSITY_COUNT_SUMMARY,
+} from "./complete-sa-universities";
 import {
   generateStandardFaculties,
   UNIVERSITIES_NEEDING_PROGRAMS,
   COMMON_DEGREE_TEMPLATES,
+  FORCE_COMPREHENSIVE_PROGRAMS,
 } from "./complete-programs-database";
+import { fixProgramFacultyAssignments } from "@/utils/programFacultyUtils";
+import { assignComprehensivePrograms } from "@/utils/comprehensiveProgramRules";
 
 // Function to ensure all universities have complete programs
 const ensureCompletePrograms = (universities: University[]): University[] => {
@@ -17,9 +21,17 @@ const ensureCompletePrograms = (universities: University[]): University[] => {
       0,
     );
 
-    // Enhanced criteria: If university has less than 25 degrees or fewer than 5 faculties, enhance it
-    if (totalDegrees < 25 || university.faculties.length < 5) {
-      const standardFaculties = generateStandardFaculties(university.name);
+    // CONSERVATIVE criteria: Only enhance universities with very few programs AND in the verified list
+    // This prevents corruption of existing well-structured university data
+    if (
+      FORCE_COMPREHENSIVE_PROGRAMS ||
+      (totalDegrees < 10 &&
+        UNIVERSITIES_NEEDING_PROGRAMS.includes(university.id))
+    ) {
+      const standardFaculties = generateStandardFaculties(
+        university.name,
+        university.id,
+      );
 
       // Start with existing faculties
       const mergedFaculties = [...university.faculties];
@@ -59,8 +71,8 @@ const ensureCompletePrograms = (universities: University[]): University[] => {
               ),
           );
 
-          // Add up to 5 new degrees per faculty to ensure variety
-          existingFaculty.degrees.push(...newDegrees.slice(0, 5));
+          // Add all new degrees to ensure comprehensive coverage
+          existingFaculty.degrees.push(...newDegrees);
         }
       });
 
@@ -68,14 +80,24 @@ const ensureCompletePrograms = (universities: University[]): University[] => {
     }
 
     // Even for universities with enough programs, ensure minimum faculty count
-    if (university.faculties.length < 4) {
-      const standardFaculties = generateStandardFaculties(university.name);
+    if (university.faculties.length < 8) {
+      const standardFaculties = generateStandardFaculties(
+        university.name,
+        university.id,
+      );
       const mergedFaculties = [...university.faculties];
 
-      // Add at least Commerce and Science faculties if missing
+      // Add essential faculties if missing
       const essentialFaculties = standardFaculties.filter(
         (f) =>
-          f.id === "commerce" || f.id === "science" || f.id === "humanities",
+          f.id === "commerce" ||
+          f.id === "science" ||
+          f.id === "humanities" ||
+          f.id === "engineering" ||
+          f.id === "health-sciences" ||
+          f.id === "education" ||
+          f.id === "law" ||
+          f.id === "information-technology",
       );
 
       essentialFaculties.forEach((essentialFaculty) => {
@@ -101,32 +123,24 @@ const ensureCompletePrograms = (universities: University[]): University[] => {
   });
 };
 
-// Combine all university data from modular files
-// Filter out duplicates: NWU from traditional (belongs in comprehensive), UFH from comprehensive (belongs in traditional)
-let allUniversities = [
-  ...TRADITIONAL_UNIVERSITIES.filter((uni) => uni.id !== "nwu"),
-  ...UNIVERSITIES_OF_TECHNOLOGY,
-  ...COMPREHENSIVE_UNIVERSITIES.filter((uni) => uni.id !== "ufh"),
-];
+// Use the complete, audited database of all 26 South African public universities
+let allUniversities = [...ALL_26_SA_UNIVERSITIES];
 
 // Ensure all universities have complete programs
 allUniversities = ensureCompletePrograms(allUniversities);
 
+// Apply comprehensive program assignment based on user specifications
+allUniversities = assignComprehensivePrograms(allUniversities);
+
+// Fix program-faculty assignments to ensure proper categorization
+allUniversities = allUniversities.map((university) =>
+  fixProgramFacultyAssignments(university),
+);
+
 export const ALL_SOUTH_AFRICAN_UNIVERSITIES: University[] = allUniversities;
 
-// Test the university programs in development
+// Production-ready university data loaded
 if (import.meta.env.DEV) {
-  console.log("=== University Programs Status ===");
-  allUniversities.forEach((university) => {
-    const totalPrograms = university.faculties.reduce(
-      (total, faculty) => total + faculty.degrees.length,
-      0,
-    );
-    console.log(
-      `${university.name}: ${university.faculties.length} faculties, ${totalPrograms} programs`,
-    );
-  });
-
   const totalPrograms = allUniversities.reduce(
     (total, uni) =>
       total +
@@ -134,7 +148,7 @@ if (import.meta.env.DEV) {
     0,
   );
   console.log(
-    `📊 Total: ${allUniversities.length} universities with ${totalPrograms} programs`,
+    `📚 ReBooked Campus: ${allUniversities.length} universities loaded with ${totalPrograms} programs`,
   );
 }
 

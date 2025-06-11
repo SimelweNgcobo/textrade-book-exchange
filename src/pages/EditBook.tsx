@@ -1,13 +1,13 @@
-import { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { BookSchema, BookInput } from '@/schemas/bookSchema';
-import { toast } from 'sonner';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
-import { Skeleton } from '@/components/ui/skeleton';
+import { useState, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { BookSchema, BookInput } from "@/schemas/bookSchema";
+import { toast } from "sonner";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Form,
   FormControl,
@@ -15,15 +15,21 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import Layout from '@/components/Layout';
-import MultiImageUpload from '@/components/MultiImageUpload';
-import { getBookById } from '@/services/book/bookQueries';
-import { updateBook } from '@/services/book/bookMutations';
-import { categories } from '@/constants/categories';
-import { ArrowLeft } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
+} from "@/components/ui/form";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import Layout from "@/components/Layout";
+import MultiImageUpload from "@/components/MultiImageUpload";
+import { getBookById } from "@/services/book/bookQueries";
+import { updateBook } from "@/services/book/bookMutations";
+import { categories } from "@/constants/categories";
+import { ArrowLeft } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 
 const EditBook = () => {
   const navigate = useNavigate();
@@ -36,69 +42,70 @@ const EditBook = () => {
   const form = useForm<BookInput>({
     resolver: zodResolver(BookSchema),
     defaultValues: {
-      title: '',
-      author: '',
-      description: '',
+      title: "",
+      author: "",
+      description: "",
       price: 0,
-      categoryId: '',
-      frontCover: '',
-      backCover: '',
-      insidePages: ''
+      categoryId: "",
+      frontCover: "",
+      backCover: "",
+      insidePages: "",
     },
-    mode: "onChange"
+    mode: "onChange",
   });
 
   useEffect(() => {
     const loadBookData = async () => {
       if (!bookId) {
-        console.error('Book ID is missing from URL');
-        setError('Book ID is missing from the URL');
+        console.error("Book ID is missing from URL");
+        setError("Book ID is missing from the URL");
         setIsLoading(false);
         return;
       }
 
       if (!user) {
-        console.error('User not authenticated');
-        setError('You must be logged in to edit books');
+        console.error("User not authenticated");
+        setError("You must be logged in to edit books");
         setIsLoading(false);
         return;
       }
 
       try {
-        console.log('Loading book with ID:', bookId);
+        console.log("Loading book with ID:", bookId);
         setIsLoading(true);
         setError(null);
-        
+
         const bookData = await getBookById(bookId);
-        
+
         if (bookData) {
-          console.log('Book data loaded:', bookData);
-          
+          console.log("Book data loaded:", bookData);
+
           // Check if user owns this book
           if (bookData.seller.id !== user.id) {
-            setError('You are not authorized to edit this book');
+            setError("You are not authorized to edit this book");
             setIsLoading(false);
             return;
           }
-          
+
           const formattedData = {
             title: bookData.title,
             author: bookData.author,
             description: bookData.description,
             price: bookData.price,
             categoryId: bookData.category,
-            frontCover: bookData.frontCover || '',
-            backCover: bookData.backCover || '',
-            insidePages: bookData.insidePages || ''
+            frontCover: bookData.frontCover || "",
+            backCover: bookData.backCover || "",
+            insidePages: bookData.insidePages || "",
           };
-          
+
           form.reset(formattedData);
         } else {
-          setError('Book not found');
+          setError("Book not found");
         }
       } catch (error) {
-        console.error('Error loading book data:', error);
-        const errorMessage = error instanceof Error ? error.message : 'Failed to load book data';
+        console.error("Error loading book data:", error);
+        const errorMessage =
+          error instanceof Error ? error.message : "Failed to load book data";
         setError(errorMessage);
       } finally {
         setIsLoading(false);
@@ -111,24 +118,26 @@ const EditBook = () => {
   const onSubmit = async (values: BookInput) => {
     try {
       if (!bookId) {
-        toast.error('Book ID is missing');
+        toast.error("Book ID is missing");
         return;
       }
-      
-      console.log('Updating book with values:', values);
+
+      console.log("Updating book with values:", values);
       setIsSubmitting(true);
-      
+
       const updatedBook = await updateBook(bookId, values);
-      
+
       if (updatedBook) {
-        toast.success('Book updated successfully!');
-        navigate('/profile');
+        toast.success("Book updated successfully!");
+        navigate("/profile");
       } else {
-        toast.error('Failed to update book');
+        toast.error("Failed to update book");
       }
-    } catch (error: any) {
-      console.error('Error updating book:', error);
-      toast.error(error.message || 'Failed to update book');
+    } catch (error: unknown) {
+      console.error("Error updating book:", error);
+      const errorMessage =
+        error instanceof Error ? error.message : "Failed to update book";
+      toast.error(errorMessage);
     } finally {
       setIsSubmitting(false);
     }
@@ -138,9 +147,9 @@ const EditBook = () => {
     return (
       <Layout>
         <div className="container mx-auto px-4 py-8 max-w-2xl">
-          <Button 
-            variant="ghost" 
-            onClick={() => navigate('/profile')} 
+          <Button
+            variant="ghost"
+            onClick={() => navigate("/profile")}
             className="mb-6 text-book-600"
           >
             <ArrowLeft className="mr-2 h-4 w-4" /> Back to Profile
@@ -149,8 +158,12 @@ const EditBook = () => {
             <h2 className="text-2xl font-semibold mb-4">Cannot Edit Book</h2>
             <p className="text-gray-600 mb-4">{error}</p>
             <div className="space-y-2">
-              <Button onClick={() => navigate('/profile')}>Go to Profile</Button>
-              <Button variant="outline" onClick={() => navigate('/books')}>Browse Books</Button>
+              <Button onClick={() => navigate("/profile")}>
+                Go to Profile
+              </Button>
+              <Button variant="outline" onClick={() => navigate("/books")}>
+                Browse Books
+              </Button>
             </div>
           </div>
         </div>
@@ -162,9 +175,9 @@ const EditBook = () => {
     return (
       <Layout>
         <div className="container mx-auto px-4 py-8 max-w-2xl">
-          <Button 
-            variant="ghost" 
-            onClick={() => navigate('/profile')} 
+          <Button
+            variant="ghost"
+            onClick={() => navigate("/profile")}
             className="mb-6 text-book-600"
           >
             <ArrowLeft className="mr-2 h-4 w-4" /> Back to Profile
@@ -195,17 +208,17 @@ const EditBook = () => {
   }
 
   const currentImages = {
-    frontCover: form.watch('frontCover') || '',
-    backCover: form.watch('backCover') || '',
-    insidePages: form.watch('insidePages') || ''
+    frontCover: form.watch("frontCover") || "",
+    backCover: form.watch("backCover") || "",
+    insidePages: form.watch("insidePages") || "",
   };
 
   return (
     <Layout>
       <div className="container mx-auto px-4 py-8 max-w-2xl">
-        <Button 
-          variant="ghost" 
-          onClick={() => navigate('/profile')} 
+        <Button
+          variant="ghost"
+          onClick={() => navigate("/profile")}
           className="mb-6 text-book-600"
         >
           <ArrowLeft className="mr-2 h-4 w-4" /> Back to Profile
@@ -226,7 +239,7 @@ const EditBook = () => {
                 </FormItem>
               )}
             />
-            
+
             <FormField
               control={form.control}
               name="author"
@@ -240,7 +253,7 @@ const EditBook = () => {
                 </FormItem>
               )}
             />
-            
+
             <FormField
               control={form.control}
               name="description"
@@ -258,7 +271,7 @@ const EditBook = () => {
                 </FormItem>
               )}
             />
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FormField
                 control={form.control}
@@ -271,14 +284,16 @@ const EditBook = () => {
                         type="number"
                         placeholder="0"
                         {...field}
-                        onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                        onChange={(e) =>
+                          field.onChange(parseFloat(e.target.value) || 0)
+                        }
                       />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-              
+
               <FormField
                 control={form.control}
                 name="categoryId"
@@ -309,10 +324,14 @@ const EditBook = () => {
               <MultiImageUpload
                 images={currentImages}
                 onImagesChange={(images) => {
-                  const bookImages = images as { frontCover: string; backCover: string; insidePages: string };
-                  form.setValue('frontCover', bookImages.frontCover || '');
-                  form.setValue('backCover', bookImages.backCover || '');
-                  form.setValue('insidePages', bookImages.insidePages || '');
+                  const bookImages = images as {
+                    frontCover: string;
+                    backCover: string;
+                    insidePages: string;
+                  };
+                  form.setValue("frontCover", bookImages.frontCover || "");
+                  form.setValue("backCover", bookImages.backCover || "");
+                  form.setValue("insidePages", bookImages.insidePages || "");
                 }}
                 variant="object"
                 currentImages={currentImages}
@@ -323,18 +342,18 @@ const EditBook = () => {
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => navigate('/profile')}
+                onClick={() => navigate("/profile")}
                 className="flex-1"
                 disabled={isSubmitting}
               >
                 Cancel
               </Button>
-              <Button 
-                type="submit" 
+              <Button
+                type="submit"
                 disabled={isSubmitting}
                 className="flex-1 bg-book-600 hover:bg-book-700"
               >
-                {isSubmitting ? 'Updating...' : 'Update Book'}
+                {isSubmitting ? "Updating..." : "Update Book"}
               </Button>
             </div>
           </form>

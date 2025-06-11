@@ -1,4 +1,29 @@
-import { University } from "@/types/university";
+import { University, Degree } from "@/types/university";
+import {
+  ENGINEERING_PROGRAMS,
+  HEALTH_SCIENCES_PROGRAMS,
+  HUMANITIES_PROGRAMS,
+  COMMERCE_PROGRAMS,
+  LAW_PROGRAMS,
+  SCIENCE_PROGRAMS,
+  EDUCATION_PROGRAMS,
+  INFORMATION_TECHNOLOGY_PROGRAMS,
+  AGRICULTURE_PROGRAMS,
+  VETERINARY_PROGRAMS,
+  THEOLOGY_PROGRAMS,
+  DESIGN_PROGRAMS,
+  MUSIC_PROGRAMS,
+  SPORTS_SCIENCE_PROGRAMS,
+  SOCIAL_WORK_PROGRAMS,
+  getAllProgramsByFaculty,
+} from "./comprehensive-university-programs";
+import {
+  getUniversityPrograms,
+  isProgramAvailable,
+  getUniversityType,
+  getCorrectFacultyName,
+  UNIVERSITY_PROGRAM_MAPPINGS,
+} from "./university-specific-programs";
 
 // This file contains the complete programs for universities that need more comprehensive degree offerings
 
@@ -306,446 +331,135 @@ export const COMMON_DEGREE_TEMPLATES = {
   },
 };
 
-// Function to generate common faculty structure for universities
-export const generateStandardFaculties = (universityName: string) => [
-  {
-    id: "science",
-    name: "Faculty of Science",
-    description: `Advanced scientific education and research at ${universityName}.`,
-    degrees: [
-      COMMON_DEGREE_TEMPLATES.computerScience,
-      COMMON_DEGREE_TEMPLATES.informationSystems,
-      {
-        ...COMMON_DEGREE_TEMPLATES.computerScience,
-        id: "bsc-mathematics",
-        name: "BSc Mathematics",
-        description: "Pure and applied mathematics with statistical analysis.",
-        apsRequirement: 36,
-        careerProspects: [
-          "Mathematician",
-          "Statistician",
-          "Actuary",
-          "Data Analyst",
-          "Research Scientist",
-        ],
-      },
-      {
-        id: "bsc-physics",
-        name: "BSc Physics",
-        faculty: "Science",
-        duration: "3 years",
-        apsRequirement: 38,
-        description: "Study of fundamental laws governing the universe.",
-        subjects: [
-          { name: "Physical Sciences", level: 6, isRequired: true },
-          { name: "Mathematics", level: 7, isRequired: true },
-          { name: "English", level: 4, isRequired: true },
-        ],
-        careerProspects: [
-          "Physicist",
-          "Research Scientist",
-          "Data Analyst",
-          "Engineering Physicist",
-          "Science Teacher",
-        ],
-      },
-      {
-        id: "bsc-chemistry",
-        name: "BSc Chemistry",
-        faculty: "Science",
-        duration: "3 years",
-        apsRequirement: 36,
-        description: "Study of matter, its properties, and chemical reactions.",
-        subjects: [
-          { name: "Physical Sciences", level: 6, isRequired: true },
-          { name: "Mathematics", level: 6, isRequired: true },
-          { name: "English", level: 4, isRequired: true },
-        ],
-        careerProspects: [
-          "Chemist",
-          "Pharmaceutical Researcher",
-          "Quality Control Analyst",
-          "Chemical Engineer",
-          "Forensic Scientist",
-        ],
-      },
-      {
-        id: "bsc-biology",
-        name: "BSc Biological Sciences",
-        faculty: "Science",
-        duration: "3 years",
-        apsRequirement: 35,
-        description: "Comprehensive study of living organisms.",
-        subjects: [
-          { name: "Life Sciences", level: 6, isRequired: true },
-          { name: "Mathematics", level: 5, isRequired: true },
-          { name: "English", level: 5, isRequired: true },
-        ],
-        careerProspects: [
-          "Biologist",
-          "Research Scientist",
-          "Conservation Scientist",
-          "Biotechnologist",
-          "Environmental Consultant",
-        ],
-      },
-      {
-        id: "bsc-environmental-science",
-        name: "BSc Environmental Science",
-        faculty: "Science",
-        duration: "3 years",
-        apsRequirement: 33,
-        description: "Study of environmental systems and sustainability.",
-        subjects: [
-          { name: "Life Sciences", level: 5, isRequired: true },
-          { name: "Mathematics", level: 4, isRequired: true },
-          { name: "English", level: 4, isRequired: true },
-        ],
-        careerProspects: [
-          "Environmental Consultant",
-          "Conservation Scientist",
-          "Environmental Officer",
-          "Sustainability Specialist",
-          "Climate Change Analyst",
-        ],
-      },
-      {
-        id: "bsc-geology",
-        name: "BSc Geology",
-        faculty: "Science",
-        duration: "3 years",
-        apsRequirement: 34,
-        description: "Study of Earth's structure, composition, and processes.",
-        subjects: [
-          { name: "Mathematics", level: 5, isRequired: true },
-          { name: "Physical Sciences", level: 5, isRequired: true },
-          { name: "English", level: 4, isRequired: true },
-        ],
-        careerProspects: [
-          "Geologist",
-          "Mining Geologist",
-          "Environmental Geologist",
-          "Hydrogeologist",
-          "Petroleum Geologist",
-        ],
-      },
-      {
-        id: "bsc-statistics",
-        name: "BSc Statistics",
-        faculty: "Science",
-        duration: "3 years",
-        apsRequirement: 35,
-        description: "Statistical analysis and data science methods.",
-        subjects: [
-          { name: "Mathematics", level: 6, isRequired: true },
-          { name: "English", level: 4, isRequired: true },
-        ],
-        careerProspects: [
-          "Statistician",
-          "Data Analyst",
-          "Market Researcher",
-          "Quality Control Analyst",
-          "Biostatistician",
-        ],
-      },
-    ],
-  },
-  {
-    id: "commerce",
-    name: "Faculty of Commerce",
-    description: `Business and economic education at ${universityName}.`,
-    degrees: [
-      COMMON_DEGREE_TEMPLATES.bcom,
-      COMMON_DEGREE_TEMPLATES.accounting,
-      {
-        ...COMMON_DEGREE_TEMPLATES.bcom,
-        id: "bcom-economics",
-        name: "BCom Economics",
-        description: "Economic theory and policy analysis.",
-        apsRequirement: 30,
-        careerProspects: [
-          "Economist",
-          "Policy Analyst",
-          "Financial Analyst",
-          "Research Officer",
-          "Government Advisor",
-        ],
-      },
-      {
-        id: "bcom-marketing",
-        name: "BCom Marketing",
-        faculty: "Commerce",
-        duration: "3 years",
-        apsRequirement: 28,
-        description:
-          "Marketing strategy, consumer behavior, and brand management.",
-        subjects: [
-          { name: "English", level: 5, isRequired: true },
-          { name: "Mathematics", level: 4, isRequired: true },
-        ],
-        careerProspects: [
-          "Marketing Manager",
-          "Brand Manager",
-          "Digital Marketer",
-          "Sales Manager",
-          "Market Researcher",
-        ],
-      },
-      {
-        id: "bcom-finance",
-        name: "BCom Finance",
-        faculty: "Commerce",
-        duration: "3 years",
-        apsRequirement: 32,
-        description: "Financial management, investment analysis, and banking.",
-        subjects: [
-          { name: "Mathematics", level: 5, isRequired: true },
-          { name: "English", level: 5, isRequired: true },
-        ],
-        careerProspects: [
-          "Financial Analyst",
-          "Investment Advisor",
-          "Bank Manager",
-          "Financial Planner",
-          "Portfolio Manager",
-        ],
-      },
-      {
-        id: "bcom-management",
-        name: "BCom Management",
-        faculty: "Commerce",
-        duration: "3 years",
-        apsRequirement: 26,
-        description:
-          "Business management, leadership, and organizational behavior.",
-        subjects: [
-          { name: "English", level: 5, isRequired: true },
-          { name: "Mathematics", level: 4, isRequired: true },
-        ],
-        careerProspects: [
-          "Business Manager",
-          "Operations Manager",
-          "Project Manager",
-          "Human Resources Manager",
-          "Consultant",
-        ],
-      },
-    ],
-  },
-  {
-    id: "humanities",
-    name: "Faculty of Humanities",
-    description: `Social sciences and humanities studies at ${universityName}.`,
-    degrees: [
-      COMMON_DEGREE_TEMPLATES.psychology,
-      COMMON_DEGREE_TEMPLATES.socialWork,
-      {
-        id: "ba-english",
-        name: "BA English",
-        faculty: "Humanities",
-        duration: "3 years",
-        apsRequirement: 26,
-        description: "Literature, language, and communication studies.",
-        subjects: [
-          { name: "English", level: 6, isRequired: true },
-          { name: "Mathematics", level: 3, isRequired: true },
-        ],
-        careerProspects: [
-          "English Teacher",
-          "Editor",
-          "Journalist",
-          "Writer",
-          "Communications Specialist",
-        ],
-      },
-      {
-        id: "ba-history",
-        name: "BA History",
-        faculty: "Humanities",
-        duration: "3 years",
-        apsRequirement: 24,
-        description: "Historical research, analysis, and interpretation.",
-        subjects: [
-          { name: "English", level: 5, isRequired: true },
-          { name: "Mathematics", level: 3, isRequired: true },
-        ],
-        careerProspects: [
-          "Historian",
-          "Museum Curator",
-          "Archivist",
-          "History Teacher",
-          "Cultural Heritage Officer",
-        ],
-      },
-      {
-        id: "ba-sociology",
-        name: "BA Sociology",
-        faculty: "Humanities",
-        duration: "3 years",
-        apsRequirement: 26,
-        description: "Study of society, social behavior, and institutions.",
-        subjects: [
-          { name: "English", level: 5, isRequired: true },
-          { name: "Mathematics", level: 3, isRequired: true },
-        ],
-        careerProspects: [
-          "Sociologist",
-          "Social Researcher",
-          "Community Development Officer",
-          "Policy Analyst",
-          "Social Worker",
-        ],
-      },
-      {
-        id: "ba-political-science",
-        name: "BA Political Science",
-        faculty: "Humanities",
-        duration: "3 years",
-        apsRequirement: 28,
-        description:
-          "Political systems, governance, and international relations.",
-        subjects: [
-          { name: "English", level: 5, isRequired: true },
-          { name: "Mathematics", level: 3, isRequired: true },
-        ],
-        careerProspects: [
-          "Political Analyst",
-          "Government Officer",
-          "Diplomat",
-          "Journalist",
-          "Policy Researcher",
-        ],
-      },
-      {
-        id: "ba-geography",
-        name: "BA Geography",
-        faculty: "Humanities",
-        duration: "3 years",
-        apsRequirement: 25,
-        description: "Physical and human geography, spatial analysis.",
-        subjects: [
-          { name: "English", level: 4, isRequired: true },
-          { name: "Mathematics", level: 4, isRequired: true },
-        ],
-        careerProspects: [
-          "Geographer",
-          "Urban Planner",
-          "GIS Specialist",
-          "Environmental Consultant",
-          "Geography Teacher",
-        ],
-      },
-    ],
-  },
-  {
-    id: "education",
-    name: "Faculty of Education",
-    description: `Teacher training and educational studies at ${universityName}.`,
-    degrees: [
-      COMMON_DEGREE_TEMPLATES.education,
-      {
-        ...COMMON_DEGREE_TEMPLATES.education,
-        id: "bed-senior-phase",
-        name: "BEd Senior Phase Teaching",
-        description: "Training for senior phase (Grade 7-9) teaching.",
-        apsRequirement: 28,
-        careerProspects: [
-          "Senior Phase Teacher",
-          "Subject Head",
-          "Deputy Principal",
-          "Education Specialist",
-          "Curriculum Advisor",
-        ],
-      },
-    ],
-  },
-  {
-    id: "engineering",
-    name: "Faculty of Engineering",
-    description: `Engineering education and innovation at ${universityName}.`,
-    degrees: [
-      COMMON_DEGREE_TEMPLATES.mechanicalEngineering,
-      COMMON_DEGREE_TEMPLATES.electricalEngineering,
-      COMMON_DEGREE_TEMPLATES.civilEngineering,
-      {
-        id: "beng-chemical",
-        name: "BEng Chemical Engineering",
-        faculty: "Engineering",
-        duration: "4 years",
-        apsRequirement: 38,
-        description: "Chemical processes and industrial applications.",
-        subjects: [
-          { name: "Mathematics", level: 6, isRequired: true },
-          { name: "Physical Sciences", level: 6, isRequired: true },
-          { name: "English", level: 5, isRequired: true },
-        ],
-        careerProspects: [
-          "Chemical Engineer",
-          "Process Engineer",
-          "Environmental Engineer",
-          "Plant Manager",
-          "Research Engineer",
-        ],
-      },
-    ],
-  },
-  {
-    id: "health-sciences",
-    name: "Faculty of Health Sciences",
-    description: `Health sciences and medical education at ${universityName}.`,
-    degrees: [
-      COMMON_DEGREE_TEMPLATES.nursing,
-      COMMON_DEGREE_TEMPLATES.pharmacy,
-      {
-        id: "bsc-physiotherapy",
-        name: "BSc Physiotherapy",
-        faculty: "Health Sciences",
-        duration: "4 years",
-        apsRequirement: 35,
-        description: "Physical therapy and rehabilitation science.",
-        subjects: [
-          { name: "English", level: 5, isRequired: true },
-          { name: "Life Sciences", level: 6, isRequired: true },
-          { name: "Mathematics", level: 5, isRequired: true },
-          { name: "Physical Sciences", level: 5, isRequired: true },
-        ],
-        careerProspects: [
-          "Physiotherapist",
-          "Sports Therapist",
-          "Rehabilitation Specialist",
-          "Clinical Researcher",
-          "Healthcare Manager",
-        ],
-      },
-    ],
-  },
-  {
-    id: "law",
-    name: "Faculty of Law",
-    description: `Legal education and jurisprudence at ${universityName}.`,
-    degrees: [COMMON_DEGREE_TEMPLATES.law],
-  },
+// Function to generate university-specific faculty structure
+export const generateStandardFaculties = (
+  universityName: string,
+  universityId?: string,
+) => {
+  const comprehensivePrograms = getAllProgramsByFaculty();
+
+  // If we have a specific university ID, use its specific program mapping
+  if (universityId) {
+    const mapping = UNIVERSITY_PROGRAM_MAPPINGS.find(
+      (m) => m.universityId === universityId,
+    );
+    if (mapping) {
+      return mapping.availableFaculties.map((faculty) => ({
+        id: faculty.id,
+        name: faculty.name,
+        description: faculty.description,
+        degrees: faculty.programIds
+          .map((programId) => {
+            // Find the program in comprehensive programs
+            for (const [categoryKey, programs] of Object.entries(
+              comprehensivePrograms,
+            )) {
+              const program = programs.find((p) => p.id === programId);
+              if (program) {
+                return {
+                  ...program,
+                  faculty: faculty.name, // Use correct faculty name
+                };
+              }
+            }
+            return null;
+          })
+          .filter(Boolean) as Degree[],
+      }));
+    }
+  }
+
+  // Fallback to comprehensive faculties with university-appropriate names
+  const universityType = universityId
+    ? getUniversityType(universityId)
+    : "comprehensive";
+
+  return [
+    {
+      id: "engineering",
+      name: getCorrectFacultyName(universityId || "", "engineering"),
+      description: `Engineering education and innovation at ${universityName}.`,
+      degrees: comprehensivePrograms.engineering.map((p) => ({
+        ...p,
+        faculty: getCorrectFacultyName(universityId || "", "engineering"),
+      })),
+    },
+    {
+      id: "health-sciences",
+      name: getCorrectFacultyName(universityId || "", "health-sciences"),
+      description: `Health sciences education at ${universityName}.`,
+      degrees: comprehensivePrograms.healthSciences.map((p) => ({
+        ...p,
+        faculty: getCorrectFacultyName(universityId || "", "health-sciences"),
+      })),
+    },
+    {
+      id: "humanities",
+      name: getCorrectFacultyName(universityId || "", "humanities"),
+      description: `Humanities and social sciences at ${universityName}.`,
+      degrees: comprehensivePrograms.humanities.map((p) => ({
+        ...p,
+        faculty: getCorrectFacultyName(universityId || "", "humanities"),
+      })),
+    },
+    {
+      id: "commerce",
+      name: getCorrectFacultyName(universityId || "", "commerce"),
+      description: `Business and economics education at ${universityName}.`,
+      degrees: comprehensivePrograms.commerce.map((p) => ({
+        ...p,
+        faculty: getCorrectFacultyName(universityId || "", "commerce"),
+      })),
+    },
+    {
+      id: "law",
+      name: getCorrectFacultyName(universityId || "", "law"),
+      description: `Legal education at ${universityName}.`,
+      degrees: comprehensivePrograms.law.map((p) => ({
+        ...p,
+        faculty: getCorrectFacultyName(universityId || "", "law"),
+      })),
+    },
+    {
+      id: "science",
+      name: getCorrectFacultyName(universityId || "", "science"),
+      description: `Natural sciences education at ${universityName}.`,
+      degrees: comprehensivePrograms.science.map((p) => ({
+        ...p,
+        faculty: getCorrectFacultyName(universityId || "", "science"),
+      })),
+    },
+    {
+      id: "education",
+      name: getCorrectFacultyName(universityId || "", "education"),
+      description: `Teacher training at ${universityName}.`,
+      degrees: comprehensivePrograms.education.map((p) => ({
+        ...p,
+        faculty: getCorrectFacultyName(universityId || "", "education"),
+      })),
+    },
+    {
+      id: "information-technology",
+      name: getCorrectFacultyName(universityId || "", "information-technology"),
+      description: `Information technology at ${universityName}.`,
+      degrees: comprehensivePrograms.informationTechnology.map((p) => ({
+        ...p,
+        faculty: getCorrectFacultyName(
+          universityId || "",
+          "information-technology",
+        ),
+      })),
+    },
+  ];
+};
+
+// Universities that need VERIFIED program completion - only for universities with insufficient programs
+// Only add verified programs that actually exist at these universities
+export const UNIVERSITIES_NEEDING_PROGRAMS = [
+  // Only universities that truly have fewer than 50 programs and need enhancement
+  // Each program must be verified against the university's official offerings
 ];
 
-// Universities that need program completion - now all will be checked
-export const UNIVERSITIES_NEEDING_PROGRAMS = [
-  "univen",
-  "ul",
-  "ump",
-  "spu",
-  "smu",
-  "wsu",
-  "unizulu",
-  "cput",
-  "dut",
-  "tut",
-  "vut",
-  "cut",
-  "mut",
-  "ufs",
-  "uwc",
-  "ufh",
-  "nmu",
-  "uj",
-  "unisa",
-];
+// Force comprehensive program updates for all universities
+// DISABLED: This was causing all programs to be dumped into wrong faculties
+export const FORCE_COMPREHENSIVE_PROGRAMS = false;

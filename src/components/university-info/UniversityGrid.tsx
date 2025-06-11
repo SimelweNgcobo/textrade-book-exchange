@@ -159,7 +159,9 @@ const UniversityGrid = ({
                 <SelectValue placeholder="All Provinces" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Provinces</SelectItem>
+                <SelectItem key="all-provinces" value="all">
+                  All Provinces
+                </SelectItem>
                 {provinces.slice(1).map((province) => (
                   <SelectItem key={province} value={province}>
                     {province}
@@ -174,11 +176,13 @@ const UniversityGrid = ({
                 <SelectValue placeholder="All Types" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Types</SelectItem>
-                <SelectItem value="traditional">
+                <SelectItem key="all-types" value="all">
+                  All Types
+                </SelectItem>
+                <SelectItem key="traditional" value="traditional">
                   Traditional Universities
                 </SelectItem>
-                <SelectItem value="technology">
+                <SelectItem key="technology" value="technology">
                   Universities of Technology
                 </SelectItem>
               </SelectContent>
@@ -258,9 +262,7 @@ const UniversityGrid = ({
 
                 <div className="flex items-center space-x-2 mt-3">
                   <MapPin className="w-4 h-4 text-gray-400" />
-                  <span className="text-sm text-gray-600">
-                    {university.location}
-                  </span>
+
                   <Badge
                     variant="secondary"
                     className="bg-book-50 text-book-700 text-xs"

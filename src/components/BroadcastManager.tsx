@@ -10,11 +10,13 @@ import { Broadcast } from "@/types/broadcast";
 import BroadcastDialog from "./BroadcastDialog";
 
 const BroadcastManager = () => {
-  const { user, isAuthenticated } = useAuth();
   const [currentBroadcast, setCurrentBroadcast] = useState<Broadcast | null>(
     null,
   );
   const [showBroadcast, setShowBroadcast] = useState(false);
+
+  // Always call useAuth - if it fails, the component will fail gracefully
+  const { user, isAuthenticated } = useAuth();
 
   useEffect(() => {
     const checkForBroadcasts = async () => {
@@ -47,7 +49,11 @@ const BroadcastManager = () => {
           }
         }
       } catch (error) {
-        console.error("Error checking broadcasts:", error);
+        console.error("Error checking broadcasts:", {
+          message: error instanceof Error ? error.message : String(error),
+          stack: error instanceof Error ? error.stack : undefined,
+          type: error instanceof Error ? error.constructor.name : typeof error,
+        });
       }
     };
 

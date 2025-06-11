@@ -17,7 +17,13 @@ const Verify = () => {
     "loading" | "success" | "error" | "debug"
   >("loading");
   const [message, setMessage] = useState("");
-  const [debugInfo, setDebugInfo] = useState<any>(null);
+  const [debugInfo, setDebugInfo] = useState<{
+    url: string;
+    params: URLSearchParams;
+    queryString: string;
+    userAgent: string;
+    timestamp: string;
+  } | null>(null);
   const [resendEmail, setResendEmail] = useState("");
   const [isResending, setIsResending] = useState(false);
 
@@ -82,7 +88,7 @@ const Verify = () => {
             toast.error(errorMessage);
           }
         }
-      } catch (error: any) {
+      } catch (error: unknown) {
         console.error("❌ Email verification exception:", error);
         setStatus("error");
 
@@ -154,9 +160,11 @@ const Verify = () => {
       } else {
         toast.error("Verification did not return a session");
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("❌ Exception during manual verification:", error);
-      toast.error(`Manual verification failed: ${error.message}`);
+      const errorMessage =
+        error instanceof Error ? error.message : "Manual verification failed";
+      toast.error(`Manual verification failed: ${errorMessage}`);
     }
   };
 

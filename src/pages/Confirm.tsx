@@ -60,7 +60,12 @@ const Confirm = () => {
           console.log("Using token hash verification");
           const { data, error } = await supabase.auth.verifyOtp({
             token_hash,
-            type: type as any,
+            type: type as
+              | "signup"
+              | "invite"
+              | "email_change"
+              | "recovery"
+              | "phone_change",
           });
 
           if (error) {
@@ -109,16 +114,17 @@ const Confirm = () => {
 
         // If we get here, none of the methods worked
         throw new Error("Unable to confirm email with any available method");
-      } catch (error: any) {
+      } catch (error: unknown) {
         console.error("Email confirmation error:", error);
         setStatus("error");
 
         let errorMessage = "Email confirmation failed. ";
-        if (error.message?.includes("expired")) {
+        const errorMsg = error instanceof Error ? error.message : String(error);
+        if (errorMsg?.includes("expired")) {
           errorMessage += "The confirmation link has expired.";
-        } else if (error.message?.includes("already confirmed")) {
+        } else if (errorMsg?.includes("already confirmed")) {
           errorMessage += "This email has already been confirmed.";
-        } else if (error.message?.includes("invalid")) {
+        } else if (errorMsg?.includes("invalid")) {
           errorMessage += "The confirmation link is invalid.";
         } else {
           errorMessage += "Please try again or contact support.";

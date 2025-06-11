@@ -41,19 +41,79 @@ export const getErrorMessage = (
 };
 
 /**
- * Logs error with context information
+ * Serializes an error object for proper console logging
+ */
+export const serializeError = (error: unknown): Record<string, any> => {
+  if (!error) return { error: null };
+
+  if (typeof error === "string") {
+    return { message: error, type: "string" };
+  }
+
+  if (error instanceof Error) {
+    return {
+      message: error.message,
+      name: error.name,
+      stack: error.stack,
+      type: "Error",
+      ...(error as any), // Include any additional properties
+    };
+  }
+
+  if (typeof error === "object" && error !== null) {
+    try {
+      // Try to serialize the object
+      const serialized = JSON.parse(JSON.stringify(error));
+      return {
+        ...serialized,
+        type: "object",
+        constructor: error.constructor?.name || "Object",
+      };
+    } catch {
+      // If serialization fails, extract basic properties
+      const errorObj = error as any;
+      return {
+        message:
+          errorObj.message ||
+          errorObj.error ||
+          errorObj.details ||
+          String(error),
+        type: "object",
+        constructor: error.constructor?.name || "Object",
+        stringValue: String(error),
+      };
+    }
+  }
+
+  return {
+    value: error,
+    type: typeof error,
+    stringValue: String(error),
+  };
+};
+
+/**
+ * Logs error with context information and proper serialization
  */
 export const logError = (context: string, error: unknown, metadata?: any) => {
   const errorMessage = getErrorMessage(error);
+  const serializedError = serializeError(error);
 
   if (process.env.NODE_ENV === "development") {
     console.error(`[${context}]:`, errorMessage);
     if (metadata) {
       console.error("Metadata:", metadata);
     }
-    if (error) {
-      console.error("Full error:", error);
-    }
+    console.error("Full error:", serializedError);
+  } else {
+    // In production, log structured error data
+    console.error(`[${context}]:`, {
+      message: errorMessage,
+      error: serializedError,
+      metadata,
+      timestamp: new Date().toISOString(),
+      userAgent: navigator?.userAgent,
+    });
   }
 };
 
@@ -132,4 +192,27 @@ export const getUserErrorMessage = (
   }
 
   return message;
+};
+
+/**
+ * Safe console.error that prevents [object Object] logging
+ */
+export const safeConsoleError = (
+  message: string,
+  error?: unknown,
+  metadata?: any,
+) => {
+  if (error) {
+    const serializedError = serializeError(error);
+    console.error(message, {
+      error: serializedError,
+      metadata,
+      timestamp: new Date().toISOString(),
+    });
+  } else {
+    console.error(
+      message,
+      metadata ? { metadata, timestamp: new Date().toISOString() } : undefined,
+    );
+  }
 };

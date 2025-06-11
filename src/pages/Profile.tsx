@@ -49,7 +49,16 @@ const Profile = () => {
   const [isReportIssueDialogOpen, setIsReportIssueDialogOpen] = useState(false);
   const [isSellerHowItWorksOpen, setIsSellerHowItWorksOpen] = useState(false);
   const [isBuyerHowItWorksOpen, setIsBuyerHowItWorksOpen] = useState(false);
-  const [addressData, setAddressData] = useState<any>(null);
+  const [addressData, setAddressData] = useState<{
+    id: string;
+    complex: string;
+    unit_number: string;
+    street_address: string;
+    suburb: string;
+    city: string;
+    province: string;
+    postal_code: string;
+  } | null>(null);
   const [activeListings, setActiveListings] = useState<Book[]>([]);
   const [isLoadingAddress, setIsLoadingAddress] = useState(false);
   const [isLoadingListings, setIsLoadingListings] = useState(true);
@@ -72,9 +81,7 @@ const Profile = () => {
 
     try {
       setIsLoadingListings(true);
-      console.log("Loading books for user:", user.id);
       const books = await getUserBooks(user.id);
-      console.log("User books loaded:", books);
       const activeBooks = Array.isArray(books)
         ? books.filter((book) => !book.sold)
         : [];
@@ -101,8 +108,24 @@ const Profile = () => {
   }, [user?.id, loadUserAddresses, loadActiveListings]);
 
   const handleSaveAddresses = async (
-    pickup: any,
-    shipping: any,
+    pickup: {
+      complex: string;
+      unitNumber: string;
+      streetAddress: string;
+      suburb: string;
+      city: string;
+      province: string;
+      postalCode: string;
+    },
+    shipping: {
+      complex: string;
+      unitNumber: string;
+      streetAddress: string;
+      suburb: string;
+      city: string;
+      province: string;
+      postalCode: string;
+    },
     same: boolean,
   ) => {
     if (!user?.id) return;
@@ -164,7 +187,7 @@ const Profile = () => {
       toast.error("Book ID is missing");
       return;
     }
-    console.log("Navigating to edit book:", bookId);
+
     navigate(`/edit-book/${bookId}`);
   };
 
@@ -186,7 +209,6 @@ const Profile = () => {
     setDeletingBooks((prev) => new Set(prev).add(bookId));
 
     try {
-      console.log("Deleting book:", bookId);
       await deleteBook(bookId);
       toast.success("Book deleted successfully");
       await loadActiveListings();
@@ -372,9 +394,9 @@ const Profile = () => {
 
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="outline" className="w-full">
+                      <Button variant="outline" className="w-full text-sm py-2">
                         <BookOpen className="h-4 w-4 mr-2" />
-                        How It Works
+                        <span className="truncate">How It Works</span>
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent className="w-56" align="end">

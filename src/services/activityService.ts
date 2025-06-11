@@ -30,7 +30,7 @@ export interface Activity {
     rating?: number;
     search_query?: string;
     category?: string;
-    [key: string]: any;
+    [key: string]: unknown;
   };
   created_at: string;
 }
@@ -46,16 +46,19 @@ export class ActivityService {
   /**
    * Serialize error objects for better debugging
    */
-  private static serializeError(error: any): any {
+  private static serializeError(
+    error: unknown,
+  ): Record<string, unknown> | null {
     if (!error) return null;
 
+    const errorObj = error as Record<string, unknown>;
     return {
-      name: error.name,
-      message: error.message,
-      code: error.code,
-      details: error.details,
-      hint: error.hint,
-      stack: error.stack,
+      name: errorObj.name,
+      message: errorObj.message,
+      code: errorObj.code,
+      details: errorObj.details,
+      hint: errorObj.hint,
+      stack: errorObj.stack,
       type: typeof error,
       // Get all properties
       ...Object.getOwnPropertyNames(error).reduce((acc, key) => {
@@ -73,14 +76,15 @@ export class ActivityService {
   /**
    * Enhanced error logging with detailed information
    */
-  private static logDetailedError(context: string, error: any) {
+  private static logDetailedError(context: string, error: unknown) {
     // Properly extract error information
+    const errorObj = error as Record<string, unknown>;
     const errorInfo = {
       errorType: typeof error,
-      errorMessage: error?.message || "No message",
-      errorCode: error?.code || "No code",
-      errorDetails: error?.details || "No details",
-      errorHint: error?.hint || "No hint",
+      errorMessage: errorObj?.message || "No message",
+      errorCode: errorObj?.code || "No code",
+      errorDetails: errorObj?.details || "No details",
+      errorHint: errorObj?.hint || "No hint",
       errorName: error?.name || "No name",
     };
 

@@ -495,13 +495,27 @@ const AddProgramForm = () => {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="1">Level 1</SelectItem>
-                    <SelectItem value="2">Level 2</SelectItem>
-                    <SelectItem value="3">Level 3</SelectItem>
-                    <SelectItem value="4">Level 4</SelectItem>
-                    <SelectItem value="5">Level 5</SelectItem>
-                    <SelectItem value="6">Level 6</SelectItem>
-                    <SelectItem value="7">Level 7</SelectItem>
+                    <SelectItem key="level-1" value="1">
+                      Level 1
+                    </SelectItem>
+                    <SelectItem key="level-2" value="2">
+                      Level 2
+                    </SelectItem>
+                    <SelectItem key="level-3" value="3">
+                      Level 3
+                    </SelectItem>
+                    <SelectItem key="level-4" value="4">
+                      Level 4
+                    </SelectItem>
+                    <SelectItem key="level-5" value="5">
+                      Level 5
+                    </SelectItem>
+                    <SelectItem key="level-6" value="6">
+                      Level 6
+                    </SelectItem>
+                    <SelectItem key="level-7" value="7">
+                      Level 7
+                    </SelectItem>
                   </SelectContent>
                 </Select>
                 <Select
@@ -517,8 +531,12 @@ const AddProgramForm = () => {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="true">Required</SelectItem>
-                    <SelectItem value="false">Recommended</SelectItem>
+                    <SelectItem key="subject-required" value="true">
+                      Required
+                    </SelectItem>
+                    <SelectItem key="subject-recommended" value="false">
+                      Recommended
+                    </SelectItem>
                   </SelectContent>
                 </Select>
                 <Button onClick={addSubject} disabled={!newSubject.name.trim()}>

@@ -48,69 +48,37 @@ const DegreeFinderSection = ({
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState<"aps" | "alphabetical">("aps");
 
-  if (!calculation) {
-    return (
-      <section
-        id="degrees"
-        className="py-16 bg-gradient-to-br from-purple-50 to-indigo-50"
-      >
-        <div className="container mx-auto px-4">
-          <div className="text-center max-w-3xl mx-auto">
-            <div className="w-20 h-20 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-6">
-              <GraduationCap className="h-10 w-10 text-purple-600" />
-            </div>
-            <h2 className="text-4xl font-bold mb-6">
-              <span className="bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">
-                Discover Your
-              </span>
-              <br />
-              <span className="text-gray-900">Perfect Degree</span>
-            </h2>
-            <p className="text-xl text-gray-600 mb-8">
-              Complete your APS calculation first to see which degree programs
-              you qualify for at South African universities.
-            </p>
-            <Button
-              size="lg"
-              onClick={() =>
-                document
-                  .getElementById("aps-calculator")
-                  ?.scrollIntoView({ behavior: "smooth" })
-              }
-              className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700"
-            >
-              <Target className="h-5 w-5 mr-2" />
-              Calculate Your APS Score
-            </Button>
-          </div>
-        </div>
-      </section>
-    );
-  }
+  // Calculate derived data, safe for all render paths
+  const eligibleDegrees = useMemo(() => {
+    if (!calculation) return [];
+    return calculation.eligibleDegrees.filter((ed) => ed.meetsRequirement);
+  }, [calculation]);
 
-  const eligibleDegrees = calculation.eligibleDegrees.filter(
-    (ed) => ed.meetsRequirement,
-  );
-  const almostEligibleDegrees = calculation.eligibleDegrees
-    .filter((ed) => !ed.meetsRequirement && ed.apsGap && ed.apsGap <= 5)
-    .sort((a, b) => (a.apsGap || 0) - (b.apsGap || 0));
+  const almostEligibleDegrees = useMemo(() => {
+    if (!calculation) return [];
+    return calculation.eligibleDegrees
+      .filter((ed) => !ed.meetsRequirement && ed.apsGap && ed.apsGap <= 5)
+      .sort((a, b) => (a.apsGap || 0) - (b.apsGap || 0));
+  }, [calculation]);
 
   const faculties = useMemo(() => {
+    if (!calculation) return [];
     const facultySet = new Set(
       calculation.eligibleDegrees.map((ed) => ed.degree.faculty),
     );
     return Array.from(facultySet).sort();
-  }, [calculation.eligibleDegrees]);
+  }, [calculation]);
 
   const universities = useMemo(() => {
+    if (!calculation) return [];
     const universitySet = new Set(
       calculation.eligibleDegrees.map((ed) => ed.university.name),
     );
     return Array.from(universitySet).sort();
-  }, [calculation.eligibleDegrees]);
+  }, [calculation]);
 
   const filteredEligibleDegrees = useMemo(() => {
-    let filtered = eligibleDegrees.filter((ed) => {
+    const filtered = eligibleDegrees.filter((ed) => {
       const matchesFaculty =
         !selectedFaculty || ed.degree.faculty === selectedFaculty;
       const matchesUniversity =

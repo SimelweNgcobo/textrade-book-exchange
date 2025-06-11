@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Card,
@@ -56,10 +56,14 @@ const CampusBooks = ({
   const [selectedYear, setSelectedYear] = useState("");
   const [selectedCondition, setSelectedCondition] = useState("");
 
-  const loadBooks = async () => {
+  const loadBooks = useCallback(async () => {
     setIsLoading(true);
     try {
-      const filters: any = {};
+      const filters: {
+        university?: string;
+        universityYear?: string;
+        condition?: string;
+      } = {};
 
       if (selectedUniversityFilter) {
         filters.university = selectedUniversityFilter;
@@ -86,11 +90,11 @@ const CampusBooks = ({
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [selectedUniversityFilter, selectedYear, searchQuery, selectedCondition]);
 
   useEffect(() => {
     loadBooks();
-  }, [selectedUniversityFilter, selectedYear, searchQuery, selectedCondition]);
+  }, [loadBooks]);
 
   const filteredBooks = useMemo(() => {
     let filtered = books;
@@ -267,7 +271,9 @@ const CampusBooks = ({
                 <SelectValue placeholder="Select university" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Universities</SelectItem>
+                <SelectItem key="all-universities" value="all">
+                  All Universities
+                </SelectItem>
                 {SOUTH_AFRICAN_UNIVERSITIES_SIMPLE.map((university) => (
                   <SelectItem key={university.id} value={university.id}>
                     {university.abbreviation}
@@ -286,7 +292,9 @@ const CampusBooks = ({
                 <SelectValue placeholder="Year level" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Years</SelectItem>
+                <SelectItem key="all-years" value="all">
+                  All Years
+                </SelectItem>
                 {UNIVERSITY_YEARS.map((year) => (
                   <SelectItem key={year} value={year}>
                     {year}
@@ -305,12 +313,24 @@ const CampusBooks = ({
                 <SelectValue placeholder="Condition" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Conditions</SelectItem>
-                <SelectItem value="New">New</SelectItem>
-                <SelectItem value="Good">Good</SelectItem>
-                <SelectItem value="Better">Better</SelectItem>
-                <SelectItem value="Average">Average</SelectItem>
-                <SelectItem value="Below Average">Below Average</SelectItem>
+                <SelectItem key="all-conditions" value="all">
+                  All Conditions
+                </SelectItem>
+                <SelectItem key="new" value="New">
+                  New
+                </SelectItem>
+                <SelectItem key="good" value="Good">
+                  Good
+                </SelectItem>
+                <SelectItem key="better" value="Better">
+                  Better
+                </SelectItem>
+                <SelectItem key="average" value="Average">
+                  Average
+                </SelectItem>
+                <SelectItem key="below-average" value="Below Average">
+                  Below Average
+                </SelectItem>
               </SelectContent>
             </Select>
 

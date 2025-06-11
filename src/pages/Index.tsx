@@ -24,8 +24,8 @@ const Index = () => {
       setIsLoading(true);
       console.log("Fetching books for featured section...");
       const allBooks = await getBooks();
-      console.log("Books fetched for Index page:", allBooks.length);
-      setFeaturedBooks(allBooks.slice(0, 4)); // Get first 4 books for featured section
+      console.log("Books fetched for Index page:", allBooks?.length || 0);
+      setFeaturedBooks(Array.isArray(allBooks) ? allBooks.slice(0, 4) : []); // Get first 4 books for featured section
     } catch (error) {
       console.error("Error loading featured books:", error);
       toast.error("Failed to load featured books");

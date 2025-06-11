@@ -114,7 +114,9 @@ const HowItWorksDialog = ({ isOpen, onClose, type }: HowItWorksDialogProps) => {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent
+        className={'max-w-2xl max-h-[90vh] overflow-y-auto w-[95vw] sm:w-full"'}
+      >
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold text-gray-900 flex items-center gap-2">
             {type === "seller" ? (

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   Card,
   CardContent,
@@ -57,17 +57,18 @@ const EnhancedModerationDashboard = () => {
     loadData();
     // Don't set up realtime subscription immediately to avoid overload
     const timer = setTimeout(() => {
+      loadData();
       setupRealtimeSubscription();
     }, 2000);
 
     return () => clearTimeout(timer);
-  }, []);
+  }, [loadData, setupRealtimeSubscription]);
 
   useEffect(() => {
     filterData();
-  }, [reports, suspendedUsers, activeTab]);
+  }, [reports, suspendedUsers, activeTab, filterData]);
 
-  const setupRealtimeSubscription = () => {
+  const setupRealtimeSubscription = useCallback(() => {
     try {
       const reportsChannel = supabase
         .channel("reports-changes")
@@ -108,9 +109,9 @@ const EnhancedModerationDashboard = () => {
     } catch (error) {
       console.warn("Failed to set up realtime subscription:", error);
     }
-  };
+  }, [loadData]);
 
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     try {
       setError(null);
       setIsLoading(true);
@@ -136,9 +137,9 @@ const EnhancedModerationDashboard = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [retryCount, handleError]);
 
-  const filterData = () => {
+  const filterData = useCallback(() => {
     if (activeTab === "suspended") {
       setFilteredData(suspendedUsers);
     } else if (activeTab === "all") {
@@ -146,7 +147,7 @@ const EnhancedModerationDashboard = () => {
     } else {
       setFilteredData(reports.filter((report) => report.status === activeTab));
     }
-  };
+  }, [activeTab, suspendedUsers, reports]);
 
   const handleUpdateReportStatus = async (
     reportId: string,

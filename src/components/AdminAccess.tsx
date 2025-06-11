@@ -1,9 +1,8 @@
-
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { Shield } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { Shield } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 
 const AdminAccess = () => {
   const { profile, isAuthenticated, isAdmin } = useAuth();
@@ -16,17 +15,18 @@ const AdminAccess = () => {
 
   const handleAdminAccess = () => {
     // Direct access to admin page for authenticated admin users
-    navigate('/admin');
+    navigate("/admin");
   };
 
   return (
-    <Button 
-      onClick={handleAdminAccess} 
-      variant="outline" 
-      className="flex items-center hover:bg-book-100"
+    <Button
+      onClick={handleAdminAccess}
+      variant="outline"
+      className="flex items-center hover:bg-book-100 min-h-[44px] touch-manipulation"
     >
       <Shield className="mr-2 h-4 w-4" />
-      Admin Dashboard
+      <span className="hidden lg:inline">Admin Dashboard</span>
+      <span className="lg:hidden">Admin</span>
     </Button>
   );
 };

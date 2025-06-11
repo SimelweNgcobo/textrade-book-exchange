@@ -50,8 +50,10 @@ const ForgotPassword = () => {
           // Silently fail notification creation
         }
       }
-    } catch (error: any) {
-      toast.error(error.message || "Failed to send reset email");
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error ? error.message : "Failed to send reset email";
+      toast.error(errorMessage);
     } finally {
       setIsLoading(false);
     }

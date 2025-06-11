@@ -1,11 +1,10 @@
-
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { BookIcon, Calendar, Edit, Trash2, Eye } from 'lucide-react';
-import { Book } from '@/types/book';
-import { useNavigate } from 'react-router-dom';
-import BookNotSellingHelp from '@/components/BookNotSellingHelp';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { BookIcon, Calendar, Edit, Trash2, Eye } from "lucide-react";
+import { Book } from "@/types/book";
+import { useNavigate } from "react-router-dom";
+import BookNotSellingHelp from "@/components/BookNotSellingHelp";
 
 interface ListingsSidebarProps {
   activeListings: Book[];
@@ -14,11 +13,11 @@ interface ListingsSidebarProps {
   onDeleteBook: (bookId: string, bookTitle: string) => Promise<void>;
 }
 
-const ListingsSidebar = ({ 
-  activeListings, 
-  isLoading, 
-  onEditBook, 
-  onDeleteBook 
+const ListingsSidebar = ({
+  activeListings,
+  isLoading,
+  onEditBook,
+  onDeleteBook,
 }: ListingsSidebarProps) => {
   const navigate = useNavigate();
 
@@ -43,14 +42,14 @@ const ListingsSidebar = ({
             <div className="mb-4">
               <BookNotSellingHelp />
             </div>
-            
+
             {activeListings.slice(0, 3).map((book) => (
-              <div 
+              <div
                 key={book.id}
                 className="flex items-center space-x-3 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
               >
-                <img 
-                  src={book.frontCover || book.imageUrl} 
+                <img
+                  src={book.frontCover || book.imageUrl}
                   alt={book.title}
                   className="w-12 h-12 object-cover rounded"
                 />
@@ -68,7 +67,7 @@ const ListingsSidebar = ({
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => navigate(`/book/${book.id}`)}
+                    onClick={() => navigate(`/books/${book.id}`)}
                     className="text-blue-600 hover:text-blue-700 h-8 w-8 p-0"
                   >
                     <Eye className="h-4 w-4" />
@@ -92,20 +91,20 @@ const ListingsSidebar = ({
                 </div>
               </div>
             ))}
-            
+
             {activeListings.length > 3 && (
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => navigate('/user-profile')}
+                onClick={() => navigate("/user-profile")}
                 className="w-full mt-3"
               >
                 View All ({activeListings.length})
               </Button>
             )}
-            
+
             <Button
-              onClick={() => navigate('/create-listing')}
+              onClick={() => navigate("/create-listing")}
               className="w-full bg-book-600 hover:bg-book-700 text-white"
               size="sm"
             >
@@ -117,7 +116,7 @@ const ListingsSidebar = ({
             <BookIcon className="h-8 w-8 text-gray-300 mx-auto mb-2" />
             <p className="text-sm text-gray-500 mb-3">No active listings</p>
             <Button
-              onClick={() => navigate('/create-listing')}
+              onClick={() => navigate("/create-listing")}
               className="bg-book-600 hover:bg-book-700 text-white"
               size="sm"
             >

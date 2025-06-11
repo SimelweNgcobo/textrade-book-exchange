@@ -47,9 +47,11 @@ const MultiImageUpload = ({
         bookImages.frontCover,
         bookImages.backCover,
         bookImages.insidePages,
-      ].filter(Boolean);
+      ]
+        .filter(Boolean)
+        .slice(0, 3); // Limit to 3 images
     }
-    return (images || []) as string[];
+    return ((images || []) as string[]).slice(0, 3); // Limit to 3 images
   };
 
   // Convert array back to appropriate format
@@ -197,14 +199,14 @@ const MultiImageUpload = ({
                         />
                       </div>
                       <div
-                        className={`flex gap-2 justify-center ${isMobile ? "flex-col" : "flex-row"}`}
+                        className={`flex gap-2 justify-center ${isMobile ? "flex-row" : "flex-row"}`}
                       >
                         <Button
                           type="button"
                           variant="secondary"
                           size="sm"
                           onClick={() => setPreviewImage(hasImage)}
-                          className={`${isMobile ? "w-full h-10" : "min-h-[32px]"}`}
+                          className={`${isMobile ? "flex-1 h-10 text-xs" : "min-h-[32px]"} touch-manipulation`}
                         >
                           <Eye className="h-3 w-3 mr-1" />
                           View
@@ -215,7 +217,7 @@ const MultiImageUpload = ({
                             variant="destructive"
                             size="sm"
                             onClick={() => removeImage(index)}
-                            className={`${isMobile ? "w-full h-10" : "min-h-[32px]"}`}
+                            className={`${isMobile ? "flex-1 h-10 text-xs" : "min-h-[32px]"} touch-manipulation`}
                           >
                             <X className="h-3 w-3 mr-1" />
                             Remove

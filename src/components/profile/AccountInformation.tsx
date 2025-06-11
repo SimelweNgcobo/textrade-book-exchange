@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -43,9 +43,9 @@ const AccountInformation = ({
     if (user) {
       checkPendingEmailChange();
     }
-  }, [user]);
+  }, [user, checkPendingEmailChange]);
 
-  const checkPendingEmailChange = async () => {
+  const checkPendingEmailChange = useCallback(async () => {
     if (!user) return;
 
     setIsLoadingPending(true);
@@ -64,7 +64,7 @@ const AccountInformation = ({
     } finally {
       setIsLoadingPending(false);
     }
-  };
+  }, [user]);
 
   const handleEmailChangeRequested = (pendingEmail: string) => {
     setPendingEmailChange({

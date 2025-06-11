@@ -103,34 +103,34 @@ const UniversityInfo = () => {
             onValueChange={handleTabChange}
             className="w-full"
           >
-            <TabsList className="grid w-full grid-cols-2 lg:grid-cols-4 mb-8 h-auto">
+            <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 mb-8 h-auto">
               <TabsTrigger
                 value="overview"
-                className="flex flex-col items-center gap-1 py-3"
+                className="flex flex-col items-center gap-1 py-2 px-2 text-center"
               >
-                <University className="h-4 w-4" />
+                <University className="h-3 w-3 sm:h-4 sm:w-4" />
                 <span className="text-xs">Overview</span>
               </TabsTrigger>
               <TabsTrigger
                 value="aps-calculator"
-                className="flex flex-col items-center gap-1 py-3"
+                className="flex flex-col items-center gap-1 py-2 px-2 text-center"
               >
-                <Calculator className="h-4 w-4" />
-                <span className="text-xs">APS Calculator</span>
+                <Calculator className="h-3 w-3 sm:h-4 sm:w-4" />
+                <span className="text-xs">APS</span>
               </TabsTrigger>
               <TabsTrigger
                 value="bursaries"
-                className="flex flex-col items-center gap-1 py-3"
+                className="flex flex-col items-center gap-1 py-2 px-2 text-center"
               >
-                <DollarSign className="h-4 w-4" />
+                <DollarSign className="h-3 w-3 sm:h-4 sm:w-4" />
                 <span className="text-xs">Bursaries</span>
               </TabsTrigger>
               <TabsTrigger
                 value="books"
-                className="flex flex-col items-center gap-1 py-3"
+                className="flex flex-col items-center gap-1 py-2 px-2 text-center"
               >
-                <BookOpen className="h-4 w-4" />
-                <span className="text-xs">Textbooks</span>
+                <BookOpen className="h-3 w-3 sm:h-4 sm:w-4" />
+                <span className="text-xs">Books</span>
               </TabsTrigger>
             </TabsList>
 

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   Dialog,
   DialogContent,
@@ -52,9 +52,9 @@ const EmailChangeDialog = ({
     if (isOpen && user) {
       checkPendingChange();
     }
-  }, [isOpen, user]);
+  }, [isOpen, user, checkPendingChange]);
 
-  const checkPendingChange = async () => {
+  const checkPendingChange = useCallback(async () => {
     if (!user) return;
 
     setIsCheckingPending(true);
@@ -73,7 +73,7 @@ const EmailChangeDialog = ({
     } finally {
       setIsCheckingPending(false);
     }
-  };
+  }, [user]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

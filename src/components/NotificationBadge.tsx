@@ -15,37 +15,29 @@ const NotificationBadge = ({
 }: NotificationBadgeProps) => {
   const { isAuthenticated, isLoading } = useAuth();
 
-  // Don't render notification badge if auth is still loading or user not authenticated
-  if (isLoading || !isAuthenticated) {
-    return (
-      <div className={`relative ${className}`}>
-        <Bell className={iconSize} />
-      </div>
-    );
-  }
-
+  // Always call hooks at the top level
+  let unreadCount = 0;
   try {
-    const { unreadCount } = useNotifications();
-
-    return (
-      <div className={`relative ${className}`}>
-        <Bell className={iconSize} />
-        {showCount && unreadCount > 0 && (
-          <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-            {unreadCount > 99 ? "99+" : unreadCount}
-          </span>
-        )}
-      </div>
-    );
+    const notifications = useNotifications();
+    unreadCount = notifications.unreadCount;
   } catch (error) {
-    console.error("[NotificationBadge] Error:", error);
-    // Fallback to basic bell icon if notifications fail to load
-    return (
-      <div className={`relative ${className}`}>
-        <Bell className={iconSize} />
-      </div>
-    );
+    console.error("[NotificationBadge] Error loading notifications:", error);
   }
+
+  // Don't show count if auth is still loading or user not authenticated
+  const shouldShowCount =
+    !isLoading && isAuthenticated && showCount && unreadCount > 0;
+
+  return (
+    <div className={`relative ${className}`}>
+      <Bell className={iconSize} />
+      {shouldShowCount && (
+        <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+          {unreadCount > 99 ? "99+" : unreadCount}
+        </span>
+      )}
+    </div>
+  );
 };
 
 export default NotificationBadge;

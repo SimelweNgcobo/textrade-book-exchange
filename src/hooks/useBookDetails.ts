@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCart } from "@/contexts/CartContext";
@@ -14,16 +14,7 @@ export const useBookDetails = (bookId: string | undefined) => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (bookId) {
-      loadBook();
-    } else {
-      setError("Invalid book ID");
-      setIsLoading(false);
-    }
-  }, [bookId]);
-
-  const loadBook = async () => {
+  const loadBook = useCallback(async () => {
     if (!bookId) return;
 
     setIsLoading(true);
@@ -64,7 +55,16 @@ export const useBookDetails = (bookId: string | undefined) => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [bookId]);
+
+  useEffect(() => {
+    if (bookId) {
+      loadBook();
+    } else {
+      setError("Invalid book ID");
+      setIsLoading(false);
+    }
+  }, [bookId, loadBook]);
 
   const handleBuyNow = () => {
     if (!isAuthenticated) {

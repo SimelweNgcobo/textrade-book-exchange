@@ -73,7 +73,10 @@ const BursaryListing = () => {
     });
   }, [searchTerm, filters]);
 
-  const updateFilter = (key: keyof BursaryFilters, value: any) => {
+  const updateFilter = (
+    key: keyof BursaryFilters,
+    value: string | boolean | undefined,
+  ) => {
     setFilters((prev) => ({ ...prev, [key]: value }));
   };
 
