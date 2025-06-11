@@ -49,7 +49,7 @@ const ConfirmEmailChange = () => {
           setMessage(result.message);
           toast.error(result.message);
         }
-      } catch (error: any) {
+      } catch (error: unknown) {
         console.error("Email change confirmation failed:", error);
         setStatus("error");
         setMessage("Failed to process email change confirmation");
