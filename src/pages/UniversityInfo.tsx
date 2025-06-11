@@ -40,8 +40,9 @@ const CampusBooksSection = lazy(
   () => import("@/components/university-info/CampusBooksSection"),
 );
 
-// Debug component for development
+// Debug components for development
 import UniversityProgramsDebug from "@/components/debug/UniversityProgramsDebug";
+import UniversityAuditReport from "@/components/debug/UniversityAuditReport";
 
 const UniversityInfo = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -291,6 +292,7 @@ const UniversityInfo = () => {
 
             {process.env.NODE_ENV === "development" && (
               <TabsContent value="debug" className="space-y-6">
+                <UniversityAuditReport />
                 <UniversityProgramsDebug />
               </TabsContent>
             )}
