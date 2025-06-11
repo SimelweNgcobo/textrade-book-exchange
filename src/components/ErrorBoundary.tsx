@@ -36,11 +36,19 @@ class ErrorBoundary extends Component<Props, State> {
   public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     const { level = "component", onError } = this.props;
 
-    console.error(`[${level.toUpperCase()} ERROR BOUNDARY] Error:`, error);
-    console.error(
-      `[${level.toUpperCase()} ERROR BOUNDARY] Error Info:`,
-      errorInfo,
-    );
+    // Use proper error serialization to prevent [object Object] logging
+    console.error(`[${level.toUpperCase()} ERROR BOUNDARY] Error:`, {
+      message: error.message,
+      stack: error.stack,
+      name: error.name,
+      type: error.constructor.name,
+    });
+
+    console.error(`[${level.toUpperCase()} ERROR BOUNDARY] Error Info:`, {
+      componentStack: errorInfo.componentStack,
+      errorBoundary: `${level}ErrorBoundary`,
+      timestamp: new Date().toISOString(),
+    });
 
     // Log to external service in production
     if (process.env.NODE_ENV === "production") {
