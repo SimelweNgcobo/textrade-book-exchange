@@ -226,29 +226,29 @@ const Navbar = () => {
                   <div className="border-t border-gray-100 pt-3 mt-3">
                     <Link
                       to="/create-listing"
-                      className="block px-3 py-2 text-sm font-medium text-white bg-book-600 rounded-md"
+                      className="flex items-center px-4 py-3 text-base font-medium text-white bg-book-600 rounded-md min-h-[44px]"
                       onClick={() => setIsMenuOpen(false)}
                     >
-                      <Plus className="w-4 h-4 mr-1 inline" />
+                      <Plus className="w-5 h-5 mr-2" />
                       Sell Book
                     </Link>
                   </div>
 
                   <Link
                     to="/notifications"
-                    className="flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-book-600 rounded-md"
+                    className="flex items-center px-4 py-3 text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-book-600 rounded-md min-h-[44px]"
                     onClick={() => setIsMenuOpen(false)}
                   >
-                    <NotificationBadge className="mr-2" iconSize="w-4 h-4" />
+                    <NotificationBadge className="mr-3" iconSize="w-5 h-5" />
                     <span>Notifications</span>
                   </Link>
 
                   <Link
                     to="/profile"
-                    className="block px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-book-600 rounded-md"
+                    className="flex items-center px-4 py-3 text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-book-600 rounded-md min-h-[44px]"
                     onClick={() => setIsMenuOpen(false)}
                   >
-                    <User className="w-4 h-4 mr-1 inline" />
+                    <User className="w-5 h-5 mr-3" />
                     Profile
                   </Link>
 
@@ -257,9 +257,9 @@ const Navbar = () => {
                       handleLogout();
                       setIsMenuOpen(false);
                     }}
-                    className="block w-full text-left px-3 py-2 text-sm font-medium text-gray-700 hover:bg-red-50 hover:text-red-600 rounded-md"
+                    className="flex items-center w-full text-left px-4 py-3 text-base font-medium text-gray-700 hover:bg-red-50 hover:text-red-600 rounded-md min-h-[44px]"
                   >
-                    <LogOut className="w-4 h-4 mr-1 inline" />
+                    <LogOut className="w-5 h-5 mr-3" />
                     Logout
                   </button>
                 </>
@@ -267,17 +267,17 @@ const Navbar = () => {
                 <div className="border-t border-gray-100 pt-3 mt-3 space-y-2">
                   <Link
                     to="/login"
-                    className="block px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-book-600 rounded-md"
+                    className="flex items-center px-4 py-3 text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-book-600 rounded-md min-h-[44px]"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     Login
                   </Link>
                   <Link
                     to="/register"
-                    className="block px-3 py-2 text-sm font-medium text-white bg-book-600 rounded-md"
+                    className="flex items-center px-4 py-3 text-base font-medium text-white bg-book-600 rounded-md min-h-[44px]"
                     onClick={() => setIsMenuOpen(false)}
                   >
-                    <UserPlus className="w-4 h-4 mr-1 inline" />
+                    <UserPlus className="w-5 h-5 mr-2" />
                     Sign Up
                   </Link>
                 </div>
