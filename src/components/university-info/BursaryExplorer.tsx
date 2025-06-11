@@ -358,8 +358,12 @@ const BursaryExplorer = () => {
                   <SelectValue placeholder="View mode" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="grid">Grid View</SelectItem>
-                  <SelectItem value="list">List View</SelectItem>
+                  <SelectItem key="view-grid" value="grid">
+                    Grid View
+                  </SelectItem>
+                  <SelectItem key="view-list" value="list">
+                    List View
+                  </SelectItem>
                 </SelectContent>
               </Select>
 
