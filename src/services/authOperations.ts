@@ -69,7 +69,11 @@ export const registerUser = async (
 export const logoutUser = async () => {
   const { error } = await supabase.auth.signOut();
   if (error) {
-    console.error("Logout error:", error);
+    console.error("Logout error:", {
+      message: error.message,
+      code: error.name || error.code,
+      details: error.details || error.hint,
+    });
     throw error;
   }
   console.log("Logout successful");
