@@ -501,4 +501,5 @@ export const UNIVERSITIES_NEEDING_PROGRAMS = [
 ];
 
 // Force comprehensive program updates for all universities
-export const FORCE_COMPREHENSIVE_PROGRAMS = true;
+// DISABLED: This was causing all programs to be dumped into wrong faculties
+export const FORCE_COMPREHENSIVE_PROGRAMS = false;
