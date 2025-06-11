@@ -257,6 +257,18 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
                 console.log(
                   "[AuthContext] Using fallback profile due to timeout - user can continue while profile loads in background",
                 );
+
+                // Show user-friendly notification for timeout
+                addNotification({
+                  userId: session.user.id,
+                  title: "Profile Loading",
+                  message:
+                    "Your profile is loading in the background. You can continue using the app.",
+                  type: "info",
+                  read: false,
+                }).catch(() => {
+                  // Silent fail for notifications - don't block user experience
+                });
               } else {
                 console.log(
                   "[AuthContext] Using fallback profile due to fetch error",
