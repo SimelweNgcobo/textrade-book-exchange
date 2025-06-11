@@ -328,7 +328,10 @@ const EnhancedAPSCalculatorV2 = ({
                               (sub, i) => i !== index && sub.name === s.name,
                             ),
                         ).map((subj) => (
-                          <SelectItem key={subj.name} value={subj.name}>
+                          <SelectItem
+                            key={`subject-option-${subj.name}`}
+                            value={subj.name}
+                          >
                             {subj.name} {subj.isLanguage && "(Language)"}
                           </SelectItem>
                         ))}
