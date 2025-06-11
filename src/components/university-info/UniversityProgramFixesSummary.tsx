@@ -258,7 +258,13 @@ const UniversityProgramFixesSummary = ({
                               </div>
                               {issue.programId && (
                                 <Badge
-                                  variant={getIssueColor(issue.type) as any}
+                                  variant={
+                                    getIssueColor(issue.type) as
+                                      | "default"
+                                      | "destructive"
+                                      | "outline"
+                                      | "secondary"
+                                  }
                                   className="text-xs"
                                 >
                                   {issue.programId}
