@@ -181,11 +181,11 @@ const Navbar = () => {
 
         {/* Mobile Menu */}
         {isMenuOpen && (
-          <div className="md:hidden border-t border-gray-100 py-4">
-            <div className="space-y-3">
+          <div className="md:hidden border-t border-gray-100 py-3">
+            <div className="space-y-1">
               <Link
                 to="/books"
-                className={`block px-3 py-2 text-sm font-medium rounded-md transition-colors ${
+                className={`block px-4 py-3 text-base font-medium rounded-md transition-colors min-h-[44px] flex items-center ${
                   isActive("/books")
                     ? "bg-book-50 text-book-600"
                     : "text-gray-700 hover:bg-gray-50 hover:text-book-600"
@@ -197,27 +197,27 @@ const Navbar = () => {
 
               <Link
                 to="/university-info"
-                className={`flex items-center space-x-2 px-3 py-2 text-sm font-medium rounded-md transition-colors ${
+                className={`flex items-center space-x-3 px-4 py-3 text-base font-medium rounded-md transition-colors min-h-[44px] ${
                   location.pathname.startsWith("/university")
                     ? "bg-book-50 text-book-600"
                     : "text-gray-700 hover:bg-gray-50 hover:text-book-600"
                 }`}
                 onClick={() => setIsMenuOpen(false)}
               >
-                <GraduationCap className="w-4 h-4" />
+                <GraduationCap className="w-5 h-5" />
                 <span>Campus</span>
               </Link>
 
               <Link
                 to="/shipping"
-                className={`flex items-center space-x-2 px-3 py-2 text-sm font-medium rounded-md transition-colors ${
+                className={`flex items-center space-x-3 px-4 py-3 text-base font-medium rounded-md transition-colors min-h-[44px] ${
                   isActive("/shipping")
                     ? "bg-book-50 text-book-600"
                     : "text-gray-700 hover:bg-gray-50 hover:text-book-600"
                 }`}
                 onClick={() => setIsMenuOpen(false)}
               >
-                <Truck className="w-4 h-4" />
+                <Truck className="w-5 h-5" />
                 <span>Shipping</span>
               </Link>
 
