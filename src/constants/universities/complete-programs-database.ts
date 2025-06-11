@@ -377,6 +377,48 @@ export const generateStandardFaculties = (universityName: string) => {
       description: `Computer science and information technology at ${universityName}.`,
       degrees: comprehensivePrograms.informationTechnology,
     },
+    {
+      id: "agriculture",
+      name: "Faculty of Agriculture and Agricultural Sciences",
+      description: `Agricultural sciences and food production at ${universityName}.`,
+      degrees: comprehensivePrograms.agriculture,
+    },
+    {
+      id: "veterinary-science",
+      name: "Faculty of Veterinary Science",
+      description: `Veterinary medicine and animal health at ${universityName}.`,
+      degrees: comprehensivePrograms.veterinary,
+    },
+    {
+      id: "theology",
+      name: "Faculty of Theology and Religious Studies",
+      description: `Theological and religious studies at ${universityName}.`,
+      degrees: comprehensivePrograms.theology,
+    },
+    {
+      id: "design",
+      name: "Faculty of Design and Creative Arts",
+      description: `Creative arts and design education at ${universityName}.`,
+      degrees: comprehensivePrograms.design,
+    },
+    {
+      id: "music",
+      name: "Faculty of Music and Performing Arts",
+      description: `Music and performing arts at ${universityName}.`,
+      degrees: comprehensivePrograms.music,
+    },
+    {
+      id: "sports-science",
+      name: "Faculty of Sports Science",
+      description: `Sports science and management at ${universityName}.`,
+      degrees: comprehensivePrograms.sportsScience,
+    },
+    {
+      id: "social-work",
+      name: "Faculty of Social Work",
+      description: `Social work and community development at ${universityName}.`,
+      degrees: comprehensivePrograms.socialWork,
+    },
   ];
 };
 
