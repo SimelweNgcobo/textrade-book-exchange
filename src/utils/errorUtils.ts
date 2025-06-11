@@ -193,3 +193,26 @@ export const getUserErrorMessage = (
 
   return message;
 };
+
+/**
+ * Safe console.error that prevents [object Object] logging
+ */
+export const safeConsoleError = (
+  message: string,
+  error?: unknown,
+  metadata?: any,
+) => {
+  if (error) {
+    const serializedError = serializeError(error);
+    console.error(message, {
+      error: serializedError,
+      metadata,
+      timestamp: new Date().toISOString(),
+    });
+  } else {
+    console.error(
+      message,
+      metadata ? { metadata, timestamp: new Date().toISOString() } : undefined,
+    );
+  }
+};
