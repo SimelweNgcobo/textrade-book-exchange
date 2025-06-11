@@ -183,7 +183,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
               url: window.location.href,
             };
 
-            console.error("[AuthContext] Profile fetch failed:", errorDetails);
+            console.error(
+              "[AuthContext] Profile fetch failed (v2.0 - FIXED):",
+              errorDetails,
+            );
 
             // In development, provide additional debugging
             if (process.env.NODE_ENV === "development") {
@@ -200,7 +203,14 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
                   "🔧 [AuthContext] Debug: Error object keys:",
                   Object.keys(profileError),
                 );
+                console.warn(
+                  "🔧 [AuthContext] Debug: Full raw error (stringified):",
+                  JSON.stringify(profileError, null, 2),
+                );
               }
+              console.warn(
+                "🔧 [AuthContext] VERIFICATION: This is the FIXED version that should NOT show [object Object]",
+              );
             }
 
             if (session?.user) {
@@ -235,7 +245,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
                 })
                 .catch((bgError) => {
                   console.warn(
-                    "[AuthContext] Background profile fetch failed:",
+                    "[AuthContext] Background profile fetch failed (v2.0 - FIXED):",
                     {
                       message:
                         bgError instanceof Error
@@ -245,8 +255,17 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
                         bgError instanceof Error
                           ? bgError.constructor.name
                           : typeof bgError,
+                      stack:
+                        bgError instanceof Error ? bgError.stack : undefined,
+                      timestamp: new Date().toISOString(),
                     },
                   );
+
+                  if (process.env.NODE_ENV === "development") {
+                    console.warn(
+                      "🔧 [AuthContext] VERIFICATION: Background fetch error also uses FIXED version",
+                    );
+                  }
                 });
             }
           }
