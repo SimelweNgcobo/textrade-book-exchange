@@ -455,9 +455,11 @@ const EnhancedAPSCalculatorV2 = ({
                 </Button>
                 <Button
                   onClick={calculateResults}
-                  disabled={contributingSubjectsCount < 6}
+                  disabled={
+                    contributingSubjectsCount < 6 || !hasValidUniversityData
+                  }
                   className={
-                    contributingSubjectsCount >= 6
+                    contributingSubjectsCount >= 6 && hasValidUniversityData
                       ? "bg-green-600 hover:bg-green-700"
                       : ""
                   }
