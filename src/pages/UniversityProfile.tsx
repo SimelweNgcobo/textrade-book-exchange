@@ -88,52 +88,56 @@ const UniversityProfile = () => {
         {/* Header Section */}
         <div className="bg-white border-b border-gray-200">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <div className="flex items-center justify-between mb-6">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
               <Button
                 variant="ghost"
                 onClick={() => navigate("/university-info")}
-                className="text-book-600 hover:text-book-700"
+                className="text-book-600 hover:text-book-700 self-start"
               >
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Back to Universities
               </Button>
 
-              <div className="flex items-center space-x-3">
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:space-x-3 w-full sm:w-auto">
                 <Button
                   variant="outline"
                   onClick={handleExternalLink}
-                  className="border-book-200 text-book-600 hover:bg-book-50"
+                  className="border-book-200 text-book-600 hover:bg-book-50 w-full sm:w-auto"
+                  size="sm"
                 >
                   <ExternalLink className="w-4 h-4 mr-2" />
-                  Visit Website
+                  <span className="hidden sm:inline">Visit Website</span>
+                  <span className="sm:hidden">Website</span>
                 </Button>
 
                 <Button
                   onClick={handleViewBooks}
-                  className="bg-book-600 hover:bg-book-700 text-white"
+                  className="bg-book-600 hover:bg-book-700 text-white w-full sm:w-auto"
+                  size="sm"
                 >
                   <BookOpen className="w-4 h-4 mr-2" />
-                  View Books
+                  <span className="hidden sm:inline">View Books</span>
+                  <span className="sm:hidden">Books</span>
                 </Button>
               </div>
             </div>
 
-            <div className="flex items-center space-x-6">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-4 sm:space-y-0 sm:space-x-6">
               {university.logo && (
                 <img
                   src={university.logo}
                   alt={`${university.name} logo`}
-                  className="w-16 h-16 rounded-lg object-contain bg-white border border-gray-200 p-2"
+                  className="w-16 h-16 rounded-lg object-contain bg-white border border-gray-200 p-2 self-center sm:self-start"
                 />
               )}
-              <div className="flex-1">
-                <h1 className="text-3xl font-bold text-gray-900 mb-2">
+              <div className="flex-1 w-full text-center sm:text-left">
+                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
                   {university.name}
                 </h1>
-                <div className="flex items-center space-x-4 text-gray-600">
+                <div className="flex flex-col sm:flex-row items-center sm:items-start space-y-2 sm:space-y-0 sm:space-x-4 text-gray-600">
                   <div className="flex items-center">
                     <MapPin className="w-4 h-4 mr-1" />
-                    <span>
+                    <span className="text-sm sm:text-base">
                       {university.location}, {university.province}
                     </span>
                   </div>
