@@ -187,36 +187,52 @@ const CourseDetail = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    {course.subjects.map((subject, index) => (
-                      <div
-                        key={index}
-                        className="flex items-center justify-between p-4 bg-gray-50 rounded-lg"
-                      >
-                        <div className="flex items-center space-x-3">
-                          {subject.isRequired ? (
-                            <CheckCircle className="w-5 h-5 text-green-600" />
-                          ) : (
-                            <AlertCircle className="w-5 h-5 text-orange-600" />
-                          )}
-                          <div>
-                            <div className="font-semibold text-gray-900">
-                              {subject.name}
+                    {(course.subjects || []).length > 0 ? (
+                      (course.subjects || []).map((subject, index) => (
+                        <div
+                          key={index}
+                          className="flex items-center justify-between p-4 bg-gray-50 rounded-lg"
+                        >
+                          <div className="flex items-center space-x-3">
+                            {subject?.isRequired ? (
+                              <CheckCircle className="w-5 h-5 text-green-600" />
+                            ) : (
+                              <AlertCircle className="w-5 h-5 text-orange-600" />
+                            )}
+                            <div>
+                              <div className="font-semibold text-gray-900">
+                                {subject?.name || "Unknown Subject"}
+                              </div>
+                              <div className="text-sm text-gray-600">
+                                {subject?.isRequired
+                                  ? "Required"
+                                  : "Recommended"}
+                              </div>
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <div className="font-bold text-book-600">
+                              Level {subject?.level || "N/A"}
                             </div>
                             <div className="text-sm text-gray-600">
-                              {subject.isRequired ? "Required" : "Recommended"}
+                              {(subject?.level || 0) >= 4 ? "Pass" : "Minimum"}
                             </div>
                           </div>
                         </div>
-                        <div className="text-right">
-                          <div className="font-bold text-book-600">
-                            Level {subject.level}
-                          </div>
-                          <div className="text-sm text-gray-600">
-                            {subject.level >= 4 ? "Pass" : "Minimum"}
-                          </div>
-                        </div>
+                      ))
+                    ) : (
+                      <div className="text-center py-8 text-gray-500">
+                        <AlertCircle className="w-12 h-12 mx-auto mb-4 text-gray-400" />
+                        <p>
+                          No specific subject requirements listed for this
+                          program.
+                        </p>
+                        <p className="text-sm mt-2">
+                          Contact the university for detailed admission
+                          requirements.
+                        </p>
                       </div>
-                    ))}
+                    )}
                   </div>
 
                   <Alert className="mt-4 border-book-200 bg-book-50">
