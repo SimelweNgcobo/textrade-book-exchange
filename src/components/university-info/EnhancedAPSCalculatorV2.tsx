@@ -245,9 +245,7 @@ const EnhancedAPSCalculatorV2 = ({
     } else {
       if (field === "name") {
         subject.name = value as string;
-        subject.points = isNonContributing(subject.name)
-          ? 0
-          : subject.level;
+        subject.points = isNonContributing(subject.name) ? 0 : subject.level;
       } else if (field === "level") {
         subject.level = value as number;
         subject.points = isNonContributing(subject.name) ? 0 : subject.level;
@@ -310,7 +308,10 @@ const EnhancedAPSCalculatorV2 = ({
             <h3 className="text-lg font-semibold">Your Subjects</h3>
             <div className="grid gap-4">
               {subjects.map((subject, index) => (
-                <div key={`subject-${index}-${subject.name}`} className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3 p-2 border rounded-lg">
+                <div
+                  key={`subject-${index}-${subject.name}`}
+                  className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3 p-2 border rounded-lg"
+                >
                   <div className="flex-1 w-full">
                     <Select
                       value={subject.name}
@@ -328,7 +329,10 @@ const EnhancedAPSCalculatorV2 = ({
                               (sub, i) => i !== index && sub.name === s,
                             ),
                         ).map((subj, subjIndex) => (
-                          <SelectItem key={`subject-option-${index}-${subjIndex}-${subj}`} value={subj}>
+                          <SelectItem
+                            key={`subject-option-${index}-${subjIndex}-${subj}`}
+                            value={subj}
+                          >
                             {subj} {isLanguageSubject(subj) && "(Language)"}
                           </SelectItem>
                         ))}
@@ -483,7 +487,9 @@ const EnhancedAPSCalculatorV2 = ({
 
               {/* Filters */}
               <div className="space-y-3">
-                <h3 className="text-sm font-medium text-gray-700">Filter Results</h3>
+                <h3 className="text-sm font-medium text-gray-700">
+                  Filter Results
+                </h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                   <Select
                     value={universityFilter}
@@ -493,23 +499,36 @@ const EnhancedAPSCalculatorV2 = ({
                       <SelectValue placeholder="Filter by University" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem key="filter-university-all" value="all">All Universities</SelectItem>
+                      <SelectItem key="filter-university-all" value="all">
+                        All Universities
+                      </SelectItem>
                       {availableUniversities.map((uni) => (
-                        <SelectItem key={`filter-university-${uni.id}`} value={uni.id}>
+                        <SelectItem
+                          key={`filter-university-${uni.id}`}
+                          value={uni.id}
+                        >
                           {uni.name}
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
 
-                  <Select value={facultyFilter} onValueChange={setFacultyFilter}>
+                  <Select
+                    value={facultyFilter}
+                    onValueChange={setFacultyFilter}
+                  >
                     <SelectTrigger className="w-full">
                       <SelectValue placeholder="Filter by Faculty" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem key="filter-faculty-all" value="all">All Faculties</SelectItem>
+                      <SelectItem key="filter-faculty-all" value="all">
+                        All Faculties
+                      </SelectItem>
                       {availableFaculties.map((faculty, index) => (
-                        <SelectItem key={`filter-faculty-${index}-${faculty.replace(/\s+/g, '-').toLowerCase()}`} value={faculty}>
+                        <SelectItem
+                          key={`filter-faculty-${index}-${faculty.replace(/\s+/g, "-").toLowerCase()}`}
+                          value={faculty}
+                        >
                           {faculty}
                         </SelectItem>
                       ))}
@@ -524,25 +543,49 @@ const EnhancedAPSCalculatorV2 = ({
                       <SelectValue placeholder="Qualification Status" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem key="filter-qualification-all" value="all">All Programs</SelectItem>
-                      <SelectItem key="filter-qualification-qualify" value="qualify">I Qualify</SelectItem>
-                      <SelectItem key="filter-qualification-close" value="close">Close (≤5 APS)</SelectItem>
+                      <SelectItem key="filter-qualification-all" value="all">
+                        All Programs
+                      </SelectItem>
+                      <SelectItem
+                        key="filter-qualification-qualify"
+                        value="qualify"
+                      >
+                        I Qualify
+                      </SelectItem>
+                      <SelectItem
+                        key="filter-qualification-close"
+                        value="close"
+                      >
+                        Close (≤5 APS)
+                      </SelectItem>
                     </SelectContent>
                   </Select>
 
-                <Select
-                  value={sortBy}
-                  onValueChange={(value: string) => setSortBy(value as "aps" | "alphabetical")}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Sort by" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem key="filter-sort-aps" value="aps">APS Requirement</SelectItem>
-                    <SelectItem key="filter-sort-name" value="name">Program Name</SelectItem>
-                    <SelectItem key="filter-sort-university" value="university">University</SelectItem>
-                  </SelectContent>
-                </Select>
+                  <Select
+                    value={sortBy}
+                    onValueChange={(value: string) =>
+                      setSortBy(value as "aps" | "alphabetical")
+                    }
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Sort by" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem key="filter-sort-aps" value="aps">
+                        APS Requirement
+                      </SelectItem>
+                      <SelectItem key="filter-sort-name" value="name">
+                        Program Name
+                      </SelectItem>
+                      <SelectItem
+                        key="filter-sort-university"
+                        value="university"
+                      >
+                        University
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
 
               {/* Results */}
