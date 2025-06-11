@@ -452,11 +452,40 @@ const EnhancedAPSCalculatorV2 = ({
                 <Button
                   onClick={calculateResults}
                   disabled={contributingSubjectsCount < 6}
+                  className={
+                    contributingSubjectsCount >= 6
+                      ? "bg-green-600 hover:bg-green-700"
+                      : ""
+                  }
                 >
                   Calculate APS
                 </Button>
               </div>
             </div>
+
+            {/* Validation Messages */}
+            {contributingSubjectsCount < 6 && (
+              <Alert>
+                <Info className="h-4 w-4" />
+                <AlertDescription>
+                  You need at least 6 contributing subjects (excluding Life
+                  Orientation) to calculate your APS score. Add more subjects to
+                  continue.
+                </AlertDescription>
+              </Alert>
+            )}
+
+            {calculation && calculation.totalScore < 20 && showResults && (
+              <Alert className="border-orange-200 bg-orange-50">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>
+                  <strong>Low APS Score:</strong> Your APS score of{" "}
+                  {calculation.totalScore} may limit university options.
+                  Consider improving your marks or exploring bridging courses
+                  and TVET college programs.
+                </AlertDescription>
+              </Alert>
+            )}
           </div>
 
           {/* Results Section */}
