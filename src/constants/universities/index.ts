@@ -25,7 +25,10 @@ const ensureCompletePrograms = (universities: University[]): University[] => {
       totalDegrees < 100 ||
       university.faculties.length < 8
     ) {
-      const standardFaculties = generateStandardFaculties(university.name);
+      const standardFaculties = generateStandardFaculties(
+        university.name,
+        university.id,
+      );
 
       // Start with existing faculties
       const mergedFaculties = [...university.faculties];
