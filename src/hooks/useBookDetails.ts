@@ -23,7 +23,7 @@ export const useBookDetails = (bookId: string | undefined) => {
     }
   }, [bookId, loadBook]);
 
-  const loadBook = async () => {
+  const loadBook = useCallback(async () => {
     if (!bookId) return;
 
     setIsLoading(true);
@@ -64,7 +64,7 @@ export const useBookDetails = (bookId: string | undefined) => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [bookId]);
 
   const handleBuyNow = () => {
     if (!isAuthenticated) {
