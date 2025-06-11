@@ -113,7 +113,8 @@ const MobileListingsView = ({
             <p className="text-gray-500 mb-4">No active listings</p>
             <Button
               onClick={() => navigate("/create-listing")}
-              className="w-full bg-book-600 hover:bg-book-700 text-white"
+              className="w-full bg-book-600 hover:bg-book-700 text-white h-12"
+              size="lg"
             >
               Create Your First Listing
             </Button>
