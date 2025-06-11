@@ -131,7 +131,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
             const timeoutPromise = new Promise((_, reject) => {
               setTimeout(
                 () => reject(new Error("Profile fetch timeout")),
-                20000, // Increased timeout for better mobile support
+                45000, // Increased timeout to accommodate retry logic + network delays
               );
             });
 
