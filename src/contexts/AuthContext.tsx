@@ -99,7 +99,7 @@ function AuthProvider({ children }: { children: ReactNode }) {
   const isAdmin = profile?.isAdmin || false;
 
   // Safe error handler
-  const handleError = useCallback((error: any, context: string) => {
+  const handleError = useCallback((error: unknown, context: string) => {
     logError(`AuthContext - ${context}`, error);
   }, []);
 
