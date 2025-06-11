@@ -48,10 +48,11 @@ const StudyFilters = ({
             variant="ghost"
             size="sm"
             onClick={onClearFilters}
-            className="text-gray-500 hover:text-gray-700 px-2 py-1 h-8"
+            className="text-gray-500 hover:text-gray-700 min-h-[40px] px-3 text-sm"
           >
-            <X className="w-4 h-4 mr-1" />
-            Clear
+            <X className="w-4 h-4" />
+            <span className="hidden sm:inline ml-1">Clear</span>
+            <span className="sm:hidden sr-only">Clear filters</span>
           </Button>
         )}
       </div>
