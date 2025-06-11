@@ -183,7 +183,10 @@ const CreateListing = () => {
       }
 
       const createdBook = await createBook(bookData);
-      toast.success("Book listing created successfully! 🎉");
+      toast.success("Your book has been listed successfully!", {
+        description: "Students can now find and purchase your book.",
+        duration: 5000,
+      });
 
       // Handle first upload workflow
       try {
