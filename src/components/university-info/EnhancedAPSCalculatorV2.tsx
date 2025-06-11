@@ -484,7 +484,10 @@ const EnhancedAPSCalculatorV2 = ({
                       All Universities
                     </SelectItem>
                     {availableUniversities.map((uni) => (
-                      <SelectItem key={uni.id} value={uni.id}>
+                      <SelectItem
+                        key={`university-filter-${uni.id}`}
+                        value={uni.id}
+                      >
                         {uni.name}
                       </SelectItem>
                     ))}
