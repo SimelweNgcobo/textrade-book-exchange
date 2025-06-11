@@ -325,14 +325,14 @@ const EnhancedAPSCalculatorV2 = ({
                         {SOUTH_AFRICAN_SUBJECTS.filter(
                           (s) =>
                             !subjects.some(
-                              (sub, i) => i !== index && sub.name === s.name,
+                              (sub, i) => i !== index && sub.name === s,
                             ),
-                        ).map((subj) => (
+                        ).map((subj, subjIndex) => (
                           <SelectItem
-                            key={`subject-option-${subj.name}`}
-                            value={subj.name}
+                            key={`subject-option-${index}-${subjIndex}-${subj}`}
+                            value={subj}
                           >
-                            {subj.name} {subj.isLanguage && "(Language)"}
+                            {subj} {isLanguageSubject(subj) && "(Language)"}
                           </SelectItem>
                         ))}
                       </SelectContent>
