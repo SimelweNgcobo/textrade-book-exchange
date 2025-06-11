@@ -78,10 +78,17 @@ const ensureCompletePrograms = (universities: University[]): University[] => {
       const standardFaculties = generateStandardFaculties(university.name);
       const mergedFaculties = [...university.faculties];
 
-      // Add at least Commerce and Science faculties if missing
+      // Add essential faculties if missing
       const essentialFaculties = standardFaculties.filter(
         (f) =>
-          f.id === "commerce" || f.id === "science" || f.id === "humanities",
+          f.id === "commerce" ||
+          f.id === "science" ||
+          f.id === "humanities" ||
+          f.id === "engineering" ||
+          f.id === "health-sciences" ||
+          f.id === "education" ||
+          f.id === "law" ||
+          f.id === "information-technology",
       );
 
       essentialFaculties.forEach((essentialFaculty) => {
