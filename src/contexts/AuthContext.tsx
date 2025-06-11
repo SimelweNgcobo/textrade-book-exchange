@@ -137,7 +137,7 @@ function AuthProvider({ children }: { children: ReactNode }) {
               profilePromise,
               timeoutPromise,
             ]);
-            setProfile(userProfile as any);
+            setProfile(userProfile as UserProfile);
             console.log("[AuthContext] Profile loaded successfully");
 
             // Add login notification for authenticated users (non-blocking)
