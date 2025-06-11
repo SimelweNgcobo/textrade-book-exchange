@@ -35,7 +35,7 @@ const ActivityLog = () => {
 
   useEffect(() => {
     loadActivities();
-  }, [user]);
+  }, [user, loadActivities]);
 
   const loadActivities = async () => {
     if (!user) {
