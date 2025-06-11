@@ -233,8 +233,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
             if (session?.user) {
               // Create fallback profile with available session data
-              const isTimeoutError = profileError instanceof Error &&
-                (profileError.message.includes("timeout") || (profileError as any).isTimeout);
+              const isTimeoutError =
+                profileError instanceof Error &&
+                (profileError.message.includes("timeout") ||
+                  (profileError as any).isTimeout);
 
               const fallbackProfile = {
                 id: session.user.id,
@@ -266,40 +268,43 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
               const retryDelay = isTimeoutError ? 5000 : 1000;
 
               setTimeout(() => {
-                console.log("[AuthContext] Retrying profile fetch in background...");
+                console.log(
+                  "[AuthContext] Retrying profile fetch in background...",
+                );
                 fetchUserProfile(session.user)
                   .then((profile) => {
                     if (profile) {
                       setProfile(profile);
                       console.log(
-                      "[AuthContext] Background profile fetch successful",
-                    );
-                  }
-                })
-                .catch((bgError) => {
-                  console.warn(
-                    "[AuthContext] Background profile fetch failed (v2.0 - FIXED):",
-                    {
-                      message:
-                        bgError instanceof Error
-                          ? bgError.message
-                          : String(bgError),
-                      type:
-                        bgError instanceof Error
-                          ? bgError.constructor.name
-                          : typeof bgError,
-                      stack:
-                        bgError instanceof Error ? bgError.stack : undefined,
-                      timestamp: new Date().toISOString(),
-                    },
-                  );
-
-                  if (process.env.NODE_ENV === "development") {
+                        "[AuthContext] Background profile fetch successful",
+                      );
+                    }
+                  })
+                  .catch((bgError) => {
                     console.warn(
-                      "🔧 [AuthContext] VERIFICATION: Background fetch error also uses FIXED version",
+                      "[AuthContext] Background profile fetch failed (v2.0 - FIXED):",
+                      {
+                        message:
+                          bgError instanceof Error
+                            ? bgError.message
+                            : String(bgError),
+                        type:
+                          bgError instanceof Error
+                            ? bgError.constructor.name
+                            : typeof bgError,
+                        stack:
+                          bgError instanceof Error ? bgError.stack : undefined,
+                        timestamp: new Date().toISOString(),
+                      },
                     );
-                  }
-                });
+
+                    if (process.env.NODE_ENV === "development") {
+                      console.warn(
+                        "🔧 [AuthContext] VERIFICATION: Background fetch error also uses FIXED version",
+                      );
+                    }
+                  });
+              }, retryDelay);
             }
           }
         }
