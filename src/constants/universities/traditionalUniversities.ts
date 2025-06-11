@@ -5987,4 +5987,303 @@ export const TRADITIONAL_UNIVERSITIES: University[] = [
       },
     ],
   },
+
+  // Walter Sisulu University - COMPREHENSIVE STRUCTURE
+  {
+    id: "wsu",
+    name: "Walter Sisulu University",
+    abbreviation: "WSU",
+    fullName: "Walter Sisulu University (WSU)",
+    location: "Mthatha",
+    province: "Eastern Cape",
+    logo: "https://images.unsplash.com/photo-1607013251379-e6eecfffe234?w=80&h=80&fit=crop&crop=center",
+    overview:
+      "A comprehensive university committed to excellence in teaching, learning, research, and community engagement in the Eastern Cape region.",
+    website: "https://wsu.ac.za",
+    studentPortal: "https://student.wsu.ac.za",
+    admissionsContact: "admissions@wsu.ac.za",
+    establishedYear: 2005,
+    studentPopulation: 25000,
+    campuses: ["Mthatha", "Butterworth", "East London", "Komani"],
+    applicationInfo: {
+      isOpen: true,
+      openingDate: "1 April 2024",
+      closingDate: "30 September 2024",
+      academicYear: "2025",
+      applicationFee: "R200",
+      applicationMethod: "Online via WSU application portal",
+      lateApplications: {
+        available: true,
+        deadline: "31 October 2024",
+        additionalFee: "R150",
+      },
+    },
+    faculties: [
+      {
+        id: "engineering-built-environment-it",
+        name: "Faculty of Engineering, Built Environment and Information Technology",
+        description:
+          "Engineering, construction, and IT education with practical focus.",
+        degrees: [
+          {
+            id: "bsc-eng-civil",
+            name: "BSc Engineering (Civil)",
+            faculty:
+              "Engineering, Built Environment and Information Technology",
+            duration: "4 years",
+            apsRequirement: 32,
+            description:
+              "Civil engineering with infrastructure development focus.",
+            subjects: [
+              { name: "Mathematics", level: 6, isRequired: true },
+              { name: "Physical Sciences", level: 6, isRequired: true },
+              { name: "English", level: 5, isRequired: true },
+            ],
+            careerProspects: [
+              "Civil Engineer",
+              "Structural Engineer",
+              "Project Manager",
+              "Construction Manager",
+              "Infrastructure Planner",
+            ],
+          },
+          {
+            id: "bsc-information-technology",
+            name: "BSc Information Technology",
+            faculty:
+              "Engineering, Built Environment and Information Technology",
+            duration: "3 years",
+            apsRequirement: 28,
+            description:
+              "Information technology with practical software development.",
+            subjects: [
+              { name: "Mathematics", level: 5, isRequired: true },
+              { name: "English", level: 5, isRequired: true },
+            ],
+            careerProspects: [
+              "Software Developer",
+              "IT Analyst",
+              "Systems Administrator",
+              "Database Developer",
+              "IT Consultant",
+            ],
+          },
+        ],
+      },
+      {
+        id: "medicine-health-sciences",
+        name: "Faculty of Medicine & Health Sciences",
+        description:
+          "Medical and health sciences education with community health focus.",
+        degrees: [
+          {
+            id: "mbchb",
+            name: "Bachelor of Medicine and Bachelor of Surgery (MBChB)",
+            faculty: "Medicine & Health Sciences",
+            duration: "6 years",
+            apsRequirement: 38,
+            description:
+              "Medical degree with rural and community medicine focus.",
+            subjects: [
+              { name: "Life Sciences", level: 6, isRequired: true },
+              { name: "Physical Sciences", level: 6, isRequired: true },
+              { name: "Mathematics", level: 5, isRequired: true },
+              { name: "English", level: 5, isRequired: true },
+            ],
+            careerProspects: [
+              "Medical Doctor",
+              "Specialist Physician",
+              "Rural Health Practitioner",
+              "Community Health Specialist",
+              "Medical Researcher",
+            ],
+          },
+          {
+            id: "bns-nursing",
+            name: "Bachelor of Nursing Science",
+            faculty: "Medicine & Health Sciences",
+            duration: "4 years",
+            apsRequirement: 28,
+            description: "Professional nursing with community health emphasis.",
+            subjects: [
+              { name: "Life Sciences", level: 5, isRequired: true },
+              { name: "English", level: 5, isRequired: true },
+              { name: "Mathematics", level: 4, isRequired: true },
+            ],
+            careerProspects: [
+              "Professional Nurse",
+              "Community Health Nurse",
+              "Clinical Specialist",
+              "Nurse Manager",
+              "Public Health Nurse",
+            ],
+          },
+        ],
+      },
+      {
+        id: "management-public-administration",
+        name: "Faculty of Management and Public Administration Sciences",
+        description: "Business management and public administration education.",
+        degrees: [
+          {
+            id: "bcom-general",
+            name: "BCom General",
+            faculty: "Management and Public Administration Sciences",
+            duration: "3 years",
+            apsRequirement: 24,
+            description:
+              "General commerce degree with broad business foundation.",
+            subjects: [
+              { name: "Mathematics", level: 4, isRequired: true },
+              { name: "English", level: 5, isRequired: true },
+            ],
+            careerProspects: [
+              "Business Analyst",
+              "Management Trainee",
+              "Administrative Officer",
+              "Sales Manager",
+              "Business Consultant",
+            ],
+          },
+          {
+            id: "bpa-public-administration",
+            name: "Bachelor of Public Administration",
+            faculty: "Management and Public Administration Sciences",
+            duration: "3 years",
+            apsRequirement: 22,
+            description: "Public administration with governance focus.",
+            subjects: [{ name: "English", level: 5, isRequired: true }],
+            careerProspects: [
+              "Public Administrator",
+              "Government Official",
+              "Municipal Manager",
+              "Policy Analyst",
+              "Development Officer",
+            ],
+          },
+        ],
+      },
+      {
+        id: "education",
+        name: "Faculty of Education",
+        description:
+          "Teacher education with focus on rural and community development.",
+        degrees: [
+          {
+            id: "bed-foundation-phase",
+            name: "BEd Foundation Phase",
+            faculty: "Education",
+            duration: "4 years",
+            apsRequirement: 22,
+            description: "Teacher training for early childhood education.",
+            subjects: [
+              { name: "English", level: 4, isRequired: true },
+              { name: "Mathematics", level: 4, isRequired: true },
+            ],
+            careerProspects: [
+              "Foundation Phase Teacher",
+              "Early Childhood Educator",
+              "Primary School Teacher",
+              "Curriculum Developer",
+              "Educational Coordinator",
+            ],
+          },
+        ],
+      },
+      {
+        id: "law-humanities-social-sciences",
+        name: "Faculty of Law, Humanities and Social Sciences",
+        description:
+          "Legal education and humanities with African scholarship focus.",
+        degrees: [
+          {
+            id: "llb",
+            name: "Bachelor of Laws (LLB)",
+            faculty: "Law, Humanities and Social Sciences",
+            duration: "4 years",
+            apsRequirement: 28,
+            description: "Legal education with focus on African customary law.",
+            subjects: [{ name: "English", level: 5, isRequired: true }],
+            careerProspects: [
+              "Attorney",
+              "Advocate",
+              "Legal Advisor",
+              "Magistrate",
+              "Corporate Legal Counsel",
+            ],
+          },
+          {
+            id: "ba-social-work",
+            name: "BA Social Work",
+            faculty: "Law, Humanities and Social Sciences",
+            duration: "4 years",
+            apsRequirement: 24,
+            description: "Social work with community development focus.",
+            subjects: [{ name: "English", level: 4, isRequired: true }],
+            careerProspects: [
+              "Social Worker",
+              "Community Development Officer",
+              "Child Welfare Specialist",
+              "NGO Coordinator",
+              "Social Policy Researcher",
+            ],
+          },
+        ],
+      },
+      {
+        id: "economics-financial-sciences",
+        name: "Faculty of Economics and Financial Sciences",
+        description: "Economic and financial education with development focus.",
+        degrees: [
+          {
+            id: "bcom-accounting",
+            name: "BCom Accounting",
+            faculty: "Economics and Financial Sciences",
+            duration: "3 years",
+            apsRequirement: 26,
+            description:
+              "Accounting education with professional qualification focus.",
+            subjects: [
+              { name: "Mathematics", level: 5, isRequired: true },
+              { name: "English", level: 5, isRequired: true },
+            ],
+            careerProspects: [
+              "Chartered Accountant",
+              "Financial Manager",
+              "Auditor",
+              "Tax Consultant",
+              "Management Accountant",
+            ],
+          },
+        ],
+      },
+      {
+        id: "natural-sciences",
+        name: "Faculty of Natural Sciences",
+        description: "Science education with applied research focus.",
+        degrees: [
+          {
+            id: "bsc-chemistry",
+            name: "BSc Chemistry",
+            faculty: "Natural Sciences",
+            duration: "3 years",
+            apsRequirement: 28,
+            description: "Chemistry with applied research focus.",
+            subjects: [
+              { name: "Physical Sciences", level: 6, isRequired: true },
+              { name: "Mathematics", level: 5, isRequired: true },
+              { name: "English", level: 4, isRequired: true },
+            ],
+            careerProspects: [
+              "Chemist",
+              "Research Scientist",
+              "Quality Control Analyst",
+              "Environmental Scientist",
+              "Laboratory Manager",
+            ],
+          },
+        ],
+      },
+    ],
+  },
 ];
