@@ -1,24 +1,39 @@
 import { University, Faculty, Degree } from "@/types/university";
 
-// University ID mappings for the exclusion rules
+// University ID mappings for the exclusion rules - ALL 26 SA UNIVERSITIES
 const UNIVERSITY_MAPPINGS: Record<string, string> = {
+  // Traditional Universities (11)
   UCT: "uct",
-  UP: "up",
-  UWC: "uwc",
-  UNISA: "unisa",
-  UFH: "ufh",
-  UJ: "uj",
-  MUT: "mut",
-  RU: "ru",
-  SU: "stellenbosch",
   Wits: "wits",
-  TUT: "tut",
-  DUT: "dut", // Durban University of Technology
-  VUT: "vut",
-  WSU: "wsu",
-  SMU: "smu",
-  CUT: "cut",
+  SU: "stellenbosch",
+  UP: "up",
+  UKZN: "ukzn",
+  RU: "ru",
+  NWU: "nwu",
+  UFS: "ufs",
+  UWC: "uwc",
+  UFH: "ufh",
+  UL: "ul",
+
+  // Universities of Technology (6)
   CPUT: "cput",
+  DUT: "dut",
+  TUT: "tut",
+  VUT: "vut",
+  CUT: "cut",
+  MUT: "mut",
+
+  // Comprehensive Universities (6)
+  UJ: "uj",
+  UNIZULU: "unizulu",
+  WSU: "wsu",
+  UNIVEN: "univen",
+  UMP: "ump",
+  SPU: "sol",
+
+  // Specialized Universities (3)
+  UNISA: "unisa",
+  SMU: "smu",
 };
 
 // Reverse mapping for display purposes
