@@ -10,7 +10,7 @@ import {
   FORCE_COMPREHENSIVE_PROGRAMS,
 } from "./complete-programs-database";
 import { fixProgramFacultyAssignments } from "@/utils/programFacultyUtils";
-import { assignComprehensivePrograms } from "@/utils/comprehensiveProgramAssignment";
+import { assignComprehensivePrograms } from "@/utils/comprehensiveProgramRules";
 
 // Function to ensure all universities have complete programs
 const ensureCompletePrograms = (universities: University[]): University[] => {
