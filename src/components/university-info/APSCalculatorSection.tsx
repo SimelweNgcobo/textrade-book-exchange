@@ -194,7 +194,7 @@ const APSCalculatorSection = () => {
 
                           {/* Career Prospects */}
                           <div className="flex flex-wrap gap-1 mb-3">
-                            {eligible.degree.careerProspects
+                            {(eligible.degree.careerProspects || [])
                               .slice(0, 4)
                               .map((career, idx) => (
                                 <Badge
@@ -205,12 +205,15 @@ const APSCalculatorSection = () => {
                                   {career}
                                 </Badge>
                               ))}
-                            {eligible.degree.careerProspects.length > 4 && (
+                            {(eligible.degree.careerProspects?.length || 0) >
+                              4 && (
                               <Badge
                                 variant="secondary"
                                 className="text-xs bg-gray-100"
                               >
-                                +{eligible.degree.careerProspects.length - 4}{" "}
+                                +
+                                {(eligible.degree.careerProspects?.length ||
+                                  0) - 4}{" "}
                                 more
                               </Badge>
                             )}
