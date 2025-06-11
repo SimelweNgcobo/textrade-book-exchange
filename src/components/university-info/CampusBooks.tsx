@@ -313,12 +313,24 @@ const CampusBooks = ({
                 <SelectValue placeholder="Condition" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Conditions</SelectItem>
-                <SelectItem value="New">New</SelectItem>
-                <SelectItem value="Good">Good</SelectItem>
-                <SelectItem value="Better">Better</SelectItem>
-                <SelectItem value="Average">Average</SelectItem>
-                <SelectItem value="Below Average">Below Average</SelectItem>
+                <SelectItem key="all-conditions" value="all">
+                  All Conditions
+                </SelectItem>
+                <SelectItem key="new" value="New">
+                  New
+                </SelectItem>
+                <SelectItem key="good" value="Good">
+                  Good
+                </SelectItem>
+                <SelectItem key="better" value="Better">
+                  Better
+                </SelectItem>
+                <SelectItem key="average" value="Average">
+                  Average
+                </SelectItem>
+                <SelectItem key="below-average" value="Below Average">
+                  Below Average
+                </SelectItem>
               </SelectContent>
             </Select>
 
