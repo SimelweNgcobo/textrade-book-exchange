@@ -195,108 +195,113 @@ const FacultyDetail = () => {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              {faculty.degrees.length > 0 ? (
+              {faculty.degrees && faculty.degrees.length > 0 ? (
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  {faculty.degrees.map((degree, index) => (
-                    <Card
-                      key={`${universityId}-${facultyId}-${degree.id}-${index}`}
-                      className="cursor-pointer hover:shadow-lg transition-all duration-200 border-2 hover:border-book-300"
-                      onClick={() => handleCourseClick(degree.id)}
-                    >
-                      <CardHeader>
-                        <div className="flex items-start justify-between">
-                          <div className="flex-1">
-                            <CardTitle className="text-lg hover:text-book-600 transition-colors">
-                              {degree.name}
-                            </CardTitle>
-                            <div className="flex items-center space-x-3 mt-2">
-                              {degree.faculty && (
-                                <Badge
-                                  variant="secondary"
-                                  className="bg-book-50 text-book-700"
-                                >
-                                  {degree.faculty}
-                                </Badge>
-                              )}
-                              {degree.duration && (
-                                <div className="flex items-center text-sm text-gray-600">
-                                  <Clock className="w-4 h-4 mr-1" />
-                                  {degree.duration}
-                                </div>
-                              )}
-                              {degree.apsRequirement && (
-                                <div className="flex items-center text-sm text-gray-600">
-                                  <TrendingUp className="w-4 h-4 mr-1" />
-                                  APS: {degree.apsRequirement}
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                      </CardHeader>
-                      <CardContent>
-                        {degree.description && (
-                          <p className="text-gray-600 text-sm leading-relaxed mb-4">
-                            {degree.description}
-                          </p>
-                        )}
-
-                        {/* Career Prospects */}
-                        {degree.careerProspects &&
-                          degree.careerProspects.length > 0 && (
-                            <div className="mb-4">
-                              <h4 className="font-semibold text-sm text-gray-900 mb-2">
-                                Career Opportunities:
-                              </h4>
-                              <div className="flex flex-wrap gap-1">
-                                {degree.careerProspects
-                                  .slice(0, 3)
-                                  .map((career, idx) => (
-                                    <Badge
-                                      key={idx}
-                                      variant="outline"
-                                      className="text-xs"
-                                    >
-                                      {career}
-                                    </Badge>
-                                  ))}
-                                {degree.careerProspects.length > 3 && (
-                                  <Badge variant="outline" className="text-xs">
-                                    +{degree.careerProspects.length - 3} more
+                  {faculty.degrees
+                    .filter((degree) => degree && degree.id && degree.name)
+                    .map((degree, index) => (
+                      <Card
+                        key={`${universityId}-${facultyId}-${degree.id}-${index}`}
+                        className="cursor-pointer hover:shadow-lg transition-all duration-200 border-2 hover:border-book-300"
+                        onClick={() => handleCourseClick(degree.id)}
+                      >
+                        <CardHeader>
+                          <div className="flex items-start justify-between">
+                            <div className="flex-1">
+                              <CardTitle className="text-lg hover:text-book-600 transition-colors">
+                                {degree.name}
+                              </CardTitle>
+                              <div className="flex items-center space-x-3 mt-2">
+                                {degree.faculty && (
+                                  <Badge
+                                    variant="secondary"
+                                    className="bg-book-50 text-book-700"
+                                  >
+                                    {degree.faculty}
                                   </Badge>
+                                )}
+                                {degree.duration && (
+                                  <div className="flex items-center text-sm text-gray-600">
+                                    <Clock className="w-4 h-4 mr-1" />
+                                    {degree.duration}
+                                  </div>
+                                )}
+                                {degree.apsRequirement && (
+                                  <div className="flex items-center text-sm text-gray-600">
+                                    <TrendingUp className="w-4 h-4 mr-1" />
+                                    APS: {degree.apsRequirement}
+                                  </div>
                                 )}
                               </div>
                             </div>
+                          </div>
+                        </CardHeader>
+                        <CardContent>
+                          {degree.description && (
+                            <p className="text-gray-600 text-sm leading-relaxed mb-4">
+                              {degree.description}
+                            </p>
                           )}
 
-                        {/* Action Buttons */}
-                        <div className="flex space-x-2">
-                          <Button
-                            size="sm"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleCourseClick(degree.id);
-                            }}
-                            className="flex-1 bg-book-600 hover:bg-book-700 text-white"
-                          >
-                            View Details
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleViewBooks(degree.id);
-                            }}
-                            className="flex-1 border-book-200 text-book-600 hover:bg-book-50"
-                          >
-                            <BookOpen className="w-4 h-4 mr-1" />
-                            Books
-                          </Button>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
+                          {/* Career Prospects */}
+                          {degree.careerProspects &&
+                            degree.careerProspects.length > 0 && (
+                              <div className="mb-4">
+                                <h4 className="font-semibold text-sm text-gray-900 mb-2">
+                                  Career Opportunities:
+                                </h4>
+                                <div className="flex flex-wrap gap-1">
+                                  {degree.careerProspects
+                                    .slice(0, 3)
+                                    .map((career, idx) => (
+                                      <Badge
+                                        key={idx}
+                                        variant="outline"
+                                        className="text-xs"
+                                      >
+                                        {career}
+                                      </Badge>
+                                    ))}
+                                  {degree.careerProspects.length > 3 && (
+                                    <Badge
+                                      variant="outline"
+                                      className="text-xs"
+                                    >
+                                      +{degree.careerProspects.length - 3} more
+                                    </Badge>
+                                  )}
+                                </div>
+                              </div>
+                            )}
+
+                          {/* Action Buttons */}
+                          <div className="flex space-x-2">
+                            <Button
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleCourseClick(degree.id);
+                              }}
+                              className="flex-1 bg-book-600 hover:bg-book-700 text-white"
+                            >
+                              View Details
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleViewBooks(degree.id);
+                              }}
+                              className="flex-1 border-book-200 text-book-600 hover:bg-book-50"
+                            >
+                              <BookOpen className="w-4 h-4 mr-1" />
+                              Books
+                            </Button>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
                 </div>
               ) : (
                 <div className="text-center py-12">
