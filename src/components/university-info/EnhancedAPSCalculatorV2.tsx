@@ -509,9 +509,15 @@ const EnhancedAPSCalculatorV2 = ({
                     <SelectValue placeholder="Qualification Status" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">All Programs</SelectItem>
-                    <SelectItem value="qualify">I Qualify</SelectItem>
-                    <SelectItem value="close">Close (≤5 APS)</SelectItem>
+                    <SelectItem key="all-programs" value="all">
+                      All Programs
+                    </SelectItem>
+                    <SelectItem key="qualify" value="qualify">
+                      I Qualify
+                    </SelectItem>
+                    <SelectItem key="close" value="close">
+                      Close (≤5 APS)
+                    </SelectItem>
                   </SelectContent>
                 </Select>
 
