@@ -8,6 +8,7 @@ import {
   COMMON_DEGREE_TEMPLATES,
   FORCE_COMPREHENSIVE_PROGRAMS,
 } from "./complete-programs-database";
+import { fixProgramFacultyAssignments } from "@/utils/programFacultyUtils";
 
 // Function to ensure all universities have complete programs
 const ensureCompletePrograms = (universities: University[]): University[] => {
