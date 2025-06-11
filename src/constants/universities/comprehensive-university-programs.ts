@@ -2513,6 +2513,471 @@ export const EDUCATION_PROGRAMS: Degree[] = [
   },
 ];
 
+export const AGRICULTURE_PROGRAMS: Degree[] = [
+  // Faculty of Agriculture / Agricultural Sciences
+  {
+    id: "bsc-agriculture-animal-science",
+    name: "BSc Agriculture - Animal Science",
+    faculty: "Agriculture",
+    duration: "4 years",
+    apsRequirement: 30,
+    description: "Animal production, breeding, and livestock management.",
+    subjects: [
+      { name: "Life Sciences", level: 5, isRequired: true },
+      { name: "Mathematics", level: 4, isRequired: true },
+      { name: "English", level: 5, isRequired: true },
+    ],
+    careerProspects: [
+      "Animal Scientist",
+      "Livestock Manager",
+      "Animal Nutritionist",
+      "Veterinary Technician",
+      "Farm Manager",
+    ],
+  },
+  {
+    id: "bsc-agriculture-plant-production",
+    name: "BSc Agriculture - Plant Production",
+    faculty: "Agriculture",
+    duration: "4 years",
+    apsRequirement: 30,
+    description: "Crop production, plant breeding, and agronomy.",
+    subjects: [
+      { name: "Life Sciences", level: 5, isRequired: true },
+      { name: "Mathematics", level: 4, isRequired: true },
+      { name: "English", level: 5, isRequired: true },
+    ],
+    careerProspects: [
+      "Agronomist",
+      "Crop Specialist",
+      "Plant Breeder",
+      "Farm Manager",
+      "Agricultural Consultant",
+    ],
+  },
+  {
+    id: "bsc-soil-science",
+    name: "BSc Soil Science",
+    faculty: "Agriculture",
+    duration: "3 years",
+    apsRequirement: 30,
+    description: "Soil composition, fertility, and conservation.",
+    subjects: [
+      { name: "Life Sciences", level: 5, isRequired: true },
+      { name: "Physical Sciences", level: 4, isRequired: true },
+      { name: "Mathematics", level: 4, isRequired: true },
+      { name: "English", level: 5, isRequired: true },
+    ],
+    careerProspects: [
+      "Soil Scientist",
+      "Environmental Consultant",
+      "Agricultural Advisor",
+      "Research Scientist",
+      "Land Use Planner",
+    ],
+  },
+  {
+    id: "bcom-agricultural-economics",
+    name: "BCom Agricultural Economics",
+    faculty: "Agriculture",
+    duration: "3 years",
+    apsRequirement: 28,
+    description:
+      "Economic principles applied to agricultural production and markets.",
+    subjects: [
+      { name: "Mathematics", level: 5, isRequired: true },
+      { name: "English", level: 5, isRequired: true },
+      { name: "Economics", level: 4, isRequired: false },
+    ],
+    careerProspects: [
+      "Agricultural Economist",
+      "Farm Financial Advisor",
+      "Agricultural Policy Analyst",
+      "Commodity Trader",
+      "Rural Development Officer",
+    ],
+  },
+  {
+    id: "bsc-agricultural-extension",
+    name: "BSc Agricultural Extension",
+    faculty: "Agriculture",
+    duration: "4 years",
+    apsRequirement: 28,
+    description: "Technology transfer and farmer education.",
+    subjects: [
+      { name: "Life Sciences", level: 4, isRequired: true },
+      { name: "Mathematics", level: 4, isRequired: true },
+      { name: "English", level: 5, isRequired: true },
+    ],
+    careerProspects: [
+      "Extension Officer",
+      "Agricultural Advisor",
+      "Rural Development Worker",
+      "Training Coordinator",
+      "Project Manager",
+    ],
+  },
+  {
+    id: "bsc-horticulture",
+    name: "BSc Horticulture",
+    faculty: "Agriculture",
+    duration: "4 years",
+    apsRequirement: 30,
+    description: "Production of fruits, vegetables, and ornamental plants.",
+    subjects: [
+      { name: "Life Sciences", level: 5, isRequired: true },
+      { name: "Mathematics", level: 4, isRequired: true },
+      { name: "English", level: 5, isRequired: true },
+    ],
+    careerProspects: [
+      "Horticulturist",
+      "Garden Manager",
+      "Greenhouse Manager",
+      "Landscape Designer",
+      "Plant Propagator",
+    ],
+  },
+  {
+    id: "bsc-viticulture-oenology",
+    name: "BSc Viticulture and Oenology",
+    faculty: "Agriculture",
+    duration: "4 years",
+    apsRequirement: 32,
+    description: "Grape growing and wine making.",
+    subjects: [
+      { name: "Life Sciences", level: 5, isRequired: true },
+      { name: "Physical Sciences", level: 4, isRequired: true },
+      { name: "Mathematics", level: 4, isRequired: true },
+      { name: "English", level: 5, isRequired: true },
+    ],
+    careerProspects: [
+      "Viticulturist",
+      "Winemaker",
+      "Vineyard Manager",
+      "Wine Consultant",
+      "Wine Marketing Specialist",
+    ],
+  },
+  {
+    id: "bsc-food-science-technology",
+    name: "BSc Food Science and Technology",
+    faculty: "Agriculture",
+    duration: "4 years",
+    apsRequirement: 34,
+    description: "Food processing, safety, and product development.",
+    subjects: [
+      { name: "Life Sciences", level: 5, isRequired: true },
+      { name: "Physical Sciences", level: 5, isRequired: true },
+      { name: "Mathematics", level: 5, isRequired: true },
+      { name: "English", level: 5, isRequired: true },
+    ],
+    careerProspects: [
+      "Food Scientist",
+      "Food Technologist",
+      "Quality Control Manager",
+      "Product Development Specialist",
+      "Food Safety Inspector",
+    ],
+  },
+  {
+    id: "bsc-forestry",
+    name: "BSc Forestry",
+    faculty: "Agriculture",
+    duration: "4 years",
+    apsRequirement: 30,
+    description: "Forest management and conservation.",
+    subjects: [
+      { name: "Life Sciences", level: 5, isRequired: true },
+      { name: "Mathematics", level: 4, isRequired: true },
+      { name: "English", level: 5, isRequired: true },
+    ],
+    careerProspects: [
+      "Forester",
+      "Forest Manager",
+      "Conservation Officer",
+      "Timber Specialist",
+      "Environmental Consultant",
+    ],
+  },
+];
+
+export const VETERINARY_PROGRAMS: Degree[] = [
+  // Faculty of Veterinary Science
+  {
+    id: "bvsc-veterinary-science",
+    name: "BVSc Veterinary Science",
+    faculty: "Veterinary Science",
+    duration: "6 years",
+    apsRequirement: 38,
+    description: "Comprehensive veterinary medical education.",
+    subjects: [
+      { name: "Life Sciences", level: 6, isRequired: true },
+      { name: "Physical Sciences", level: 6, isRequired: true },
+      { name: "Mathematics", level: 5, isRequired: true },
+      { name: "English", level: 5, isRequired: true },
+    ],
+    careerProspects: [
+      "Veterinarian",
+      "Animal Health Specialist",
+      "Wildlife Veterinarian",
+      "Research Veterinarian",
+      "Veterinary Surgeon",
+    ],
+  },
+  {
+    id: "bsc-veterinary-nursing",
+    name: "BSc Veterinary Nursing",
+    faculty: "Veterinary Science",
+    duration: "4 years",
+    apsRequirement: 32,
+    description: "Veterinary nursing and animal care.",
+    subjects: [
+      { name: "Life Sciences", level: 5, isRequired: true },
+      { name: "Mathematics", level: 4, isRequired: true },
+      { name: "English", level: 5, isRequired: true },
+    ],
+    careerProspects: [
+      "Veterinary Nurse",
+      "Animal Care Technician",
+      "Veterinary Practice Manager",
+      "Animal Welfare Officer",
+      "Wildlife Care Specialist",
+    ],
+  },
+  {
+    id: "bsc-animal-health",
+    name: "BSc Animal Health",
+    faculty: "Veterinary Science",
+    duration: "3 years",
+    apsRequirement: 30,
+    description: "Animal health and disease prevention.",
+    subjects: [
+      { name: "Life Sciences", level: 5, isRequired: true },
+      { name: "Mathematics", level: 4, isRequired: true },
+      { name: "English", level: 5, isRequired: true },
+    ],
+    careerProspects: [
+      "Animal Health Technician",
+      "Livestock Health Advisor",
+      "Animal Welfare Inspector",
+      "Veterinary Sales Representative",
+      "Animal Health Researcher",
+    ],
+  },
+];
+
+export const THEOLOGY_PROGRAMS: Degree[] = [
+  // Faculty of Theology and Religious Studies
+  {
+    id: "bth-theology",
+    name: "BTh Theology",
+    faculty: "Theology",
+    duration: "4 years",
+    apsRequirement: 24,
+    description: "Theological studies and religious education.",
+    subjects: [
+      { name: "English", level: 5, isRequired: true },
+      { name: "Mathematics", level: 3, isRequired: true },
+    ],
+    careerProspects: [
+      "Minister",
+      "Pastor",
+      "Chaplain",
+      "Religious Education Teacher",
+      "Missionary",
+    ],
+  },
+  {
+    id: "bdiv-divinity",
+    name: "BDiv Divinity",
+    faculty: "Theology",
+    duration: "4 years",
+    apsRequirement: 26,
+    description: "Advanced theological and ministerial studies.",
+    subjects: [
+      { name: "English", level: 5, isRequired: true },
+      { name: "Mathematics", level: 3, isRequired: true },
+    ],
+    careerProspects: [
+      "Senior Pastor",
+      "Theological Educator",
+      "Church Administrator",
+      "Religious Counselor",
+      "Interfaith Leader",
+    ],
+  },
+];
+
+export const DESIGN_PROGRAMS: Degree[] = [
+  // Faculty of Design / Creative Arts
+  {
+    id: "bdes-graphic-design",
+    name: "BDes Graphic Design",
+    faculty: "Design",
+    duration: "3 years",
+    apsRequirement: 26,
+    description: "Visual communication and graphic design.",
+    subjects: [
+      { name: "English", level: 4, isRequired: true },
+      { name: "Visual Arts", level: 5, isRequired: false },
+    ],
+    careerProspects: [
+      "Graphic Designer",
+      "Creative Director",
+      "Brand Designer",
+      "Web Designer",
+      "Art Director",
+    ],
+  },
+  {
+    id: "bdes-industrial-design",
+    name: "BDes Industrial Design",
+    faculty: "Design",
+    duration: "4 years",
+    apsRequirement: 28,
+    description: "Product design and manufacturing.",
+    subjects: [
+      { name: "Mathematics", level: 4, isRequired: true },
+      { name: "English", level: 4, isRequired: true },
+      { name: "Visual Arts", level: 4, isRequired: false },
+    ],
+    careerProspects: [
+      "Industrial Designer",
+      "Product Designer",
+      "Design Engineer",
+      "User Experience Designer",
+      "Design Consultant",
+    ],
+  },
+  {
+    id: "bdes-fashion-design",
+    name: "BDes Fashion Design",
+    faculty: "Design",
+    duration: "3 years",
+    apsRequirement: 24,
+    description: "Fashion design and textile development.",
+    subjects: [
+      { name: "English", level: 4, isRequired: true },
+      { name: "Visual Arts", level: 4, isRequired: false },
+    ],
+    careerProspects: [
+      "Fashion Designer",
+      "Textile Designer",
+      "Fashion Stylist",
+      "Fashion Merchandiser",
+      "Fashion Consultant",
+    ],
+  },
+];
+
+export const MUSIC_PROGRAMS: Degree[] = [
+  // Faculty of Music and Performing Arts
+  {
+    id: "bmus-music",
+    name: "BMus Music",
+    faculty: "Music",
+    duration: "4 years",
+    apsRequirement: 24,
+    description: "Music theory, performance, and composition.",
+    subjects: [
+      { name: "English", level: 4, isRequired: true },
+      { name: "Music", level: 6, isRequired: false },
+    ],
+    careerProspects: [
+      "Musician",
+      "Music Teacher",
+      "Composer",
+      "Music Producer",
+      "Conductor",
+    ],
+  },
+  {
+    id: "ba-dance",
+    name: "BA Dance",
+    faculty: "Music",
+    duration: "3 years",
+    apsRequirement: 22,
+    description: "Dance performance and choreography.",
+    subjects: [
+      { name: "English", level: 4, isRequired: true },
+      { name: "Dramatic Arts", level: 4, isRequired: false },
+    ],
+    careerProspects: [
+      "Dancer",
+      "Choreographer",
+      "Dance Teacher",
+      "Dance Therapist",
+      "Performance Director",
+    ],
+  },
+];
+
+export const SPORTS_SCIENCE_PROGRAMS: Degree[] = [
+  // Faculty of Sports Science
+  {
+    id: "bsc-sports-science",
+    name: "BSc Sports Science",
+    faculty: "Sports Science",
+    duration: "3 years",
+    apsRequirement: 28,
+    description: "Exercise physiology and sports performance.",
+    subjects: [
+      { name: "Life Sciences", level: 5, isRequired: true },
+      { name: "Mathematics", level: 4, isRequired: true },
+      { name: "English", level: 5, isRequired: true },
+    ],
+    careerProspects: [
+      "Sports Scientist",
+      "Exercise Physiologist",
+      "Fitness Trainer",
+      "Sports Analyst",
+      "Athletic Performance Coach",
+    ],
+  },
+  {
+    id: "bcom-sports-management",
+    name: "BCom Sports Management",
+    faculty: "Sports Science",
+    duration: "3 years",
+    apsRequirement: 26,
+    description: "Sports business and facility management.",
+    subjects: [
+      { name: "Mathematics", level: 4, isRequired: true },
+      { name: "English", level: 5, isRequired: true },
+    ],
+    careerProspects: [
+      "Sports Manager",
+      "Event Manager",
+      "Sports Marketing Manager",
+      "Facility Manager",
+      "Sports Agent",
+    ],
+  },
+];
+
+export const SOCIAL_WORK_PROGRAMS: Degree[] = [
+  // Faculty of Social Work
+  {
+    id: "bsw-social-work",
+    name: "BSW Social Work",
+    faculty: "Social Work",
+    duration: "4 years",
+    apsRequirement: 26,
+    description: "Professional social work practice and community development.",
+    subjects: [
+      { name: "English", level: 5, isRequired: true },
+      { name: "Mathematics", level: 3, isRequired: true },
+    ],
+    careerProspects: [
+      "Social Worker",
+      "Community Development Officer",
+      "Child Protection Officer",
+      "Family Counselor",
+      "NGO Manager",
+    ],
+  },
+];
+
 export const INFORMATION_TECHNOLOGY_PROGRAMS: Degree[] = [
   // Faculty of Information Technology / Computer Science
   {
