@@ -56,7 +56,7 @@ const CampusBooks = ({
   const [selectedYear, setSelectedYear] = useState("");
   const [selectedCondition, setSelectedCondition] = useState("");
 
-  const loadBooks = async () => {
+  const loadBooks = useCallback(async () => {
     setIsLoading(true);
     try {
       const filters: {
