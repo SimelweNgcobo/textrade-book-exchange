@@ -76,14 +76,15 @@ export class ActivityService {
   /**
    * Enhanced error logging with detailed information
    */
-  private static logDetailedError(context: string, error: any) {
+  private static logDetailedError(context: string, error: unknown) {
     // Properly extract error information
+    const errorObj = error as Record<string, unknown>;
     const errorInfo = {
       errorType: typeof error,
-      errorMessage: error?.message || "No message",
-      errorCode: error?.code || "No code",
-      errorDetails: error?.details || "No details",
-      errorHint: error?.hint || "No hint",
+      errorMessage: errorObj?.message || "No message",
+      errorCode: errorObj?.code || "No code",
+      errorDetails: errorObj?.details || "No details",
+      errorHint: errorObj?.hint || "No hint",
       errorName: error?.name || "No name",
     };
 
