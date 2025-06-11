@@ -70,10 +70,16 @@ export const COMPLETE_TRADITIONAL_UNIVERSITIES: University[] = [
     ],
     applicationInfo: {
       isOpen: true,
-      openingDate: "April 1",
-      closingDate: "July 31",
+      openingDate: "1 March 2024",
+      closingDate: "31 July 2024",
       academicYear: "2025",
-      applicationMethod: "Online",
+      applicationFee: "R220",
+      applicationMethod: "Online via UCT Student Portal",
+      lateApplications: {
+        available: true,
+        deadline: "30 September 2024",
+        additionalFee: "R100",
+      },
     },
   },
   {
@@ -120,10 +126,16 @@ export const COMPLETE_TRADITIONAL_UNIVERSITIES: University[] = [
     ],
     applicationInfo: {
       isOpen: true,
-      openingDate: "April 1",
-      closingDate: "August 31",
+      openingDate: "1 April 2024",
+      closingDate: "30 September 2024",
       academicYear: "2025",
-      applicationMethod: "Online",
+      applicationFee: "R200",
+      applicationMethod: "Online via Wits Application Portal",
+      lateApplications: {
+        available: false,
+        deadline: "30 September 2024",
+        additionalFee: "N/A",
+      },
     },
   },
   {
@@ -182,10 +194,16 @@ export const COMPLETE_TRADITIONAL_UNIVERSITIES: University[] = [
     ],
     applicationInfo: {
       isOpen: true,
-      openingDate: "March 1",
-      closingDate: "August 31",
+      openingDate: "1 March 2024",
+      closingDate: "31 August 2024",
       academicYear: "2025",
-      applicationMethod: "Online",
+      applicationFee: "R200",
+      applicationMethod: "Online via SU Application Portal",
+      lateApplications: {
+        available: true,
+        deadline: "30 September 2024",
+        additionalFee: "R150",
+      },
     },
   },
   {
@@ -240,10 +258,16 @@ export const COMPLETE_TRADITIONAL_UNIVERSITIES: University[] = [
     ],
     applicationInfo: {
       isOpen: true,
-      openingDate: "April 1",
-      closingDate: "July 31",
+      openingDate: "1 April 2024",
+      closingDate: "31 July 2024",
       academicYear: "2025",
-      applicationMethod: "Online",
+      applicationFee: "R200",
+      applicationMethod: "Online via UP Student Portal",
+      lateApplications: {
+        available: true,
+        deadline: "30 September 2024",
+        additionalFee: "R100",
+      },
     },
   },
   {
