@@ -1,4 +1,4 @@
-import { University } from "@/types/university";
+import { University, Degree } from "@/types/university";
 import {
   ENGINEERING_PROGRAMS,
   HEALTH_SCIENCES_PROGRAMS,
