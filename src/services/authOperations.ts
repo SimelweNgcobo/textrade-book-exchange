@@ -170,7 +170,7 @@ export const createUserProfile = async (user: User): Promise<Profile> => {
     };
 
     // Use retry logic for profile creation as well
-    const result = await retryFetch(async () => {
+    const result = await retryWithBackoff(async () => {
       return await supabase
         .from("profiles")
         .insert([profileData])
