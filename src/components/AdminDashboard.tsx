@@ -126,7 +126,7 @@ const AdminDashboard = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
 
   const handleRetry = () => {
     setRetryCount((prev) => prev + 1);
