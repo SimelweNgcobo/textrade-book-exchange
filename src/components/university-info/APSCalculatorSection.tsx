@@ -245,13 +245,17 @@ const APSCalculatorSection = () => {
                       <div className="flex flex-wrap gap-2">
                         <Button
                           size="sm"
-                          onClick={() =>
-                            handleViewBooks(
-                              eligible.university.id,
-                              eligible.degree.id,
-                            )
+                          onClick={() => {
+                            const universityId = eligible.university?.id;
+                            const degreeId = eligible.degree?.id;
+                            if (universityId && degreeId) {
+                              handleViewBooks(universityId, degreeId);
+                            }
+                          }}
+                          disabled={
+                            !eligible.university?.id || !eligible.degree?.id
                           }
-                          className="bg-book-600 hover:bg-book-700 text-white"
+                          className="bg-book-600 hover:bg-book-700 text-white disabled:opacity-50"
                         >
                           <BookOpen className="w-4 h-4 mr-2" />
                           View Books
@@ -260,10 +264,14 @@ const APSCalculatorSection = () => {
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() =>
-                            handleViewUniversity(eligible.university.id)
-                          }
-                          className="border-book-200 text-book-600 hover:bg-book-50"
+                          onClick={() => {
+                            const universityId = eligible.university?.id;
+                            if (universityId) {
+                              handleViewUniversity(universityId);
+                            }
+                          }}
+                          disabled={!eligible.university?.id}
+                          className="border-book-200 text-book-600 hover:bg-book-50 disabled:opacity-50"
                         >
                           <ExternalLink className="w-4 h-4 mr-2" />
                           University Info
