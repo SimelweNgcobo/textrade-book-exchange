@@ -153,18 +153,53 @@ select {
 @media (min-width: 640px) {
   .mobile-grid {
     grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
   }
 }
 
 @media (min-width: 1024px) {
   .mobile-grid {
     grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
   }
 }
 
 @media (min-width: 1280px) {
   .mobile-grid {
     grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* Responsive container spacing */
+.mobile-container-padding {
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+@media (min-width: 640px) {
+  .mobile-container-padding {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .mobile-container-padding {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+}
+
+/* Fix grid layouts that are too aggressive on mobile */
+.responsive-grid-auto {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+
+@media (max-width: 640px) {
+  .responsive-grid-auto {
+    grid-template-columns: 1fr;
   }
 }
 
