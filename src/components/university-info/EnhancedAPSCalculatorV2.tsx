@@ -90,18 +90,25 @@ const EnhancedAPSCalculatorV2 = ({
       (s) => !isNonContributing(s.name) && s.marks > 0,
     );
 
+    // Require at least 6 contributing subjects for a valid calculation
     if (contributingSubjects.length >= 6) {
       const totalScore = contributingSubjects.reduce(
         (total, subject) => total + subject.points,
         0,
       );
 
-      // Get all degrees from all universities with validation
+      // Get all degrees from all universities with filtering
       const eligibleDegrees: EligibleDegree[] = [];
 
       ALL_SOUTH_AFRICAN_UNIVERSITIES.forEach((university) => {
         // Skip if university filter is active and doesn't match
         if (universityFilter !== "all" && university.id !== universityFilter) {
+          return;
+        }
+
+        // Ensure university has faculties
+        if (!university.faculties || university.faculties.length === 0) {
+          console.warn(`University ${university.name} has no faculties`);
           return;
         }
 
@@ -114,9 +121,21 @@ const EnhancedAPSCalculatorV2 = ({
             return;
           }
 
+          // Ensure faculty has degrees
+          if (!faculty.degrees || faculty.degrees.length === 0) {
+            return;
+          }
+
           faculty.degrees.forEach((degree) => {
-            // Note: University data already contains valid programs for each university
-            // No additional validation needed as the data structure ensures accuracy
+            // Validate degree has required properties
+            if (
+              !degree.id ||
+              !degree.name ||
+              typeof degree.apsRequirement !== "number"
+            ) {
+              console.warn(`Invalid degree data:`, degree);
+              return;
+            }
 
             const meetsRequirement = totalScore >= degree.apsRequirement;
             const apsGap = meetsRequirement
@@ -157,6 +176,18 @@ const EnhancedAPSCalculatorV2 = ({
         }
         return 0;
       });
+
+      // Debug information in development
+      if (import.meta.env.DEV) {
+        console.log(`APS Calculator Debug:`, {
+          totalScore,
+          contributingSubjects: contributingSubjects.length,
+          universitiesProcessed: ALL_SOUTH_AFRICAN_UNIVERSITIES.length,
+          totalPrograms: eligibleDegrees.length,
+          qualifyingPrograms: eligibleDegrees.filter((d) => d.meetsRequirement)
+            .length,
+        });
+      }
 
       return {
         subjects: contributingSubjects,
