@@ -72,9 +72,7 @@ const Profile = () => {
 
     try {
       setIsLoadingListings(true);
-      console.log("Loading books for user:", user.id);
       const books = await getUserBooks(user.id);
-      console.log("User books loaded:", books);
       const activeBooks = Array.isArray(books)
         ? books.filter((book) => !book.sold)
         : [];
@@ -164,7 +162,7 @@ const Profile = () => {
       toast.error("Book ID is missing");
       return;
     }
-    console.log("Navigating to edit book:", bookId);
+
     navigate(`/edit-book/${bookId}`);
   };
 
@@ -186,7 +184,6 @@ const Profile = () => {
     setDeletingBooks((prev) => new Set(prev).add(bookId));
 
     try {
-      console.log("Deleting book:", bookId);
       await deleteBook(bookId);
       toast.success("Book deleted successfully");
       await loadActiveListings();
