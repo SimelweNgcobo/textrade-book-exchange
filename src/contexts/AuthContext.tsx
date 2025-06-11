@@ -387,8 +387,6 @@ function AuthProvider({ children }: { children: ReactNode }) {
         // The auth state change handler will update the context
         return data;
       }
-    } catch (error: unknown) {
-      throw error;
     } finally {
       setIsLoading(false);
     }
