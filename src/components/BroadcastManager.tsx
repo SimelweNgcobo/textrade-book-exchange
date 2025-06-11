@@ -15,31 +15,36 @@ const BroadcastManager = () => {
     null,
   );
   const [showBroadcast, setShowBroadcast] = useState(false);
-  const [isAuthAvailable, setIsAuthAvailable] = useState(true);
+  const [authError, setAuthError] = useState<string | null>(null);
 
-  // Use a state to track auth availability and hooks
+  // Try to get auth context, but handle errors gracefully
   let authContext;
+  let hasAuthError = false;
+
   try {
     authContext = useAuth();
   } catch (error) {
-    console.warn("[BroadcastManager] Auth context not available:", {
-      message: error instanceof Error ? error.message : String(error),
-      timestamp: new Date().toISOString(),
-    });
-    // Set auth as unavailable but don't return early
+    hasAuthError = true;
     authContext = { user: null, isAuthenticated: false };
-    if (isAuthAvailable) {
-      setIsAuthAvailable(false);
+
+    // Set auth error state to display or log
+    if (!authError) {
+      console.warn("[BroadcastManager] Auth context not available:", {
+        message: error instanceof Error ? error.message : String(error),
+        timestamp: new Date().toISOString(),
+      });
+      setAuthError(error instanceof Error ? error.message : String(error));
     }
   }
 
   const { user, isAuthenticated } = authContext;
 
   useEffect(() => {
-    // Don't proceed if auth context is not available
-    if (!isAuthAvailable) {
+    // Don't proceed if auth context failed
+    if (hasAuthError) {
       return;
     }
+
     const checkForBroadcasts = async () => {
       try {
         const latestBroadcast = await getLatestBroadcast();
@@ -80,7 +85,7 @@ const BroadcastManager = () => {
 
     // Check for broadcasts on mount and when auth state changes
     checkForBroadcasts();
-  }, [isAuthenticated, user]);
+  }, [isAuthenticated, user, hasAuthError]);
 
   const handleDismiss = async () => {
     if (!currentBroadcast) return;
@@ -103,7 +108,8 @@ const BroadcastManager = () => {
     setCurrentBroadcast(null);
   };
 
-  if (!currentBroadcast || !showBroadcast) {
+  // Don't render anything if auth failed or no broadcast to show
+  if (hasAuthError || !currentBroadcast || !showBroadcast) {
     return null;
   }
 
