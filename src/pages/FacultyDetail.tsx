@@ -210,20 +210,26 @@ const FacultyDetail = () => {
                               {degree.name}
                             </CardTitle>
                             <div className="flex items-center space-x-3 mt-2">
-                              <Badge
-                                variant="secondary"
-                                className="bg-book-50 text-book-700"
-                              >
-                                {degree.faculty}
-                              </Badge>
-                              <div className="flex items-center text-sm text-gray-600">
-                                <Clock className="w-4 h-4 mr-1" />
-                                {degree.duration}
-                              </div>
-                              <div className="flex items-center text-sm text-gray-600">
-                                <TrendingUp className="w-4 h-4 mr-1" />
-                                APS: {degree.apsRequirement}
-                              </div>
+                              {degree.faculty && (
+                                <Badge
+                                  variant="secondary"
+                                  className="bg-book-50 text-book-700"
+                                >
+                                  {degree.faculty}
+                                </Badge>
+                              )}
+                              {degree.duration && (
+                                <div className="flex items-center text-sm text-gray-600">
+                                  <Clock className="w-4 h-4 mr-1" />
+                                  {degree.duration}
+                                </div>
+                              )}
+                              {degree.apsRequirement && (
+                                <div className="flex items-center text-sm text-gray-600">
+                                  <TrendingUp className="w-4 h-4 mr-1" />
+                                  APS: {degree.apsRequirement}
+                                </div>
+                              )}
                             </div>
                           </div>
                         </div>
