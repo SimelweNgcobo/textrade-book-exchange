@@ -139,7 +139,7 @@ const EnhancedModerationDashboard = () => {
     }
   }, [retryCount, handleError]);
 
-  const filterData = () => {
+  const filterData = useCallback(() => {
     if (activeTab === "suspended") {
       setFilteredData(suspendedUsers);
     } else if (activeTab === "all") {
@@ -147,7 +147,7 @@ const EnhancedModerationDashboard = () => {
     } else {
       setFilteredData(reports.filter((report) => report.status === activeTab));
     }
-  };
+  }, [activeTab, suspendedUsers, reports]);
 
   const handleUpdateReportStatus = async (
     reportId: string,
