@@ -364,7 +364,7 @@ export const generateStandardFaculties = (
             }
             return null;
           })
-          .filter(Boolean) as any[],
+          .filter(Boolean) as Degree[],
       }));
     }
   }
