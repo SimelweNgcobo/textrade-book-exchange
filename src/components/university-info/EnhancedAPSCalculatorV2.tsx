@@ -652,8 +652,26 @@ const EnhancedAPSCalculatorV2 = ({
                   <Alert>
                     <AlertCircle className="h-4 w-4" />
                     <AlertDescription>
-                      No programs match your current filters. Try adjusting your
-                      criteria.
+                      <div className="space-y-2">
+                        <p>
+                          <strong>
+                            No programs match your current filters.
+                          </strong>
+                        </p>
+                        <p>Try these adjustments:</p>
+                        <ul className="list-disc list-inside text-sm space-y-1">
+                          <li>Change qualification filter to "All Programs"</li>
+                          <li>Select "All Universities" and "All Faculties"</li>
+                          <li>
+                            If your APS is low, try the "Close (≤5 APS)" filter
+                            to see nearby options
+                          </li>
+                          <li>
+                            Consider improving your subject marks to increase
+                            your APS score
+                          </li>
+                        </ul>
+                      </div>
                     </AlertDescription>
                   </Alert>
                 ) : (
