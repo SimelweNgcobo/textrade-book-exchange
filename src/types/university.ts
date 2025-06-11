@@ -140,42 +140,27 @@ export interface UserSubmittedProgram {
 export interface StudyTip {
   id: string;
   title: string;
-  description: string;
-  category:
-    | "time-management"
-    | "study-techniques"
-    | "exam-prep"
-    | "motivation"
-    | "general";
-  difficulty: "beginner" | "intermediate" | "advanced";
-  tags: string[];
+  category: string;
+  difficulty: "Beginner" | "Intermediate" | "Advanced";
+  estimatedTime: string;
+  effectiveness?: number;
+  tags?: string[];
   content: string;
   author?: string;
-  isActive: boolean;
-  createdAt: string;
-  updatedAt: string;
 }
 
 export interface StudyResource {
   id: string;
   title: string;
   description: string;
-  type: "pdf" | "video" | "article" | "tool" | "template";
-  category:
-    | "study-guides"
-    | "time-management"
-    | "exam-prep"
-    | "research"
-    | "presentations";
-  url?: string;
-  downloadUrl?: string;
-  thumbnail?: string;
-  tags: string[];
-  isActive: boolean;
-  isFeatured: boolean;
-  author?: string;
-  createdAt: string;
-  updatedAt: string;
+  type: "pdf" | "video" | "website" | "tool" | "course";
+  category: string;
+  difficulty: "Beginner" | "Intermediate" | "Advanced";
+  url: string;
+  rating?: number;
+  provider?: string;
+  duration?: string;
+  tags?: string[];
 }
 
 export interface TimeTableEntry {
