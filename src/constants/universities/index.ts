@@ -132,6 +132,11 @@ let allUniversities = [
 // Ensure all universities have complete programs
 allUniversities = ensureCompletePrograms(allUniversities);
 
+// Fix program-faculty assignments to ensure proper categorization
+allUniversities = allUniversities.map((university) =>
+  fixProgramFacultyAssignments(university),
+);
+
 export const ALL_SOUTH_AFRICAN_UNIVERSITIES: University[] = allUniversities;
 
 // Test the university programs in development
