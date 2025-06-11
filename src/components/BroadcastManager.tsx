@@ -10,13 +10,14 @@ import { Broadcast } from "@/types/broadcast";
 import BroadcastDialog from "./BroadcastDialog";
 
 const BroadcastManager = () => {
-  // Always call hooks at the top level
+  // Always call all hooks at the top level
   const [currentBroadcast, setCurrentBroadcast] = useState<Broadcast | null>(
     null,
   );
   const [showBroadcast, setShowBroadcast] = useState(false);
+  const [isAuthAvailable, setIsAuthAvailable] = useState(true);
 
-  // Add safety check for context availability (useful during HMR)
+  // Use a state to track auth availability and hooks
   let authContext;
   try {
     authContext = useAuth();
@@ -25,12 +26,20 @@ const BroadcastManager = () => {
       message: error instanceof Error ? error.message : String(error),
       timestamp: new Date().toISOString(),
     });
-    return null;
+    // Set auth as unavailable but don't return early
+    authContext = { user: null, isAuthenticated: false };
+    if (isAuthAvailable) {
+      setIsAuthAvailable(false);
+    }
   }
 
   const { user, isAuthenticated } = authContext;
 
   useEffect(() => {
+    // Don't proceed if auth context is not available
+    if (!isAuthAvailable) {
+      return;
+    }
     const checkForBroadcasts = async () => {
       try {
         const latestBroadcast = await getLatestBroadcast();
