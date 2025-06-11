@@ -98,10 +98,11 @@ const Login = () => {
       await login(email, password);
       console.log("Login successful, navigating to home");
       navigate("/", { replace: true });
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Login error in component:", error);
 
-      const errorMessage = error?.message || "Login failed";
+      const errorMessage =
+        error instanceof Error ? error.message : "Login failed";
       setLoginError(errorMessage);
 
       // Determine error type for better UX
