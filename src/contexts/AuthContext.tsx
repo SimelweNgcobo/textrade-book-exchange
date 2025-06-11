@@ -148,7 +148,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
               });
             }
           } catch (profileError) {
-            console.error("[AuthContext] Profile fetch failed:", {
+            // Use proper error serialization to prevent [object Object] logging
+            const errorDetails = {
               message:
                 profileError instanceof Error
                   ? profileError.message
@@ -159,9 +160,14 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
                 profileError instanceof Error
                   ? profileError.constructor.name
                   : typeof profileError,
+              name:
+                profileError instanceof Error ? profileError.name : undefined,
               userAgent: navigator.userAgent,
               online: navigator.onLine,
-            });
+              timestamp: new Date().toISOString(),
+            };
+
+            console.error("[AuthContext] Profile fetch failed:", errorDetails);
 
             if (session?.user) {
               // Create fallback profile with available session data
