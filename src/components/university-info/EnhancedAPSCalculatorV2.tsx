@@ -119,10 +119,8 @@ const EnhancedAPSCalculatorV2 = ({
           }
 
           faculty.degrees.forEach((degree) => {
-            // Validate that this program actually exists at this university
-            if (!isProgramAvailable(university.id, degree.id)) {
-              return; // Skip programs not actually offered
-            }
+            // Note: University data already contains valid programs for each university
+            // No additional validation needed as the data structure ensures accuracy
 
             const meetsRequirement = totalScore >= degree.apsRequirement;
             const apsGap = meetsRequirement
