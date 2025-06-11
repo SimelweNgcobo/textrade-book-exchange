@@ -340,7 +340,9 @@ const UniversityProfile = () => {
 
                   <Button
                     variant="outline"
-                    onClick={() => navigate("/university-info?tool=aps")}
+                    onClick={() =>
+                      navigate("/university-info?tool=aps-calculator")
+                    }
                     className="w-full border-book-200 text-book-600 hover:bg-book-50"
                   >
                     <Search className="w-4 h-4 mr-2" />
