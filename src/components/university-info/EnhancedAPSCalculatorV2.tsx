@@ -531,9 +531,15 @@ const EnhancedAPSCalculatorV2 = ({
                     <SelectValue placeholder="Sort by" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="aps">APS Requirement</SelectItem>
-                    <SelectItem value="name">Program Name</SelectItem>
-                    <SelectItem value="university">University</SelectItem>
+                    <SelectItem key="aps" value="aps">
+                      APS Requirement
+                    </SelectItem>
+                    <SelectItem key="name" value="name">
+                      Program Name
+                    </SelectItem>
+                    <SelectItem key="university" value="university">
+                      University
+                    </SelectItem>
                   </SelectContent>
                 </Select>
               </div>
