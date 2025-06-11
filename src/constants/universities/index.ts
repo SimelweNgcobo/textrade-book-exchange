@@ -145,19 +145,29 @@ export const ALL_SOUTH_AFRICAN_UNIVERSITIES: University[] = allUniversities;
 
 // Test the university programs in development
 if (import.meta.env.DEV) {
-  console.log("=== University Programs Status (Fixed Faculty Assignments) ===");
+  console.log(
+    "=== University Programs Status (Comprehensive Assignment + Fixed Faculty Assignments) ===",
+  );
   allUniversities.forEach((university) => {
     const totalPrograms = university.faculties.reduce(
       (total, faculty) => total + faculty.degrees.length,
       0,
     );
     console.log(
-      `${university.name}: ${university.faculties.length} faculties, ${totalPrograms} programs`,
+      `${university.name} (${university.id}): ${university.faculties.length} faculties, ${totalPrograms} programs`,
     );
 
     // Show faculty breakdown for verification
     university.faculties.forEach((faculty) => {
       console.log(`  └─ ${faculty.name}: ${faculty.degrees.length} programs`);
+      if (faculty.degrees.length > 0) {
+        faculty.degrees.slice(0, 3).forEach((degree) => {
+          console.log(`      • ${degree.name} (APS: ${degree.apsRequirement})`);
+        });
+        if (faculty.degrees.length > 3) {
+          console.log(`      • ... and ${faculty.degrees.length - 3} more`);
+        }
+      }
     });
   });
 
