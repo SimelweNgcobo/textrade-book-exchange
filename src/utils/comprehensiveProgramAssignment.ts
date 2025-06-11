@@ -13,8 +13,12 @@ const UNIVERSITY_MAPPINGS: Record<string, string> = {
   SU: "stellenbosch",
   Wits: "wits",
   TUT: "tut",
-  DUT: "dur", // Durban University of Technology
+  DUT: "dut", // Durban University of Technology
   VUT: "vut",
+  WSU: "wsu",
+  SMU: "smu",
+  CUT: "cut",
+  CPUT: "cput",
 };
 
 // Reverse mapping for display purposes
