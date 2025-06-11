@@ -54,7 +54,7 @@ const EmailChangeDialog = ({
     }
   }, [isOpen, user, checkPendingChange]);
 
-  const checkPendingChange = async () => {
+  const checkPendingChange = useCallback(async () => {
     if (!user) return;
 
     setIsCheckingPending(true);
@@ -73,7 +73,7 @@ const EmailChangeDialog = ({
     } finally {
       setIsCheckingPending(false);
     }
-  };
+  }, [user]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
