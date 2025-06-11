@@ -168,37 +168,43 @@ const StudyResourcesPage = () => {
         </Tabs>
 
         {/* Quick Tips Section */}
-        <div className="mt-16 bg-white rounded-lg border shadow-sm p-8">
-          <h2 className="text-2xl font-bold mb-6 text-center">
+        <div className="mt-12 sm:mt-16 bg-white rounded-lg border shadow-sm p-4 sm:p-6 lg:p-8">
+          <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 text-center">
             Quick Study Tips
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-8">
             <div className="text-center">
-              <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Clock className="w-6 h-6 text-blue-600" />
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                <Clock className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600" />
               </div>
-              <h3 className="font-semibold mb-2">Use the Pomodoro Technique</h3>
-              <p className="text-sm text-gray-600">
+              <h3 className="font-semibold mb-2 text-sm sm:text-base">
+                Use the Pomodoro Technique
+              </h3>
+              <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">
                 Study for 25 minutes, then take a 5-minute break. Repeat 4
                 times, then take a longer break.
               </p>
             </div>
             <div className="text-center">
-              <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Target className="w-6 h-6 text-green-600" />
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                <Target className="w-5 h-5 sm:w-6 sm:h-6 text-green-600" />
               </div>
-              <h3 className="font-semibold mb-2">Practice Active Recall</h3>
-              <p className="text-sm text-gray-600">
+              <h3 className="font-semibold mb-2 text-sm sm:text-base">
+                Practice Active Recall
+              </h3>
+              <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">
                 Test yourself regularly instead of just re-reading notes. This
                 strengthens memory pathways.
               </p>
             </div>
             <div className="text-center">
-              <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <TrendingUp className="w-6 h-6 text-purple-600" />
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                <TrendingUp className="w-5 h-5 sm:w-6 sm:h-6 text-purple-600" />
               </div>
-              <h3 className="font-semibold mb-2">Space Out Your Learning</h3>
-              <p className="text-sm text-gray-600">
+              <h3 className="font-semibold mb-2 text-sm sm:text-base">
+                Space Out Your Learning
+              </h3>
+              <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">
                 Review material at increasing intervals: 1 day, 3 days, 1 week,
                 2 weeks, 1 month.
               </p>
