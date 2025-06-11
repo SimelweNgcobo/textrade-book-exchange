@@ -108,7 +108,7 @@ const APSCalculatorSection = () => {
       />
 
       {/* Results Section */}
-      {showResults && calculation && (
+      {showResults && calculation && calculation.eligibleDegrees && (
         <div className="space-y-6">
           {/* Summary */}
           <Card className="border-book-200">
