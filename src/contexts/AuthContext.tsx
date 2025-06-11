@@ -193,7 +193,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
             console.error(
               "[AuthContext] Profile fetch failed (v2.0 - FIXED):",
-              errorDetails,
+              JSON.stringify(errorDetails, null, 2),
             );
 
             // In development, provide additional debugging
