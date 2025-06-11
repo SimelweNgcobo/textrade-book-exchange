@@ -300,12 +300,37 @@ const ActivityLog = () => {
             value={activeTab}
             onValueChange={setActiveTab}
           >
-            <TabsList className="w-full grid grid-cols-5 mb-8">
-              <TabsTrigger value="all">All</TabsTrigger>
-              <TabsTrigger value="purchases">Purchases</TabsTrigger>
-              <TabsTrigger value="sales">Sales</TabsTrigger>
-              <TabsTrigger value="listings">Listings</TabsTrigger>
-              <TabsTrigger value="social">Social</TabsTrigger>
+            <TabsList className="w-full grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 mb-8 h-auto overflow-x-auto">
+              <TabsTrigger
+                value="all"
+                className="min-w-0 px-2 py-2 text-xs sm:text-sm"
+              >
+                All
+              </TabsTrigger>
+              <TabsTrigger
+                value="purchases"
+                className="min-w-0 px-2 py-2 text-xs sm:text-sm"
+              >
+                Purchases
+              </TabsTrigger>
+              <TabsTrigger
+                value="sales"
+                className="min-w-0 px-2 py-2 text-xs sm:text-sm"
+              >
+                Sales
+              </TabsTrigger>
+              <TabsTrigger
+                value="listings"
+                className="min-w-0 px-2 py-2 text-xs sm:text-sm"
+              >
+                Listings
+              </TabsTrigger>
+              <TabsTrigger
+                value="social"
+                className="min-w-0 px-2 py-2 text-xs sm:text-sm"
+              >
+                Social
+              </TabsTrigger>
             </TabsList>
 
             <TabsContent value={activeTab}>
