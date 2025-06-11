@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { useAuth } from "@/contexts/AuthContext";
 import {
   getLatestBroadcast,
   hasBroadcastBeenViewed,
@@ -9,42 +8,32 @@ import {
 import { Broadcast } from "@/types/broadcast";
 import BroadcastDialog from "./BroadcastDialog";
 
+// Create a safe wrapper for auth context
+const useSafeAuth = () => {
+  try {
+    // Dynamically import to avoid module dependency at build time
+    const { useAuth } = require("@/contexts/AuthContext");
+    return useAuth();
+  } catch (error) {
+    console.warn("[BroadcastManager] Auth context not available:", {
+      message: error instanceof Error ? error.message : String(error),
+      timestamp: new Date().toISOString(),
+    });
+    return { user: null, isAuthenticated: false };
+  }
+};
+
 const BroadcastManager = () => {
-  // Always call all hooks at the top level
+  // Always call all hooks at the top level - no conditional hook calls
   const [currentBroadcast, setCurrentBroadcast] = useState<Broadcast | null>(
     null,
   );
   const [showBroadcast, setShowBroadcast] = useState(false);
-  const [authError, setAuthError] = useState<string | null>(null);
 
-  // Try to get auth context, but handle errors gracefully
-  let authContext;
-  let hasAuthError = false;
-
-  try {
-    authContext = useAuth();
-  } catch (error) {
-    hasAuthError = true;
-    authContext = { user: null, isAuthenticated: false };
-
-    // Set auth error state to display or log
-    if (!authError) {
-      console.warn("[BroadcastManager] Auth context not available:", {
-        message: error instanceof Error ? error.message : String(error),
-        timestamp: new Date().toISOString(),
-      });
-      setAuthError(error instanceof Error ? error.message : String(error));
-    }
-  }
-
-  const { user, isAuthenticated } = authContext;
+  // Use the safe auth hook
+  const { user, isAuthenticated } = useSafeAuth();
 
   useEffect(() => {
-    // Don't proceed if auth context failed
-    if (hasAuthError) {
-      return;
-    }
-
     const checkForBroadcasts = async () => {
       try {
         const latestBroadcast = await getLatestBroadcast();
@@ -85,7 +74,7 @@ const BroadcastManager = () => {
 
     // Check for broadcasts on mount and when auth state changes
     checkForBroadcasts();
-  }, [isAuthenticated, user, hasAuthError]);
+  }, [isAuthenticated, user]);
 
   const handleDismiss = async () => {
     if (!currentBroadcast) return;
@@ -108,8 +97,8 @@ const BroadcastManager = () => {
     setCurrentBroadcast(null);
   };
 
-  // Don't render anything if auth failed or no broadcast to show
-  if (hasAuthError || !currentBroadcast || !showBroadcast) {
+  // Don't render anything if no broadcast to show
+  if (!currentBroadcast || !showBroadcast) {
     return null;
   }
 
