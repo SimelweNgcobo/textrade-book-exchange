@@ -6,6 +6,7 @@ import {
   generateStandardFaculties,
   UNIVERSITIES_NEEDING_PROGRAMS,
   COMMON_DEGREE_TEMPLATES,
+  FORCE_COMPREHENSIVE_PROGRAMS,
 } from "./complete-programs-database";
 
 // Function to ensure all universities have complete programs
