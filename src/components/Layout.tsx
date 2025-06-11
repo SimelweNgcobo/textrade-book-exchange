@@ -9,13 +9,19 @@ interface LayoutProps {
 
 const Layout = ({ children }: LayoutProps) => {
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
+    <div className="min-h-screen flex flex-col bg-gray-50 mobile-container">
       <Navbar />
-      <main className="flex-1 w-full">
-        <div className="w-full max-w-full overflow-x-hidden">{children}</div>
+      <main className="flex-1 w-full overflow-x-hidden">
+        <div className="w-full max-w-full">{children}</div>
       </main>
       <Footer />
-      <Toaster />
+      <Toaster
+        position="top-center"
+        toastOptions={{
+          className: "mobile-toast",
+          duration: 4000,
+        }}
+      />
     </div>
   );
 };
