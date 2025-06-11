@@ -124,6 +124,10 @@ const AdminDashboard = () => {
     }
   }, [handleError]);
 
+  useEffect(() => {
+    loadDashboardData();
+  }, [loadDashboardData]);
+
   const handleRetry = () => {
     setRetryCount((prev) => prev + 1);
     loadDashboardData();
