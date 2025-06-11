@@ -175,6 +175,7 @@ const UniversityProfile = () => {
               <UniversityApplicationInfo
                 applicationInfo={university.applicationInfo}
                 universityName={university.name}
+                universityAbbreviation={university.abbreviation}
                 website={university.website}
               />
 
