@@ -147,7 +147,7 @@ const FacultyDetail = () => {
                 </div>
                 <div>
                   <div className="text-2xl font-bold text-book-600">
-                    {faculty.degrees.length}
+                    {faculty.degrees ? faculty.degrees.length : 0}
                   </div>
                   <div className="text-gray-600">Programs Available</div>
                 </div>
