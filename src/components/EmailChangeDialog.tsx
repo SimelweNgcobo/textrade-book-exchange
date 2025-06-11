@@ -52,7 +52,7 @@ const EmailChangeDialog = ({
     if (isOpen && user) {
       checkPendingChange();
     }
-  }, [isOpen, user]);
+  }, [isOpen, user, checkPendingChange]);
 
   const checkPendingChange = async () => {
     if (!user) return;
