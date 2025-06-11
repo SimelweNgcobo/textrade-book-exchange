@@ -21,7 +21,7 @@ export const useBookDetails = (bookId: string | undefined) => {
       setError("Invalid book ID");
       setIsLoading(false);
     }
-  }, [bookId]);
+  }, [bookId, loadBook]);
 
   const loadBook = async () => {
     if (!bookId) return;
