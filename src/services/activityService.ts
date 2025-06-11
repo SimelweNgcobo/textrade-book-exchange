@@ -51,13 +51,14 @@ export class ActivityService {
   ): Record<string, unknown> | null {
     if (!error) return null;
 
+    const errorObj = error as Record<string, unknown>;
     return {
-      name: error.name,
-      message: error.message,
-      code: error.code,
-      details: error.details,
-      hint: error.hint,
-      stack: error.stack,
+      name: errorObj.name,
+      message: errorObj.message,
+      code: errorObj.code,
+      details: errorObj.details,
+      hint: errorObj.hint,
+      stack: errorObj.stack,
       type: typeof error,
       // Get all properties
       ...Object.getOwnPropertyNames(error).reduce((acc, key) => {
