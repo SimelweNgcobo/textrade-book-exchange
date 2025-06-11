@@ -57,11 +57,7 @@ import {
   validateSubjectMarks,
   getRecommendations,
 } from "@/utils/apsCalculation";
-import {
-  getUniversityPrograms,
-  isProgramAvailable,
-  getUniversityType,
-} from "@/constants/universities/university-specific-programs";
+import { getUniversityType } from "@/constants/universities/university-specific-programs";
 
 interface EnhancedAPSCalculatorV2Props {
   onCalculationComplete: (calculation: APSCalculation) => void;
