@@ -197,11 +197,16 @@ export const createUserProfile = async (user: User): Promise<Profile> => {
       is_admin: isAdmin, // Set admin flag during creation
     };
 
-    const { data: newProfile, error: createError } = await supabase
-      .from("profiles")
-      .insert([profileData])
-      .select("id, name, email, status, profile_picture_url, bio, is_admin")
-      .single();
+    // Use retry logic for profile creation as well
+    const result = await retryFetch(async () => {
+      return await supabase
+        .from("profiles")
+        .insert([profileData])
+        .select("id, name, email, status, profile_picture_url, bio, is_admin")
+        .single();
+    });
+
+    const { data: newProfile, error: createError } = result;
 
     if (createError) {
       logError("Error creating profile", createError);
