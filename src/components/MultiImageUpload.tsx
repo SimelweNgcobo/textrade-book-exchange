@@ -47,9 +47,11 @@ const MultiImageUpload = ({
         bookImages.frontCover,
         bookImages.backCover,
         bookImages.insidePages,
-      ].filter(Boolean);
+      ]
+        .filter(Boolean)
+        .slice(0, 3); // Limit to 3 images
     }
-    return (images || []) as string[];
+    return ((images || []) as string[]).slice(0, 3); // Limit to 3 images
   };
 
   // Convert array back to appropriate format
