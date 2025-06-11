@@ -9,6 +9,8 @@
 
 import StudyResourcesPage from "./study-resources/StudyResourcesPage";
 
+export default StudyResourcesPage;
+
 // Real, comprehensive study tips with detailed content
 const REAL_STUDY_TIPS: StudyTip[] = [
   {
