@@ -257,14 +257,51 @@ select {
   height: 100vh;
   max-height: 100vh;
   border-radius: 0;
+  width: 100vw;
 }
 
 @media (min-width: 640px) {
   .mobile-modal {
-    margin: 2rem;
+    margin: 1rem;
     height: auto;
-    max-height: calc(100vh - 4rem);
+    max-height: calc(100vh - 2rem);
     border-radius: 0.5rem;
+    width: auto;
+  }
+}
+
+@media (min-width: 768px) {
+  .mobile-modal {
+    margin: 2rem;
+    max-height: calc(100vh - 4rem);
+  }
+}
+
+/* Mobile toast styling */
+.mobile-toast {
+  max-width: calc(100vw - 2rem);
+  margin: 0 1rem;
+  font-size: 14px;
+}
+
+@media (min-width: 640px) {
+  .mobile-toast {
+    max-width: 400px;
+    margin: 0;
+    font-size: 16px;
+  }
+}
+
+/* Better modal backdrop on mobile */
+@media (max-width: 640px) {
+  [data-radix-popper-content-wrapper] {
+    padding: 0 !important;
+  }
+
+  [role="dialog"] {
+    margin: 0;
+    max-height: 100vh;
+    border-radius: 0;
   }
 }
 
