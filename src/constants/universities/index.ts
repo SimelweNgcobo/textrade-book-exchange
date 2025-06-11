@@ -9,6 +9,7 @@ import {
   FORCE_COMPREHENSIVE_PROGRAMS,
 } from "./complete-programs-database";
 import { fixProgramFacultyAssignments } from "@/utils/programFacultyUtils";
+import { assignComprehensivePrograms } from "@/utils/comprehensiveProgramAssignment";
 
 // Function to ensure all universities have complete programs
 const ensureCompletePrograms = (universities: University[]): University[] => {
@@ -131,6 +132,9 @@ let allUniversities = [
 
 // Ensure all universities have complete programs
 allUniversities = ensureCompletePrograms(allUniversities);
+
+// Apply comprehensive program assignment based on user specifications
+allUniversities = assignComprehensivePrograms(allUniversities);
 
 // Fix program-faculty assignments to ensure proper categorization
 allUniversities = allUniversities.map((university) =>
