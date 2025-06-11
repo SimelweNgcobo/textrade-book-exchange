@@ -151,44 +151,6 @@ const EnhancedModerationDashboard = () => {
     filterData();
   }, [reports, suspendedUsers, activeTab, filterData]);
 
-  const loadData = useCallback(async () => {
-    try {
-      setError(null);
-      setIsLoading(true);
-
-      const data: ModerationData = await loadModerationData();
-      setReports(data.reports);
-      setSuspendedUsers(data.suspendedUsers);
-      setRetryCount(0); // Reset retry count on success
-    } catch (error) {
-      const errorMessage =
-        error instanceof Error
-          ? error.message
-          : "Failed to load moderation data";
-      console.error("Error loading moderation data:", error);
-      setError(errorMessage);
-
-      // Only show toast for user if not a retry
-      if (retryCount === 0) {
-        handleError(error, "Load Moderation Data");
-      }
-
-      setRetryCount((prev) => prev + 1);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [retryCount, handleError]);
-
-  const filterData = useCallback(() => {
-    if (activeTab === "suspended") {
-      setFilteredData(suspendedUsers);
-    } else if (activeTab === "all") {
-      setFilteredData(reports);
-    } else {
-      setFilteredData(reports.filter((report) => report.status === activeTab));
-    }
-  }, [activeTab, suspendedUsers, reports]);
-
   const handleUpdateReportStatus = async (
     reportId: string,
     status: "resolved" | "dismissed",
