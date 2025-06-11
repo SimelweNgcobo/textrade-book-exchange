@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -57,7 +56,7 @@ const Register = () => {
           },
         });
       }, 2000);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Registration error in component:", error);
       // Error is already handled in the register function
     } finally {
