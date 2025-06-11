@@ -2,6 +2,11 @@ import { User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { isAdminUser } from "@/services/admin/adminAuthService";
 import { logError, getErrorMessage } from "@/utils/errorUtils";
+import {
+  retryWithBackoff,
+  logNetworkError,
+  getNetworkStatus,
+} from "@/utils/networkUtils";
 
 export interface Profile {
   id: string;
