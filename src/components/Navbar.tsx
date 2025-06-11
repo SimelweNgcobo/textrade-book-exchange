@@ -111,12 +111,9 @@ const Navbar = () => {
                 </Link>
 
                 <Link to="/create-listing">
-                  <Button
-                    size="sm"
-                    className="bg-book-600 hover:bg-book-700 text-white"
-                  >
-                    <Plus className="w-4 h-4 mr-1" />
-                    Sell Book
+                  <Button className="bg-book-600 hover:bg-book-700 text-white px-4 h-10">
+                    <Plus className="w-4 h-4" />
+                    <span className="ml-2">Sell Book</span>
                   </Button>
                 </Link>
 
@@ -124,11 +121,10 @@ const Navbar = () => {
                   <Link to="/profile">
                     <Button
                       variant="ghost"
-                      size="sm"
-                      className="text-gray-700 hover:text-book-600"
+                      className="text-gray-700 hover:text-book-600 px-3 h-10"
                     >
-                      <User className="w-4 h-4 mr-1" />
-                      Profile
+                      <User className="w-4 h-4" />
+                      <span className="ml-2">Profile</span>
                     </Button>
                   </Link>
 
@@ -136,9 +132,9 @@ const Navbar = () => {
 
                   <Button
                     variant="ghost"
-                    size="sm"
                     onClick={handleLogout}
-                    className="text-gray-700 hover:text-red-600"
+                    className="text-gray-700 hover:text-red-600 px-3 h-10 min-w-[44px]"
+                    aria-label="Logout"
                   >
                     <LogOut className="w-4 h-4" />
                   </Button>
