@@ -439,7 +439,7 @@ const CourseDetail = () => {
                   <div className="flex items-center justify-between">
                     <span className="text-gray-600">Career Options</span>
                     <span className="font-semibold">
-                      {course.careerProspects.length}+
+                      {(course.careerProspects || []).length}+
                     </span>
                   </div>
                 </CardContent>
