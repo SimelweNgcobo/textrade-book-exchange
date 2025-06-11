@@ -51,10 +51,6 @@ const AdminDashboard = () => {
   const [broadcastMessage, setBroadcastMessage] = useState("");
   const [retryCount, setRetryCount] = useState(0);
 
-  useEffect(() => {
-    loadDashboardData();
-  }, [loadDashboardData]);
-
   const loadDashboardData = useCallback(async () => {
     setIsLoading(true);
     setError(null);
