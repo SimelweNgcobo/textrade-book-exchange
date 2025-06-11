@@ -453,51 +453,11 @@ export const generateStandardFaculties = (
   ];
 };
 
-// Universities that need program completion - all South African universities will be enhanced
+// Universities that need VERIFIED program completion - only for universities with insufficient programs
+// Only add verified programs that actually exist at these universities
 export const UNIVERSITIES_NEEDING_PROGRAMS = [
-  "univen",
-  "ul",
-  "ump",
-  "spu",
-  "smu",
-  "wsu",
-  "unizulu",
-  "cput",
-  "dut",
-  "tut",
-  "vut",
-  "cut",
-  "mut",
-  "ufs",
-  "uwc",
-  "ufh",
-  "nmu",
-  "uj",
-  "unisa",
-  "uct",
-  "wits",
-  "up",
-  "ukzn",
-  "sun",
-  "nwu",
-  "ufs",
-  "ru",
-  "nmu",
-  "ufh",
-  "uwc",
-  "cput",
-  "dut",
-  "tut",
-  "vut",
-  "cut",
-  "mut",
-  "univen",
-  "ul",
-  "ump",
-  "spu",
-  "smu",
-  "wsu",
-  "unizulu",
+  // Only universities that truly have fewer than 50 programs and need enhancement
+  // Each program must be verified against the university's official offerings
 ];
 
 // Force comprehensive program updates for all universities
