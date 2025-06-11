@@ -176,11 +176,13 @@ const UniversityGrid = ({
                 <SelectValue placeholder="All Types" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Types</SelectItem>
-                <SelectItem value="traditional">
+                <SelectItem key="all-types" value="all">
+                  All Types
+                </SelectItem>
+                <SelectItem key="traditional" value="traditional">
                   Traditional Universities
                 </SelectItem>
-                <SelectItem value="technology">
+                <SelectItem key="technology" value="technology">
                   Universities of Technology
                 </SelectItem>
               </SelectContent>
