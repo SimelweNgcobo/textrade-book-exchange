@@ -90,15 +90,6 @@ const BookActions = ({
               <User className="mr-2 h-4 w-4" />
               Share Listings
             </Button>
-            <Button
-              onClick={onShare}
-              variant="outline"
-              className="w-full"
-              size="sm"
-            >
-              <Share2 className="mr-2 h-4 w-4" />
-              Share Book
-            </Button>
           </div>
         </div>
       </CardContent>

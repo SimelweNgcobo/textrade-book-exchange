@@ -272,19 +272,24 @@ const Login = () => {
 
   return (
     <Layout>
-      <div className="min-h-[80vh] flex items-center justify-center px-4">
+      <div className="min-h-[80vh] flex items-center justify-center px-4 py-8">
         <div className="w-full max-w-md">
           {renderErrorCard()}
 
-          <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+          <div className="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
             <div className="p-6 sm:p-8">
-              <h1 className="text-2xl font-bold text-center text-gray-800 mb-6">
+              <h1 className="text-2xl font-bold text-center text-gray-800 mb-8">
                 Login to ReBooked Solutions
               </h1>
 
-              <form onSubmit={handleSubmit} className="space-y-4">
+              <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
+                  <Label
+                    htmlFor="email"
+                    className="text-sm font-medium text-gray-700"
+                  >
+                    Email
+                  </Label>
                   <div className="relative">
                     <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
                       <Mail className="h-5 w-5 text-gray-400" />
@@ -293,7 +298,7 @@ const Login = () => {
                       id="email"
                       type="email"
                       placeholder="you@example.com"
-                      className="pl-10"
+                      className="pl-10 h-12 border-gray-300 focus:border-book-500 focus:ring-book-500 rounded-lg"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       required
@@ -304,10 +309,15 @@ const Login = () => {
 
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <Label htmlFor="password">Password</Label>
+                    <Label
+                      htmlFor="password"
+                      className="text-sm font-medium text-gray-700"
+                    >
+                      Password
+                    </Label>
                     <Link
                       to="/forgot-password"
-                      className="text-sm text-book-600 hover:text-book-800"
+                      className="text-sm text-book-600 hover:text-book-800 font-medium transition-colors"
                     >
                       Forgot password?
                     </Link>
@@ -320,7 +330,7 @@ const Login = () => {
                       id="password"
                       type="password"
                       placeholder="••••••••"
-                      className="pl-10"
+                      className="pl-10 h-12 border-gray-300 focus:border-book-500 focus:ring-book-500 rounded-lg"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       required
@@ -331,7 +341,7 @@ const Login = () => {
 
                 <Button
                   type="submit"
-                  className="w-full bg-book-600 hover:bg-book-700"
+                  className="w-full h-12 bg-book-600 hover:bg-book-700 text-white font-medium rounded-lg transition-colors"
                   disabled={isLoading}
                 >
                   {isLoading ? (
@@ -345,12 +355,12 @@ const Login = () => {
                 </Button>
               </form>
 
-              <div className="mt-6 text-center text-sm">
-                <p className="text-gray-600">
+              <div className="mt-8 text-center">
+                <p className="text-sm text-gray-600">
                   Don't have an account?{" "}
                   <Link
                     to="/register"
-                    className="text-book-600 hover:text-book-800 font-medium"
+                    className="text-book-600 hover:text-book-800 font-medium transition-colors"
                   >
                     Sign up
                   </Link>

@@ -262,20 +262,7 @@ const UniversityGrid = ({
 
                 <div className="flex items-center space-x-2 mt-3">
                   <MapPin className="w-4 h-4 text-gray-400" />
-                  <Button
-                    variant="default"
-                    size="sm"
-                    className="flex-1 text-xs bg-book-600 hover:bg-book-700 text-white"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      const listingsUrl = `${window.location.origin}/books?university=${university.id}`;
-                      navigator.clipboard.writeText(listingsUrl);
-                      // You could add a toast notification here
-                      alert("Listings link copied to clipboard!");
-                    }}
-                  >
-                    Share Listings
-                  </Button>
+
                   <Badge
                     variant="secondary"
                     className="bg-book-50 text-book-700 text-xs"
