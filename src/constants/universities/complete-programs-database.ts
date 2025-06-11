@@ -1,4 +1,15 @@
 import { University } from "@/types/university";
+import {
+  ENGINEERING_PROGRAMS,
+  HEALTH_SCIENCES_PROGRAMS,
+  HUMANITIES_PROGRAMS,
+  COMMERCE_PROGRAMS,
+  LAW_PROGRAMS,
+  SCIENCE_PROGRAMS,
+  EDUCATION_PROGRAMS,
+  INFORMATION_TECHNOLOGY_PROGRAMS,
+  getAllProgramsByFaculty,
+} from "./comprehensive-university-programs";
 
 // This file contains the complete programs for universities that need more comprehensive degree offerings
 
