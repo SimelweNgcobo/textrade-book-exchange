@@ -177,19 +177,26 @@ const APSCalculatorSection = () => {
                           </div>
                           <div className="flex items-center space-x-4 text-sm text-gray-600 mb-2">
                             <span className="font-medium">
-                              {eligible.university.abbreviation}
+                              {eligible.university?.abbreviation ||
+                                eligible.university?.name ||
+                                "Unknown University"}
                             </span>
                             <span>•</span>
-                            <span>{eligible.degree.faculty}</span>
+                            <span>
+                              {eligible.degree?.faculty || "Unknown Faculty"}
+                            </span>
                             <span>•</span>
-                            <span>{eligible.degree.duration}</span>
+                            <span>
+                              {eligible.degree?.duration || "Unknown Duration"}
+                            </span>
                             <span>•</span>
                             <span className="text-book-600 font-medium">
-                              APS: {eligible.degree.apsRequirement}
+                              APS: {eligible.degree?.apsRequirement || "N/A"}
                             </span>
                           </div>
                           <p className="text-sm text-gray-600 leading-relaxed mb-3">
-                            {eligible.degree.description}
+                            {eligible.degree?.description ||
+                              "No description available."}
                           </p>
 
                           {/* Career Prospects */}
