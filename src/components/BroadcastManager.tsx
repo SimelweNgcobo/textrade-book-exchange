@@ -10,6 +10,12 @@ import { Broadcast } from "@/types/broadcast";
 import BroadcastDialog from "./BroadcastDialog";
 
 const BroadcastManager = () => {
+  // Always call hooks at the top level
+  const [currentBroadcast, setCurrentBroadcast] = useState<Broadcast | null>(
+    null,
+  );
+  const [showBroadcast, setShowBroadcast] = useState(false);
+
   // Add safety check for context availability (useful during HMR)
   let authContext;
   try {
@@ -23,10 +29,6 @@ const BroadcastManager = () => {
   }
 
   const { user, isAuthenticated } = authContext;
-  const [currentBroadcast, setCurrentBroadcast] = useState<Broadcast | null>(
-    null,
-  );
-  const [showBroadcast, setShowBroadcast] = useState(false);
 
   useEffect(() => {
     const checkForBroadcasts = async () => {
