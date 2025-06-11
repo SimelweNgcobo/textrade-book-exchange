@@ -125,6 +125,32 @@ const EnhancedModerationDashboard = () => {
     }
   }, [loadData]);
 
+  const filterData = useCallback(() => {
+    if (activeTab === "suspended") {
+      setFilteredData(suspendedUsers);
+    } else if (activeTab === "all") {
+      setFilteredData(reports);
+    } else {
+      setFilteredData(reports.filter((report) => report.status === activeTab));
+    }
+  }, [activeTab, suspendedUsers, reports]);
+
+  // useEffect hooks after function definitions
+  useEffect(() => {
+    loadData();
+    // Don't set up realtime subscription immediately to avoid overload
+    const timer = setTimeout(() => {
+      loadData();
+      setupRealtimeSubscription();
+    }, 2000);
+
+    return () => clearTimeout(timer);
+  }, [loadData, setupRealtimeSubscription]);
+
+  useEffect(() => {
+    filterData();
+  }, [reports, suspendedUsers, activeTab, filterData]);
+
   const loadData = useCallback(async () => {
     try {
       setError(null);
