@@ -1,7 +1,12 @@
 import { CourseTemplate } from "./courseAssignmentSystem";
 
 // Helper function to parse assignment rules
-function parseRule(ruleText: string): any {
+interface AssignmentRule {
+  type: "all" | "exclude" | "include_only";
+  universities?: string[];
+}
+
+function parseRule(ruleText: string): AssignmentRule {
   if (
     ruleText.includes("all") &&
     !ruleText.includes("except") &&
