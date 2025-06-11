@@ -78,7 +78,10 @@ const ensureCompletePrograms = (universities: University[]): University[] => {
 
     // Even for universities with enough programs, ensure minimum faculty count
     if (university.faculties.length < 8) {
-      const standardFaculties = generateStandardFaculties(university.name);
+      const standardFaculties = generateStandardFaculties(
+        university.name,
+        university.id,
+      );
       const mergedFaculties = [...university.faculties];
 
       // Add essential faculties if missing
