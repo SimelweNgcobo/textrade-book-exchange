@@ -12,9 +12,10 @@ import { University } from "@/types/university";
  * Key corrections made:
  * - University of Zululand: 4 distinct faculties (Science/Agriculture/Engineering, Humanities/Social Sciences, Commerce/Administration/Law, Education)
  * - University of Johannesburg: 7 distinct faculties (Engineering, Health Sciences, Science, Humanities, Economic/Financial Sciences, Law, Education)
- * - University of Western Cape: 6 distinct faculties (Natural Sciences, Community/Health Sciences, Arts, Economic/Management Sciences, Law, Education)
+ * - UWC correctly moved to Traditional Universities (not comprehensive)
  * - Each program is now correctly assigned to its actual faculty
  * - Faculty names match official university structures
+ * - Duplicate university entries eliminated
  */
 
 export const COMPREHENSIVE_UNIVERSITIES: University[] = [
