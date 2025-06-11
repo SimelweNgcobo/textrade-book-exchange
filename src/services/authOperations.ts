@@ -62,16 +62,53 @@ export const logoutUser = async () => {
   console.log("Logout successful");
 };
 
+const retryFetch = async <T>(
+  operation: () => Promise<T>,
+  maxRetries: number = 3,
+  delay: number = 1000,
+): Promise<T> => {
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      return await operation();
+    } catch (error) {
+      if (attempt === maxRetries) {
+        throw error;
+      }
+
+      // Only retry on network errors
+      if (
+        error instanceof Error &&
+        (error.message.includes("Failed to fetch") ||
+          error.message.includes("NetworkError") ||
+          error.message.includes("network"))
+      ) {
+        console.log(
+          `Network error, retrying attempt ${attempt + 1}/${maxRetries} in ${delay}ms...`,
+        );
+        await new Promise((resolve) => setTimeout(resolve, delay));
+        delay *= 2; // Exponential backoff
+      } else {
+        throw error; // Don't retry non-network errors
+      }
+    }
+  }
+  throw new Error("Max retries exceeded");
+};
+
 export const fetchUserProfile = async (user: User): Promise<Profile | null> => {
   try {
     console.log("Fetching profile for user:", user.id);
 
-    // Fetch profile with admin status in a single query when possible
-    const { data: profile, error: profileError } = await supabase
-      .from("profiles")
-      .select("id, name, email, status, profile_picture_url, bio, is_admin")
-      .eq("id", user.id)
-      .single();
+    // Wrap the Supabase call in retry logic for network errors
+    const result = await retryFetch(async () => {
+      return await supabase
+        .from("profiles")
+        .select("id, name, email, status, profile_picture_url, bio, is_admin")
+        .eq("id", user.id)
+        .single();
+    });
+
+    const { data: profile, error: profileError } = result;
 
     if (profileError) {
       logError("Error fetching profile", profileError);
