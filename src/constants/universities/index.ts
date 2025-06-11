@@ -139,42 +139,8 @@ allUniversities = allUniversities.map((university) =>
 
 export const ALL_SOUTH_AFRICAN_UNIVERSITIES: University[] = allUniversities;
 
-// Test the university programs in development
+// Production-ready university data loaded
 if (import.meta.env.DEV) {
-  console.log(
-    "=== COMPLETE AUDIT: ALL 26 SA UNIVERSITIES WITH COMPREHENSIVE PROGRAMS ===",
-  );
-  console.log(`📊 AUDIT SUMMARY:
-  • Traditional Universities: ${UNIVERSITY_COUNT_SUMMARY.traditional}
-  • Universities of Technology: ${UNIVERSITY_COUNT_SUMMARY.technology}
-  • Comprehensive Universities: ${UNIVERSITY_COUNT_SUMMARY.comprehensive}
-  • Specialized Universities: ${UNIVERSITY_COUNT_SUMMARY.specialized}
-  • TOTAL: ${UNIVERSITY_COUNT_SUMMARY.total} PUBLIC UNIVERSITIES`);
-
-  console.log("\n=== UNIVERSITY BREAKDOWN ===");
-  allUniversities.forEach((university) => {
-    const totalPrograms = university.faculties.reduce(
-      (total, faculty) => total + faculty.degrees.length,
-      0,
-    );
-    console.log(
-      `${university.name} (${university.abbreviation}) - ${university.province}: ${university.faculties.length} faculties, ${totalPrograms} programs`,
-    );
-
-    // Show faculty breakdown for verification
-    university.faculties.forEach((faculty) => {
-      console.log(`  └─ ${faculty.name}: ${faculty.degrees.length} programs`);
-      if (faculty.degrees.length > 0) {
-        faculty.degrees.slice(0, 2).forEach((degree) => {
-          console.log(`      • ${degree.name} (APS: ${degree.apsRequirement})`);
-        });
-        if (faculty.degrees.length > 2) {
-          console.log(`      • ... and ${faculty.degrees.length - 2} more`);
-        }
-      }
-    });
-  });
-
   const totalPrograms = allUniversities.reduce(
     (total, uni) =>
       total +
@@ -182,11 +148,7 @@ if (import.meta.env.DEV) {
     0,
   );
   console.log(
-    `\n🎯 AUDIT COMPLETE: ${allUniversities.length}/26 universities loaded with ${totalPrograms} total programs
-    ✅ All South African public universities accounted for
-    ✅ Comprehensive program assignments applied
-    ✅ Faculty alignments corrected
-    ✅ Mobile responsive interface ready`,
+    `📚 ReBooked Campus: ${allUniversities.length} universities loaded with ${totalPrograms} programs`,
   );
 }
 
