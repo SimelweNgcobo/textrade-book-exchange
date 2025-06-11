@@ -93,7 +93,9 @@ const UniversityDirectory = ({
             <SelectValue placeholder="Filter by province" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All Provinces</SelectItem>
+            <SelectItem key="all-provinces" value="all">
+              All Provinces
+            </SelectItem>
             {provinces.map((province) => (
               <SelectItem key={province} value={province}>
                 {province}
