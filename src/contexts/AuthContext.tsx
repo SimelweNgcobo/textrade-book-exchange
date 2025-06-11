@@ -11,6 +11,8 @@ import { supabase } from "@/integrations/supabase/client";
 import {
   fetchUserProfile,
   logoutUser,
+  loginUser,
+  registerUser,
   Profile,
 } from "@/services/authOperations";
 import { addNotification } from "@/services/notificationService";
@@ -38,6 +40,8 @@ interface AuthContextType {
   userStats: UserStats | null;
   authInitialized: boolean;
   initError: string | null;
+  login: (email: string, password: string) => Promise<any>;
+  register: (name: string, email: string, password: string) => Promise<any>;
   logout: () => Promise<void>;
   refreshProfile: () => Promise<void>;
 }
@@ -302,6 +306,44 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   }, [user, handleError]);
 
+  // Login function
+  const login = useCallback(
+    async (email: string, password: string) => {
+      try {
+        const result = await loginUser(email, password);
+        console.log("[AuthContext] Login successful");
+        return result;
+      } catch (error) {
+        console.error("[AuthContext] Login failed:", {
+          message: error instanceof Error ? error.message : String(error),
+          code: error instanceof Error ? error.name : undefined,
+        });
+        handleError(error, "Login");
+        throw error;
+      }
+    },
+    [handleError],
+  );
+
+  // Register function
+  const register = useCallback(
+    async (name: string, email: string, password: string) => {
+      try {
+        const result = await registerUser(name, email, password);
+        console.log("[AuthContext] Registration successful");
+        return result;
+      } catch (error) {
+        console.error("[AuthContext] Registration failed:", {
+          message: error instanceof Error ? error.message : String(error),
+          code: error instanceof Error ? error.name : undefined,
+        });
+        handleError(error, "Register");
+        throw error;
+      }
+    },
+    [handleError],
+  );
+
   // Logout function
   const logout = useCallback(async () => {
     try {
@@ -380,6 +422,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     userStats,
     authInitialized,
     initError,
+    login,
+    register,
     logout,
     refreshProfile,
   };
