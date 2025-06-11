@@ -49,7 +49,16 @@ const Profile = () => {
   const [isReportIssueDialogOpen, setIsReportIssueDialogOpen] = useState(false);
   const [isSellerHowItWorksOpen, setIsSellerHowItWorksOpen] = useState(false);
   const [isBuyerHowItWorksOpen, setIsBuyerHowItWorksOpen] = useState(false);
-  const [addressData, setAddressData] = useState<any>(null);
+  const [addressData, setAddressData] = useState<{
+    id: string;
+    complex: string;
+    unit_number: string;
+    street_address: string;
+    suburb: string;
+    city: string;
+    province: string;
+    postal_code: string;
+  } | null>(null);
   const [activeListings, setActiveListings] = useState<Book[]>([]);
   const [isLoadingAddress, setIsLoadingAddress] = useState(false);
   const [isLoadingListings, setIsLoadingListings] = useState(true);
