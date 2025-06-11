@@ -307,7 +307,10 @@ const EnhancedAPSCalculatorV2 = ({
             <h3 className="text-lg font-semibold">Your Subjects</h3>
             <div className="grid gap-4">
               {subjects.map((subject, index) => (
-                <div key={index} className="flex items-center gap-3">
+                <div
+                  key={`subject-${index}-${subject.name}`}
+                  className="flex items-center gap-3"
+                >
                   <div className="flex-1">
                     <Select
                       value={subject.name}
