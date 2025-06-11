@@ -128,11 +128,21 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           try {
             // Add timeout for profile fetching with retry logic
             const profilePromise = fetchUserProfile(session.user);
+
+            // Create a more informative timeout with progress tracking
             const timeoutPromise = new Promise((_, reject) => {
-              setTimeout(
-                () => reject(new Error("Profile fetch timeout")),
-                45000, // Increased timeout to accommodate retry logic + network delays
-              );
+              // Log progress at intervals
+              const progressInterval = setInterval(() => {
+                console.log("[AuthContext] Profile fetch still in progress...");
+              }, 10000); // Log every 10 seconds
+
+              setTimeout(() => {
+                clearInterval(progressInterval);
+                const timeoutError = new Error("Profile fetch timeout");
+                (timeoutError as any).code = "PROFILE_FETCH_TIMEOUT";
+                (timeoutError as any).isTimeout = true;
+                reject(timeoutError);
+              }, 45000); // 45 second timeout to accommodate retry logic + network delays
             });
 
             const userProfile = await Promise.race([
