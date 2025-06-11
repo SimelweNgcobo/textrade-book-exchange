@@ -18,12 +18,12 @@ const ensureCompletePrograms = (universities: University[]): University[] => {
       0,
     );
 
-    // Enhanced criteria: If university has less than 100 degrees or fewer than 8 faculties, enhance it
-    // Or if FORCE_COMPREHENSIVE_PROGRAMS is true, enhance all universities
+    // CONSERVATIVE criteria: Only enhance universities with very few programs AND in the verified list
+    // This prevents corruption of existing well-structured university data
     if (
       FORCE_COMPREHENSIVE_PROGRAMS ||
-      totalDegrees < 100 ||
-      university.faculties.length < 8
+      (totalDegrees < 10 &&
+        UNIVERSITIES_NEEDING_PROGRAMS.includes(university.id))
     ) {
       const standardFaculties = generateStandardFaculties(
         university.name,
