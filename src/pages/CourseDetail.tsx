@@ -137,22 +137,25 @@ const CourseDetail = () => {
                 />
               )}
               <div className="flex-1">
-                <h1 className="text-4xl font-bold mb-2">{course.name}</h1>
+                <h1 className="text-4xl font-bold mb-2">
+                  {course.name || "Unknown Course"}
+                </h1>
                 <p className="text-xl opacity-90 mb-4">
-                  {faculty.name} • {university.name}
+                  {faculty?.name || "Unknown Faculty"} •{" "}
+                  {university?.name || "Unknown University"}
                 </p>
                 <div className="flex items-center space-x-6 text-lg opacity-80">
                   <div className="flex items-center">
                     <Clock className="w-5 h-5 mr-2" />
-                    {course.duration}
+                    {course.duration || "Unknown Duration"}
                   </div>
                   <div className="flex items-center">
                     <TrendingUp className="w-5 h-5 mr-2" />
-                    APS: {course.apsRequirement}
+                    APS: {course.apsRequirement || "N/A"}
                   </div>
                   <div className="flex items-center">
                     <Target className="w-5 h-5 mr-2" />
-                    {course.faculty}
+                    {course.faculty || "Unknown Faculty"}
                   </div>
                 </div>
               </div>
