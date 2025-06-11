@@ -110,7 +110,7 @@ const StudyResourceCard = ({ resource }: StudyResourceCardProps) => {
             )}
             {resource.provider && <span>by {resource.provider}</span>}
           </div>
-          <Button size="sm" asChild>
+          <Button size="sm" asChild className="min-h-[44px] px-4">
             <a
               href={resource.url}
               target="_blank"
@@ -118,7 +118,7 @@ const StudyResourceCard = ({ resource }: StudyResourceCardProps) => {
               className="flex items-center gap-2"
             >
               {getTypeIcon(resource.type)}
-              Access
+              <span>Access</span>
             </a>
           </Button>
         </div>
