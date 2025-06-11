@@ -479,6 +479,17 @@ const EnhancedAPSCalculatorV2 = ({
               </Alert>
             )}
 
+            {!hasValidUniversityData && (
+              <Alert className="border-red-200 bg-red-50">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>
+                  <strong>Data Loading Issue:</strong> University data is not
+                  available. Please refresh the page or contact support if the
+                  issue persists.
+                </AlertDescription>
+              </Alert>
+            )}
+
             {calculation && calculation.totalScore < 20 && showResults && (
               <Alert className="border-orange-200 bg-orange-50">
                 <AlertCircle className="h-4 w-4" />
