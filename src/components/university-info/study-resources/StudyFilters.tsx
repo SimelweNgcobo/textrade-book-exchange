@@ -106,12 +106,24 @@ const StudyFilters = ({
             <SelectValue placeholder="Type" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">All Types</SelectItem>
-            <SelectItem value="video">Videos</SelectItem>
-            <SelectItem value="pdf">PDFs</SelectItem>
-            <SelectItem value="website">Websites</SelectItem>
-            <SelectItem value="tool">Tools</SelectItem>
-            <SelectItem value="course">Courses</SelectItem>
+            <SelectItem key="all-types" value="">
+              All Types
+            </SelectItem>
+            <SelectItem key="video" value="video">
+              Videos
+            </SelectItem>
+            <SelectItem key="pdf" value="pdf">
+              PDFs
+            </SelectItem>
+            <SelectItem key="website" value="website">
+              Websites
+            </SelectItem>
+            <SelectItem key="tool" value="tool">
+              Tools
+            </SelectItem>
+            <SelectItem key="course" value="course">
+              Courses
+            </SelectItem>
           </SelectContent>
         </Select>
 
