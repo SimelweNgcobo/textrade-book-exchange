@@ -60,7 +60,12 @@ const Confirm = () => {
           console.log("Using token hash verification");
           const { data, error } = await supabase.auth.verifyOtp({
             token_hash,
-            type: type as any,
+            type: type as
+              | "signup"
+              | "invite"
+              | "email_change"
+              | "recovery"
+              | "phone_change",
           });
 
           if (error) {
