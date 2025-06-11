@@ -90,7 +90,7 @@ const CampusBooks = ({
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [selectedUniversityFilter, selectedYear, searchQuery, selectedCondition]);
 
   useEffect(() => {
     loadBooks();
