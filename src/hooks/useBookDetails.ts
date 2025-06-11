@@ -14,15 +14,6 @@ export const useBookDetails = (bookId: string | undefined) => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (bookId) {
-      loadBook();
-    } else {
-      setError("Invalid book ID");
-      setIsLoading(false);
-    }
-  }, [bookId, loadBook]);
-
   const loadBook = useCallback(async () => {
     if (!bookId) return;
 
@@ -65,6 +56,15 @@ export const useBookDetails = (bookId: string | undefined) => {
       setIsLoading(false);
     }
   }, [bookId]);
+
+  useEffect(() => {
+    if (bookId) {
+      loadBook();
+    } else {
+      setError("Invalid book ID");
+      setIsLoading(false);
+    }
+  }, [bookId, loadBook]);
 
   const handleBuyNow = () => {
     if (!isAuthenticated) {
