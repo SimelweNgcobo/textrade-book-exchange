@@ -179,10 +179,11 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
               name:
                 profileError instanceof Error ? profileError.name : undefined,
               code:
-                (profileError as any)?.code ||
-                (profileError as any)?.error_code,
+                (profileError as Record<string, unknown>)?.code ||
+                (profileError as Record<string, unknown>)?.error_code,
               details:
-                (profileError as any)?.details || (profileError as any)?.hint,
+                (profileError as Record<string, unknown>)?.details ||
+                (profileError as Record<string, unknown>)?.hint,
               userId: session.user?.id,
               userAgent: navigator.userAgent,
               online: navigator.onLine,
