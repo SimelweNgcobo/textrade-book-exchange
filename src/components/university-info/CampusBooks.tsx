@@ -94,7 +94,7 @@ const CampusBooks = ({
 
   useEffect(() => {
     loadBooks();
-  }, [selectedUniversityFilter, selectedYear, searchQuery, selectedCondition]);
+  }, [loadBooks]);
 
   const filteredBooks = useMemo(() => {
     let filtered = books;
