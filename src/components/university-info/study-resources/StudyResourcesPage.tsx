@@ -55,30 +55,34 @@ const StudyResourcesPage = () => {
         </div>
 
         {/* Stats Overview */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white p-6 rounded-lg border shadow-sm text-center">
-            <Target className="w-8 h-8 text-blue-600 mx-auto mb-2" />
-            <div className="text-2xl font-bold text-gray-900">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6 mb-8">
+          <div className="bg-white p-4 sm:p-6 rounded-lg border shadow-sm text-center">
+            <Target className="w-6 h-6 sm:w-8 sm:h-8 text-blue-600 mx-auto mb-2" />
+            <div className="text-xl sm:text-2xl font-bold text-gray-900">
               {STUDY_TIPS.length}
             </div>
-            <div className="text-sm text-gray-600">Study Tips</div>
+            <div className="text-xs sm:text-sm text-gray-600">Study Tips</div>
           </div>
-          <div className="bg-white p-6 rounded-lg border shadow-sm text-center">
-            <BookOpen className="w-8 h-8 text-green-600 mx-auto mb-2" />
-            <div className="text-2xl font-bold text-gray-900">
+          <div className="bg-white p-4 sm:p-6 rounded-lg border shadow-sm text-center">
+            <BookOpen className="w-6 h-6 sm:w-8 sm:h-8 text-green-600 mx-auto mb-2" />
+            <div className="text-xl sm:text-2xl font-bold text-gray-900">
               {STUDY_RESOURCES.length}
             </div>
-            <div className="text-sm text-gray-600">Resources</div>
+            <div className="text-xs sm:text-sm text-gray-600">Resources</div>
           </div>
-          <div className="bg-white p-6 rounded-lg border shadow-sm text-center">
-            <Clock className="w-8 h-8 text-orange-600 mx-auto mb-2" />
-            <div className="text-2xl font-bold text-gray-900">24/7</div>
-            <div className="text-sm text-gray-600">Access</div>
+          <div className="bg-white p-4 sm:p-6 rounded-lg border shadow-sm text-center">
+            <Clock className="w-6 h-6 sm:w-8 sm:h-8 text-orange-600 mx-auto mb-2" />
+            <div className="text-xl sm:text-2xl font-bold text-gray-900">
+              24/7
+            </div>
+            <div className="text-xs sm:text-sm text-gray-600">Access</div>
           </div>
-          <div className="bg-white p-6 rounded-lg border shadow-sm text-center">
-            <TrendingUp className="w-8 h-8 text-purple-600 mx-auto mb-2" />
-            <div className="text-2xl font-bold text-gray-900">90%+</div>
-            <div className="text-sm text-gray-600">Success Rate</div>
+          <div className="bg-white p-4 sm:p-6 rounded-lg border shadow-sm text-center">
+            <TrendingUp className="w-6 h-6 sm:w-8 sm:h-8 text-purple-600 mx-auto mb-2" />
+            <div className="text-xl sm:text-2xl font-bold text-gray-900">
+              90%+
+            </div>
+            <div className="text-xs sm:text-sm text-gray-600">Success Rate</div>
           </div>
         </div>
 
