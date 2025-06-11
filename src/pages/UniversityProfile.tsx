@@ -21,6 +21,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import CampusNavbar from "@/components/CampusNavbar";
 import SEO from "@/components/SEO";
+import UniversityApplicationInfo from "@/components/university-info/UniversityApplicationInfo";
 import { SOUTH_AFRICAN_UNIVERSITIES } from "@/constants/universities";
 import { University } from "@/types/university";
 
@@ -158,16 +159,24 @@ const UniversityProfile = () => {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Main Content */}
             <div className="lg:col-span-2 space-y-8">
-              {/* Overview */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>About {university.abbreviation}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-gray-700 leading-relaxed">
-                    {university.overview}
-                  </p>
-                </CardContent>
+          {/* Overview */}
+          <Card className="mb-8">
+            <CardHeader>
+              <CardTitle>About {university.name}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-gray-600 leading-relaxed">{university.overview}</p>
+            </CardContent>
+          </Card>
+
+          {/* Application Information */}
+          <div className="mb-8">
+            <UniversityApplicationInfo
+              applicationInfo={university.applicationInfo}
+              universityName={university.name}
+              website={university.website}
+            />
+          </div>
               </Card>
 
               {/* Hero Image Section */}
