@@ -422,7 +422,7 @@ export const generateStandardFaculties = (universityName: string) => {
   ];
 };
 
-// Universities that need program completion - now all will be checked
+// Universities that need program completion - all South African universities will be enhanced
 export const UNIVERSITIES_NEEDING_PROGRAMS = [
   "univen",
   "ul",
@@ -443,4 +443,31 @@ export const UNIVERSITIES_NEEDING_PROGRAMS = [
   "nmu",
   "uj",
   "unisa",
+  "uct",
+  "wits",
+  "up",
+  "ukzn",
+  "sun",
+  "nwu",
+  "ufs",
+  "ru",
+  "nmu",
+  "ufh",
+  "uwc",
+  "cput",
+  "dut",
+  "tut",
+  "vut",
+  "cut",
+  "mut",
+  "univen",
+  "ul",
+  "ump",
+  "spu",
+  "smu",
+  "wsu",
+  "unizulu",
 ];
+
+// Force comprehensive program updates for all universities
+export const FORCE_COMPREHENSIVE_PROGRAMS = true;
