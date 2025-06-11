@@ -145,19 +145,15 @@ const Navbar = () => {
                 <Link to="/login">
                   <Button
                     variant="ghost"
-                    size="sm"
-                    className="text-gray-700 hover:text-book-600"
+                    className="text-gray-700 hover:text-book-600 px-4 h-10"
                   >
                     Login
                   </Button>
                 </Link>
                 <Link to="/register">
-                  <Button
-                    size="sm"
-                    className="bg-book-600 hover:bg-book-700 text-white"
-                  >
-                    <UserPlus className="w-4 h-4 mr-1" />
-                    Sign Up
+                  <Button className="bg-book-600 hover:bg-book-700 text-white px-4 h-10">
+                    <UserPlus className="w-4 h-4" />
+                    <span className="ml-2">Sign Up</span>
                   </Button>
                 </Link>
               </div>
