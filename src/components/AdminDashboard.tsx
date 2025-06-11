@@ -53,7 +53,7 @@ const AdminDashboard = () => {
 
   useEffect(() => {
     loadDashboardData();
-  }, []);
+  }, [loadDashboardData]);
 
   const loadDashboardData = async () => {
     setIsLoading(true);
