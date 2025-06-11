@@ -70,7 +70,7 @@ const MobileListingsView = ({
                   <Button
                     variant="outline"
                     size="icon"
-                    onClick={() => navigate(`/book/${book.id}`)}
+                    onClick={() => navigate(`/books/${book.id}`)}
                     className="text-blue-600 hover:text-blue-700 min-w-[44px] min-h-[44px]"
                     aria-label="View book"
                   >

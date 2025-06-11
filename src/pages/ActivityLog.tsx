@@ -406,7 +406,7 @@ const ActivityLog = () => {
                                 className="text-book-600 hover:text-book-800"
                                 onClick={() =>
                                   navigate(
-                                    `/book/${activity.metadata!.book_id}`,
+                                    `/books/${activity.metadata!.book_id}`,
                                   )
                                 }
                               >
