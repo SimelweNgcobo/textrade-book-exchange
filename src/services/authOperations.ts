@@ -54,7 +54,11 @@ export const registerUser = async (
   });
 
   if (error) {
-    console.error("Registration error:", error);
+    console.error("Registration error:", {
+      message: error.message,
+      code: error.name || error.code,
+      details: error.details || error.hint,
+    });
     throw error;
   }
 
