@@ -86,10 +86,18 @@ const StudyFilters = ({
             <SelectValue placeholder="Difficulty" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">All Levels</SelectItem>
-            <SelectItem value="Beginner">Beginner</SelectItem>
-            <SelectItem value="Intermediate">Intermediate</SelectItem>
-            <SelectItem value="Advanced">Advanced</SelectItem>
+            <SelectItem key="all-levels" value="">
+              All Levels
+            </SelectItem>
+            <SelectItem key="beginner" value="Beginner">
+              Beginner
+            </SelectItem>
+            <SelectItem key="intermediate" value="Intermediate">
+              Intermediate
+            </SelectItem>
+            <SelectItem key="advanced" value="Advanced">
+              Advanced
+            </SelectItem>
           </SelectContent>
         </Select>
 
