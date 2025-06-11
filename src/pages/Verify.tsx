@@ -160,9 +160,11 @@ const Verify = () => {
       } else {
         toast.error("Verification did not return a session");
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("❌ Exception during manual verification:", error);
-      toast.error(`Manual verification failed: ${error.message}`);
+      const errorMessage =
+        error instanceof Error ? error.message : "Manual verification failed";
+      toast.error(`Manual verification failed: ${errorMessage}`);
     }
   };
 
