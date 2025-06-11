@@ -45,8 +45,15 @@ interface AuthContextType {
   userStats: UserStats | null;
   authInitialized: boolean;
   initError: string | null;
-  login: (email: string, password: string) => Promise<any>;
-  register: (name: string, email: string, password: string) => Promise<any>;
+  login: (
+    email: string,
+    password: string,
+  ) => Promise<{ user: User | null; error: string | null }>;
+  register: (
+    name: string,
+    email: string,
+    password: string,
+  ) => Promise<{ user: User | null; error: string | null }>;
   logout: () => Promise<void>;
   refreshProfile: () => Promise<void>;
 }
