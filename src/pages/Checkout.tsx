@@ -439,7 +439,10 @@ const Checkout = () => {
 
   const totalAmount = calculateTotal();
   const itemsTotal = isCartCheckout
-    ? cartData.reduce((total: number, item: any) => total + item.price, 0)
+    ? cartData.reduce(
+        (total: number, item: { price: number }) => total + item.price,
+        0,
+      )
     : book?.price || 0;
 
   return (
