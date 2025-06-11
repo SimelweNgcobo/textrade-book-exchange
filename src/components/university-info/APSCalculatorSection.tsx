@@ -168,7 +168,7 @@ const APSCalculatorSection = () => {
                         <div className="flex-1">
                           <div className="flex items-center space-x-3 mb-2">
                             <h3 className="font-semibold text-lg text-gray-900">
-                              {eligible.degree.name}
+                              {eligible.degree?.name || "Unknown Program"}
                             </h3>
                             {getEligibilityBadge(
                               eligible.meetsRequirement,
@@ -308,7 +308,7 @@ const APSCalculatorSection = () => {
                         <div className="flex-1">
                           <div className="flex items-center space-x-3 mb-2">
                             <h3 className="font-semibold text-lg text-gray-900">
-                              {close.degree.name}
+                              {close.degree?.name || "Unknown Program"}
                             </h3>
                             {getEligibilityBadge(
                               close.meetsRequirement,
