@@ -1,58 +1,6 @@
-import { useState, useMemo } from "react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Separator } from "@/components/ui/separator";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  Calculator,
-  Plus,
-  Minus,
-  CheckCircle,
-  AlertCircle,
-  Info,
-  BookOpen,
-  Filter,
-  Eye,
-  Users,
-  Star,
-  School,
-} from "lucide-react";
-import {
-  APSSubject,
-  APSCalculation,
-  EligibleDegree,
-  University,
-  Degree,
-} from "@/types/university";
-import {
-  SOUTH_AFRICAN_SUBJECTS,
-  SUBJECT_CATEGORIES,
-  isNonContributing,
-  getSubjectCategory,
-} from "@/constants/subjects";
-import { SOUTH_AFRICAN_UNIVERSITIES } from "@/constants/universities";
-import {
-  calculateAPS,
-  convertPercentageToPoints,
-  validateSubjectMarks,
-  getRecommendations,
-} from "@/utils/apsCalculation";
+// Import the enhanced version
+import EnhancedAPSCalculatorV2 from "./EnhancedAPSCalculatorV2";
+import { APSCalculation } from "@/types/university";
 
 interface EnhancedAPSCalculatorProps {
   onCalculationComplete: (calculation: APSCalculation) => void;
