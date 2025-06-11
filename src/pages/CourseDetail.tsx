@@ -425,19 +425,24 @@ const CourseDetail = () => {
                 <CardContent className="space-y-4">
                   <div className="flex items-center justify-between">
                     <span className="text-gray-600">Duration</span>
-                    <span className="font-semibold">{course.duration}</span>
+                    <span className="font-semibold">
+                      {course.duration || "N/A"}
+                    </span>
                   </div>
                   <Separator />
                   <div className="flex items-center justify-between">
                     <span className="text-gray-600">APS Requirement</span>
                     <span className="font-semibold text-book-600">
-                      {course.apsRequirement} points
+                      {course.apsRequirement || "N/A"}{" "}
+                      {course.apsRequirement && "points"}
                     </span>
                   </div>
                   <Separator />
                   <div className="flex items-center justify-between">
                     <span className="text-gray-600">Faculty</span>
-                    <span className="font-semibold">{course.faculty}</span>
+                    <span className="font-semibold">
+                      {course.faculty || "N/A"}
+                    </span>
                   </div>
                   <Separator />
                   <div className="flex items-center justify-between">
