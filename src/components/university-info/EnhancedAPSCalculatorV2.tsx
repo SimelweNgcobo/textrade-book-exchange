@@ -238,6 +238,10 @@ const EnhancedAPSCalculatorV2 = ({
     (s) => !isNonContributing(s.name) && s.marks > 0,
   ).length;
 
+  // Error handling for university data
+  const hasValidUniversityData =
+    ALL_SOUTH_AFRICAN_UNIVERSITIES && ALL_SOUTH_AFRICAN_UNIVERSITIES.length > 0;
+
   const addSubject = () => {
     if (subjects.length < 8) {
       setSubjects([...subjects, { name: "", marks: 0, level: 1, points: 0 }]);
