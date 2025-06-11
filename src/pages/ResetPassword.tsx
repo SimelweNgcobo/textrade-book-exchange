@@ -1,17 +1,16 @@
-
-import { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
-import Layout from '@/components/Layout';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
-import { toast } from 'sonner';
-import { Lock, Loader2, Eye, EyeOff, CheckCircle, XCircle } from 'lucide-react';
+import { useState, useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import Layout from "@/components/Layout";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { toast } from "sonner";
+import { Lock, Loader2, Eye, EyeOff, CheckCircle, XCircle } from "lucide-react";
 
 const ResetPassword = () => {
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -22,71 +21,77 @@ const ResetPassword = () => {
   useEffect(() => {
     const verifySession = async () => {
       try {
-        console.log('Verifying reset password session');
-        
-        const accessToken = searchParams.get('access_token');
-        const refreshToken = searchParams.get('refresh_token');
-        const type = searchParams.get('type');
-        const error_code = searchParams.get('error_code');
-        const error_description = searchParams.get('error_description');
-        
-        console.log('Reset password params:', { 
-          accessToken: !!accessToken, 
-          refreshToken: !!refreshToken, 
+        console.log("Verifying reset password session");
+
+        const accessToken = searchParams.get("access_token");
+        const refreshToken = searchParams.get("refresh_token");
+        const type = searchParams.get("type");
+        const error_code = searchParams.get("error_code");
+        const error_description = searchParams.get("error_description");
+
+        console.log("Reset password params:", {
+          accessToken: !!accessToken,
+          refreshToken: !!refreshToken,
           type,
           error_code,
-          error_description 
+          error_description,
         });
 
         // Check for errors in URL
         if (error_code || error_description) {
-          console.error('Reset password error from URL:', { error_code, error_description });
-          toast.error(error_description || 'Invalid or expired reset link');
+          console.error("Reset password error from URL:", {
+            error_code,
+            error_description,
+          });
+          toast.error(error_description || "Invalid or expired reset link");
           setIsValidSession(false);
-          setTimeout(() => navigate('/forgot-password'), 3000);
+          setTimeout(() => navigate("/forgot-password"), 3000);
           return;
         }
-        
-        if (accessToken && refreshToken && type === 'recovery') {
-          console.log('Setting session with recovery tokens');
+
+        if (accessToken && refreshToken && type === "recovery") {
+          console.log("Setting session with recovery tokens");
           const { data, error } = await supabase.auth.setSession({
             access_token: accessToken,
             refresh_token: refreshToken,
           });
-          
+
           if (error) {
-            console.error('Session error:', error);
-            toast.error('Invalid or expired reset link');
+            console.error("Session error:", error);
+            toast.error("Invalid or expired reset link");
             setIsValidSession(false);
-            setTimeout(() => navigate('/forgot-password'), 3000);
+            setTimeout(() => navigate("/forgot-password"), 3000);
             return;
           }
-          
-          console.log('Session set successfully:', data);
+
+          console.log("Session set successfully:", data);
           setIsValidSession(true);
         } else {
-          console.log('Checking existing session');
-          const { data: { session }, error } = await supabase.auth.getSession();
-          
+          console.log("Checking existing session");
+          const {
+            data: { session },
+            error,
+          } = await supabase.auth.getSession();
+
           if (error) {
-            console.error('Session check error:', error);
+            console.error("Session check error:", error);
           }
-          
+
           if (session) {
-            console.log('Valid session found');
+            console.log("Valid session found");
             setIsValidSession(true);
           } else {
-            console.log('No valid session found');
-            toast.error('Invalid or expired reset link');
+            console.log("No valid session found");
+            toast.error("Invalid or expired reset link");
             setIsValidSession(false);
-            setTimeout(() => navigate('/forgot-password'), 3000);
+            setTimeout(() => navigate("/forgot-password"), 3000);
           }
         }
       } catch (error) {
-        console.error('Error verifying session:', error);
-        toast.error('Something went wrong. Please try again.');
+        console.error("Error verifying session:", error);
+        toast.error("Something went wrong. Please try again.");
         setIsValidSession(false);
-        setTimeout(() => navigate('/forgot-password'), 3000);
+        setTimeout(() => navigate("/forgot-password"), 3000);
       }
     };
 
@@ -95,21 +100,23 @@ const ResetPassword = () => {
 
   const validatePassword = (pwd: string): string[] => {
     const errors: string[] = [];
-    if (pwd.length < 6) errors.push('Must be at least 6 characters long');
-    if (!/[A-Z]/.test(pwd)) errors.push('Must contain at least one uppercase letter');
-    if (!/[a-z]/.test(pwd)) errors.push('Must contain at least one lowercase letter');
-    if (!/[0-9]/.test(pwd)) errors.push('Must contain at least one number');
+    if (pwd.length < 6) errors.push("Must be at least 6 characters long");
+    if (!/[A-Z]/.test(pwd))
+      errors.push("Must contain at least one uppercase letter");
+    if (!/[a-z]/.test(pwd))
+      errors.push("Must contain at least one lowercase letter");
+    if (!/[0-9]/.test(pwd)) errors.push("Must contain at least one number");
     return errors;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (isValidSession === false) {
-      toast.error('Invalid session. Please request a new reset link.');
+      toast.error("Invalid session. Please request a new reset link.");
       return;
     }
-    
+
     setIsLoading(true);
 
     try {
@@ -123,28 +130,30 @@ const ResetPassword = () => {
 
       const passwordErrors = validatePassword(password);
       if (passwordErrors.length > 0) {
-        throw new Error(`Password requirements: ${passwordErrors.join(', ')}`);
+        throw new Error(`Password requirements: ${passwordErrors.join(", ")}`);
       }
 
-      console.log('Updating user password');
+      console.log("Updating user password");
       const { data, error } = await supabase.auth.updateUser({
-        password: password
+        password: password,
       });
 
       if (error) {
-        console.error('Password update error:', error);
+        console.error("Password update error:", error);
         throw error;
       }
 
-      console.log('Password updated successfully');
-      toast.success('Password updated successfully!');
-      
+      console.log("Password updated successfully");
+      toast.success("Password updated successfully!");
+
       // Sign out and redirect to login
       await supabase.auth.signOut();
-      navigate('/login', { replace: true });
-    } catch (error: any) {
-      console.error('Password reset error:', error);
-      toast.error(error.message || 'Failed to update password');
+      navigate("/login", { replace: true });
+    } catch (error: unknown) {
+      console.error("Password reset error:", error);
+      const errorMessage =
+        error instanceof Error ? error.message : "Failed to update password";
+      toast.error(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -240,14 +249,18 @@ const ResetPassword = () => {
                       )}
                     </button>
                   </div>
-                  
+
                   {password.length > 0 && (
                     <div className="text-xs space-y-1">
                       {passwordErrors.map((error, index) => (
-                        <p key={index} className="text-red-500">• {error}</p>
+                        <p key={index} className="text-red-500">
+                          • {error}
+                        </p>
                       ))}
                       {isPasswordValid && (
-                        <p className="text-green-500">• Password meets all requirements</p>
+                        <p className="text-green-500">
+                          • Password meets all requirements
+                        </p>
                       )}
                     </div>
                   )}
@@ -271,7 +284,9 @@ const ResetPassword = () => {
                     <button
                       type="button"
                       className="absolute inset-y-0 right-0 flex items-center pr-3"
-                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      onClick={() =>
+                        setShowConfirmPassword(!showConfirmPassword)
+                      }
                     >
                       {showConfirmPassword ? (
                         <EyeOff className="h-5 w-5 text-gray-400" />
@@ -280,7 +295,7 @@ const ResetPassword = () => {
                       )}
                     </button>
                   </div>
-                  
+
                   {confirmPassword.length > 0 && (
                     <div className="text-xs">
                       {password === confirmPassword ? (
@@ -295,7 +310,11 @@ const ResetPassword = () => {
                 <Button
                   type="submit"
                   className="w-full bg-book-600 hover:bg-book-700"
-                  disabled={isLoading || !isPasswordValid || password !== confirmPassword}
+                  disabled={
+                    isLoading ||
+                    !isPasswordValid ||
+                    password !== confirmPassword
+                  }
                 >
                   {isLoading ? (
                     <>
@@ -312,7 +331,7 @@ const ResetPassword = () => {
                 <p className="text-gray-600">
                   Remember your password?{" "}
                   <button
-                    onClick={() => navigate('/login')}
+                    onClick={() => navigate("/login")}
                     className="text-book-600 hover:text-book-800 font-medium"
                   >
                     Sign in
