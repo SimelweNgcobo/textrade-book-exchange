@@ -159,25 +159,24 @@ const UniversityProfile = () => {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Main Content */}
             <div className="lg:col-span-2 space-y-8">
-          {/* Overview */}
-          <Card className="mb-8">
-            <CardHeader>
-              <CardTitle>About {university.name}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-gray-600 leading-relaxed">{university.overview}</p>
-            </CardContent>
-          </Card>
-
-          {/* Application Information */}
-          <div className="mb-8">
-            <UniversityApplicationInfo
-              applicationInfo={university.applicationInfo}
-              universityName={university.name}
-              website={university.website}
-            />
-          </div>
+              {/* Overview */}
+              <Card className="mb-8">
+                <CardHeader>
+                  <CardTitle>About {university.name}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-gray-600 leading-relaxed">
+                    {university.overview}
+                  </p>
+                </CardContent>
               </Card>
+
+              {/* Application Information */}
+              <UniversityApplicationInfo
+                applicationInfo={university.applicationInfo}
+                universityName={university.name}
+                website={university.website}
+              />
 
               {/* Hero Image Section */}
               <Card className="mb-8">
