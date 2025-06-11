@@ -17,6 +17,13 @@ import {
   SOCIAL_WORK_PROGRAMS,
   getAllProgramsByFaculty,
 } from "./comprehensive-university-programs";
+import {
+  getUniversityPrograms,
+  isProgramAvailable,
+  getUniversityType,
+  getCorrectFacultyName,
+  UNIVERSITY_PROGRAM_MAPPINGS,
+} from "./university-specific-programs";
 
 // This file contains the complete programs for universities that need more comprehensive degree offerings
 
