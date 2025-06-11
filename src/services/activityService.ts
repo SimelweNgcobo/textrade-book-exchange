@@ -46,7 +46,9 @@ export class ActivityService {
   /**
    * Serialize error objects for better debugging
    */
-  private static serializeError(error: any): any {
+  private static serializeError(
+    error: unknown,
+  ): Record<string, unknown> | null {
     if (!error) return null;
 
     return {
