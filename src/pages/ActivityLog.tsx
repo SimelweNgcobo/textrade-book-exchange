@@ -37,7 +37,7 @@ const ActivityLog = () => {
     loadActivities();
   }, [user, loadActivities]);
 
-  const loadActivities = async () => {
+  const loadActivities = useCallback(async () => {
     if (!user) {
       setIsLoading(false);
       return;
