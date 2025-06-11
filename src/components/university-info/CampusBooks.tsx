@@ -292,7 +292,9 @@ const CampusBooks = ({
                 <SelectValue placeholder="Year level" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Years</SelectItem>
+                <SelectItem key="all-years" value="all">
+                  All Years
+                </SelectItem>
                 {UNIVERSITY_YEARS.map((year) => (
                   <SelectItem key={year} value={year}>
                     {year}
