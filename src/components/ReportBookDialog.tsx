@@ -111,21 +111,30 @@ const ReportBookDialog = ({
                 <SelectValue placeholder="Select a reason category" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="inappropriate-content">
+                <SelectItem
+                  key="inappropriate-content"
+                  value="inappropriate-content"
+                >
                   Inappropriate Content
                 </SelectItem>
-                <SelectItem value="misleading-info">
+                <SelectItem key="misleading-info" value="misleading-info">
                   Misleading Information
                 </SelectItem>
-                <SelectItem value="counterfeit">
+                <SelectItem key="counterfeit" value="counterfeit">
                   Counterfeit/Fake Book
                 </SelectItem>
-                <SelectItem value="overpriced">
+                <SelectItem key="overpriced" value="overpriced">
                   Unreasonably Overpriced
                 </SelectItem>
-                <SelectItem value="duplicate">Duplicate Listing</SelectItem>
-                <SelectItem value="spam">Spam</SelectItem>
-                <SelectItem value="other">Other</SelectItem>
+                <SelectItem key="duplicate" value="duplicate">
+                  Duplicate Listing
+                </SelectItem>
+                <SelectItem key="spam" value="spam">
+                  Spam
+                </SelectItem>
+                <SelectItem key="other" value="other">
+                  Other
+                </SelectItem>
               </SelectContent>
             </Select>
           </div>
