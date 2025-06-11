@@ -326,7 +326,9 @@ const BursaryExplorer = () => {
                   <SelectValue placeholder="Province" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All provinces</SelectItem>
+                  <SelectItem key="all-provinces" value="all">
+                    All provinces
+                  </SelectItem>
                   {PROVINCES.map((province) => (
                     <SelectItem key={province} value={province}>
                       {province}
