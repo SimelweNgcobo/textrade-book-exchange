@@ -72,7 +72,7 @@ export const fetchUserProfile = async (user: User): Promise<Profile | null> => {
     console.log("Fetching profile for user:", user.id);
 
     // Wrap the Supabase call in retry logic for network errors
-    const result = await retryFetch(async () => {
+    const result = await retryWithBackoff(async () => {
       return await supabase
         .from("profiles")
         .select("id, name, email, status, profile_picture_url, bio, is_admin")
