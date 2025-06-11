@@ -159,7 +159,9 @@ const UniversityGrid = ({
                 <SelectValue placeholder="All Provinces" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Provinces</SelectItem>
+                <SelectItem key="all-provinces" value="all">
+                  All Provinces
+                </SelectItem>
                 {provinces.slice(1).map((province) => (
                   <SelectItem key={province} value={province}>
                     {province}
