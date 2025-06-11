@@ -242,11 +242,12 @@ const EnhancedAPSCalculatorV2 = ({
         subject.points = isNonContributing(subject.name) ? 0 : subject.level;
       }
     } else {
-      (subject as any)[field] = value;
       if (field === "name") {
-        subject.points = isNonContributing(subject.name as string)
-          ? 0
-          : subject.level;
+        subject.name = value as string;
+        subject.points = isNonContributing(subject.name) ? 0 : subject.level;
+      } else if (field === "level") {
+        subject.level = value as number;
+        subject.points = isNonContributing(subject.name) ? 0 : subject.level;
       }
     }
 
