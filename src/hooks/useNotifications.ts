@@ -2,18 +2,21 @@ import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { getNotifications } from "@/services/notificationService";
 import { supabase } from "@/integrations/supabase/client";
+import { Database } from "@/integrations/supabase/types";
+
+type Notification = Database["public"]["Tables"]["notifications"]["Row"];
 
 interface NotificationHookReturn {
   unreadCount: number;
   totalCount: number;
-  notifications: any[];
+  notifications: Notification[];
   isLoading: boolean;
   refreshNotifications: () => Promise<void>;
 }
 
 export const useNotifications = (): NotificationHookReturn => {
   const { user, isAuthenticated } = useAuth();
-  const [notifications, setNotifications] = useState<any[]>([]);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
   const refreshNotifications = useCallback(async () => {
