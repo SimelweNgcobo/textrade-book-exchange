@@ -474,7 +474,9 @@ const EnhancedAPSCalculatorV2 = ({
                     <SelectValue placeholder="Filter by University" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">All Universities</SelectItem>
+                    <SelectItem key="all-universities" value="all">
+                      All Universities
+                    </SelectItem>
                     {availableUniversities.map((uni) => (
                       <SelectItem key={uni.id} value={uni.id}>
                         {uni.name}
