@@ -242,9 +242,18 @@ const CourseDetail = () => {
                   <Alert className="mt-4 border-book-200 bg-book-50">
                     <TrendingUp className="h-4 w-4" />
                     <AlertDescription className="text-book-800">
-                      <strong>APS Requirement:</strong> You need a minimum of{" "}
-                      {course.apsRequirement} APS points to be considered for
-                      admission to this program.
+                      <strong>APS Requirement:</strong>{" "}
+                      {course.apsRequirement ? (
+                        <>
+                          You need a minimum of {course.apsRequirement} APS
+                          points to be considered for admission to this program.
+                        </>
+                      ) : (
+                        <>
+                          Contact the university directly for specific APS
+                          requirements for this program.
+                        </>
+                      )}
                     </AlertDescription>
                   </Alert>
                 </CardContent>
