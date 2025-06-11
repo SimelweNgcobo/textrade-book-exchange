@@ -40,10 +40,6 @@ const CampusBooksSection = lazy(
   () => import("@/components/university-info/CampusBooksSection"),
 );
 
-// Debug components for development
-import UniversityProgramsDebug from "@/components/debug/UniversityProgramsDebug";
-import UniversityAuditReport from "@/components/debug/UniversityAuditReport";
-
 const UniversityInfo = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const currentTool = searchParams.get("tool") || "overview";
@@ -107,9 +103,7 @@ const UniversityInfo = () => {
             onValueChange={handleTabChange}
             className="w-full"
           >
-            <TabsList
-              className={`grid w-full ${process.env.NODE_ENV === "development" ? "grid-cols-3 sm:grid-cols-5" : "grid-cols-2 sm:grid-cols-4"} mb-8 h-auto`}
-            >
+            <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 mb-8 h-auto">
               <TabsTrigger
                 value="overview"
                 className="flex flex-col items-center gap-1 py-2 px-2 text-center"
@@ -138,15 +132,6 @@ const UniversityInfo = () => {
                 <BookOpen className="h-3 w-3 sm:h-4 sm:w-4" />
                 <span className="text-xs">Books</span>
               </TabsTrigger>
-              {process.env.NODE_ENV === "development" && (
-                <TabsTrigger
-                  value="debug"
-                  className="flex flex-col items-center gap-1 py-2 px-2 text-center"
-                >
-                  <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4" />
-                  <span className="text-xs">Debug</span>
-                </TabsTrigger>
-              )}
             </TabsList>
 
             <TabsContent value="overview" className="space-y-6">
@@ -289,13 +274,6 @@ const UniversityInfo = () => {
                 <CampusBooksSection />
               </Suspense>
             </TabsContent>
-
-            {process.env.NODE_ENV === "development" && (
-              <TabsContent value="debug" className="space-y-6">
-                <UniversityAuditReport />
-                <UniversityProgramsDebug />
-              </TabsContent>
-            )}
           </Tabs>
         </div>
       </div>
