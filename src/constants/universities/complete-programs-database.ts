@@ -331,100 +331,124 @@ export const COMMON_DEGREE_TEMPLATES = {
   },
 };
 
-// Function to generate comprehensive faculty structure for universities
-export const generateStandardFaculties = (universityName: string) => {
+// Function to generate university-specific faculty structure
+export const generateStandardFaculties = (
+  universityName: string,
+  universityId?: string,
+) => {
   const comprehensivePrograms = getAllProgramsByFaculty();
+
+  // If we have a specific university ID, use its specific program mapping
+  if (universityId) {
+    const mapping = UNIVERSITY_PROGRAM_MAPPINGS.find(
+      (m) => m.universityId === universityId,
+    );
+    if (mapping) {
+      return mapping.availableFaculties.map((faculty) => ({
+        id: faculty.id,
+        name: faculty.name,
+        description: faculty.description,
+        degrees: faculty.programIds
+          .map((programId) => {
+            // Find the program in comprehensive programs
+            for (const [categoryKey, programs] of Object.entries(
+              comprehensivePrograms,
+            )) {
+              const program = programs.find((p) => p.id === programId);
+              if (program) {
+                return {
+                  ...program,
+                  faculty: faculty.name, // Use correct faculty name
+                };
+              }
+            }
+            return null;
+          })
+          .filter(Boolean) as any[],
+      }));
+    }
+  }
+
+  // Fallback to comprehensive faculties with university-appropriate names
+  const universityType = universityId
+    ? getUniversityType(universityId)
+    : "comprehensive";
 
   return [
     {
       id: "engineering",
-      name: "Faculty of Engineering and Built Environment",
-      description: `Comprehensive engineering education and innovation at ${universityName}.`,
-      degrees: comprehensivePrograms.engineering,
+      name: getCorrectFacultyName(universityId || "", "engineering"),
+      description: `Engineering education and innovation at ${universityName}.`,
+      degrees: comprehensivePrograms.engineering.map((p) => ({
+        ...p,
+        faculty: getCorrectFacultyName(universityId || "", "engineering"),
+      })),
     },
     {
       id: "health-sciences",
-      name: "Faculty of Health Sciences",
-      description: `Medical and health sciences education at ${universityName}.`,
-      degrees: comprehensivePrograms.healthSciences,
+      name: getCorrectFacultyName(universityId || "", "health-sciences"),
+      description: `Health sciences education at ${universityName}.`,
+      degrees: comprehensivePrograms.healthSciences.map((p) => ({
+        ...p,
+        faculty: getCorrectFacultyName(universityId || "", "health-sciences"),
+      })),
     },
     {
       id: "humanities",
-      name: "Faculty of Humanities and Social Sciences",
-      description: `Arts, social sciences, and humanities studies at ${universityName}.`,
-      degrees: comprehensivePrograms.humanities,
+      name: getCorrectFacultyName(universityId || "", "humanities"),
+      description: `Humanities and social sciences at ${universityName}.`,
+      degrees: comprehensivePrograms.humanities.map((p) => ({
+        ...p,
+        faculty: getCorrectFacultyName(universityId || "", "humanities"),
+      })),
     },
     {
       id: "commerce",
-      name: "Faculty of Commerce and Management",
-      description: `Business, economics, and management education at ${universityName}.`,
-      degrees: comprehensivePrograms.commerce,
+      name: getCorrectFacultyName(universityId || "", "commerce"),
+      description: `Business and economics education at ${universityName}.`,
+      degrees: comprehensivePrograms.commerce.map((p) => ({
+        ...p,
+        faculty: getCorrectFacultyName(universityId || "", "commerce"),
+      })),
     },
     {
       id: "law",
-      name: "Faculty of Law",
-      description: `Legal education and jurisprudence at ${universityName}.`,
-      degrees: comprehensivePrograms.law,
+      name: getCorrectFacultyName(universityId || "", "law"),
+      description: `Legal education at ${universityName}.`,
+      degrees: comprehensivePrograms.law.map((p) => ({
+        ...p,
+        faculty: getCorrectFacultyName(universityId || "", "law"),
+      })),
     },
     {
       id: "science",
-      name: "Faculty of Science",
-      description: `Natural sciences and research education at ${universityName}.`,
-      degrees: comprehensivePrograms.science,
+      name: getCorrectFacultyName(universityId || "", "science"),
+      description: `Natural sciences education at ${universityName}.`,
+      degrees: comprehensivePrograms.science.map((p) => ({
+        ...p,
+        faculty: getCorrectFacultyName(universityId || "", "science"),
+      })),
     },
     {
       id: "education",
-      name: "Faculty of Education",
-      description: `Teacher training and educational studies at ${universityName}.`,
-      degrees: comprehensivePrograms.education,
+      name: getCorrectFacultyName(universityId || "", "education"),
+      description: `Teacher training at ${universityName}.`,
+      degrees: comprehensivePrograms.education.map((p) => ({
+        ...p,
+        faculty: getCorrectFacultyName(universityId || "", "education"),
+      })),
     },
     {
       id: "information-technology",
-      name: "Faculty of Information Technology",
-      description: `Computer science and information technology at ${universityName}.`,
-      degrees: comprehensivePrograms.informationTechnology,
-    },
-    {
-      id: "agriculture",
-      name: "Faculty of Agriculture and Agricultural Sciences",
-      description: `Agricultural sciences and food production at ${universityName}.`,
-      degrees: comprehensivePrograms.agriculture,
-    },
-    {
-      id: "veterinary-science",
-      name: "Faculty of Veterinary Science",
-      description: `Veterinary medicine and animal health at ${universityName}.`,
-      degrees: comprehensivePrograms.veterinary,
-    },
-    {
-      id: "theology",
-      name: "Faculty of Theology and Religious Studies",
-      description: `Theological and religious studies at ${universityName}.`,
-      degrees: comprehensivePrograms.theology,
-    },
-    {
-      id: "design",
-      name: "Faculty of Design and Creative Arts",
-      description: `Creative arts and design education at ${universityName}.`,
-      degrees: comprehensivePrograms.design,
-    },
-    {
-      id: "music",
-      name: "Faculty of Music and Performing Arts",
-      description: `Music and performing arts at ${universityName}.`,
-      degrees: comprehensivePrograms.music,
-    },
-    {
-      id: "sports-science",
-      name: "Faculty of Sports Science",
-      description: `Sports science and management at ${universityName}.`,
-      degrees: comprehensivePrograms.sportsScience,
-    },
-    {
-      id: "social-work",
-      name: "Faculty of Social Work",
-      description: `Social work and community development at ${universityName}.`,
-      degrees: comprehensivePrograms.socialWork,
+      name: getCorrectFacultyName(universityId || "", "information-technology"),
+      description: `Information technology at ${universityName}.`,
+      degrees: comprehensivePrograms.informationTechnology.map((p) => ({
+        ...p,
+        faculty: getCorrectFacultyName(
+          universityId || "",
+          "information-technology",
+        ),
+      })),
     },
   ];
 };
