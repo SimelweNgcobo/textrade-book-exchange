@@ -25,7 +25,11 @@ export const loginUser = async (email: string, password: string) => {
   });
 
   if (error) {
-    console.error("Login error:", error);
+    console.error("Login error:", {
+      message: error.message,
+      code: error.name || error.code,
+      details: error.details || error.hint,
+    });
     throw error;
   }
 
