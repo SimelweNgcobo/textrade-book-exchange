@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useAuth } from "@/contexts/AuthContext";
 import {
   getLatestBroadcast,
   hasBroadcastBeenViewed,
@@ -8,30 +9,14 @@ import {
 import { Broadcast } from "@/types/broadcast";
 import BroadcastDialog from "./BroadcastDialog";
 
-// Create a safe wrapper for auth context
-const useSafeAuth = () => {
-  try {
-    // Dynamically import to avoid module dependency at build time
-    const { useAuth } = require("@/contexts/AuthContext");
-    return useAuth();
-  } catch (error) {
-    console.warn("[BroadcastManager] Auth context not available:", {
-      message: error instanceof Error ? error.message : String(error),
-      timestamp: new Date().toISOString(),
-    });
-    return { user: null, isAuthenticated: false };
-  }
-};
-
 const BroadcastManager = () => {
-  // Always call all hooks at the top level - no conditional hook calls
   const [currentBroadcast, setCurrentBroadcast] = useState<Broadcast | null>(
     null,
   );
   const [showBroadcast, setShowBroadcast] = useState(false);
 
-  // Use the safe auth hook
-  const { user, isAuthenticated } = useSafeAuth();
+  // Always call useAuth - if it fails, the component will fail gracefully
+  const { user, isAuthenticated } = useAuth();
 
   useEffect(() => {
     const checkForBroadcasts = async () => {
@@ -97,7 +82,6 @@ const BroadcastManager = () => {
     setCurrentBroadcast(null);
   };
 
-  // Don't render anything if no broadcast to show
   if (!currentBroadcast || !showBroadcast) {
     return null;
   }
