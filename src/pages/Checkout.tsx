@@ -52,7 +52,19 @@ const Checkout = () => {
   const [book, setBook] = useState<Book | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [savedAddresses, setSavedAddresses] = useState<any>(null);
+  const [savedAddresses, setSavedAddresses] = useState<
+    | {
+        id: string;
+        complex: string;
+        unit_number: string;
+        street_address: string;
+        suburb: string;
+        city: string;
+        province: string;
+        postal_code: string;
+      }[]
+    | null
+  >(null);
   const [selectedAddress, setSelectedAddress] = useState<
     "pickup" | "shipping" | "new"
   >("new");
