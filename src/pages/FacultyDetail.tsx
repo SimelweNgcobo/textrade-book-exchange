@@ -234,29 +234,32 @@ const FacultyDetail = () => {
                         </p>
 
                         {/* Career Prospects */}
-                        <div className="mb-4">
-                          <h4 className="font-semibold text-sm text-gray-900 mb-2">
-                            Career Opportunities:
-                          </h4>
-                          <div className="flex flex-wrap gap-1">
-                            {degree.careerProspects
-                              .slice(0, 3)
-                              .map((career, idx) => (
-                                <Badge
-                                  key={idx}
-                                  variant="outline"
-                                  className="text-xs"
-                                >
-                                  {career}
-                                </Badge>
-                              ))}
-                            {degree.careerProspects.length > 3 && (
-                              <Badge variant="outline" className="text-xs">
-                                +{degree.careerProspects.length - 3} more
-                              </Badge>
-                            )}
-                          </div>
-                        </div>
+                        {degree.careerProspects &&
+                          degree.careerProspects.length > 0 && (
+                            <div className="mb-4">
+                              <h4 className="font-semibold text-sm text-gray-900 mb-2">
+                                Career Opportunities:
+                              </h4>
+                              <div className="flex flex-wrap gap-1">
+                                {degree.careerProspects
+                                  .slice(0, 3)
+                                  .map((career, idx) => (
+                                    <Badge
+                                      key={idx}
+                                      variant="outline"
+                                      className="text-xs"
+                                    >
+                                      {career}
+                                    </Badge>
+                                  ))}
+                                {degree.careerProspects.length > 3 && (
+                                  <Badge variant="outline" className="text-xs">
+                                    +{degree.careerProspects.length - 3} more
+                                  </Badge>
+                                )}
+                              </div>
+                            </div>
+                          )}
 
                         {/* Action Buttons */}
                         <div className="flex space-x-2">
