@@ -48,16 +48,17 @@ const Navbar = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
-          <div className="flex items-center">
+          <div className="flex items-center min-w-0">
             <Link
               to="/"
               className="flex items-center space-x-2 hover:opacity-80 transition-opacity"
             >
-              <div className="w-8 h-8 bg-book-600 rounded-lg flex items-center justify-center">
-                <BookOpen className="w-5 h-5 text-white" />
+              <div className="w-7 h-7 sm:w-8 sm:h-8 bg-book-600 rounded-lg flex items-center justify-center flex-shrink-0">
+                <BookOpen className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
               </div>
-              <span className="text-xl font-bold text-book-600">
-                ReBooked Solutions
+              <span className="text-lg sm:text-xl font-bold text-book-600 truncate">
+                <span className="hidden sm:inline">ReBooked Solutions</span>
+                <span className="sm:hidden">ReBooked</span>
               </span>
             </Link>
           </div>
