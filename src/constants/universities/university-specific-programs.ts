@@ -521,14 +521,14 @@ export const getCorrectFacultyName = (
   const structure = FACULTY_STRUCTURES[universityType];
 
   // Find matching faculty structure
-  const facultyKey = Object.keys(structure).find(
-    (key) =>
-      (structure as any)[key].id === baseFacultyId ||
-      baseFacultyId.includes(key),
-  );
+  const facultyKey = Object.keys(structure).find((key) => {
+    const faculty = structure[key as keyof typeof structure];
+    return faculty.id === baseFacultyId || baseFacultyId.includes(key);
+  });
 
   if (facultyKey) {
-    return (structure as any)[facultyKey].name;
+    const faculty = structure[facultyKey as keyof typeof structure];
+    return faculty.name;
   }
 
   // Default fallback names
