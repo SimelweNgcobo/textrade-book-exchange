@@ -305,7 +305,9 @@ const BursaryExplorer = () => {
                   <SelectValue placeholder="Field of study" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All fields</SelectItem>
+                  <SelectItem key="all-fields" value="all">
+                    All fields
+                  </SelectItem>
                   {BURSARY_FIELDS_OF_STUDY.map((field) => (
                     <SelectItem key={field} value={field}>
                       {field}
