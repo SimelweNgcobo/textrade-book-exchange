@@ -464,7 +464,9 @@ const CourseDetail = () => {
                     <label className="text-sm font-medium text-gray-700 block mb-1">
                       University
                     </label>
-                    <p className="text-sm text-gray-600">{university.name}</p>
+                    <p className="text-sm text-gray-600">
+                      {university?.name || "Unknown University"}
+                    </p>
                   </div>
 
                   <div>
@@ -472,7 +474,8 @@ const CourseDetail = () => {
                       Location
                     </label>
                     <p className="text-sm text-gray-600">
-                      {university.location}, {university.province}
+                      {university?.location || "Unknown Location"}
+                      {university?.province && `, ${university.province}`}
                     </p>
                   </div>
 
