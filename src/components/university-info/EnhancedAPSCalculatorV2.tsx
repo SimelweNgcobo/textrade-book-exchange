@@ -513,7 +513,9 @@ const EnhancedAPSCalculatorV2 = ({
 
                 <Select
                   value={sortBy}
-                  onValueChange={(value: any) => setSortBy(value)}
+                  onValueChange={(value: string) =>
+                    setSortBy(value as "aps" | "alphabetical")
+                  }
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Sort by" />
