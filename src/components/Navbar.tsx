@@ -64,14 +64,15 @@ const Navbar = () => {
           </div>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-8">
+          <div className="hidden md:flex items-center space-x-4 lg:space-x-8">
             <Link
               to="/books"
               className={`text-sm font-medium transition-colors hover:text-book-600 ${
                 isActive("/books") ? "text-book-600" : "text-gray-700"
               }`}
             >
-              Browse Books
+              <span className="hidden lg:inline">Browse Books</span>
+              <span className="lg:hidden">Books</span>
             </Link>
 
             <Link
@@ -98,7 +99,7 @@ const Navbar = () => {
           </div>
 
           {/* Right Side Actions */}
-          <div className="hidden md:flex items-center space-x-4">
+          <div className="hidden md:flex items-center space-x-2 lg:space-x-4">
             {isAuthenticated ? (
               <>
                 <CartButton />
@@ -111,20 +112,25 @@ const Navbar = () => {
                 </Link>
 
                 <Link to="/create-listing">
-                  <Button className="bg-book-600 hover:bg-book-700 text-white px-4 h-10">
+                  <Button className="bg-book-600 hover:bg-book-700 text-white px-3 lg:px-4 h-10 text-sm">
                     <Plus className="w-4 h-4" />
-                    <span className="ml-2">Sell Book</span>
+                    <span className="ml-1 lg:ml-2 hidden lg:inline">
+                      Sell Book
+                    </span>
+                    <span className="ml-1 lg:hidden">Sell</span>
                   </Button>
                 </Link>
 
-                <div className="flex items-center space-x-2">
+                <div className="flex items-center space-x-1 lg:space-x-2">
                   <Link to="/profile">
                     <Button
                       variant="ghost"
-                      className="text-gray-700 hover:text-book-600 px-3 h-10"
+                      className="text-gray-700 hover:text-book-600 px-2 lg:px-3 h-10 text-sm"
                     >
                       <User className="w-4 h-4" />
-                      <span className="ml-2">Profile</span>
+                      <span className="ml-1 lg:ml-2 hidden lg:inline">
+                        Profile
+                      </span>
                     </Button>
                   </Link>
 
@@ -133,7 +139,7 @@ const Navbar = () => {
                   <Button
                     variant="ghost"
                     onClick={handleLogout}
-                    className="text-gray-700 hover:text-red-600 px-3 h-10 min-w-[44px]"
+                    className="text-gray-700 hover:text-red-600 px-2 lg:px-3 h-10 min-w-[44px]"
                     aria-label="Logout"
                   >
                     <LogOut className="w-4 h-4" />

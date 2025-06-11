@@ -21,11 +21,12 @@ const AdminAccess = () => {
   return (
     <Button
       onClick={handleAdminAccess}
-      className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white border-0 shadow-md hover:shadow-lg transition-all duration-200 font-medium"
+      variant="outline"
+      className="flex items-center hover:bg-book-100"
     >
       <Shield className="mr-2 h-4 w-4" />
-      <span className="hidden sm:inline">Admin Dashboard</span>
-      <span className="sm:hidden">Admin</span>
+      <span className="hidden lg:inline">Admin Dashboard</span>
+      <span className="lg:hidden">Admin</span>
     </Button>
   );
 };
