@@ -45,7 +45,7 @@ const AccountInformation = ({
     }
   }, [user, checkPendingEmailChange]);
 
-  const checkPendingEmailChange = async () => {
+  const checkPendingEmailChange = useCallback(async () => {
     if (!user) return;
 
     setIsLoadingPending(true);
@@ -64,7 +64,7 @@ const AccountInformation = ({
     } finally {
       setIsLoadingPending(false);
     }
-  };
+  }, [user]);
 
   const handleEmailChangeRequested = (pendingEmail: string) => {
     setPendingEmailChange({
