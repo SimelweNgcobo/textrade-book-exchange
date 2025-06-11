@@ -43,7 +43,7 @@ const AccountInformation = ({
     if (user) {
       checkPendingEmailChange();
     }
-  }, [user]);
+  }, [user, checkPendingEmailChange]);
 
   const checkPendingEmailChange = async () => {
     if (!user) return;
