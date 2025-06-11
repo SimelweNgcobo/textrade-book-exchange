@@ -48,6 +48,7 @@ import {
   SUBJECT_CATEGORIES,
   isNonContributing,
   getSubjectCategory,
+  isLanguageSubject,
 } from "@/constants/subjects";
 import { ALL_SOUTH_AFRICAN_UNIVERSITIES } from "@/constants/universities";
 import {
