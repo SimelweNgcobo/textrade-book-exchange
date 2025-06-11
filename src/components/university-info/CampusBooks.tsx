@@ -59,7 +59,11 @@ const CampusBooks = ({
   const loadBooks = async () => {
     setIsLoading(true);
     try {
-      const filters: any = {};
+      const filters: {
+        university?: string;
+        universityYear?: string;
+        condition?: string;
+      } = {};
 
       if (selectedUniversityFilter) {
         filters.university = selectedUniversityFilter;
