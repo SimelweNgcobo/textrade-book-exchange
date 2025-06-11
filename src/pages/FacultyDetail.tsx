@@ -235,9 +235,11 @@ const FacultyDetail = () => {
                         </div>
                       </CardHeader>
                       <CardContent>
-                        <p className="text-gray-600 text-sm leading-relaxed mb-4">
-                          {degree.description}
-                        </p>
+                        {degree.description && (
+                          <p className="text-gray-600 text-sm leading-relaxed mb-4">
+                            {degree.description}
+                          </p>
+                        )}
 
                         {/* Career Prospects */}
                         {degree.careerProspects &&
