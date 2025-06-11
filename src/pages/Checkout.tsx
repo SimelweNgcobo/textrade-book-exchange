@@ -728,31 +728,39 @@ const Checkout = () => {
                 <div className="space-y-4 max-h-96 overflow-y-auto">
                   {/* ... keep existing code (items display) */}
                   {isCartCheckout ? (
-                    cartData.map((item: any) => (
-                      <div
-                        key={item.id}
-                        className="flex items-center gap-3 p-3 border rounded-lg"
-                      >
-                        <img
-                          src={item.imageUrl}
-                          alt={item.title}
-                          className="w-12 h-16 md:w-16 md:h-20 object-cover rounded flex-shrink-0"
-                        />
-                        <div className="flex-1 min-w-0">
-                          <h4 className="font-semibold text-sm md:text-base truncate">
-                            {item.title}
-                          </h4>
-                          <p className="text-xs md:text-sm text-gray-600 truncate">
-                            by {item.author}
-                          </p>
+                    cartData.map(
+                      (item: {
+                        id: string;
+                        imageUrl: string;
+                        title: string;
+                        author: string;
+                        price: number;
+                      }) => (
+                        <div
+                          key={item.id}
+                          className="flex items-center gap-3 p-3 border rounded-lg"
+                        >
+                          <img
+                            src={item.imageUrl}
+                            alt={item.title}
+                            className="w-12 h-16 md:w-16 md:h-20 object-cover rounded flex-shrink-0"
+                          />
+                          <div className="flex-1 min-w-0">
+                            <h4 className="font-semibold text-sm md:text-base truncate">
+                              {item.title}
+                            </h4>
+                            <p className="text-xs md:text-sm text-gray-600 truncate">
+                              by {item.author}
+                            </p>
+                          </div>
+                          <div className="text-right flex-shrink-0">
+                            <p className="font-semibold text-sm md:text-base">
+                              R{item.price.toFixed(2)}
+                            </p>
+                          </div>
                         </div>
-                        <div className="text-right flex-shrink-0">
-                          <p className="font-semibold text-sm md:text-base">
-                            R{item.price.toFixed(2)}
-                          </p>
-                        </div>
-                      </div>
-                    ))
+                      ),
+                    )
                   ) : book ? (
                     <div className="flex items-center gap-3 p-3 border rounded-lg">
                       <img
