@@ -317,17 +317,22 @@ const APSCalculatorSection = () => {
                           </div>
                           <div className="flex items-center space-x-4 text-sm text-gray-600 mb-2">
                             <span className="font-medium">
-                              {close.university.abbreviation}
+                              {close.university?.abbreviation ||
+                                close.university?.name ||
+                                "Unknown University"}
                             </span>
                             <span>•</span>
-                            <span>{close.degree.faculty}</span>
+                            <span>
+                              {close.degree?.faculty || "Unknown Faculty"}
+                            </span>
                             <span>•</span>
                             <span className="text-orange-600 font-medium">
-                              Need {close.apsGap} more points
+                              Need {close.apsGap || 0} more points
                             </span>
                           </div>
                           <p className="text-sm text-gray-600 leading-relaxed">
-                            {close.degree.description}
+                            {close.degree?.description ||
+                              "No description available."}
                           </p>
                         </div>
                       </div>
