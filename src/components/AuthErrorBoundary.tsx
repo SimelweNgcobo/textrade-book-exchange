@@ -28,8 +28,19 @@ class AuthErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.error("[AUTH ERROR BOUNDARY] Error:", error);
-    console.error("[AUTH ERROR BOUNDARY] Error Info:", errorInfo);
+    // Use proper error serialization to prevent [object Object] logging
+    console.error("[AUTH ERROR BOUNDARY] Error:", {
+      message: error.message,
+      stack: error.stack,
+      name: error.name,
+      type: error.constructor.name,
+    });
+
+    console.error("[AUTH ERROR BOUNDARY] Error Info:", {
+      componentStack: errorInfo.componentStack,
+      errorBoundary: "AuthErrorBoundary",
+      timestamp: new Date().toISOString(),
+    });
 
     this.setState({
       error,

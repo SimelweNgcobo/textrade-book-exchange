@@ -10,7 +10,19 @@ import { Broadcast } from "@/types/broadcast";
 import BroadcastDialog from "./BroadcastDialog";
 
 const BroadcastManager = () => {
-  const { user, isAuthenticated } = useAuth();
+  // Add safety check for context availability (useful during HMR)
+  let authContext;
+  try {
+    authContext = useAuth();
+  } catch (error) {
+    console.warn("[BroadcastManager] Auth context not available:", {
+      message: error instanceof Error ? error.message : String(error),
+      timestamp: new Date().toISOString(),
+    });
+    return null;
+  }
+
+  const { user, isAuthenticated } = authContext;
   const [currentBroadcast, setCurrentBroadcast] = useState<Broadcast | null>(
     null,
   );

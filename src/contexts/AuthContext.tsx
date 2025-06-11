@@ -47,7 +47,23 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error("useAuth must be used within an AuthProvider");
+    // Add more context for debugging and improve HMR resilience
+    const error = new Error("useAuth must be used within an AuthProvider");
+    error.name = "AuthContextError";
+
+    // In development, provide additional debugging info
+    if (process.env.NODE_ENV === "development") {
+      console.error(
+        "[AuthContext] useAuth hook called outside of AuthProvider:",
+        {
+          timestamp: new Date().toISOString(),
+          stack: error.stack,
+          hint: "This might be caused by Hot Module Replacement (HMR) or component rendering outside AuthProvider",
+        },
+      );
+    }
+
+    throw error;
   }
   return context;
 };
