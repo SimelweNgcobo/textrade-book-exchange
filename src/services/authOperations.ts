@@ -83,14 +83,27 @@ export const fetchUserProfile = async (user: User): Promise<Profile | null> => {
   try {
     console.log("Fetching profile for user:", user.id);
 
-    // Wrap the Supabase call in retry logic for network errors
-    const result = await retryWithBackoff(async () => {
-      return await supabase
-        .from("profiles")
-        .select("id, name, email, status, profile_picture_url, bio, is_admin")
-        .eq("id", user.id)
-        .single();
-    });
+    // Wrap the Supabase call in retry logic for network errors with optimized settings
+    const result = await retryWithBackoff(
+      async () => {
+        return await supabase
+          .from("profiles")
+          .select("id, name, email, status, profile_picture_url, bio, is_admin")
+          .eq("id", user.id)
+          .single();
+      },
+      {
+        maxRetries: 2, // Reduced from 3 to 2 for faster timeout
+        baseDelay: 500, // Reduced from 1000ms to 500ms
+        maxDelay: 5000, // Reduced max delay
+        onRetry: (attempt, error) => {
+          console.log(
+            `[AuthContext] Profile fetch retry ${attempt}/2:`,
+            error instanceof Error ? error.message : String(error),
+          );
+        },
+      },
+    );
 
     const { data: profile, error: profileError } = result;
 
