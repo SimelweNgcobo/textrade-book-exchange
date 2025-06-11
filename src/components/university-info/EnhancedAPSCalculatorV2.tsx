@@ -503,7 +503,10 @@ const EnhancedAPSCalculatorV2 = ({
                       All Faculties
                     </SelectItem>
                     {availableFaculties.map((faculty) => (
-                      <SelectItem key={faculty} value={faculty}>
+                      <SelectItem
+                        key={`faculty-filter-${faculty}`}
+                        value={faculty}
+                      >
                         {faculty}
                       </SelectItem>
                     ))}
