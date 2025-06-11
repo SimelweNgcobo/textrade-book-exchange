@@ -70,7 +70,9 @@ const StudyFilters = ({
             <SelectValue placeholder="Category" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">All Categories</SelectItem>
+            <SelectItem key="all-categories" value="">
+              All Categories
+            </SelectItem>
             {categories.map((category) => (
               <SelectItem key={category} value={category}>
                 {category}
