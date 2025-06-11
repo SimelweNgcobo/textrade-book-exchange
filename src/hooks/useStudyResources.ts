@@ -90,16 +90,16 @@ export const useStudyResources = ({
 
   const clearFilters = () => {
     setSearchTerm("");
-    setSelectedCategory("");
-    setSelectedDifficulty("");
-    setSelectedType("");
+    setSelectedCategory("all");
+    setSelectedDifficulty("all");
+    setSelectedType("all");
   };
 
   const hasActiveFilters = !!(
     searchTerm ||
-    selectedCategory ||
-    selectedDifficulty ||
-    selectedType
+    (selectedCategory && selectedCategory !== "all") ||
+    (selectedDifficulty && selectedDifficulty !== "all") ||
+    (selectedType && selectedType !== "all")
   );
 
   return {
