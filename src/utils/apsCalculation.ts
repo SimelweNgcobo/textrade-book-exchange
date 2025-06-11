@@ -1,6 +1,6 @@
 import { APSSubject, APSCalculation, EligibleDegree } from "@/types/university";
-import { COMMON_DEGREES, calculateAPSPoints } from "@/constants/degrees";
-import { SOUTH_AFRICAN_UNIVERSITIES } from "@/constants/universities";
+import { calculateAPSPoints } from "@/constants/degrees";
+import { ALL_SOUTH_AFRICAN_UNIVERSITIES } from "@/constants/universities";
 import { isNonContributing } from "@/constants/subjects";
 
 export const calculateAPS = (subjects: APSSubject[]): APSCalculation => {
@@ -15,19 +15,23 @@ export const calculateAPS = (subjects: APSSubject[]): APSCalculation => {
     0,
   );
 
-  // Find eligible degrees
+  // Find eligible degrees from all universities
   const eligibleDegrees: EligibleDegree[] = [];
 
-  COMMON_DEGREES.forEach((degree) => {
-    SOUTH_AFRICAN_UNIVERSITIES.forEach((university) => {
-      const meetsRequirement = totalScore >= degree.apsRequirement;
-      const apsGap = meetsRequirement ? 0 : degree.apsRequirement - totalScore;
+  ALL_SOUTH_AFRICAN_UNIVERSITIES.forEach((university) => {
+    university.faculties.forEach((faculty) => {
+      faculty.degrees.forEach((degree) => {
+        const meetsRequirement = totalScore >= degree.apsRequirement;
+        const apsGap = meetsRequirement
+          ? 0
+          : degree.apsRequirement - totalScore;
 
-      eligibleDegrees.push({
-        degree,
-        university,
-        meetsRequirement,
-        apsGap: apsGap > 0 ? apsGap : undefined,
+        eligibleDegrees.push({
+          degree,
+          university,
+          meetsRequirement,
+          apsGap: apsGap > 0 ? apsGap : undefined,
+        });
       });
     });
   });
