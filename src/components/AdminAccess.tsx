@@ -22,7 +22,7 @@ const AdminAccess = () => {
     <Button
       onClick={handleAdminAccess}
       variant="outline"
-      className="flex items-center hover:bg-book-100"
+      className="flex items-center hover:bg-book-100 min-h-[44px] touch-manipulation"
     >
       <Shield className="mr-2 h-4 w-4" />
       <span className="hidden lg:inline">Admin Dashboard</span>
