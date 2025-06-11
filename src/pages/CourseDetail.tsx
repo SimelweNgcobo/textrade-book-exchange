@@ -175,7 +175,8 @@ const CourseDetail = () => {
                 </CardHeader>
                 <CardContent>
                   <p className="text-gray-700 leading-relaxed text-lg">
-                    {course.description}
+                    {course.description ||
+                      "Course description is not available at this time. Please contact the university for more information about this program."}
                   </p>
                 </CardContent>
               </Card>
