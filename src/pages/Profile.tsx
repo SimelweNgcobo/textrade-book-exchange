@@ -372,9 +372,9 @@ const Profile = () => {
 
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="outline" className="w-full">
+                      <Button variant="outline" className="w-full text-sm py-2">
                         <BookOpen className="h-4 w-4 mr-2" />
-                        How It Works
+                        <span className="truncate">How It Works</span>
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent className="w-56" align="end">
