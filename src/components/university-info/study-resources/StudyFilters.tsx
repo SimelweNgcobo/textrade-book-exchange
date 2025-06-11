@@ -70,7 +70,7 @@ const StudyFilters = ({
             <SelectValue placeholder="Category" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem key="all-categories" value="">
+            <SelectItem key="all-categories" value="all">
               All Categories
             </SelectItem>
             {categories.map((category) => (
@@ -86,7 +86,7 @@ const StudyFilters = ({
             <SelectValue placeholder="Difficulty" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem key="all-levels" value="">
+            <SelectItem key="all-levels" value="all">
               All Levels
             </SelectItem>
             <SelectItem key="beginner" value="Beginner">
@@ -106,7 +106,7 @@ const StudyFilters = ({
             <SelectValue placeholder="Type" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem key="all-types" value="">
+            <SelectItem key="all-types" value="all">
               All Types
             </SelectItem>
             <SelectItem key="video" value="video">
