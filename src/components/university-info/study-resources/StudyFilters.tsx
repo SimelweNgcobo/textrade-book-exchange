@@ -37,19 +37,21 @@ const StudyFilters = ({
   hasActiveFilters,
 }: StudyFiltersProps) => {
   return (
-    <div className="bg-white p-6 rounded-lg border shadow-sm">
-      <div className="flex items-center gap-2 mb-4">
-        <Filter className="w-5 h-5 text-gray-600" />
-        <h3 className="text-lg font-semibold">Filters</h3>
+    <div className="bg-white p-4 sm:p-6 rounded-lg border shadow-sm">
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-2">
+          <Filter className="w-5 h-5 text-gray-600" />
+          <h3 className="text-lg font-semibold">Filters</h3>
+        </div>
         {hasActiveFilters && (
           <Button
             variant="ghost"
             size="sm"
             onClick={onClearFilters}
-            className="ml-auto text-gray-500 hover:text-gray-700"
+            className="text-gray-500 hover:text-gray-700 px-2 py-1 h-8"
           >
             <X className="w-4 h-4 mr-1" />
-            Clear all
+            Clear
           </Button>
         )}
       </div>
