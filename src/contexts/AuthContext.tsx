@@ -152,11 +152,15 @@ function AuthProvider({ children }: { children: ReactNode }) {
                 // Silently fail notification creation
               });
             }
-          } catch (profileError) {
-            console.error("[AuthContext] Profile fetch failed:", profileError);
-            handleError(profileError, "Fetch Profile");
+        } catch (profileError) {
+          console.error("[AuthContext] Profile fetch failed:", {
+            message: profileError instanceof Error ? profileError.message : String(profileError),
+            stack: profileError instanceof Error ? profileError.stack : undefined,
+            type: profileError instanceof Error ? profileError.constructor.name : typeof profileError,
+          });
 
-            // Create a more comprehensive fallback profile
+          if (session?.user) {
+            // Create fallback profile with available session data
             const fallbackProfile = {
               id: session.user.id,
               name:
@@ -172,6 +176,27 @@ function AuthProvider({ children }: { children: ReactNode }) {
 
             setProfile(fallbackProfile);
             console.log(
+              "[AuthContext] Using fallback profile due to fetch error",
+            );
+
+            // Try to create/fix profile in background (non-blocking)
+            fetchUserProfile(session.user)
+              .then((profile) => {
+                if (profile) {
+                  setProfile(profile);
+                  console.log(
+                    "[AuthContext] Background profile fetch successful",
+                  );
+                }
+              })
+              .catch((bgError) => {
+                console.warn("[AuthContext] Background profile fetch failed:", {
+                  message: bgError instanceof Error ? bgError.message : String(bgError),
+                  type: bgError instanceof Error ? bgError.constructor.name : typeof bgError,
+                });
+              });
+          }
+        }
               "[AuthContext] Using fallback profile due to fetch error",
             );
 
