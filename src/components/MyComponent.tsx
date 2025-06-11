@@ -1,4 +1,9 @@
-export default function MyComponent(props: any) {
+interface MyComponentProps {
+  // Define actual props if needed
+  [key: string]: unknown;
+}
+
+export default function MyComponent(props: MyComponentProps) {
   return (
     <div
       css={{
