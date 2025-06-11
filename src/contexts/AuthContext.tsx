@@ -233,6 +233,11 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
             if (session?.user) {
               // Create fallback profile with available session data
+              const isTimeoutError =
+                profileError instanceof Error &&
+                (profileError.message.includes("timeout") ||
+                  (profileError as any).isTimeout);
+
               const fallbackProfile = {
                 id: session.user.id,
                 name:
@@ -247,9 +252,16 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
               };
 
               setProfile(fallbackProfile);
-              console.log(
-                "[AuthContext] Using fallback profile due to fetch error",
-              );
+
+              if (isTimeoutError) {
+                console.log(
+                  "[AuthContext] Using fallback profile due to timeout - user can continue while profile loads in background",
+                );
+              } else {
+                console.log(
+                  "[AuthContext] Using fallback profile due to fetch error",
+                );
+              }
 
               // Try to create/fix profile in background (non-blocking)
               fetchUserProfile(session.user)
