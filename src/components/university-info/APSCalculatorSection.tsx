@@ -107,6 +107,20 @@ const APSCalculatorSection = () => {
         onCalculationComplete={handleCalculationComplete}
       />
 
+      {/* Error handling for invalid calculation */}
+      {showResults && calculation && !calculation.eligibleDegrees && (
+        <div className="space-y-6">
+          <Alert className="border-red-200 bg-red-50">
+            <AlertTriangle className="h-4 w-4" />
+            <AlertDescription>
+              <strong>Calculation Error:</strong> There was an issue calculating
+              your APS results. Please try again or refresh the page. If the
+              problem persists, contact support.
+            </AlertDescription>
+          </Alert>
+        </div>
+      )}
+
       {/* Results Section */}
       {showResults && calculation && calculation.eligibleDegrees && (
         <div className="space-y-6">
