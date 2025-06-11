@@ -70,6 +70,40 @@ export const debugAuthContext = () => {
   console.log("=== Debug Info Complete ===");
 };
 
+export const simulateProfileError = () => {
+  console.log("=== Simulating Profile Error (Fixed Version) ===");
+
+  // Simulate different types of errors to test serialization
+  const errors = [
+    new Error("Test regular error"),
+    { message: "Test object error", code: "TEST001" },
+    { complexObject: { nested: "data" }, someProperty: "value" },
+    "String error",
+    null,
+    undefined,
+  ];
+
+  errors.forEach((error, index) => {
+    console.log(`--- Test Error ${index + 1} ---`);
+    const errorDetails = {
+      message: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined,
+      type: error instanceof Error ? error.constructor.name : typeof error,
+      name: error instanceof Error ? error.name : undefined,
+      code: (error as any)?.code || (error as any)?.error_code,
+      details: (error as any)?.details || (error as any)?.hint,
+      timestamp: new Date().toISOString(),
+    };
+
+    console.error(
+      "[AuthContext] Profile fetch failed (v2.0 - FIXED):",
+      errorDetails,
+    );
+  });
+
+  console.log("=== Error Simulation Complete ===");
+};
+
 // Call in development only
 if (process.env.NODE_ENV === "development") {
   // Make functions available globally for console debugging
@@ -77,6 +111,7 @@ if (process.env.NODE_ENV === "development") {
     testErrorSerialization,
     clearAuthState,
     debugAuthContext,
+    simulateProfileError,
   };
 
   console.log("🔧 Debug utilities available: window.debugAuth");
