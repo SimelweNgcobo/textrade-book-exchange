@@ -114,7 +114,7 @@ const Confirm = () => {
 
         // If we get here, none of the methods worked
         throw new Error("Unable to confirm email with any available method");
-      } catch (error: any) {
+      } catch (error: unknown) {
         console.error("Email confirmation error:", error);
         setStatus("error");
 
