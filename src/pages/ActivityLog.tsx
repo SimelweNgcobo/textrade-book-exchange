@@ -82,7 +82,7 @@ const ActivityLog = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [user]);
 
   const getActivityIcon = (type: string) => {
     switch (type) {
