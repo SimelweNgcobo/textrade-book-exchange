@@ -65,8 +65,8 @@ const ensureCompletePrograms = (universities: University[]): University[] => {
               ),
           );
 
-          // Add up to 5 new degrees per faculty to ensure variety
-          existingFaculty.degrees.push(...newDegrees.slice(0, 5));
+          // Add all new degrees to ensure comprehensive coverage
+          existingFaculty.degrees.push(...newDegrees);
         }
       });
 
