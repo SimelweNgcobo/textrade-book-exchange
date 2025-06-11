@@ -119,11 +119,12 @@ const Confirm = () => {
         setStatus("error");
 
         let errorMessage = "Email confirmation failed. ";
-        if (error.message?.includes("expired")) {
+        const errorMsg = error instanceof Error ? error.message : String(error);
+        if (errorMsg?.includes("expired")) {
           errorMessage += "The confirmation link has expired.";
-        } else if (error.message?.includes("already confirmed")) {
+        } else if (errorMsg?.includes("already confirmed")) {
           errorMessage += "This email has already been confirmed.";
-        } else if (error.message?.includes("invalid")) {
+        } else if (errorMsg?.includes("invalid")) {
           errorMessage += "The confirmation link is invalid.";
         } else {
           errorMessage += "Please try again or contact support.";
