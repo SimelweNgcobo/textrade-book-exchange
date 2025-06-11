@@ -30,7 +30,7 @@ export interface Activity {
     rating?: number;
     search_query?: string;
     category?: string;
-    [key: string]: any;
+    [key: string]: unknown;
   };
   created_at: string;
 }
