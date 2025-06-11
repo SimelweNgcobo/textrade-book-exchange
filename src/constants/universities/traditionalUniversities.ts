@@ -6563,4 +6563,287 @@ export const TRADITIONAL_UNIVERSITIES: University[] = [
       },
     ],
   },
+
+  // Sefako Makgatho Health Sciences University - SPECIALIZED HEALTH STRUCTURE
+  {
+    id: "smu",
+    name: "Sefako Makgatho Health Sciences University",
+    abbreviation: "SMU",
+    fullName: "Sefako Makgatho Health Sciences University (SMU)",
+    location: "Pretoria",
+    province: "Gauteng",
+    logo: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1f?w=80&h=80&fit=crop&crop=center",
+    overview:
+      "A specialized health sciences university dedicated to excellence in health education, research, and community health services.",
+    website: "https://www.smu.ac.za",
+    studentPortal: "https://student.smu.ac.za",
+    admissionsContact: "admissions@smu.ac.za",
+    establishedYear: 2014,
+    studentPopulation: 4000,
+    campuses: ["Ga-Rankuwa", "Pretoria"],
+    applicationInfo: {
+      isOpen: true,
+      openingDate: "1 April 2024",
+      closingDate: "30 September 2024",
+      academicYear: "2025",
+      applicationFee: "R250",
+      applicationMethod: "Online via SMU application portal",
+      lateApplications: {
+        available: true,
+        deadline: "31 October 2024",
+        additionalFee: "R200",
+      },
+    },
+    faculties: [
+      {
+        id: "medicine",
+        name: "School of Medicine",
+        description:
+          "Medical education with community health and rural medicine focus.",
+        degrees: [
+          {
+            id: "mbchb",
+            name: "Bachelor of Medicine and Bachelor of Surgery (MBChB)",
+            faculty: "Medicine",
+            duration: "6 years",
+            apsRequirement: 40,
+            description:
+              "Medical degree with emphasis on community health and rural practice.",
+            subjects: [
+              { name: "Life Sciences", level: 7, isRequired: true },
+              { name: "Physical Sciences", level: 6, isRequired: true },
+              { name: "Mathematics", level: 6, isRequired: true },
+              { name: "English", level: 6, isRequired: true },
+            ],
+            careerProspects: [
+              "Medical Doctor",
+              "Family Physician",
+              "Specialist Physician",
+              "Rural Health Practitioner",
+              "Medical Researcher",
+            ],
+          },
+        ],
+      },
+      {
+        id: "oral-health-sciences",
+        name: "School of Oral Health Sciences",
+        description:
+          "Dental and oral health education with clinical excellence.",
+        degrees: [
+          {
+            id: "bds",
+            name: "Bachelor of Dental Surgery (BDS)",
+            faculty: "Oral Health Sciences",
+            duration: "5 years",
+            apsRequirement: 38,
+            description:
+              "Dental surgery with comprehensive oral healthcare focus.",
+            subjects: [
+              { name: "Life Sciences", level: 7, isRequired: true },
+              { name: "Physical Sciences", level: 6, isRequired: true },
+              { name: "Mathematics", level: 6, isRequired: true },
+              { name: "English", level: 6, isRequired: true },
+            ],
+            careerProspects: [
+              "Dentist",
+              "Oral Surgeon",
+              "Dental Specialist",
+              "Dental Practice Owner",
+              "Oral Health Researcher",
+            ],
+          },
+          {
+            id: "bdt",
+            name: "Bachelor of Dental Therapy (BDT)",
+            faculty: "Oral Health Sciences",
+            duration: "4 years",
+            apsRequirement: 32,
+            description: "Dental therapy with preventive care focus.",
+            subjects: [
+              { name: "Life Sciences", level: 6, isRequired: true },
+              { name: "Physical Sciences", level: 5, isRequired: true },
+              { name: "Mathematics", level: 5, isRequired: true },
+              { name: "English", level: 5, isRequired: true },
+            ],
+            careerProspects: [
+              "Dental Therapist",
+              "Oral Health Educator",
+              "Community Dental Worker",
+              "Preventive Care Specialist",
+              "Public Health Dental Officer",
+            ],
+          },
+        ],
+      },
+      {
+        id: "pharmacy",
+        name: "School of Pharmacy",
+        description:
+          "Pharmaceutical education with clinical pharmacy emphasis.",
+        degrees: [
+          {
+            id: "bpharm",
+            name: "Bachelor of Pharmacy (BPharm)",
+            faculty: "Pharmacy",
+            duration: "4 years",
+            apsRequirement: 34,
+            description:
+              "Pharmacy education with clinical practice and research focus.",
+            subjects: [
+              { name: "Physical Sciences", level: 6, isRequired: true },
+              { name: "Life Sciences", level: 6, isRequired: true },
+              { name: "Mathematics", level: 6, isRequired: true },
+              { name: "English", level: 5, isRequired: true },
+            ],
+            careerProspects: [
+              "Pharmacist",
+              "Clinical Pharmacist",
+              "Hospital Pharmacist",
+              "Industrial Pharmacist",
+              "Pharmaceutical Researcher",
+            ],
+          },
+        ],
+      },
+      {
+        id: "health-care-sciences",
+        name: "School of Health Care Sciences",
+        description: "Allied health sciences with multidisciplinary approach.",
+        degrees: [
+          {
+            id: "bns-nursing",
+            name: "Bachelor of Nursing Science",
+            faculty: "Health Care Sciences",
+            duration: "4 years",
+            apsRequirement: 30,
+            description: "Professional nursing with clinical excellence focus.",
+            subjects: [
+              { name: "Life Sciences", level: 6, isRequired: true },
+              { name: "English", level: 5, isRequired: true },
+              { name: "Mathematics", level: 5, isRequired: true },
+            ],
+            careerProspects: [
+              "Professional Nurse",
+              "Clinical Nurse Specialist",
+              "Nurse Manager",
+              "Community Health Nurse",
+              "Nursing Researcher",
+            ],
+          },
+          {
+            id: "bsc-occupational-therapy",
+            name: "BSc Occupational Therapy",
+            faculty: "Health Care Sciences",
+            duration: "4 years",
+            apsRequirement: 32,
+            description: "Occupational therapy with rehabilitation focus.",
+            subjects: [
+              { name: "Life Sciences", level: 6, isRequired: true },
+              { name: "English", level: 5, isRequired: true },
+              { name: "Mathematics", level: 5, isRequired: true },
+            ],
+            careerProspects: [
+              "Occupational Therapist",
+              "Rehabilitation Specialist",
+              "Community Health Worker",
+              "Mental Health Therapist",
+              "Pediatric Therapist",
+            ],
+          },
+          {
+            id: "bsc-physiotherapy",
+            name: "BSc Physiotherapy",
+            faculty: "Health Care Sciences",
+            duration: "4 years",
+            apsRequirement: 32,
+            description: "Physiotherapy with movement rehabilitation focus.",
+            subjects: [
+              { name: "Life Sciences", level: 6, isRequired: true },
+              { name: "Physical Sciences", level: 5, isRequired: true },
+              { name: "Mathematics", level: 5, isRequired: true },
+              { name: "English", level: 5, isRequired: true },
+            ],
+            careerProspects: [
+              "Physiotherapist",
+              "Sports Therapist",
+              "Rehabilitation Specialist",
+              "Orthopedic Therapist",
+              "Community Physiotherapist",
+            ],
+          },
+          {
+            id: "bsc-nutrition",
+            name: "BSc Human Nutrition and Dietetics",
+            faculty: "Health Care Sciences",
+            duration: "4 years",
+            apsRequirement: 30,
+            description: "Nutrition and dietetics with community health focus.",
+            subjects: [
+              { name: "Life Sciences", level: 6, isRequired: true },
+              { name: "Physical Sciences", level: 5, isRequired: true },
+              { name: "Mathematics", level: 5, isRequired: true },
+              { name: "English", level: 5, isRequired: true },
+            ],
+            careerProspects: [
+              "Dietitian",
+              "Nutritionist",
+              "Community Nutrition Officer",
+              "Clinical Dietitian",
+              "Public Health Nutritionist",
+            ],
+          },
+        ],
+      },
+      {
+        id: "science-technology",
+        name: "School of Science and Technology",
+        description:
+          "Science and technology education supporting health sciences.",
+        degrees: [
+          {
+            id: "bsc-biochemistry",
+            name: "BSc Biochemistry and Biotechnology",
+            faculty: "Science and Technology",
+            duration: "3 years",
+            apsRequirement: 30,
+            description:
+              "Biochemistry with biotechnology applications in health.",
+            subjects: [
+              { name: "Life Sciences", level: 6, isRequired: true },
+              { name: "Physical Sciences", level: 6, isRequired: true },
+              { name: "Mathematics", level: 5, isRequired: true },
+              { name: "English", level: 5, isRequired: true },
+            ],
+            careerProspects: [
+              "Biochemist",
+              "Biotechnologist",
+              "Research Scientist",
+              "Laboratory Manager",
+              "Quality Control Specialist",
+            ],
+          },
+          {
+            id: "bsc-computer-science",
+            name: "BSc Computer Science and Information Technology",
+            faculty: "Science and Technology",
+            duration: "3 years",
+            apsRequirement: 28,
+            description: "Computing with health informatics applications.",
+            subjects: [
+              { name: "Mathematics", level: 6, isRequired: true },
+              { name: "English", level: 5, isRequired: true },
+            ],
+            careerProspects: [
+              "Health Informatics Specialist",
+              "Software Developer",
+              "Systems Analyst",
+              "IT Support Specialist",
+              "Database Administrator",
+            ],
+          },
+        ],
+      },
+    ],
+  },
 ];
