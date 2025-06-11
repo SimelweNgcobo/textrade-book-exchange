@@ -1401,6 +1401,18 @@ export const COMPLETE_SA_UNIVERSITIES: University[] = [
   ...COMPLETE_SPECIALIZED_UNIVERSITIES,
 ];
 
+// Legacy export for backward compatibility
+export const ALL_26_SA_UNIVERSITIES = COMPLETE_SA_UNIVERSITIES;
+
+// University count summary for verification
+export const UNIVERSITY_COUNT_SUMMARY = {
+  traditional: COMPLETE_TRADITIONAL_UNIVERSITIES.length,
+  technology: COMPLETE_UNIVERSITIES_OF_TECHNOLOGY.length,
+  comprehensive: COMPLETE_COMPREHENSIVE_UNIVERSITIES.length,
+  specialized: COMPLETE_SPECIALIZED_UNIVERSITIES.length,
+  total: COMPLETE_SA_UNIVERSITIES.length,
+};
+
 // Export for type safety and external use
 export { createBaseFaculty };
 
