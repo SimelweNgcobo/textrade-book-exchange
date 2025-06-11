@@ -235,58 +235,92 @@ const AdminDashboard = () => {
     <div className="space-y-4 md:space-y-6">
       <AdminStats stats={stats} />
 
-      <Tabs defaultValue="earnings" className="space-y-4">
+      <Tabs defaultValue="earnings" className="w-full">
         <TabsList
-          className={`${isMobile ? "grid grid-cols-6 h-auto" : "grid grid-cols-6"} w-full`}
+          className={`grid w-full ${
+            isMobile
+              ? "grid-cols-2 gap-2 h-auto p-2 bg-gray-50 rounded-lg"
+              : "grid-cols-6"
+          }`}
         >
           <TabsTrigger
             value="earnings"
-            className={isMobile ? "text-xs px-2 py-2" : ""}
+            className={
+              isMobile
+                ? "text-xs px-3 py-3 rounded-md data-[state=active]:bg-white data-[state=active]:shadow-sm"
+                : ""
+            }
           >
             {isMobile ? "Earnings" : "Earnings"}
           </TabsTrigger>
           <TabsTrigger
             value="users"
-            className={isMobile ? "text-xs px-2 py-2" : ""}
+            className={
+              isMobile
+                ? "text-xs px-3 py-3 rounded-md data-[state=active]:bg-white data-[state=active]:shadow-sm"
+                : ""
+            }
           >
-            {isMobile ? "Users" : "Users"}
-            {stats.totalUsers > 0 && (
-              <span className="ml-1 bg-blue-500 text-white text-xs rounded-full px-1">
-                {stats.totalUsers}
-              </span>
-            )}
+            <span className="flex items-center justify-center">
+              {isMobile ? "Users" : "Users"}
+              {stats.totalUsers > 0 && (
+                <span className="ml-1 bg-blue-500 text-white text-xs rounded-full px-1.5 py-0.5 min-w-[18px] h-[18px] flex items-center justify-center">
+                  {stats.totalUsers}
+                </span>
+              )}
+            </span>
           </TabsTrigger>
           <TabsTrigger
             value="listings"
-            className={isMobile ? "text-xs px-2 py-2" : ""}
+            className={
+              isMobile
+                ? "text-xs px-3 py-3 rounded-md data-[state=active]:bg-white data-[state=active]:shadow-sm"
+                : ""
+            }
           >
-            {isMobile ? "Listings" : "Listings"}
-            {listings.length > 0 && (
-              <span className="ml-1 bg-green-500 text-white text-xs rounded-full px-1">
-                {listings.length}
-              </span>
-            )}
+            <span className="flex items-center justify-center">
+              {isMobile ? "Listings" : "Listings"}
+              {listings.length > 0 && (
+                <span className="ml-1 bg-green-500 text-white text-xs rounded-full px-1.5 py-0.5 min-w-[18px] h-[18px] flex items-center justify-center">
+                  {listings.length}
+                </span>
+              )}
+            </span>
           </TabsTrigger>
           <TabsTrigger
             value="contact"
-            className={isMobile ? "text-xs px-2 py-2" : ""}
+            className={
+              isMobile
+                ? "text-xs px-3 py-3 rounded-md data-[state=active]:bg-white data-[state=active]:shadow-sm"
+                : ""
+            }
           >
-            {isMobile ? "Contact" : "Contact Messages"}
-            {stats.unreadMessages > 0 && (
-              <span className="ml-1 bg-orange-500 text-white text-xs rounded-full px-1">
-                {stats.unreadMessages}
-              </span>
-            )}
+            <span className="flex items-center justify-center">
+              {isMobile ? "Contact" : "Contact Messages"}
+              {stats.unreadMessages > 0 && (
+                <span className="ml-1 bg-orange-500 text-white text-xs rounded-full px-1.5 py-0.5 min-w-[18px] h-[18px] flex items-center justify-center">
+                  {stats.unreadMessages}
+                </span>
+              )}
+            </span>
           </TabsTrigger>
           <TabsTrigger
             value="resources"
-            className={isMobile ? "text-xs px-2 py-2" : ""}
+            className={
+              isMobile
+                ? "text-xs px-3 py-3 rounded-md data-[state=active]:bg-white data-[state=active]:shadow-sm"
+                : ""
+            }
           >
             {isMobile ? "Resources" : "Resources"}
           </TabsTrigger>
           <TabsTrigger
             value="settings"
-            className={isMobile ? "text-xs px-2 py-2" : ""}
+            className={
+              isMobile
+                ? "text-xs px-3 py-3 rounded-md data-[state=active]:bg-white data-[state=active]:shadow-sm"
+                : ""
+            }
           >
             {isMobile ? "Settings" : "Settings"}
           </TabsTrigger>
