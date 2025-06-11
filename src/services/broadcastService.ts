@@ -17,7 +17,12 @@ export const getActiveBroadcasts = async (): Promise<Broadcast[]> => {
         console.log("Broadcasts table not found, returning empty array");
         return [];
       }
-      console.error("Error fetching broadcasts:", error);
+      console.error("Error fetching broadcasts:", {
+        message: error.message,
+        code: error.code,
+        details: error.details,
+        hint: error.hint,
+      });
       return [];
     }
 
@@ -33,7 +38,11 @@ export const getActiveBroadcasts = async (): Promise<Broadcast[]> => {
       createdBy: broadcast.created_by,
     }));
   } catch (error) {
-    console.error("Error in getActiveBroadcasts:", error);
+    console.error("Error in getActiveBroadcasts:", {
+      message: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined,
+      type: error instanceof Error ? error.constructor.name : typeof error,
+    });
     return [];
   }
 };
