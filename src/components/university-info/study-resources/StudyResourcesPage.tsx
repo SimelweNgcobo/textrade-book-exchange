@@ -1,0 +1,202 @@
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
+import {
+  Lightbulb,
+  BookOpen,
+  TrendingUp,
+  Target,
+  Clock,
+  Users,
+  Star,
+} from "lucide-react";
+
+import StudyTipCard from "./StudyTipCard";
+import StudyResourceCard from "./StudyResourceCard";
+import StudyFilters from "./StudyFilters";
+import { useStudyResources } from "@/hooks/useStudyResources";
+import { STUDY_TIPS, STUDY_RESOURCES } from "@/constants/studyResources";
+
+const StudyResourcesPage = () => {
+  const {
+    searchTerm,
+    selectedCategory,
+    selectedDifficulty,
+    selectedType,
+    bookmarkedTips,
+    categories,
+    filteredTips,
+    filteredResources,
+    hasActiveFilters,
+    setSearchTerm,
+    setSelectedCategory,
+    setSelectedDifficulty,
+    setSelectedType,
+    toggleBookmark,
+    clearFilters,
+  } = useStudyResources({ tips: STUDY_TIPS, resources: STUDY_RESOURCES });
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 py-8">
+      <div className="container mx-auto px-4">
+        {/* Header */}
+        <div className="text-center mb-12">
+          <div className="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <Lightbulb className="h-10 w-10 text-blue-600" />
+          </div>
+          <h1 className="text-4xl font-bold mb-4">
+            <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+              Study Resources & Tips
+            </span>
+          </h1>
+          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+            Evidence-based study techniques and curated resources to help you
+            excel in your academic journey.
+          </p>
+        </div>
+
+        {/* Stats Overview */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+          <div className="bg-white p-6 rounded-lg border shadow-sm text-center">
+            <Target className="w-8 h-8 text-blue-600 mx-auto mb-2" />
+            <div className="text-2xl font-bold text-gray-900">
+              {STUDY_TIPS.length}
+            </div>
+            <div className="text-sm text-gray-600">Study Tips</div>
+          </div>
+          <div className="bg-white p-6 rounded-lg border shadow-sm text-center">
+            <BookOpen className="w-8 h-8 text-green-600 mx-auto mb-2" />
+            <div className="text-2xl font-bold text-gray-900">
+              {STUDY_RESOURCES.length}
+            </div>
+            <div className="text-sm text-gray-600">Resources</div>
+          </div>
+          <div className="bg-white p-6 rounded-lg border shadow-sm text-center">
+            <Clock className="w-8 h-8 text-orange-600 mx-auto mb-2" />
+            <div className="text-2xl font-bold text-gray-900">24/7</div>
+            <div className="text-sm text-gray-600">Access</div>
+          </div>
+          <div className="bg-white p-6 rounded-lg border shadow-sm text-center">
+            <TrendingUp className="w-8 h-8 text-purple-600 mx-auto mb-2" />
+            <div className="text-2xl font-bold text-gray-900">90%+</div>
+            <div className="text-sm text-gray-600">Success Rate</div>
+          </div>
+        </div>
+
+        {/* Filters */}
+        <StudyFilters
+          searchTerm={searchTerm}
+          onSearchChange={setSearchTerm}
+          selectedCategory={selectedCategory}
+          onCategoryChange={setSelectedCategory}
+          selectedDifficulty={selectedDifficulty}
+          onDifficultyChange={setSelectedDifficulty}
+          selectedType={selectedType}
+          onTypeChange={setSelectedType}
+          onClearFilters={clearFilters}
+          categories={categories}
+          hasActiveFilters={hasActiveFilters}
+        />
+
+        {/* Main Content */}
+        <Tabs defaultValue="tips" className="mt-8">
+          <TabsList className="grid w-full grid-cols-2 mb-8">
+            <TabsTrigger value="tips" className="flex items-center gap-2">
+              <Lightbulb className="w-4 h-4" />
+              Study Tips ({filteredTips.length})
+            </TabsTrigger>
+            <TabsTrigger value="resources" className="flex items-center gap-2">
+              <BookOpen className="w-4 h-4" />
+              Resources ({filteredResources.length})
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="tips">
+            {filteredTips.length === 0 ? (
+              <div className="text-center py-12">
+                <Lightbulb className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                <h3 className="text-lg font-semibold text-gray-600 mb-2">
+                  No tips found
+                </h3>
+                <p className="text-gray-500">
+                  Try adjusting your filters or search terms.
+                </p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {filteredTips.map((tip) => (
+                  <StudyTipCard
+                    key={tip.id}
+                    tip={tip}
+                    isBookmarked={bookmarkedTips.has(tip.id)}
+                    onBookmark={toggleBookmark}
+                  />
+                ))}
+              </div>
+            )}
+          </TabsContent>
+
+          <TabsContent value="resources">
+            {filteredResources.length === 0 ? (
+              <div className="text-center py-12">
+                <BookOpen className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                <h3 className="text-lg font-semibold text-gray-600 mb-2">
+                  No resources found
+                </h3>
+                <p className="text-gray-500">
+                  Try adjusting your filters or search terms.
+                </p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filteredResources.map((resource) => (
+                  <StudyResourceCard key={resource.id} resource={resource} />
+                ))}
+              </div>
+            )}
+          </TabsContent>
+        </Tabs>
+
+        {/* Quick Tips Section */}
+        <div className="mt-16 bg-white rounded-lg border shadow-sm p-8">
+          <h2 className="text-2xl font-bold mb-6 text-center">
+            Quick Study Tips
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="text-center">
+              <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Clock className="w-6 h-6 text-blue-600" />
+              </div>
+              <h3 className="font-semibold mb-2">Use the Pomodoro Technique</h3>
+              <p className="text-sm text-gray-600">
+                Study for 25 minutes, then take a 5-minute break. Repeat 4
+                times, then take a longer break.
+              </p>
+            </div>
+            <div className="text-center">
+              <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Target className="w-6 h-6 text-green-600" />
+              </div>
+              <h3 className="font-semibold mb-2">Practice Active Recall</h3>
+              <p className="text-sm text-gray-600">
+                Test yourself regularly instead of just re-reading notes. This
+                strengthens memory pathways.
+              </p>
+            </div>
+            <div className="text-center">
+              <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <TrendingUp className="w-6 h-6 text-purple-600" />
+              </div>
+              <h3 className="font-semibold mb-2">Space Out Your Learning</h3>
+              <p className="text-sm text-gray-600">
+                Review material at increasing intervals: 1 day, 3 days, 1 week,
+                2 weeks, 1 month.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default StudyResourcesPage;

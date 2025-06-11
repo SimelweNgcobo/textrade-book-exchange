@@ -1,47 +1,13 @@
-import { useState, useMemo } from "react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  BookOpen,
-  Clock,
-  Target,
-  Brain,
-  Calendar,
-  Download,
-  Play,
-  FileText,
-  Lightbulb,
-  TrendingUp,
-  Users,
-  Star,
-  Search,
-  Filter,
-  Timer,
-  CheckSquare,
-  PenTool,
-  Award,
-  AlertCircle,
-  Bookmark,
-  ChevronDown,
-  ChevronUp,
-} from "lucide-react";
-import { StudyTip, StudyResource } from "@/types/university";
+// This file has been refactored into smaller components for better maintainability
+// The new modular structure includes:
+// - StudyResourcesPage.tsx (main component)
+// - StudyTipCard.tsx (individual tip card)
+// - StudyResourceCard.tsx (individual resource card)
+// - StudyFilters.tsx (filtering component)
+// - useStudyResources.ts (custom hook for state management)
+// - studyResources.ts (data constants)
+
+import StudyResourcesPage from "./study-resources/StudyResourcesPage";
 
 // Real, comprehensive study tips with detailed content
 const REAL_STUDY_TIPS: StudyTip[] = [
