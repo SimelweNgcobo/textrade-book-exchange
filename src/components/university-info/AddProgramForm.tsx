@@ -531,8 +531,12 @@ const AddProgramForm = () => {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="true">Required</SelectItem>
-                    <SelectItem value="false">Recommended</SelectItem>
+                    <SelectItem key="subject-required" value="true">
+                      Required
+                    </SelectItem>
+                    <SelectItem key="subject-recommended" value="false">
+                      Recommended
+                    </SelectItem>
                   </SelectContent>
                 </Select>
                 <Button onClick={addSubject} disabled={!newSubject.name.trim()}>
