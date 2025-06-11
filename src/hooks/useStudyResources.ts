@@ -11,9 +11,9 @@ export const useStudyResources = ({
   resources,
 }: UseStudyResourcesProps) => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("");
-  const [selectedDifficulty, setSelectedDifficulty] = useState("");
-  const [selectedType, setSelectedType] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("all");
+  const [selectedDifficulty, setSelectedDifficulty] = useState("all");
+  const [selectedType, setSelectedType] = useState("all");
   const [bookmarkedTips, setBookmarkedTips] = useState<Set<string>>(new Set());
 
   // Get unique categories from both tips and resources
