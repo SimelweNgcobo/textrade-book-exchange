@@ -102,31 +102,38 @@ const StudyResourcesPage = () => {
         />
 
         {/* Main Content */}
-        <Tabs defaultValue="tips" className="mt-8">
-          <TabsList className="grid w-full grid-cols-2 mb-8">
-            <TabsTrigger value="tips" className="flex items-center gap-2">
-              <Lightbulb className="w-4 h-4" />
-              Study Tips ({filteredTips.length})
+        <Tabs defaultValue="tips" className="mt-6 sm:mt-8">
+          <TabsList className="grid w-full grid-cols-2 mb-6 sm:mb-8 h-12">
+            <TabsTrigger
+              value="tips"
+              className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm"
+            >
+              <Lightbulb className="w-3 h-3 sm:w-4 sm:h-4" />
+              <span className="hidden xs:inline">Study </span>Tips (
+              {filteredTips.length})
             </TabsTrigger>
-            <TabsTrigger value="resources" className="flex items-center gap-2">
-              <BookOpen className="w-4 h-4" />
+            <TabsTrigger
+              value="resources"
+              className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm"
+            >
+              <BookOpen className="w-3 h-3 sm:w-4 sm:h-4" />
               Resources ({filteredResources.length})
             </TabsTrigger>
           </TabsList>
 
           <TabsContent value="tips">
             {filteredTips.length === 0 ? (
-              <div className="text-center py-12">
-                <Lightbulb className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-lg font-semibold text-gray-600 mb-2">
+              <div className="text-center py-8 sm:py-12">
+                <Lightbulb className="w-10 h-10 sm:w-12 sm:h-12 text-gray-400 mx-auto mb-4" />
+                <h3 className="text-base sm:text-lg font-semibold text-gray-600 mb-2">
                   No tips found
                 </h3>
-                <p className="text-gray-500">
+                <p className="text-sm sm:text-base text-gray-500 px-4">
                   Try adjusting your filters or search terms.
                 </p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                 {filteredTips.map((tip) => (
                   <StudyTipCard
                     key={tip.id}
@@ -141,17 +148,17 @@ const StudyResourcesPage = () => {
 
           <TabsContent value="resources">
             {filteredResources.length === 0 ? (
-              <div className="text-center py-12">
-                <BookOpen className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-lg font-semibold text-gray-600 mb-2">
+              <div className="text-center py-8 sm:py-12">
+                <BookOpen className="w-10 h-10 sm:w-12 sm:h-12 text-gray-400 mx-auto mb-4" />
+                <h3 className="text-base sm:text-lg font-semibold text-gray-600 mb-2">
                   No resources found
                 </h3>
-                <p className="text-gray-500">
+                <p className="text-sm sm:text-base text-gray-500 px-4">
                   Try adjusting your filters or search terms.
                 </p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                 {filteredResources.map((resource) => (
                   <StudyResourceCard key={resource.id} resource={resource} />
                 ))}
