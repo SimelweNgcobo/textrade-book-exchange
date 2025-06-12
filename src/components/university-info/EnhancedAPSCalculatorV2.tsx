@@ -593,52 +593,6 @@ const EnhancedAPSCalculatorV2 = ({
             <div className="space-y-6">
               <Separator />
 
-              {/* Statistics */}
-              {stats && (
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
-                  <Card>
-                    <CardContent className="p-3 sm:p-4 text-center">
-                      <div className="text-lg sm:text-2xl font-bold text-green-600">
-                        {stats.qualifying}
-                      </div>
-                      <div className="text-xs sm:text-sm text-muted-foreground">
-                        Qualifying Programs
-                      </div>
-                    </CardContent>
-                  </Card>
-                  <Card>
-                    <CardContent className="p-3 sm:p-4 text-center">
-                      <div className="text-lg sm:text-2xl font-bold text-yellow-600">
-                        {calculation.totalScore}
-                      </div>
-                      <div className="text-xs sm:text-sm text-muted-foreground">
-                        Your APS Score
-                      </div>
-                    </CardContent>
-                  </Card>
-                  <Card>
-                    <CardContent className="p-3 sm:p-4 text-center">
-                      <div className="text-lg sm:text-2xl font-bold text-blue-600">
-                        {stats.total}
-                      </div>
-                      <div className="text-xs sm:text-sm text-muted-foreground">
-                        Total Programs
-                      </div>
-                    </CardContent>
-                  </Card>
-                  <Card>
-                    <CardContent className="p-3 sm:p-4 text-center">
-                      <div className="text-lg sm:text-2xl font-bold text-purple-600">
-                        {stats.universities}
-                      </div>
-                      <div className="text-xs sm:text-sm text-muted-foreground">
-                        Universities
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
-              )}
-
               {/* Filters */}
               <div className="space-y-3">
                 <h3 className="text-sm sm:text-base font-medium text-gray-700">
