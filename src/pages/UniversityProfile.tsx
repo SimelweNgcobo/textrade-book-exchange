@@ -156,19 +156,6 @@ const UniversityProfile = () => {
                     </Badge>
                   </div>
                 </div>
-                      <MapPin className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
-                      <span className="text-xs sm:text-sm lg:text-base">
-                        {university.location}, {university.province}
-                      </span>
-                    </div>
-                    <Badge
-                      variant="secondary"
-                      className="bg-book-50 text-book-700 text-xs sm:text-sm"
-                    >
-                      Public University
-                    </Badge>
-                  </div>
-                </div>
               </div>
             </div>
           </div>
