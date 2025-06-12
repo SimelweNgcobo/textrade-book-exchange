@@ -138,10 +138,21 @@ const EnhancedAPSCalculatorV2 = ({
               return;
             }
 
-            const meetsRequirement = totalScore >= degree.apsRequirement;
-            const apsGap = meetsRequirement
+            // Check APS requirement
+            const meetsAPSRequirement = totalScore >= degree.apsRequirement;
+            const apsGap = meetsAPSRequirement
               ? 0
               : degree.apsRequirement - totalScore;
+
+            // Check subject requirements
+            const meetsSubjectRequirements = checkSubjectRequirements(
+              degree,
+              contributingSubjects,
+            );
+
+            // Overall qualification check (both APS and subjects)
+            const meetsRequirement =
+              meetsAPSRequirement && meetsSubjectRequirements;
 
             // Apply qualification filter
             if (qualificationFilter === "qualify" && !meetsRequirement) {
