@@ -113,7 +113,10 @@ const EnhancedAPSCalculatorV2 = ({
 
   // Check if user meets subject requirements for a degree
   const checkSubjectRequirements = useCallback(
-    (degree: any, userSubjects: APSSubject[]): boolean => {
+    (
+      degree: { subjects?: string[]; name: string },
+      userSubjects: APSSubject[],
+    ): boolean => {
       if (!degree.subjects || degree.subjects.length === 0) {
         return true; // No specific requirements
       }

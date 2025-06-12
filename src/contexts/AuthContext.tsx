@@ -179,9 +179,14 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
             const profilePromise = fetchUserProfileQuick(session.user);
             const timeoutPromise = new Promise((_, reject) => {
               setTimeout(() => {
-                const timeoutError = new Error("Profile fetch timeout");
-                (timeoutError as any).code = "PROFILE_FETCH_TIMEOUT";
-                (timeoutError as any).isTimeout = true;
+                const timeoutError = new Error(
+                  "Profile fetch timeout",
+                ) as Error & {
+                  code: string;
+                  isTimeout: boolean;
+                };
+                timeoutError.code = "PROFILE_FETCH_TIMEOUT";
+                timeoutError.isTimeout = true;
                 reject(timeoutError);
               }, 15000); // Reduced to 15 seconds for faster UX
             });

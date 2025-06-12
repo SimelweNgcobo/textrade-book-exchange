@@ -6,7 +6,10 @@ import { useState } from "react";
 
 const AdminDebug = () => {
   const { user, profile, isAuthenticated, isAdmin, isLoading } = useAuth();
-  const [debugResult, setDebugResult] = useState<any>(null);
+  const [debugResult, setDebugResult] = useState<Record<
+    string,
+    unknown
+  > | null>(null);
 
   const runAdminCheck = async () => {
     if (!user) return;
