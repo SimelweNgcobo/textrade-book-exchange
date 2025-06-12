@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 150">
+  <!-- UKZN Logo -->
+  <defs>
+    <linearGradient id="ukznGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#003366;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0066cc;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Shield background -->
+  <path d="M50 20 Q50 15 55 15 L245 15 Q250 15 250 20 L250 80 Q250 120 150 130 Q50 120 50 80 Z" fill="url(#ukznGrad)" stroke="#ffffff" stroke-width="2"/>
+  
+  <!-- Central emblem -->
+  <circle cx="150" cy="55" r="25" fill="#ffffff"/>
+  <circle cx="150" cy="55" r="20" fill="#cc0000"/>
+  <path d="M140 45 L150 35 L160 45 L150 65 Z" fill="#ffffff"/>
+  
+  <!-- Decorative elements -->
+  <path d="M80 35 L90 45 L80 55 L70 45 Z" fill="#ffa500"/>
+  <path d="M220 35 L230 45 L220 55 L210 45 Z" fill="#ffa500"/>
+  <path d="M80 75 L90 85 L80 95 L70 85 Z" fill="#ffa500"/>
+  <path d="M220 75 L230 85 L220 95 L210 85 Z" fill="#ffa500"/>
+  
+  <!-- Text -->
+  <text x="150" y="105" font-family="Arial" font-size="14" font-weight="bold" fill="#ffffff" text-anchor="middle">UNIVERSITY OF</text>
+  <text x="150" y="125" font-family="Arial" font-size="14" font-weight="bold" fill="#ffffff" text-anchor="middle">KWAZULU-NATAL</text>
+  
+  <!-- Zulu text -->
+  <text x="150" y="145" font-family="Arial" font-size="10" fill="#666" text-anchor="middle">INYUVESI YAKWAZULU-NATALI</text>
+</svg>
