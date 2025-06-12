@@ -74,7 +74,7 @@ const SAMPLE_CAMPUS_BOOKS = [
     availability: "Available",
   },
   {
-    id: "book-3",
+    id: "550e8400-e29b-41d4-a716-446655440003",
     title: "Anatomy & Physiology for Health Professionals",
     author: "Booth, Waugh & Grant",
     university: "uct",
@@ -92,7 +92,7 @@ const SAMPLE_CAMPUS_BOOKS = [
     availability: "Available",
   },
   {
-    id: "book-4",
+    id: "550e8400-e29b-41d4-a716-446655440004",
     title: "Introduction to Psychology 6th Edition",
     author: "Plotnik & Kouyoumdjian",
     university: "stellenbosch",
@@ -110,7 +110,7 @@ const SAMPLE_CAMPUS_BOOKS = [
     availability: "Available",
   },
   {
-    id: "book-5",
+    id: "550e8400-e29b-41d4-a716-446655440005",
     title: "Fundamentals of Corporate Finance",
     author: "Ross, Westerfield & Jordan",
     university: "up",
