@@ -85,12 +85,17 @@ export const fetchUserProfileQuick = async (
   try {
     console.log("Quick profile fetch for user:", user.id);
 
-    // Direct database call without retries for faster response
-    const { data: profile, error: profileError } = await supabase
-      .from("profiles")
-      .select("id, name, email, status, profile_picture_url, bio, is_admin")
-      .eq("id", user.id)
-      .single();
+    // Direct database call with timeout for faster response
+    const { data: profile, error: profileError } = (await Promise.race([
+      supabase
+        .from("profiles")
+        .select("id, name, email, status, profile_picture_url, bio, is_admin")
+        .eq("id", user.id)
+        .single(),
+      new Promise((_, reject) =>
+        setTimeout(() => reject(new Error("Profile fetch timeout")), 8000),
+      ),
+    ])) as any;
 
     if (profileError) {
       if (profileError.code === "PGRST116") {
