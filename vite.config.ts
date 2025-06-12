@@ -32,8 +32,7 @@ export default defineConfig(({ mode }) => ({
           ],
           supabase: ["@supabase/supabase-js"],
           utils: ["clsx", "tailwind-merge", "date-fns"],
-          // University data in separate chunk (removed logos to reduce size)
-          university: ["src/constants/universities"],
+          // University data in separate chunk (logos removed to reduce size)
         },
         // Add hash to filenames for cache busting
         chunkFileNames: "assets/[name]-[hash].js",
