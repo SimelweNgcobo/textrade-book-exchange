@@ -1,14 +1,25 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import Layout from "@/components/Layout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Bell, Trash2, AlertCircle, CheckCircle, Info } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import {
+  Bell,
+  Trash2,
+  AlertCircle,
+  CheckCircle,
+  Info,
+  RefreshCw,
+  WifiOff,
+} from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
+import { useNotifications } from "@/hooks/useNotifications";
 import {
-  getNotifications,
   markNotificationAsRead,
   deleteNotification,
+  markMultipleAsRead,
+  deleteMultipleNotifications,
 } from "@/services/notificationService";
 
 interface NotificationItem {
@@ -23,29 +34,30 @@ interface NotificationItem {
 
 const Notifications = () => {
   const { user } = useAuth();
-  const [notifications, setNotifications] = useState<NotificationItem[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const {
+    notifications,
+    unreadCount,
+    isLoading,
+    hasError,
+    lastError,
+    refreshNotifications,
+    clearError,
+  } = useNotifications();
 
-  useEffect(() => {
-    if (user) {
-      loadNotifications();
-    }
-  }, [user]);
+  const [isProcessing, setIsProcessing] = useState(false);
 
-  const loadNotifications = async () => {
-    if (!user) return;
-
-    setIsLoading(true);
-    try {
-      const userNotifications = await getNotifications(user.id);
-      setNotifications(userNotifications);
-    } catch (error) {
-      console.error("Error loading notifications:", error);
-      toast.error("Failed to load notifications");
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  // Convert notifications to the expected format
+  const formattedNotifications: NotificationItem[] = useMemo(() => {
+    return notifications.map((notification) => ({
+      id: notification.id,
+      userId: notification.user_id,
+      title: notification.title,
+      message: notification.message,
+      type: notification.type as "info" | "warning" | "success" | "error",
+      read: notification.read,
+      createdAt: notification.created_at,
+    }));
+  }, [notifications]);
 
   const getIcon = (type: string) => {
     switch (type) {
@@ -63,29 +75,32 @@ const Notifications = () => {
   };
 
   const formatTimestamp = (timestamp: string) => {
-    const date = new Date(timestamp);
-    const now = new Date();
-    const diff = now.getTime() - date.getTime();
-    const hours = Math.floor(diff / (1000 * 60 * 60));
-    const days = Math.floor(hours / 24);
+    try {
+      const date = new Date(timestamp);
+      const now = new Date();
+      const diff = now.getTime() - date.getTime();
+      const minutes = Math.floor(diff / (1000 * 60));
+      const hours = Math.floor(minutes / 60);
+      const days = Math.floor(hours / 24);
 
-    if (days > 0) {
-      return `${days} day${days > 1 ? "s" : ""} ago`;
-    } else if (hours > 0) {
-      return `${hours} hour${hours > 1 ? "s" : ""} ago`;
-    } else {
-      return "Just now";
+      if (days > 0) {
+        return `${days} day${days > 1 ? "s" : ""} ago`;
+      } else if (hours > 0) {
+        return `${hours} hour${hours > 1 ? "s" : ""} ago`;
+      } else if (minutes > 0) {
+        return `${minutes} minute${minutes > 1 ? "s" : ""} ago`;
+      } else {
+        return "Just now";
+      }
+    } catch (error) {
+      return "Unknown time";
     }
   };
 
   const markAsRead = async (id: string) => {
     try {
       await markNotificationAsRead(id);
-      setNotifications((prev) =>
-        prev.map((notif) =>
-          notif.id === id ? { ...notif, read: true } : notif,
-        ),
-      );
+      toast.success("Notification marked as read");
     } catch (error) {
       console.error("Error marking notification as read:", error);
       toast.error("Failed to mark notification as read");
@@ -95,7 +110,6 @@ const Notifications = () => {
   const handleDeleteNotification = async (id: string) => {
     try {
       await deleteNotification(id);
-      setNotifications((prev) => prev.filter((notif) => notif.id !== id));
       toast.success("Notification deleted");
     } catch (error) {
       console.error("Error deleting notification:", error);
@@ -104,41 +118,53 @@ const Notifications = () => {
   };
 
   const markAllAsRead = async () => {
+    if (unreadCount === 0) return;
+
+    setIsProcessing(true);
     try {
-      const unreadNotifications = notifications.filter((n) => !n.read);
-      await Promise.all(
-        unreadNotifications.map((notif) => markNotificationAsRead(notif.id)),
-      );
-      setNotifications((prev) =>
-        prev.map((notif) => ({ ...notif, read: true })),
-      );
-      toast.success("All notifications marked as read");
+      const unreadIds = formattedNotifications
+        .filter((n) => !n.read)
+        .map((n) => n.id);
+
+      await markMultipleAsRead(unreadIds);
+      toast.success(`Marked ${unreadIds.length} notifications as read`);
     } catch (error) {
       console.error("Error marking all as read:", error);
       toast.error("Failed to mark all as read");
+    } finally {
+      setIsProcessing(false);
     }
   };
 
   const clearAll = async () => {
+    if (formattedNotifications.length === 0) return;
+
+    setIsProcessing(true);
     try {
-      await Promise.all(
-        notifications.map((notif) => deleteNotification(notif.id)),
-      );
-      setNotifications([]);
-      toast.success("All notifications cleared");
+      const allIds = formattedNotifications.map((n) => n.id);
+      await deleteMultipleNotifications(allIds);
+      toast.success(`Cleared ${allIds.length} notifications`);
     } catch (error) {
       console.error("Error clearing all notifications:", error);
       toast.error("Failed to clear all notifications");
+    } finally {
+      setIsProcessing(false);
     }
   };
 
-  const unreadCount = notifications.filter((n) => !n.read).length;
+  const handleRetry = () => {
+    clearError();
+    refreshNotifications();
+  };
 
-  if (isLoading) {
+  if (isLoading && formattedNotifications.length === 0) {
     return (
       <Layout>
         <div className="container mx-auto px-4 py-8 flex justify-center items-center min-h-[60vh]">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-book-600"></div>
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-book-600 mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading notifications...</p>
+          </div>
         </div>
       </Layout>
     );
@@ -147,6 +173,35 @@ const Notifications = () => {
   return (
     <Layout>
       <div className="container mx-auto px-4 py-4 sm:py-8 max-w-4xl">
+        {/* Error Alert */}
+        {hasError && (
+          <Alert className="mb-6 border-yellow-200 bg-yellow-50">
+            <WifiOff className="h-4 w-4 text-yellow-600" />
+            <AlertDescription className="text-yellow-800">
+              <div className="flex items-center justify-between">
+                <div>
+                  <span className="font-medium">Connection Issues</span>
+                  <p className="text-sm mt-1">
+                    {lastError || "Unable to load notifications"}
+                  </p>
+                </div>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={handleRetry}
+                  disabled={isLoading}
+                  className="ml-4"
+                >
+                  <RefreshCw
+                    className={`h-4 w-4 mr-2 ${isLoading ? "animate-spin" : ""}`}
+                  />
+                  Retry
+                </Button>
+              </div>
+            </AlertDescription>
+          </Alert>
+        )}
+
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
           <div className="flex items-center flex-wrap">
             <Bell className="h-6 w-6 text-book-600 mr-2 flex-shrink-0" />
@@ -158,32 +213,42 @@ const Notifications = () => {
                 {unreadCount}
               </span>
             )}
+            {isLoading && formattedNotifications.length > 0 && (
+              <RefreshCw className="ml-2 h-4 w-4 animate-spin text-gray-500" />
+            )}
           </div>
 
-          {notifications.length > 0 && (
+          {formattedNotifications.length > 0 && (
             <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
               <Button
                 variant="outline"
                 onClick={markAllAsRead}
-                disabled={unreadCount === 0}
+                disabled={unreadCount === 0 || isProcessing}
                 className="w-full sm:w-auto text-sm"
                 size="sm"
               >
-                Mark All Read
+                {isProcessing ? (
+                  <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                ) : null}
+                Mark All Read ({unreadCount})
               </Button>
               <Button
                 variant="outline"
                 onClick={clearAll}
+                disabled={isProcessing}
                 className="w-full sm:w-auto text-sm"
                 size="sm"
               >
-                Clear All
+                {isProcessing ? (
+                  <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                ) : null}
+                Clear All ({formattedNotifications.length})
               </Button>
             </div>
           )}
         </div>
 
-        {notifications.length === 0 ? (
+        {formattedNotifications.length === 0 ? (
           <Card>
             <CardContent className="text-center py-12 sm:py-16">
               <Bell className="mx-auto h-12 w-12 text-gray-300 mb-4" />
@@ -192,11 +257,24 @@ const Notifications = () => {
                 You're all caught up! We'll notify you when something new
                 happens.
               </p>
+              {hasError && (
+                <Button
+                  variant="outline"
+                  onClick={handleRetry}
+                  className="mt-4"
+                  disabled={isLoading}
+                >
+                  <RefreshCw
+                    className={`h-4 w-4 mr-2 ${isLoading ? "animate-spin" : ""}`}
+                  />
+                  Try Loading Again
+                </Button>
+              )}
             </CardContent>
           </Card>
         ) : (
           <div className="space-y-3 sm:space-y-4">
-            {notifications.map((notification, index) => (
+            {formattedNotifications.map((notification, index) => (
               <Card
                 key={notification.id}
                 className={`
@@ -205,7 +283,7 @@ const Notifications = () => {
                   hover:shadow-lg z-10
                 `}
                 style={{
-                  zIndex: notifications.length - index + 10,
+                  zIndex: formattedNotifications.length - index + 10,
                   position: "relative",
                 }}
               >
@@ -260,6 +338,18 @@ const Notifications = () => {
                 </CardContent>
               </Card>
             ))}
+          </div>
+        )}
+
+        {/* Loading overlay for batch operations */}
+        {isProcessing && (
+          <div className="fixed inset-0 bg-black bg-opacity-25 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg p-6 shadow-lg">
+              <div className="flex items-center">
+                <RefreshCw className="h-5 w-5 animate-spin mr-3" />
+                <span>Processing notifications...</span>
+              </div>
+            </div>
           </div>
         )}
       </div>
