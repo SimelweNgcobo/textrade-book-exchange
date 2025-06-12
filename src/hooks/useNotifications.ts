@@ -224,7 +224,7 @@ export const useNotifications = (): NotificationHookReturn => {
         try {
           debugLog("Refreshing notifications...");
 
-          const data = await fetchNotifications(user.id);
+          const data = await getNotifications(user.id);
           if (data) {
             // Deduplicate notifications by ID and timestamp
             const uniqueNotifications = data.filter(
