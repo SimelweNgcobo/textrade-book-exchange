@@ -18,7 +18,6 @@ import {
   Users,
   Award,
   Calculator,
-  Search,
   DollarSign,
   TrendingUp,
 } from "lucide-react";
@@ -39,16 +38,10 @@ const BursaryExplorerSection = lazy(
 const CampusBooksSection = lazy(
   () => import("@/components/university-info/CampusBooksSection"),
 );
-const UniversityExplorer = lazy(
-  () => import("@/components/university-info/UniversityExplorer"),
-);
 
 const UniversityInfo = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const currentTool = searchParams.get("tool") || "overview";
-  const searchQuery = searchParams.get("search") || "";
-
-  const [selectedUniversity, setSelectedUniversity] = useState<any>(null);
 
   // Handle automatic redirect to APS calculator if coming from specific links
   useEffect(() => {
@@ -57,43 +50,9 @@ const UniversityInfo = () => {
     }
   }, [setSearchParams]);
 
-  // Handle search queries - redirect to search tool
-  useEffect(() => {
-    if (searchQuery && currentTool !== "search") {
-      const newParams = new URLSearchParams();
-      newParams.set("tool", "search");
-      newParams.set("search", searchQuery);
-      setSearchParams(newParams);
-    }
-  }, [searchQuery, currentTool, setSearchParams]);
-
   const handleTabChange = (value: string) => {
     const newParams = new URLSearchParams();
     newParams.set("tool", value);
-
-    // Preserve search query when switching tabs
-    if (searchQuery && value === "search") {
-      newParams.set("search", searchQuery);
-    }
-
-    setSearchParams(newParams);
-  };
-
-  const handleSearch = (query: string) => {
-    const newParams = new URLSearchParams();
-    newParams.set("tool", "search");
-    newParams.set("search", query);
-    setSearchParams(newParams);
-  };
-
-  const handleUniversitySelect = (university: any) => {
-    setSelectedUniversity(university);
-  };
-
-  const handleViewBooks = (universityId: string) => {
-    const newParams = new URLSearchParams();
-    newParams.set("tool", "books");
-    newParams.set("university", universityId);
     setSearchParams(newParams);
   };
 
@@ -143,20 +102,13 @@ const UniversityInfo = () => {
             onValueChange={handleTabChange}
             className="w-full"
           >
-            <TabsList className="grid w-full grid-cols-2 sm:grid-cols-5 mb-8 h-auto">
+            <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 mb-8 h-auto">
               <TabsTrigger
                 value="overview"
                 className="flex flex-col items-center gap-1 py-2 px-2 text-center"
               >
                 <University className="h-3 w-3 sm:h-4 sm:w-4" />
                 <span className="text-xs">Overview</span>
-              </TabsTrigger>
-              <TabsTrigger
-                value="search"
-                className="flex flex-col items-center gap-1 py-2 px-2 text-center"
-              >
-                <Search className="h-3 w-3 sm:h-4 sm:w-4" />
-                <span className="text-xs">Search</span>
               </TabsTrigger>
               <TabsTrigger
                 value="aps-calculator"
@@ -182,11 +134,8 @@ const UniversityInfo = () => {
             </TabsList>
 
             <TabsContent value="overview" className="space-y-6">
-              {/* Hero Section with Search */}
-              <UniversityHero
-                onSearch={handleSearch}
-                onNavigateToTool={handleTabChange}
-              />
+              {/* Hero Section */}
+              <UniversityHero onNavigateToTool={handleTabChange} />
 
               {/* Stats Overview */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
@@ -305,15 +254,6 @@ const UniversityInfo = () => {
                   </div>
                 </CardContent>
               </Card>
-            </TabsContent>
-
-            <TabsContent value="search" className="space-y-6">
-              <Suspense fallback={<LoadingSection />}>
-                <UniversityExplorer
-                  onUniversitySelect={handleUniversitySelect}
-                  onViewBooks={handleViewBooks}
-                />
-              </Suspense>
             </TabsContent>
 
             <TabsContent value="aps-calculator" className="space-y-6">
