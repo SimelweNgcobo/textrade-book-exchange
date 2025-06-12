@@ -10,6 +10,7 @@ import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import {
   fetchUserProfile,
+  fetchUserProfileQuick,
   logoutUser,
   loginUser,
   registerUser,
