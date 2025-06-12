@@ -189,151 +189,68 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
               });
             }
           } catch (profileError) {
-            // Use proper error serialization to prevent [object Object] logging
-            const errorDetails = {
-              message:
-                profileError instanceof Error
-                  ? profileError.message
-                  : String(profileError),
-              stack:
-                profileError instanceof Error ? profileError.stack : undefined,
-              type:
-                profileError instanceof Error
-                  ? profileError.constructor.name
-                  : typeof profileError,
-              name:
-                profileError instanceof Error ? profileError.name : undefined,
-              code:
-                (profileError as Record<string, unknown>)?.code ||
-                (profileError as Record<string, unknown>)?.error_code,
-              details:
-                (profileError as Record<string, unknown>)?.details ||
-                (profileError as Record<string, unknown>)?.hint,
-              userId: session.user?.id,
-              userAgent: navigator.userAgent,
-              online: navigator.onLine,
-              timestamp: new Date().toISOString(),
-              url: window.location.href,
-            };
+            // Log the timeout but don't treat it as a critical error since we have fallback
+            const isTimeoutError =
+              profileError instanceof Error &&
+              (profileError.message.includes("timeout") ||
+                (profileError as any).isTimeout);
 
-            console.error(
-              "[AuthContext] Profile fetch failed (v2.0 - FIXED):",
-              JSON.stringify(errorDetails, null, 2),
-            );
-
-            // In development, provide additional debugging
-            if (process.env.NODE_ENV === "development") {
-              console.warn(
-                "🔧 [AuthContext] Debug: Raw error object type:",
-                typeof profileError,
+            if (isTimeoutError) {
+              console.log(
+                "[AuthContext] Profile fetch timed out, continuing with fallback profile",
               );
-              console.warn(
-                "🔧 [AuthContext] Debug: Raw error string:",
-                String(profileError),
-              );
-              if (profileError && typeof profileError === "object") {
-                console.warn(
-                  "🔧 [AuthContext] Debug: Error object keys:",
-                  Object.keys(profileError),
-                );
-                console.warn(
-                  "🔧 [AuthContext] Debug: Full raw error (stringified):",
-                  JSON.stringify(profileError, null, 2),
-                );
-              }
-              console.warn(
-                "🔧 [AuthContext] VERIFICATION: This is the FIXED version that should NOT show [object Object]",
-              );
+            } else {
+              console.warn("[AuthContext] Profile fetch failed:", {
+                message:
+                  profileError instanceof Error
+                    ? profileError.message
+                    : String(profileError),
+                type:
+                  profileError instanceof Error
+                    ? profileError.constructor.name
+                    : typeof profileError,
+              });
             }
 
-            if (session?.user) {
-              // Create fallback profile with available session data
-              const isTimeoutError =
-                profileError instanceof Error &&
-                (profileError.message.includes("timeout") ||
-                  (profileError as any).isTimeout);
-
-              const fallbackProfile = {
-                id: session.user.id,
-                name:
-                  session.user.user_metadata?.name ||
-                  session.user.email?.split("@")[0] ||
-                  "User",
-                email: session.user.email || "",
-                isAdmin: false,
-                status: "active",
-                profile_picture_url: session.user.user_metadata?.avatar_url,
-                bio: undefined,
-              };
-
-              setProfile(fallbackProfile);
-
-              if (isTimeoutError) {
-                console.log(
-                  "[AuthContext] Using fallback profile due to timeout - user can continue while profile loads in background",
-                );
-
-                // Show user-friendly notification for timeout
-                addNotification({
-                  userId: session.user.id,
-                  title: "Profile Loading",
-                  message:
-                    "Your profile is loading in the background. You can continue using the app.",
-                  type: "info",
-                  read: false,
-                }).catch(() => {
-                  // Silent fail for notifications - don't block user experience
-                });
-              } else {
-                console.log(
-                  "[AuthContext] Using fallback profile due to fetch error",
-                );
-              }
-
-              // Try to create/fix profile in background (non-blocking)
-              // For timeout errors, wait a bit before retrying
-              const retryDelay = isTimeoutError ? 5000 : 1000;
-
-              setTimeout(() => {
-                console.log(
-                  "[AuthContext] Retrying profile fetch in background...",
-                );
-                fetchUserProfile(session.user)
-                  .then((profile) => {
-                    if (profile) {
-                      setProfile(profile);
-                      console.log(
-                        "[AuthContext] Background profile fetch successful",
-                      );
-                    }
-                  })
-                  .catch((bgError) => {
-                    console.warn(
-                      "[AuthContext] Background profile fetch failed (v2.0 - FIXED):",
-                      {
-                        message:
-                          bgError instanceof Error
-                            ? bgError.message
-                            : String(bgError),
-                        type:
-                          bgError instanceof Error
-                            ? bgError.constructor.name
-                            : typeof bgError,
-                        stack:
-                          bgError instanceof Error ? bgError.stack : undefined,
-                        timestamp: new Date().toISOString(),
-                      },
-                    );
-
-                    if (process.env.NODE_ENV === "development") {
-                      console.warn(
-                        "🔧 [AuthContext] VERIFICATION: Background fetch error also uses FIXED version",
-                      );
-                    }
-                  });
-              }, retryDelay);
+            // Fallback profile is already set, just notify about background loading
+            if (isTimeoutError) {
+              addNotification({
+                userId: session.user.id,
+                title: "Profile Loading",
+                message:
+                  "Your profile is loading in the background. You can continue using the app.",
+                type: "info",
+                read: false,
+              }).catch(() => {
+                // Silent fail for notifications - don't block user experience
+              });
             }
           }
+
+          // Always start background profile loading with full retry logic
+          setTimeout(() => {
+            console.log(
+              "[AuthContext] Starting background profile loading with retries...",
+            );
+            fetchUserProfile(session.user)
+              .then((profile) => {
+                if (profile) {
+                  setProfile(profile);
+                  console.log(
+                    "[AuthContext] Background profile fetch successful",
+                  );
+                }
+              })
+              .catch((bgError) => {
+                console.warn("[AuthContext] Background profile fetch failed:", {
+                  message:
+                    bgError instanceof Error
+                      ? bgError.message
+                      : String(bgError),
+                  timestamp: new Date().toISOString(),
+                });
+              });
+          }, 2000); // Wait 2 seconds before starting background load
         }
       } catch (error) {
         console.error("[AuthContext] Auth state change failed:", {
