@@ -1,3 +1,4 @@
+import React from "react";
 import { createRoot } from "react-dom/client";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import App from "./App.tsx";
@@ -19,6 +20,15 @@ try {
     import("./utils/connectionHealthCheck").then(({ logConnectionHealth }) => {
       logConnectionHealth();
     });
+
+    // Verify university logos in development
+    import("./utils/universityLogoVerification")
+      .then(({ verifyUniversityLogos }) => {
+        verifyUniversityLogos();
+      })
+      .catch((error) => {
+        console.warn("Could not load university logo verification:", error);
+      });
   }
 } catch (error) {
   console.error("Environment validation failed:", error);
@@ -55,13 +65,15 @@ const queryClient = new QueryClient({
   },
 });
 
-// Verify university logos in development
-if (import.meta.env.DEV) {
-  verifyUniversityLogos();
-}
-
-ReactDOM.createRoot(document.getElementById("root")!).render(
+const root = createRoot(document.getElementById("root")!);
+root.render(
   <React.StrictMode>
-    <App />
+    <ErrorBoundary level="app">
+      <QueryClientProvider client={queryClient}>
+        <PerformanceMonitor>
+          <App />
+        </PerformanceMonitor>
+      </QueryClientProvider>
+    </ErrorBoundary>
   </React.StrictMode>,
 );
