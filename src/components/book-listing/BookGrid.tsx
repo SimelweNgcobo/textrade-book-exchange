@@ -11,11 +11,6 @@ interface BookGridProps {
 }
 
 const BookGrid = ({ books, isLoading, onClearFilters }: BookGridProps) => {
-  console.log("BookGrid rendering with:", {
-    booksCount: books.length,
-    isLoading,
-  });
-
   if (isLoading) {
     return (
       <div className="lg:w-3/4">

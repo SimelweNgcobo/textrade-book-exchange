@@ -144,10 +144,12 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const handleAuthStateChange = useCallback(
     async (session: Session, event?: string) => {
       try {
-        console.log("[AuthContext] Handling auth state change:", {
-          event,
-          userId: session.user?.id,
-        });
+        if (import.meta.env.DEV) {
+          console.log("[AuthContext] Handling auth state change:", {
+            event,
+            userId: session.user?.id,
+          });
+        }
         setSession(session);
         setUser(session.user);
 
