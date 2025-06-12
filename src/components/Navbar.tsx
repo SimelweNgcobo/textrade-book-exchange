@@ -108,7 +108,10 @@ const Navbar = () => {
                   className="relative p-2 text-gray-600 hover:text-book-600 transition-colors"
                   title="View notifications"
                 >
-                  <NotificationBadge />
+                  <NotificationBadge
+                    allowRetry={true}
+                    showErrorIndicator={true}
+                  />
                 </Link>
 
                 <Link to="/create-listing">
