@@ -317,14 +317,35 @@ export const getAllStudyContent = async (): Promise<{
   resources: StudyResource[];
 }> => {
   try {
-    const [tips, resources] = await Promise.all([
+    // Fetch both types of content, but handle failures gracefully
+    const [tips, resources] = await Promise.allSettled([
       getAllStudyTips(),
       getAllStudyResources(),
     ]);
 
-    return { tips, resources };
+    const successfulTips = tips.status === "fulfilled" ? tips.value : [];
+    const successfulResources =
+      resources.status === "fulfilled" ? resources.value : [];
+
+    // Log any failures
+    if (tips.status === "rejected") {
+      console.warn("Failed to fetch study tips:", tips.reason);
+    }
+    if (resources.status === "rejected") {
+      console.warn("Failed to fetch study resources:", resources.reason);
+    }
+
+    return {
+      tips: successfulTips,
+      resources: successfulResources,
+    };
   } catch (error) {
-    console.error("Error fetching study content:", error);
-    throw new Error("Failed to fetch study content");
+    console.error("Error fetching study content:", {
+      message: error instanceof Error ? error.message : String(error),
+      type: error instanceof Error ? error.constructor.name : typeof error,
+    });
+
+    // Return empty arrays to allow app to continue with static content
+    return { tips: [], resources: [] };
   }
 };
