@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <!-- NWU Logo -->
+  <circle cx="100" cy="100" r="90" fill="#663399"/>
+  <circle cx="100" cy="100" r="70" fill="#ffffff"/>
+  <text x="100" y="90" font-family="Arial" font-size="24" font-weight="bold" fill="#663399" text-anchor="middle">NWU</text>
+  <text x="100" y="130" font-family="Arial" font-size="24" font-weight="bold" fill="#663399" text-anchor="middle">®</text>
+</svg>

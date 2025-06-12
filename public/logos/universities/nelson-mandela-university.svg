@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 250 80">
+  <!-- Nelson Mandela University Logo -->
+  <text x="20" y="35" font-family="Arial" font-size="18" font-weight="bold" fill="#003366">NELSON MANDELA</text>
+  <text x="20" y="55" font-family="Arial" font-size="16" font-weight="bold" fill="#003366">UNIVERSITY</text>
+  <circle cx="200" cy="25" r="8" fill="#ffa500"/>
+  <circle cx="220" cy="25" r="8" fill="#ffa500"/>
+</svg>

@@ -37,48 +37,97 @@ const UniversityDirectory = () => {
     "Western Cape",
   ];
 
-  // Enhanced logo mapping with proper file names
+  // Comprehensive logo mapping with all university logos
   const logoMap: Record<string, string> = {
-    "university-of-witwatersrand":
-      "/logos/universities/university-of-witwatersrand.svg",
-    "university-of-johannesburg":
-      "/logos/universities/university-of-johannesburg.svg",
+    // Traditional Universities
     "university-of-cape-town":
       "/logos/universities/university-of-cape-town.svg",
+    uct: "/logos/universities/university-of-cape-town.svg",
+    "university-of-witwatersrand":
+      "/logos/universities/university-of-witwatersrand.svg",
+    wits: "/logos/universities/university-of-witwatersrand.svg",
     "stellenbosch-university":
       "/logos/universities/stellenbosch-university.svg",
+    stellenbosch: "/logos/universities/stellenbosch-university.svg",
     "university-of-pretoria": "/logos/universities/university-of-pretoria.svg",
+    up: "/logos/universities/university-of-pretoria.svg",
     "university-of-kwazulu-natal":
       "/logos/universities/university-of-kwazulu-natal.svg",
+    ukzn: "/logos/universities/university-of-kwazulu-natal.svg",
     "university-of-the-free-state":
       "/logos/universities/university-of-free-state.svg",
+    "university-of-free-state":
+      "/logos/universities/university-of-free-state.svg",
+    ufs: "/logos/universities/university-of-free-state.svg",
+    "rhodes-university": "/logos/universities/rhodes-university.svg",
+    "university-of-fort-hare":
+      "/logos/universities/university-of-fort-hare.svg",
+    "university-of-limpopo": "/logos/universities/university-of-limpopo.svg",
+    "university-of-venda": "/logos/universities/university-of-venda.svg",
+    "university-of-zululand": "/logos/universities/university-of-zululand.svg",
+    "north-west-university": "/logos/universities/north-west-university.svg",
+    nwu: "/logos/universities/north-west-university.svg",
+    "walter-sisulu-university":
+      "/logos/universities/walter-sisulu-university.svg",
+    wsu: "/logos/universities/walter-sisulu-university.svg",
     "nelson-mandela-university":
       "/logos/universities/nelson-mandela-university.svg",
-    "rhodes-university": "/logos/universities/rhodes-university.svg",
-    "university-of-venda": "/logos/universities/university-of-venda.svg",
-    "university-of-limpopo": "/logos/universities/university-of-limpopo.svg",
-    "university-of-zululand": "/logos/universities/university-of-zululand.svg",
+    mandela: "/logos/universities/nelson-mandela-university.svg",
+    nmu: "/logos/universities/nelson-mandela-university.svg",
+    "sol-plaatje-university": "/logos/universities/sol-plaatje-university.svg",
+    spu: "/logos/universities/sol-plaatje-university.svg",
     "university-of-mpumalanga":
       "/logos/universities/university-of-mpumalanga.svg",
-    "university-of-north-west":
-      "/logos/universities/university-of-north-west.svg",
+
+    // Universities of Technology
+    "cape-peninsula-university-of-technology":
+      "/logos/universities/cape-peninsula-university-of-technology.svg",
+    cput: "/logos/universities/cape-peninsula-university-of-technology.svg",
+    "durban-university-of-technology":
+      "/logos/universities/durban-university-of-technology.svg",
+    dut: "/logos/universities/durban-university-of-technology.svg",
     "tshwane-university-of-technology":
       "/logos/universities/tshwane-university-of-technology.svg",
+    tut: "/logos/universities/tshwane-university-of-technology.svg",
+    "vaal-university-of-technology":
+      "/logos/universities/vaal-university-of-technology.svg",
+    vut: "/logos/universities/vaal-university-of-technology.svg",
+    "central-university-of-technology":
+      "/logos/universities/central-university-of-technology.svg",
+    cut: "/logos/universities/central-university-of-technology.svg",
+    "mangosuthu-university-of-technology":
+      "/logos/universities/mangosuthu-university-of-technology.svg",
+    mut: "/logos/universities/mangosuthu-university-of-technology.svg",
+
+    // Comprehensive Universities
+    "university-of-johannesburg":
+      "/logos/universities/university-of-johannesburg.svg",
+    uj: "/logos/universities/university-of-johannesburg.svg",
     unisa: "/logos/universities/unisa.svg",
-    // Add more mappings as needed
+    "university-of-south-africa": "/logos/universities/unisa.svg",
   };
 
-  const getUniversityLogo = (universityName: string, id?: string) => {
+  const getUniversityLogo = (
+    universityName: string,
+    id?: string,
+    abbreviation?: string,
+  ) => {
     // First try to match by ID
     if (id && logoMap[id]) {
       return logoMap[id];
+    }
+
+    // Try to match by abbreviation (lowercase)
+    if (abbreviation && logoMap[abbreviation.toLowerCase()]) {
+      return logoMap[abbreviation.toLowerCase()];
     }
 
     // Then try to match by name transformation
     const normalized = universityName
       .toLowerCase()
       .replace(/\s+/g, "-")
-      .replace(/[^a-z0-9-]/g, "");
+      .replace(/[^a-z0-9-]/g, "")
+      .replace(/--+/g, "-");
 
     return logoMap[normalized] || null;
   };
@@ -161,11 +210,12 @@ const UniversityDirectory = () => {
 
           {/* Universities List */}
           {filteredUniversities.length > 0 ? (
-            <div className="space-y-4">
+            <div className="space-y-6">
               {filteredUniversities.map((university) => {
                 const logoUrl = getUniversityLogo(
                   university.name,
                   university.id,
+                  university.abbreviation,
                 );
 
                 return (
@@ -175,20 +225,22 @@ const UniversityDirectory = () => {
                   >
                     <CardContent className="p-6">
                       <div className="flex flex-col lg:flex-row gap-6">
-                        {/* University Logo - Proportionally Scaled */}
+                        {/* University Logo - Naturally Proportioned */}
                         <div className="flex-shrink-0 flex justify-center lg:justify-start">
                           {logoUrl ? (
-                            <div className="relative w-24 h-24 lg:w-32 lg:h-32 flex items-center justify-center">
+                            <div className="flex items-center justify-center min-w-[80px] min-h-[80px] max-w-[120px] max-h-[120px]">
                               <img
                                 src={logoUrl}
                                 alt={`${university.name} logo`}
                                 className="max-w-full max-h-full object-contain"
                                 style={{
-                                  // Ensure logos maintain aspect ratio and fit naturally
+                                  // Ensure logos maintain natural proportions
                                   width: "auto",
                                   height: "auto",
-                                  maxWidth: "100%",
-                                  maxHeight: "100%",
+                                  maxWidth: "120px",
+                                  maxHeight: "120px",
+                                  minWidth: "60px",
+                                  minHeight: "60px",
                                 }}
                                 onError={(e) => {
                                   const target = e.target as HTMLImageElement;
@@ -301,7 +353,7 @@ const UniversityDirectory = () => {
             </div>
           ) : (
             <div className="text-center py-12">
-              <Search className="h-12 w-12 mx-auto" />
+              <Search className="h-12 w-12 mx-auto text-gray-400" />
               <h3 className="text-lg font-medium text-gray-900 mt-4 mb-2">
                 No universities found
               </h3>
