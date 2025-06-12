@@ -119,6 +119,16 @@ export const getBookById = async (id: string): Promise<Book | null> => {
   try {
     console.log("Fetching book by ID:", id);
 
+    // Validate UUID format before making database call
+    const uuidRegex =
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+    if (!uuidRegex.test(id)) {
+      console.error("Invalid UUID format for book ID:", id);
+      throw new Error(
+        "Invalid book ID format. Please check the link and try again.",
+      );
+    }
+
     // Get book first
     const { data: bookData, error: bookError } = await supabase
       .from("books")
