@@ -136,6 +136,8 @@ const UniversityProfile = () => {
                     </span>
                   </div>
                 </div>
+
+                <div className="flex-1 text-center sm:text-left">
                       <MapPin className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
                       <span className="text-xs sm:text-sm lg:text-base">
                         {university.location}, {university.province}
