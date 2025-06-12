@@ -360,10 +360,20 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     if (!user) return;
 
     try {
-      const updatedProfile = await fetchUserProfile(user);
+      // First try quick fetch for immediate response
+      let updatedProfile = await fetchUserProfileQuick(user);
+
       if (updatedProfile) {
         setProfile(updatedProfile);
-        console.log("[AuthContext] Profile refreshed successfully");
+        console.log("[AuthContext] Profile refreshed successfully (quick)");
+      } else {
+        // If quick fetch fails, try full fetch in background
+        console.log("[AuthContext] Quick refresh failed, trying full fetch...");
+        updatedProfile = await fetchUserProfile(user);
+        if (updatedProfile) {
+          setProfile(updatedProfile);
+          console.log("[AuthContext] Profile refreshed successfully (full)");
+        }
       }
     } catch (error) {
       console.error("[AuthContext] Failed to refresh profile:", {
