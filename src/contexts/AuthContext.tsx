@@ -277,6 +277,16 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
                 });
               });
           }, 2000); // Wait 2 seconds before starting background load
+
+          // Set up periodic profile upgrade check (every 30 seconds)
+          const upgradeInterval = setInterval(() => {
+            if (session?.user) {
+              upgradeProfileIfNeeded(session.user);
+            }
+          }, 30000);
+
+          // Clean up interval when component unmounts or user changes
+          return () => clearInterval(upgradeInterval);
         }
       } catch (error) {
         console.error("[AuthContext] Auth state change failed:", {
