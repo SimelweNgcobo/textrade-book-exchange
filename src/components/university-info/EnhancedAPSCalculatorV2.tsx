@@ -147,12 +147,6 @@ const EnhancedAPSCalculatorV2 = ({
             if (qualificationFilter === "qualify" && !meetsRequirement) {
               return;
             }
-            if (
-              qualificationFilter === "close" &&
-              (apsGap > 5 || meetsRequirement)
-            ) {
-              return; // Show only programs within 5 APS points
-            }
 
             eligibleDegrees.push({
               degree,
