@@ -33,8 +33,6 @@ const BookListing = () => {
 
   // Memoize loadBooks function to prevent infinite loops
   const loadBooks = useCallback(async () => {
-    console.log("Loading books...");
-
     setIsLoading(true);
     setError(null);
 

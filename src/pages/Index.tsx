@@ -15,16 +15,13 @@ const Index = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    console.log("Index page mounted, loading featured books...");
     loadFeaturedBooks();
   }, []);
 
   const loadFeaturedBooks = async () => {
     try {
       setIsLoading(true);
-      console.log("Fetching books for featured section...");
       const allBooks = await getBooks();
-      console.log("Books fetched for Index page:", allBooks?.length || 0);
       setFeaturedBooks(Array.isArray(allBooks) ? allBooks.slice(0, 4) : []); // Get first 4 books for featured section
     } catch (error) {
       console.error("Error loading featured books:", error);
