@@ -308,69 +308,6 @@ const EnhancedAPSCalculatorV2 = ({
   const hasValidUniversityData =
     ALL_SOUTH_AFRICAN_UNIVERSITIES && ALL_SOUTH_AFRICAN_UNIVERSITIES.length > 0;
 
-  // Check if user meets subject requirements for a degree
-  const checkSubjectRequirements = (
-    degree: any,
-    userSubjects: APSSubject[],
-  ): boolean => {
-    if (!degree.subjects || degree.subjects.length === 0) {
-      return true; // No specific requirements
-    }
-
-    // Map user subjects to standardized names for comparison
-    const userSubjectMap = new Map();
-    userSubjects.forEach((subject) => {
-      const normalizedName = normalizeSubjectName(subject.name);
-      userSubjectMap.set(normalizedName, subject);
-    });
-
-    // Check each required subject
-    for (const requiredSubject of degree.subjects) {
-      if (requiredSubject.isRequired) {
-        const normalizedRequired = normalizeSubjectName(requiredSubject.name);
-        const userSubject = userSubjectMap.get(normalizedRequired);
-
-        if (!userSubject) {
-          // User doesn't have this required subject
-          return false;
-        }
-
-        if (userSubject.level < requiredSubject.level) {
-          // User's level is too low for this subject
-          return false;
-        }
-      }
-    }
-
-    return true;
-  };
-
-  // Normalize subject names for comparison
-  const normalizeSubjectName = (name: string): string => {
-    const normalized = name.toLowerCase().trim();
-
-    // Handle common variations
-    const subjectMappings: { [key: string]: string } = {
-      mathematics: "mathematics",
-      maths: "mathematics",
-      "mathematical literacy": "mathematical literacy",
-      "math lit": "mathematical literacy",
-      "physical sciences": "physical sciences",
-      physics: "physical sciences",
-      "life sciences": "life sciences",
-      biology: "life sciences",
-      "english home language": "english",
-      "english first additional language": "english",
-      english: "english",
-      accounting: "accounting",
-      "information technology": "information technology",
-      "computer applications technology": "information technology",
-      it: "information technology",
-    };
-
-    return subjectMappings[normalized] || normalized;
-  };
-
   const addSubject = () => {
     if (subjects.length < 8) {
       setSubjects([...subjects, { name: "", marks: 0, level: 1, points: 0 }]);
