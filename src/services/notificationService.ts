@@ -21,8 +21,13 @@ export interface NotificationInput {
 export const getNotifications = async (
   userId: string,
 ): Promise<Notification[]> => {
+  if (!userId) {
+    console.warn("getNotifications called without userId");
+    return [];
+  }
+
   try {
-    // Add timeout and better error handling
+    // Shorter timeout for better UX - 5 seconds
     const { data, error } = (await Promise.race([
       supabase
         .from("notifications")
@@ -30,28 +35,31 @@ export const getNotifications = async (
         .eq("user_id", userId)
         .order("created_at", { ascending: false }),
       new Promise((_, reject) =>
-        setTimeout(
-          () => reject(new Error("Notification fetch timeout")),
-          10000,
-        ),
+        setTimeout(() => reject(new Error("Connection timeout")), 5000),
       ),
     ])) as any;
 
     if (error) {
-      console.error("Error fetching notifications:", error);
+      console.warn("Database error fetching notifications:", error.message);
 
-      // Handle specific error types
+      // Handle specific error types gracefully
       if (error.message?.includes("Failed to fetch")) {
         console.warn(
-          "Connection issue while fetching notifications - returning empty array",
+          "Network issue while fetching notifications - returning empty array",
         );
         return [];
       }
 
-      throw error;
+      // For database errors, return empty array instead of throwing
+      return [];
     }
 
-    return (data || []).map((notification) => ({
+    if (!data || !Array.isArray(data)) {
+      console.warn("Invalid notification data received:", data);
+      return [];
+    }
+
+    return data.map((notification) => ({
       id: notification.id,
       userId: notification.user_id,
       title: notification.title,
@@ -61,17 +69,24 @@ export const getNotifications = async (
       createdAt: notification.created_at,
     }));
   } catch (error) {
-    console.error("Error in getNotifications:", error);
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown error";
 
-    // Log connection health for debugging
-    if (import.meta.env.DEV && error?.message?.includes("fetch")) {
-      import("../utils/connectionHealthCheck").then(
-        ({ logConnectionHealth }) => {
-          logConnectionHealth();
-        },
-      );
+    // Don't spam console with timeout errors in production
+    if (import.meta.env.DEV) {
+      console.warn("Notification fetch failed:", errorMessage);
+
+      // Log connection health for debugging timeouts
+      if (errorMessage.includes("timeout") || errorMessage.includes("fetch")) {
+        import("../utils/connectionHealthCheck").then(
+          ({ logConnectionHealth }) => {
+            logConnectionHealth();
+          },
+        );
+      }
     }
 
+    // Always return empty array instead of throwing
     return [];
   }
 };
