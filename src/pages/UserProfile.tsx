@@ -35,7 +35,7 @@ const UserProfile = () => {
       loadUserProfile();
       loadUserBooks();
     }
-  }, [userId]);
+  }, [userId, loadUserProfile, loadUserBooks]);
 
   const loadUserProfile = async () => {
     if (!userId) return;
