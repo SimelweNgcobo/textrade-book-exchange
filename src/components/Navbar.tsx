@@ -246,7 +246,12 @@ const Navbar = () => {
                     className="flex items-center px-4 py-3 text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-book-600 rounded-md min-h-[44px]"
                     onClick={() => setIsMenuOpen(false)}
                   >
-                    <NotificationBadge className="mr-3" iconSize="w-5 h-5" />
+                    <NotificationBadge
+                      className="mr-3"
+                      iconSize="w-5 h-5"
+                      allowRetry={true}
+                      showErrorIndicator={true}
+                    />
                     <span>Notifications</span>
                   </Link>
 
