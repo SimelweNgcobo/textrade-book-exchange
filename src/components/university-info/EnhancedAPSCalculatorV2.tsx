@@ -872,7 +872,7 @@ const EnhancedAPSCalculatorV2 = ({
                     <Button
                       variant="outline"
                       onClick={() => setShowAllPrograms(true)}
-                      className="w-full"
+                      className="w-full text-sm sm:text-base py-2 sm:py-3"
                     >
                       Show All {calculation.eligibleDegrees.length} Programs
                     </Button>
