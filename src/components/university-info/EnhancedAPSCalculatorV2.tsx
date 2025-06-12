@@ -518,17 +518,21 @@ const EnhancedAPSCalculatorV2 = ({
             </div>
 
             {/* Status and Calculate */}
-            <div className="flex items-center justify-between">
-              <div className="text-sm text-muted-foreground">
-                Contributing subjects: {contributingSubjectsCount}/7
+            <div className="space-y-3 sm:space-y-0 sm:flex sm:items-center sm:justify-between">
+              <div className="text-xs sm:text-sm text-muted-foreground space-y-1 sm:space-y-0">
+                <div>Contributing subjects: {contributingSubjectsCount}/7</div>
                 {calculation && (
-                  <span className="ml-4 font-semibold">
+                  <div className="font-semibold text-green-600">
                     Total APS: {calculation.totalScore}
-                  </span>
+                  </div>
                 )}
               </div>
-              <div className="flex gap-2">
-                <Button onClick={resetCalculator} variant="outline">
+              <div className="flex gap-2 w-full sm:w-auto">
+                <Button
+                  onClick={resetCalculator}
+                  variant="outline"
+                  className="flex-1 sm:flex-none text-sm"
+                >
                   Reset
                 </Button>
                 <Button
@@ -536,12 +540,13 @@ const EnhancedAPSCalculatorV2 = ({
                   disabled={
                     contributingSubjectsCount < 6 || !hasValidUniversityData
                   }
-                  className={
+                  className={`flex-1 sm:flex-none text-sm ${
                     contributingSubjectsCount >= 6 && hasValidUniversityData
                       ? "bg-green-600 hover:bg-green-700"
                       : ""
-                  }
+                  }`}
                 >
+                  <Calculator className="h-4 w-4 mr-1 sm:mr-2" />
                   Calculate APS
                 </Button>
               </div>
