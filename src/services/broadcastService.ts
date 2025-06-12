@@ -6,7 +6,7 @@ import {
   getErrorMessage,
   retryWithExponentialBackoff,
   withTimeout,
-  isNetworkError
+  isNetworkError,
 } from "@/utils/errorUtils";
 
 export const getActiveBroadcasts = async (): Promise<Broadcast[]> => {
@@ -23,14 +23,14 @@ export const getActiveBroadcasts = async (): Promise<Broadcast[]> => {
             .or("expires_at.is.null,expires_at.gt." + new Date().toISOString())
             .order("created_at", { ascending: false }),
           8000, // 8 second timeout
-          "Broadcast fetch timed out"
+          "Broadcast fetch timed out",
         );
       },
       {
         maxRetries: 2,
         baseDelay: 1000,
-        retryCondition: (error) => isNetworkError(error)
-      }
+        retryCondition: (error) => isNetworkError(error),
+      },
     );
 
     const { data, error } = result as any;
@@ -59,7 +59,6 @@ export const getActiveBroadcasts = async (): Promise<Broadcast[]> => {
       targetAudience: broadcast.target_audience as "all" | "users" | "admin",
       createdBy: broadcast.created_by,
     }));
-
   } catch (error) {
     logError("Error in getActiveBroadcasts", error);
     // Return empty array instead of throwing to prevent app crashes
@@ -67,199 +66,211 @@ export const getActiveBroadcasts = async (): Promise<Broadcast[]> => {
     return [];
   }
 };
-    return await retryWithConnection(fetchBroadcastsOperation, 2, 1000);
 
+export const getBroadcastViews = async (
+  broadcastId: string,
+): Promise<BroadcastView[]> => {
+  try {
+    const result = await retryWithExponentialBackoff(
+      async () => {
+        return await withTimeout(
+          supabase
+            .from("broadcast_views")
+            .select("*")
+            .eq("broadcast_id", broadcastId),
+          5000,
+          "Broadcast views fetch timed out",
+        );
+      },
+      {
+        maxRetries: 1,
+        baseDelay: 500,
+        retryCondition: (error) => isNetworkError(error),
+      },
+    );
+
+    const { data, error } = result as any;
+
+    if (error) {
+      logError("Error fetching broadcast views", error);
+      return [];
+    }
+
+    return data || [];
   } catch (error) {
-    logDetailedError("Error in getActiveBroadcasts", error);
-
-    // Return empty array instead of throwing to prevent app crashes
-    console.warn("🚨 Failed to fetch broadcasts, returning empty array");
+    logError("Error in getBroadcastViews", error);
     return [];
   }
 };
 
-export const getLatestBroadcast = async (): Promise<Broadcast | null> => {
+export const markBroadcastAsViewed = async (
+  broadcastId: string,
+  userId: string,
+): Promise<void> => {
   try {
-    console.log("🔄 Fetching latest broadcast...");
+    const result = await retryWithExponentialBackoff(
+      async () => {
+        return await withTimeout(
+          supabase
+            .from("broadcast_views")
+            .upsert({ broadcast_id: broadcastId, user_id: userId }),
+          5000,
+          "Mark broadcast as viewed timed out",
+        );
+      },
+      {
+        maxRetries: 1,
+        baseDelay: 500,
+        retryCondition: (error) => isNetworkError(error),
+      },
+    );
 
-    const broadcasts = await getActiveBroadcasts();
-    const latest = broadcasts.length > 0 ? broadcasts[0] : null;
+    const { error } = result as any;
 
-    if (latest) {
-      console.log(`✅ Found latest broadcast: ${latest.title}`);
-    } else {
-      console.log("ℹ️ No active broadcasts found");
+    if (error) {
+      logError("Error marking broadcast as viewed", error);
     }
-
-    return latest;
   } catch (error) {
-    logDetailedError("Error getting latest broadcast", error);
-    return null;
+    logError("Error in markBroadcastAsViewed", error);
   }
 };
 
 export const createBroadcast = async (
   broadcast: BroadcastInput,
-): Promise<Broadcast> => {
+): Promise<Broadcast | null> => {
   try {
-    console.log("📝 Creating new broadcast:", broadcast.title);
+    const result = await retryWithExponentialBackoff(
+      async () => {
+        return await withTimeout(
+          supabase.from("broadcasts").insert(broadcast).select().single(),
+          10000,
+          "Create broadcast timed out",
+        );
+      },
+      {
+        maxRetries: 1,
+        baseDelay: 1000,
+        retryCondition: (error) => isNetworkError(error),
+      },
+    );
 
-    const createBroadcastOperation = async () => {
-      const { data, error } = await supabase
-        .from("broadcasts")
-        .insert([
-          {
-            message: broadcast.message,
-            title: broadcast.title,
-            priority: broadcast.priority,
-            expires_at: broadcast.expiresAt,
-            target_audience: broadcast.targetAudience,
-            created_by: broadcast.createdBy,
-            is_active: true,
-          },
-        ])
-        .select()
-        .single();
+    const { data, error } = result as any;
 
-      if (error) {
-        logDetailedError("Error creating broadcast", error);
-        throw new Error(`Failed to create broadcast: ${error.message || 'Unknown database error'}`);
+    if (error) {
+      logError("Error creating broadcast", error);
+      throw new Error(getErrorMessage(error, "Failed to create broadcast"));
+    }
+
+    // Trigger notification for all users
+    if (data) {
+      try {
+        await addNotification({
+          user_id: null, // null means all users
+          title: data.title,
+          message: data.message,
+          type: "info",
+        });
+      } catch (notifError) {
+        logError("Error sending broadcast notification", notifError);
+        // Don't fail the broadcast creation if notification fails
       }
+    }
 
-      console.log("✅ Broadcast created successfully");
-
-      return {
-        id: data.id,
-        message: data.message,
-        title: data.title,
-        createdAt: data.created_at,
-        isActive: data.is_active,
-        priority: data.priority,
-        expiresAt: data.expires_at,
-        targetAudience: data.target_audience,
-        createdBy: data.created_by,
-      };
-    };
-
-    return await retryWithConnection(createBroadcastOperation, 2, 1000);
-  } catch (error) {
-    logDetailedError("Error in createBroadcast", error);
-    throw error; // Re-throw for create operations
-  }
-};
-
-export const markBroadcastAsViewed = async (
-  userId: string,
-  broadcastId: string,
-): Promise<void> => {
-  try {
-    console.log(`👁️ Marking broadcast as viewed: ${broadcastId} for user: ${userId}`);
-
-    const markViewedOperation = async () => {
-      const { error } = await supabase.from("broadcast_views").upsert({
-        user_id: userId,
-        broadcast_id: broadcastId,
-        viewed_at: new Date().toISOString(),
-        dismissed: false,
-      });
-
-      if (error && error.code !== "42P01" && error.code !== "PGRST106") {
-        logDetailedError("Error marking broadcast as viewed", error);
-        throw new Error(`Failed to mark broadcast as viewed: ${error.message || 'Unknown database error'}`);
-      }
-    };
-
-    await retryWithConnection(markViewedOperation, 2, 1000);
-    console.log("✅ Broadcast marked as viewed");
-  } catch (error) {
-    logDetailedError("Error in markBroadcastAsViewed", error);
-    // Don't throw - this is not critical functionality
-  }
-};
-
-export const dismissBroadcast = async (
-  userId: string,
-  broadcastId: string,
-): Promise<void> => {
-  try {
-    console.log(`❌ Dismissing broadcast: ${broadcastId} for user: ${userId}`);
-
-    const dismissBroadcastOperation = async () => {
-      const { error } = await supabase.from("broadcast_views").upsert({
-        user_id: userId,
-        broadcast_id: broadcastId,
-        viewed_at: new Date().toISOString(),
-        dismissed: true,
-      });
-
-      if (error && error.code !== "42P01" && error.code !== "PGRST106") {
-        logDetailedError("Error dismissing broadcast", error);
-        throw new Error(`Failed to dismiss broadcast: ${error.message || 'Unknown database error'}`);
-      }
-    };
-
-    await retryWithConnection(dismissBroadcastOperation, 2, 1000);
-    console.log("✅ Broadcast dismissed");
-  } catch (error) {
-    logDetailedError("Error in dismissBroadcast", error);
-    // Don't throw - this is not critical functionality
-  }
-};
-
-export const hasBroadcastBeenViewed = async (
-  userId: string,
-  broadcastId: string,
-): Promise<boolean> => {
-  try {
-    console.log(`🔍 Checking if broadcast viewed: ${broadcastId} for user: ${userId}`);
-
-    const checkViewedOperation = async () => {
-      const { data, error } = await supabase
-        .from("broadcast_views")
-        .select("dismissed")
-        .eq("user_id", userId)
-        .eq("broadcast_id", broadcastId)
-        .single();
-
-      if (error) {
-        // If table doesn't exist or no record found, assume not viewed
-        if (error.code === "42P01" || error.code === "PGRST106" || error.code === "PGRST116") {
-          return false;
+    return data
+      ? {
+          id: data.id,
+          message: data.message,
+          title: data.title,
+          createdAt: data.created_at,
+          isActive: data.is_active,
+          priority: data.priority as "low" | "normal" | "high" | "urgent",
+          expiresAt: data.expires_at,
+          targetAudience: data.target_audience as "all" | "users" | "admin",
+          createdBy: data.created_by,
         }
-        logDetailedError("Error checking broadcast view status", error);
-        return false; // Default to not viewed on error
-      }
-
-      return data ? data.dismissed : false;
-    };
-
-    const result = await retryWithConnection(checkViewedOperation, 2, 1000);
-    console.log(`📊 Broadcast viewed status: ${result}`);
-    return result;
+      : null;
   } catch (error) {
-    logDetailedError("Error in hasBroadcastBeenViewed", error);
-    return false; // Default to not viewed on error
+    logError("Error in createBroadcast", error);
+    throw error;
   }
 };
 
-export const saveBroadcastToNotifications = async (
-  userId: string,
-  broadcast: Broadcast,
-): Promise<void> => {
+export const updateBroadcast = async (
+  id: string,
+  updates: Partial<BroadcastInput>,
+): Promise<Broadcast | null> => {
   try {
-    console.log(`💾 Saving broadcast to notifications: ${broadcast.title}`);
+    const result = await retryWithExponentialBackoff(
+      async () => {
+        return await withTimeout(
+          supabase
+            .from("broadcasts")
+            .update(updates)
+            .eq("id", id)
+            .select()
+            .single(),
+          8000,
+          "Update broadcast timed out",
+        );
+      },
+      {
+        maxRetries: 1,
+        baseDelay: 1000,
+        retryCondition: (error) => isNetworkError(error),
+      },
+    );
 
-    await addNotification({
-      userId,
-      title: `📢 ${broadcast.title}`,
-      message: broadcast.message,
-      type: broadcast.priority === "urgent" ? "warning" : "info",
-      read: false,
-    });
+    const { data, error } = result as any;
 
-    console.log("✅ Broadcast saved to notifications");
+    if (error) {
+      logError("Error updating broadcast", error);
+      throw new Error(getErrorMessage(error, "Failed to update broadcast"));
+    }
+
+    return data
+      ? {
+          id: data.id,
+          message: data.message,
+          title: data.title,
+          createdAt: data.created_at,
+          isActive: data.is_active,
+          priority: data.priority as "low" | "normal" | "high" | "urgent",
+          expiresAt: data.expires_at,
+          targetAudience: data.target_audience as "all" | "users" | "admin",
+          createdBy: data.created_by,
+        }
+      : null;
   } catch (error) {
-    logDetailedError("Error saving broadcast to notifications", error);
-    // Don't throw - this is not critical functionality
+    logError("Error in updateBroadcast", error);
+    throw error;
+  }
+};
+
+export const deleteBroadcast = async (id: string): Promise<void> => {
+  try {
+    const result = await retryWithExponentialBackoff(
+      async () => {
+        return await withTimeout(
+          supabase.from("broadcasts").delete().eq("id", id),
+          5000,
+          "Delete broadcast timed out",
+        );
+      },
+      {
+        maxRetries: 1,
+        baseDelay: 500,
+        retryCondition: (error) => isNetworkError(error),
+      },
+    );
+
+    const { error } = result as any;
+
+    if (error) {
+      logError("Error deleting broadcast", error);
+      throw new Error(getErrorMessage(error, "Failed to delete broadcast"));
+    }
+  } catch (error) {
+    logError("Error in deleteBroadcast", error);
+    throw error;
   }
 };
