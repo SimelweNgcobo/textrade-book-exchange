@@ -84,8 +84,21 @@ const CampusBooks = ({
       const loadedBooks = await getBooks(filters);
       setBooks(Array.isArray(loadedBooks) ? loadedBooks : []);
     } catch (error) {
-      console.error("Error loading campus books:", error);
-      toast.error("Failed to load books. Please try again.");
+      const errorDetails = {
+        message: error instanceof Error ? error.message : String(error),
+        name: error instanceof Error ? error.name : "Unknown",
+        stack: error instanceof Error ? error.stack : undefined,
+        timestamp: new Date().toISOString(),
+      };
+
+      console.error("[CampusBooks] Error loading campus books:", errorDetails);
+
+      const userMessage =
+        error instanceof Error && error.message.includes("Failed to fetch")
+          ? "Unable to connect to the textbook database. Please check your internet connection and try again."
+          : "Failed to load campus books. Please try again later.";
+
+      toast.error(userMessage);
       setBooks([]);
     } finally {
       setIsLoading(false);
