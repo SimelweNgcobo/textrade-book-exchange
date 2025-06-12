@@ -253,3 +253,14 @@ export const withTimeout = <T>(
 ): Promise<T> => {
   return Promise.race([promise, createTimeoutPromise(timeoutMs, errorMessage)]);
 };
+
+/**
+ * Legacy function aliases for backward compatibility
+ */
+export const logDatabaseError = logError;
+export const getUserErrorMessage = getErrorMessage;
+export const logQueryDebug = (context: string, query: any, result?: any) => {
+  if (import.meta.env.DEV) {
+    console.log(`[Query Debug] ${context}:`, { query, result });
+  }
+};
