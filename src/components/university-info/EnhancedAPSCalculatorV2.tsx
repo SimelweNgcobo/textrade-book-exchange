@@ -692,18 +692,9 @@ const EnhancedAPSCalculatorV2 = ({
 
               {/* Results */}
               <div className="space-y-4">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                  <h3 className="text-base sm:text-lg font-semibold">
-                    Matching Programs ({calculation.eligibleDegrees.length})
-                  </h3>
-                  {/* Quick stats for mobile */}
-                  <div className="sm:hidden flex gap-4 text-xs text-muted-foreground">
-                    <span className="text-green-600 font-medium">
-                      {stats?.qualifying} Qualify
-                    </span>
-                    <span>APS: {calculation.totalScore}</span>
-                  </div>
-                </div>
+                <h3 className="text-base sm:text-lg font-semibold">
+                  Matching Programs ({calculation.eligibleDegrees.length})
+                </h3>
 
                 {calculation.eligibleDegrees.length === 0 ? (
                   <Alert>
