@@ -103,7 +103,11 @@ export class ActivityService {
     title: string,
     description: string,
     metadata?: Activity["metadata"],
-  ): Promise<{ success: boolean; error?: string; details?: any }> {
+  ): Promise<{
+    success: boolean;
+    error?: string;
+    details?: Record<string, unknown>;
+  }> {
     try {
       // Validate required parameters
       if (!userId || !type || !title || !description) {
