@@ -1,6 +1,6 @@
 import { supabase } from "@/integrations/supabase/client";
 import { addNotification } from "./notificationService";
-import { logDatabaseError } from "@/utils/errorUtils";
+import { logError } from "@/utils/errorUtils";
 
 export interface BookDeletionNotificationData {
   bookId: string;
@@ -55,7 +55,7 @@ export class BookDeletionService {
         reason: data.reason,
       });
     } catch (error) {
-      logDatabaseError("BookDeletionService.notifyBookDeletion", error, {
+      logError("BookDeletionService.notifyBookDeletion", error, {
         bookId: data.bookId,
         sellerId: data.sellerId,
       });
@@ -86,7 +86,7 @@ export class BookDeletionService {
         .single();
 
       if (bookError) {
-        logDatabaseError(
+        logError(
           "BookDeletionService.deleteBookWithNotification - fetch book",
           bookError,
         );
@@ -108,7 +108,7 @@ export class BookDeletionService {
       );
 
       if (transactionError) {
-        logDatabaseError(
+        logError(
           "BookDeletionService.deleteBookWithNotification - transaction",
           transactionError,
         );
@@ -117,7 +117,7 @@ export class BookDeletionService {
 
       console.log("Book deleted and notification sent successfully:", bookId);
     } catch (error) {
-      logDatabaseError(
+      logError(
         "BookDeletionService.deleteBookWithNotification",
         error,
         {
@@ -145,7 +145,7 @@ export class BookDeletionService {
         .single();
 
       if (error) {
-        logDatabaseError(
+        logError(
           "BookDeletionService.validateUserCanListBooks",
           error,
           { userId },
@@ -180,7 +180,7 @@ export class BookDeletionService {
 
       return { canList: true };
     } catch (error) {
-      logDatabaseError("BookDeletionService.validateUserCanListBooks", error, {
+      logError("BookDeletionService.validateUserCanListBooks", error, {
         userId,
       });
       return {
@@ -208,7 +208,7 @@ export class BookDeletionService {
         .eq("sold", false);
 
       if (updateError) {
-        logDatabaseError(
+        logError(
           "BookDeletionService.deactivateUserListings - update books",
           updateError,
         );
@@ -227,7 +227,7 @@ export class BookDeletionService {
 
       console.log("Successfully deactivated all listings for user:", userId);
     } catch (error) {
-      logDatabaseError("BookDeletionService.deactivateUserListings", error, {
+      logError("BookDeletionService.deactivateUserListings", error, {
         userId,
       });
       throw error;
@@ -253,7 +253,7 @@ export class BookDeletionService {
         .eq("sold", false);
 
       if (updateError) {
-        logDatabaseError(
+        logError(
           "BookDeletionService.reactivateUserListings - update books",
           updateError,
         );
@@ -272,7 +272,7 @@ export class BookDeletionService {
 
       console.log("Successfully reactivated listings for user:", userId);
     } catch (error) {
-      logDatabaseError("BookDeletionService.reactivateUserListings", error, {
+      logError("BookDeletionService.reactivateUserListings", error, {
         userId,
       });
       throw error;
