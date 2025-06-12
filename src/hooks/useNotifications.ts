@@ -3,9 +3,12 @@ import { useAuth } from "@/contexts/AuthContext";
 import {
   getNotifications,
   clearNotificationCache,
+  markNotificationAsRead,
+  deleteNotification,
 } from "@/services/notificationService";
 import { supabase } from "@/integrations/supabase/client";
 import { Database } from "@/integrations/supabase/types";
+import { debugLog } from "@/utils/debugHelpers";
 
 type Notification = Database["public"]["Tables"]["notifications"]["Row"];
 
