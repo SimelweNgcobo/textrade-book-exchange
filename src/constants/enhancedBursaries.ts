@@ -574,6 +574,9 @@ export const ALL_BURSARIES: Bursary[] = [
   ...ADDITIONAL_BURSARIES,
 ];
 
+// Export as BURSARIES for backward compatibility
+export const BURSARIES = ALL_BURSARIES;
+
 export const BURSARY_CATEGORIES = [
   "Government Bursaries",
   "Corporate Bursaries",
@@ -585,4 +588,45 @@ export const BURSARY_CATEGORIES = [
   "Engineering & Technical",
   "Agriculture & Environment",
   "Professional Organizations",
+];
+
+export const BURSARY_FIELDS_OF_STUDY = [
+  "All fields",
+  "Accounting",
+  "Actuarial Science",
+  "Agriculture",
+  "Business",
+  "Commerce",
+  "Computer Science",
+  "Counselling",
+  "Economics",
+  "Education",
+  "Engineering",
+  "Finance",
+  "Forestry",
+  "Health Sciences",
+  "Information Technology",
+  "Law",
+  "Logistics",
+  "Mathematics",
+  "Medicine",
+  "Mining Engineering",
+  "Nursing",
+  "Psychology",
+  "Science",
+  "Teaching",
+  "Technology",
+];
+
+export const PROVINCES = [
+  "All provinces",
+  "Eastern Cape",
+  "Free State",
+  "Gauteng",
+  "KwaZulu-Natal",
+  "Limpopo",
+  "Mpumalanga",
+  "Northern Cape",
+  "North West",
+  "Western Cape",
 ];
