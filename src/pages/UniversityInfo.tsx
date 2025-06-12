@@ -20,6 +20,7 @@ import {
   Calculator,
   DollarSign,
   TrendingUp,
+  School,
 } from "lucide-react";
 import { SOUTH_AFRICAN_UNIVERSITIES } from "@/constants/universities";
 import UniversityHero from "@/components/university-info/UniversityHero";
