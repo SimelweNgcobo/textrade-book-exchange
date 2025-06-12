@@ -237,7 +237,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
             const isTimeoutError =
               profileError instanceof Error &&
               (profileError.message.includes("timeout") ||
-                (profileError as any).isTimeout);
+                (profileError as Error & { isTimeout?: boolean }).isTimeout);
 
             if (isTimeoutError) {
               console.log(
