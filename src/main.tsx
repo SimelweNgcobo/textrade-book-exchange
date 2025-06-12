@@ -13,6 +13,13 @@ import "./index.css";
 // Validate environment variables
 try {
   validateEnvironment();
+
+  // Check connection health in development
+  if (import.meta.env.DEV) {
+    import("./utils/connectionHealthCheck").then(({ logConnectionHealth }) => {
+      logConnectionHealth();
+    });
+  }
 } catch (error) {
   console.error("Environment validation failed:", error);
 }
