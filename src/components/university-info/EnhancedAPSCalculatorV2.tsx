@@ -660,20 +660,24 @@ const EnhancedAPSCalculatorV2 = ({
                       <div className="space-y-2">
                         <p>
                           <strong>
-                            No programs match your current filters.
+                            No qualifying programs found with your current APS
+                            score and filters.
                           </strong>
                         </p>
                         <p>Try these adjustments:</p>
                         <ul className="list-disc list-inside text-sm space-y-1">
-                          <li>Change qualification filter to "All Programs"</li>
-                          <li>Select "All Universities" and "All Faculties"</li>
                           <li>
-                            If your APS is low, try the "Close (≤5 APS)" filter
-                            to see nearby options
+                            Change qualification filter to "All Programs" to see
+                            all available options
                           </li>
+                          <li>Select "All Universities" and "All Faculties"</li>
                           <li>
                             Consider improving your subject marks to increase
                             your APS score
+                          </li>
+                          <li>
+                            Look into diploma and certificate programs with
+                            lower APS requirements
                           </li>
                         </ul>
                       </div>
