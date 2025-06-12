@@ -197,24 +197,35 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
             }
 
             // Add login notification for authenticated users (non-blocking)
-            if (event === "SIGNED_IN") {
-              addNotification({
-                userId: session.user.id,
-                title: "Welcome back!",
-                message: `You have successfully logged in at ${new Date().toLocaleString()}`,
-                type: "success",
-                read: false,
-              }).catch((notifError) => {
-                console.warn(
-                  "[AuthContext] Failed to create login notification:",
-                  {
-                    message:
-                      notifError instanceof Error
-                        ? notifError.message
-                        : String(notifError),
-                  },
-                );
-              });
+            // Only add notification for actual sign-in events, not session restoration
+            if (event === "SIGNED_IN" && !isInitializing) {
+              // Check if we already sent a login notification recently to prevent duplicates
+              const lastLoginKey = `lastLogin_${session.user.id}`;
+              const lastLogin = sessionStorage.getItem(lastLoginKey);
+              const now = Date.now();
+
+              // Only send notification if last login was more than 5 minutes ago
+              if (!lastLogin || now - parseInt(lastLogin) > 300000) {
+                sessionStorage.setItem(lastLoginKey, now.toString());
+
+                addNotification({
+                  userId: session.user.id,
+                  title: "Welcome back!",
+                  message: `You have successfully logged in at ${new Date().toLocaleString()}`,
+                  type: "success",
+                  read: false,
+                }).catch((notifError) => {
+                  console.warn(
+                    "[AuthContext] Failed to create login notification:",
+                    {
+                      message:
+                        notifError instanceof Error
+                          ? notifError.message
+                          : String(notifError),
+                    },
+                  );
+                });
+              }
             }
           } catch (profileError) {
             // Log the timeout but don't treat it as a critical error since we have fallback
