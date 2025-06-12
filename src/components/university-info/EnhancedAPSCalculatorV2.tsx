@@ -218,14 +218,11 @@ const EnhancedAPSCalculatorV2 = ({
     const qualifying = calculation.eligibleDegrees.filter(
       (d) => d.meetsRequirement,
     ).length;
-    const close = calculation.eligibleDegrees.filter(
-      (d) => !d.meetsRequirement && (d.apsGap || 0) <= 5,
-    ).length;
     const universities = new Set(
       calculation.eligibleDegrees.map((d) => d.university.id),
     ).size;
 
-    return { total, qualifying, close, universities };
+    return { total, qualifying, universities };
   }, [calculation]);
 
   // Get contributing subjects count (excluding LO)
