@@ -70,10 +70,6 @@ const APSCalculatorSection = () => {
 
   const eligibleDegrees =
     calculation?.eligibleDegrees?.filter((d) => d?.meetsRequirement) || [];
-  const closeMatches =
-    calculation?.eligibleDegrees?.filter(
-      (d) => d && !d.meetsRequirement && d.apsGap && d.apsGap <= 5,
-    ) || [];
 
   return (
     <div className="space-y-8">
