@@ -128,7 +128,7 @@ const SAMPLE_CAMPUS_BOOKS = [
     availability: "Available",
   },
   {
-    id: "book-6",
+    id: "550e8400-e29b-41d4-a716-446655440006",
     title: "Organic Chemistry 8th Edition",
     author: "Vollhardt & Schore",
     university: "ukzn",
