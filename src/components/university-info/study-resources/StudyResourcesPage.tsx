@@ -83,9 +83,34 @@ const StudyResourcesPage = () => {
     clearFilters,
   } = useStudyResources({ tips: allTips, resources: allResources });
 
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 py-4 sm:py-8">
+        <div className="container mx-auto px-4 sm:px-6">
+          <div className="flex items-center justify-center min-h-[400px]">
+            <div className="text-center">
+              <LoadingSpinner />
+              <p className="mt-4 text-gray-600">Loading study resources...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 py-4 sm:py-8">
       <div className="container mx-auto px-4 sm:px-6">
+        {/* Error Alert */}
+        {error && (
+          <div className="mb-6 p-4 bg-orange-50 border border-orange-200 rounded-lg">
+            <div className="flex items-center">
+              <RefreshCw className="h-5 w-5 text-orange-600 mr-2" />
+              <p className="text-orange-800">{error}</p>
+            </div>
+          </div>
+        )}
+
         {/* Header */}
         <div className="text-center mb-8 sm:mb-12">
           <div className="w-16 h-16 sm:w-20 sm:h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6">
