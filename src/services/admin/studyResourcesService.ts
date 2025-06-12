@@ -183,6 +183,13 @@ export const createStudyResource = async (
   resource: Omit<StudyResource, "id">,
 ): Promise<StudyResource> => {
   try {
+    const isTableAvailable = await checkTableAvailability("study_resources");
+    if (!isTableAvailable) {
+      throw new Error(
+        "Study resources table is not available. Please contact an administrator to set up the database.",
+      );
+    }
+
     const { data, error } = await supabase
       .from("study_resources")
       .insert([
@@ -202,7 +209,14 @@ export const createStudyResource = async (
       .select()
       .single();
 
-    if (error) throw error;
+    if (error) {
+      console.error("Database error creating study resource:", {
+        code: error.code,
+        message: error.message,
+        details: error.details,
+      });
+      throw error;
+    }
 
     return {
       id: data.id,
@@ -218,8 +232,15 @@ export const createStudyResource = async (
       tags: data.tags || [],
     };
   } catch (error) {
-    console.error("Error creating study resource:", error);
-    throw new Error("Failed to create study resource");
+    console.error("Error creating study resource:", {
+      message: error instanceof Error ? error.message : String(error),
+      type: error instanceof Error ? error.constructor.name : typeof error,
+    });
+    throw new Error(
+      error instanceof Error
+        ? error.message
+        : "Failed to create study resource",
+    );
   }
 };
 
