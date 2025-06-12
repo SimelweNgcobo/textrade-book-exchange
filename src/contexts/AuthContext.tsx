@@ -205,7 +205,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
               const now = Date.now();
 
               // Only send notification if last login was more than 5 minutes ago
-              if (!lastLogin || (now - parseInt(lastLogin)) > 300000) {
+              if (!lastLogin || now - parseInt(lastLogin) > 300000) {
                 sessionStorage.setItem(lastLoginKey, now.toString());
 
                 addNotification({
@@ -255,11 +255,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
             if (isTimeoutError) {
               // Skip notification for timeout - user can continue normally
               console.log("[AuthContext] Profile will load in background");
-                type: "info",
-                read: false,
-              }).catch(() => {
-                // Silent fail for notifications - don't block user experience
-              });
             }
           }
 
