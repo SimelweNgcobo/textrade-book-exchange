@@ -10,15 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Search,
-  MapPin,
-  ExternalLink,
-  BookOpen,
-  Users,
-  Calendar,
-  Star,
-} from "lucide-react";
+import { Search, MapPin, ExternalLink, BookOpen, Users, Calendar, Star } from "lucide-react";
 import { SOUTH_AFRICAN_UNIVERSITIES } from "@/constants/universities";
 
 const UniversityDirectory = () => {
@@ -37,70 +29,7 @@ const UniversityDirectory = () => {
     "Western Cape",
   ];
 
-  // Correct logo mapping based on actual university IDs and names from the database
-  const logoMap: Record<string, string> = {
-    // Traditional Universities - based on actual IDs from complete-sa-universities.ts
-    uct: "/logos/universities/university-of-cape-town.svg",
-    wits: "/logos/universities/university-of-witwatersrand.svg",
-    stellenbosch: "/logos/universities/stellenbosch-university.svg",
-    up: "/logos/universities/university-of-pretoria.svg",
-    ukzn: "/logos/universities/university-of-kwazulu-natal.svg",
-    ru: "/logos/universities/rhodes-university.svg",
-    nwu: "/logos/universities/north-west-university.svg",
-    ufs: "/logos/universities/university-of-free-state.svg",
-    uwc: "/logos/universities/university-of-western-cape.svg",
-    ufh: "/logos/universities/university-of-fort-hare.svg",
-    ul: "/logos/universities/university-of-limpopo.svg",
-
-    // Universities of Technology - based on actual IDs
-    cput: "/logos/universities/cape-peninsula-university-of-technology.svg",
-    dut: "/logos/universities/durban-university-of-technology.svg",
-    tut: "/logos/universities/tshwane-university-of-technology.svg",
-    vut: "/logos/universities/vaal-university-of-technology.svg",
-    cut: "/logos/universities/central-university-of-technology.svg",
-    mut: "/logos/universities/mangosuthu-university-of-technology.svg",
-
-    // Comprehensive Universities - based on actual IDs
-    uj: "/logos/universities/university-of-johannesburg.svg",
-    unizulu: "/logos/universities/university-of-zululand.svg",
-    wsu: "/logos/universities/walter-sisulu-university.svg",
-    univen: "/logos/universities/university-of-venda.svg",
-    ump: "/logos/universities/university-of-mpumalanga.svg",
-    spu: "/logos/universities/sol-plaatje-university.svg",
-
-    // Specialized Universities - based on actual IDs
-    unisa: "/logos/universities/unisa.svg",
-    smu: "/logos/universities/sefako-makgatho-health-sciences-university.svg",
-    nmu: "/logos/universities/nelson-mandela-university.svg",
-  };
-
-  const getUniversityLogo = (university: {
-    id?: string;
-    abbreviation?: string;
-    name: string;
-  }) => {
-    // First try to match by university ID (most reliable)
-    if (university.id && logoMap[university.id]) {
-      return logoMap[university.id];
-    }
-
-    // Try to match by abbreviation (lowercase)
-    if (
-      university.abbreviation &&
-      logoMap[university.abbreviation.toLowerCase()]
-    ) {
-      return logoMap[university.abbreviation.toLowerCase()];
-    }
-
-    // Fallback: try to match by name transformation
-    const normalized = university.name
-      .toLowerCase()
-      .replace(/\s+/g, "-")
-      .replace(/[^a-z0-9-]/g, "")
-      .replace(/--+/g, "-");
-
-    return logoMap[normalized] || null;
-  };
+  // University logos removed for improved performance
 
   const filteredUniversities = useMemo(() => {
     return SOUTH_AFRICAN_UNIVERSITIES.filter((university) => {
@@ -128,9 +57,7 @@ const UniversityDirectory = () => {
               South African Universities Directory
             </h1>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Complete directory of all {SOUTH_AFRICAN_UNIVERSITIES.length}{" "}
-              South African universities with logos, contact information, and
-              key details.
+              Complete directory of all {SOUTH_AFRICAN_UNIVERSITIES.length} South African universities with logos, contact information, and key details.
             </p>
           </div>
 
@@ -150,10 +77,7 @@ const UniversityDirectory = () => {
                   </div>
                 </div>
                 <div className="md:w-48">
-                  <Select
-                    value={selectedProvince}
-                    onValueChange={setSelectedProvince}
-                  >
+                  <Select value={selectedProvince} onValueChange={setSelectedProvince}>
                     <SelectTrigger>
                       <SelectValue placeholder="All Provinces" />
                     </SelectTrigger>
@@ -174,73 +98,31 @@ const UniversityDirectory = () => {
           {/* Results Count */}
           <div className="mb-6">
             <p className="text-gray-600">
-              Showing {filteredUniversities.length} of{" "}
-              {SOUTH_AFRICAN_UNIVERSITIES.length} universities
+              Showing {filteredUniversities.length} of {SOUTH_AFRICAN_UNIVERSITIES.length} universities
             </p>
           </div>
 
           {/* Universities List */}
           {filteredUniversities.length > 0 ? (
             <div className="space-y-6">
-              {filteredUniversities.map((university) => {
-                const logoUrl = getUniversityLogo(university);
-
-                return (
-                  <Card
-                    key={university.id}
-                    className="hover:shadow-lg transition-shadow duration-200"
-                  >
-                    <CardContent className="p-6">
-                      <div className="flex flex-col lg:flex-row gap-6">
-                        {/* University Logo - Naturally Proportioned */}
-                        <div className="flex-shrink-0 flex justify-center lg:justify-start">
-                          {logoUrl ? (
-                            <div className="flex items-center justify-center min-w-[100px] min-h-[80px] max-w-[150px] max-h-[120px]">
-                              <img
-                                src={logoUrl}
-                                alt={`${university.name} logo`}
-                                className="max-w-full max-h-full object-contain"
-                                style={{
-                                  // Natural proportional scaling - logos can be different sizes
-                                  width: "auto",
-                                  height: "auto",
-                                  maxWidth: "150px",
-                                  maxHeight: "120px",
-                                  minWidth: "80px",
-                                  minHeight: "60px",
-                                }}
-                                onError={(e) => {
-                                  const target = e.target as HTMLImageElement;
-                                  target.style.display = "none";
-                                  const fallback =
-                                    target.parentElement?.querySelector(
-                                      ".logo-fallback",
-                                    );
-                                  if (fallback)
-                                    (fallback as HTMLElement).style.display =
-                                      "flex";
-                                }}
-                              />
-                              <div
-                                className="logo-fallback w-24 h-24 lg:w-28 lg:h-28 bg-book-100 rounded-xl flex items-center justify-center"
-                                style={{ display: "none" }}
-                              >
-                                <span className="text-book-600 font-bold text-lg lg:text-xl">
-                                  {university.abbreviation}
-                                </span>
-                              </div>
-                            </div>
-                          ) : (
-                            <div className="w-24 h-24 lg:w-28 lg:h-28 bg-book-100 rounded-xl flex items-center justify-center">
-                              <span className="text-book-600 font-bold text-lg lg:text-xl">
-                                {university.abbreviation}
-                              </span>
-                            </div>
-                          )}
+              {filteredUniversities.map((university) => (
+                <Card
+                  key={university.id}
+                  className="hover:shadow-lg transition-shadow duration-200"
+                >
+                  <CardContent className="p-6">
+                    <div className="flex flex-col lg:flex-row gap-6">
+                      {/* University Abbreviation Badge */}
+                      <div className="flex-shrink-0 flex justify-center lg:justify-start">
+                        <div className="w-20 h-20 lg:w-24 lg:h-24 bg-book-100 rounded-xl flex items-center justify-center">
+                          <span className="text-book-600 font-bold text-lg lg:text-xl">
+                            {university.abbreviation}
+                          </span>
                         </div>
+                      </div>
 
-                        {/* University Information */}
-                        <div className="flex-1 min-w-0">
+                      {/* University Information */}
+                      <div className="flex-1 min-w-0">
                           <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-4">
                             <div className="flex-1">
                               <div className="flex flex-wrap items-start gap-3 mb-3">
@@ -252,10 +134,7 @@ const UniversityDirectory = () => {
                                     {university.abbreviation}
                                   </p>
                                 </div>
-                                <Badge
-                                  variant="secondary"
-                                  className="bg-book-50 text-book-700"
-                                >
+                                <Badge variant="secondary" className="bg-book-50 text-book-700">
                                   {university.type || "University"}
                                 </Badge>
                               </div>
@@ -276,26 +155,19 @@ const UniversityDirectory = () => {
                                 <div className="flex items-center gap-2">
                                   <Users className="h-4 w-4 text-book-600" />
                                   <span className="text-sm text-gray-600">
-                                    {university.studentPopulation
-                                      ? `${university.studentPopulation.toLocaleString()}+`
-                                      : "25,000+"}{" "}
-                                    Students
+                                    {university.studentPopulation ? `${university.studentPopulation.toLocaleString()}+` : "25,000+"} Students
                                   </span>
                                 </div>
                                 <div className="flex items-center gap-2">
                                   <BookOpen className="h-4 w-4 text-book-600" />
                                   <span className="text-sm text-gray-600">
-                                    {university.faculties?.length || "6"}{" "}
-                                    Faculties
+                                    {university.faculties?.length || "6"} Faculties
                                   </span>
                                 </div>
                                 <div className="flex items-center gap-2">
                                   <Calendar className="h-4 w-4 text-book-600" />
                                   <span className="text-sm text-gray-600">
-                                    Est.{" "}
-                                    {university.establishedYear ||
-                                      university.established ||
-                                      "1959"}
+                                    Est. {university.establishedYear || university.established || "1959"}
                                   </span>
                                 </div>
                               </div>
@@ -305,18 +177,12 @@ const UniversityDirectory = () => {
                             <div className="flex flex-col sm:flex-row lg:flex-col gap-2 lg:w-48">
                               <Button
                                 className="bg-book-600 hover:bg-book-700 text-white"
-                                onClick={() =>
-                                  university.website &&
-                                  window.open(university.website, "_blank")
-                                }
+                                onClick={() => university.website && window.open(university.website, '_blank')}
                               >
                                 <ExternalLink className="h-4 w-4 mr-2" />
                                 Visit Website
                               </Button>
-                              <Button
-                                variant="outline"
-                                className="border-book-200 text-book-600 hover:bg-book-50"
-                              >
+                              <Button variant="outline" className="border-book-200 text-book-600 hover:bg-book-50">
                                 <BookOpen className="h-4 w-4 mr-2" />
                                 View Programs
                               </Button>

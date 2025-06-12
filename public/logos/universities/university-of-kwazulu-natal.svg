@@ -1,8 +1,0 @@
-<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-  <rect width="200" height="200" fill="#8b0000"/>
-  <circle cx="100" cy="80" r="35" fill="#ffd700"/>
-  <text x="100" y="130" text-anchor="middle" fill="#ffffff" font-family="serif" font-size="16" font-weight="bold">UKZN</text>
-  <text x="100" y="150" text-anchor="middle" fill="#ffffff" font-family="serif" font-size="10">University of</text>
-  <text x="100" y="165" text-anchor="middle" fill="#ffffff" font-family="serif" font-size="10">KwaZulu-Natal</text>
-  <text x="100" y="185" text-anchor="middle" fill="#ffffff" font-family="serif" font-size="8">Est. 2004</text>
-</svg>

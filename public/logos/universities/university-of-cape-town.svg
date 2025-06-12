@@ -1,8 +1,0 @@
-<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-  <rect width="200" height="200" fill="#003f7f"/>
-  <circle cx="100" cy="80" r="35" fill="#ffffff"/>
-  <text x="100" y="130" text-anchor="middle" fill="#ffffff" font-family="serif" font-size="16" font-weight="bold">UCT</text>
-  <text x="100" y="150" text-anchor="middle" fill="#ffffff" font-family="serif" font-size="10">University of</text>
-  <text x="100" y="165" text-anchor="middle" fill="#ffffff" font-family="serif" font-size="10">Cape Town</text>
-  <text x="100" y="185" text-anchor="middle" fill="#ffffff" font-family="serif" font-size="8">Est. 1829</text>
-</svg>

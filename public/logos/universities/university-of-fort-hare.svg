@@ -1,9 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 120">
-  <!-- Fort Hare Logo -->
-  <rect x="20" y="10" width="60" height="40" fill="#004080" rx="5"/>
-  <circle cx="50" cy="25" r="8" fill="#ffa500"/>
-  <path d="M35 25 L50 15 L65 25 L50 35 Z" fill="#ffa500"/>
-  <rect x="40" y="35" width="20" height="10" fill="#ffffff"/>
-  <text x="20" y="70" font-family="Arial" font-size="14" font-weight="bold" fill="#333">University of Fort Hare</text>
-  <text x="25" y="85" font-family="Arial" font-size="10" fill="#666">Together in Excellence</text>
-</svg>
