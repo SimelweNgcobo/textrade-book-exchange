@@ -100,7 +100,30 @@ export const getAllStudyTips = async (): Promise<StudyTip[]> => {
       .select("*")
       .order("created_at", { ascending: false });
 
-    if (error) throw error;
+    if (error) {
+      // Check if it's a table doesn't exist error
+      if (
+        error.code === "PGRST116" ||
+        error.message?.includes("relation") ||
+        error.message?.includes("does not exist")
+      ) {
+        console.log(
+          "Study tips table does not exist yet, returning empty array",
+        );
+        return [];
+      }
+      console.error("Database error fetching study tips:", {
+        code: error.code,
+        message: error.message,
+        details: error.details,
+        hint: error.hint,
+      });
+      throw error;
+    }
+
+    if (!data) {
+      return [];
+    }
 
     return data.map((tip) => ({
       id: tip.id,
@@ -114,8 +137,14 @@ export const getAllStudyTips = async (): Promise<StudyTip[]> => {
       author: tip.author,
     }));
   } catch (error) {
-    console.error("Error fetching study tips:", error);
-    throw new Error("Failed to fetch study tips");
+    console.error("Error fetching study tips:", {
+      message: error instanceof Error ? error.message : String(error),
+      type: error instanceof Error ? error.constructor.name : typeof error,
+      stack: error instanceof Error ? error.stack : undefined,
+    });
+
+    // Return empty array instead of throwing to allow app to continue
+    return [];
   }
 };
 
