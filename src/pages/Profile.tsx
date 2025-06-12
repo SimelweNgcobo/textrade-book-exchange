@@ -37,6 +37,7 @@ import { BookDeletionService } from "@/services/bookDeletionService";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { useIsMobile } from "@/hooks/use-mobile";
+import AdminDebug from "@/components/AdminDebug";
 
 const Profile = () => {
   const { profile, user } = useAuth();
@@ -274,6 +275,9 @@ const Profile = () => {
   return (
     <Layout>
       <div className="container mx-auto px-4 py-8 max-w-6xl">
+        {/* Admin Debug - Temporary */}
+        <AdminDebug />
+
         {/* Fixed Report Issue Button - Moved to bottom-left for less clutter */}
         <div className="fixed bottom-4 left-4 z-50">
           <Button

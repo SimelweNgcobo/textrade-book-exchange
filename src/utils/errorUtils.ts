@@ -1,218 +1,266 @@
+import { PostgrestError } from "@supabase/supabase-js";
+
 /**
- * Safely extracts error message from various error types
+ * Enhanced error logging with proper serialization
+ */
+export const logError = (context: string, error: unknown) => {
+  // Comprehensive error object for better debugging
+  const errorInfo = {
+    context,
+    timestamp: new Date().toISOString(),
+    message: error instanceof Error ? error.message : String(error),
+    name: error instanceof Error ? error.name : undefined,
+    code: (error as any)?.code || (error as any)?.error_code,
+    details: (error as any)?.details,
+    hint: (error as any)?.hint,
+    stack: error instanceof Error ? error.stack : undefined,
+    type: typeof error,
+    constructor: error?.constructor?.name,
+    isNetworkError: isNetworkError(error),
+    isAuthError: isAuthError(error),
+    isDatabaseError: isDatabaseError(error),
+  };
+
+  // Use structured logging
+  console.error(`[${context}]`, errorInfo);
+
+  // Also log a simple version for quick scanning
+  const simpleMessage = `${context}: ${errorInfo.message}${errorInfo.code ? ` (${errorInfo.code})` : ""}`;
+  console.error(simpleMessage);
+
+  return errorInfo;
+};
+
+/**
+ * Get a user-friendly error message
  */
 export const getErrorMessage = (
   error: unknown,
-  fallback = "An error occurred",
+  fallback: string = "An error occurred",
 ): string => {
   if (!error) return fallback;
 
-  if (typeof error === "string") return error;
+  // Handle Supabase/Postgres errors
+  if (isDatabaseError(error)) {
+    const pgError = error as PostgrestError;
 
-  if (error instanceof Error) return error.message;
-
-  if (typeof error === "object" && error !== null) {
-    const errorObj = error as any;
-
-    // Handle Supabase error format
-    if ("message" in errorObj && typeof errorObj.message === "string") {
-      // Handle specific Supabase errors with user-friendly messages
-      if (
-        errorObj.message.includes(
-          "JSON object requested, multiple (or no) rows returned",
-        )
-      ) {
-        return "Profile not found or multiple profiles exist";
-      }
-      return errorObj.message;
-    }
-
-    // Handle other object error formats
-    if ("error" in errorObj && typeof errorObj.error === "string") {
-      return errorObj.error;
-    }
-
-    if ("details" in errorObj && typeof errorObj.details === "string") {
-      return errorObj.details;
+    // Common database error codes
+    switch (pgError.code) {
+      case "23505":
+        return "This record already exists";
+      case "23503":
+        return "Referenced record not found";
+      case "42P01":
+        return "Database table not found";
+      case "PGRST116":
+        return "Record not found";
+      case "PGRST301":
+        return "Unauthorized access";
+      default:
+        return pgError.message || pgError.hint || fallback;
     }
   }
 
+  // Handle network errors
+  if (isNetworkError(error)) {
+    if (error instanceof Error) {
+      if (error.message.includes("Failed to fetch")) {
+        return "Network connection failed. Please check your internet connection and try again.";
+      }
+      if (error.message.includes("timeout")) {
+        return "Request timed out. Please try again.";
+      }
+      if (error.message.includes("CORS")) {
+        return "Network access blocked. Please refresh the page and try again.";
+      }
+    }
+    return "Network error. Please check your connection and try again.";
+  }
+
+  // Handle auth errors
+  if (isAuthError(error)) {
+    const authError = error as any;
+    switch (authError.message || authError.error_description) {
+      case "Invalid login credentials":
+        return "Invalid email or password";
+      case "Email not confirmed":
+        return "Please verify your email address";
+      case "Too many requests":
+        return "Too many attempts. Please wait a moment and try again";
+      default:
+        return (
+          authError.message ||
+          authError.error_description ||
+          "Authentication error"
+        );
+    }
+  }
+
+  // Handle generic errors
+  if (error instanceof Error) {
+    return error.message;
+  }
+
+  // Handle string errors
+  if (typeof error === "string") {
+    return error;
+  }
+
+  // Last resort
   return fallback;
 };
 
 /**
- * Serializes an error object for proper console logging
+ * Check if error is a network-related error
  */
-export const serializeError = (error: unknown): Record<string, any> => {
-  if (!error) return { error: null };
+export const isNetworkError = (error: unknown): boolean => {
+  if (!error) return false;
 
-  if (typeof error === "string") {
-    return { message: error, type: "string" };
-  }
+  const message =
+    error instanceof Error
+      ? error.message.toLowerCase()
+      : String(error).toLowerCase();
 
-  if (error instanceof Error) {
-    return {
-      message: error.message,
-      name: error.name,
-      stack: error.stack,
-      type: "Error",
-      ...(error as any), // Include any additional properties
-    };
-  }
+  return (
+    message.includes("failed to fetch") ||
+    message.includes("network error") ||
+    message.includes("timeout") ||
+    message.includes("cors") ||
+    message.includes("connection") ||
+    message.includes("unreachable") ||
+    (error as any)?.code === "NETWORK_ERROR" ||
+    (error as any)?.name === "NetworkError"
+  );
+};
 
-  if (typeof error === "object" && error !== null) {
+/**
+ * Check if error is an authentication error
+ */
+export const isAuthError = (error: unknown): boolean => {
+  if (!error) return false;
+
+  const errorObj = error as any;
+  return (
+    errorObj?.name === "AuthError" ||
+    errorObj?.error === "invalid_grant" ||
+    errorObj?.error === "unauthorized" ||
+    (typeof errorObj?.message === "string" &&
+      (errorObj.message.includes("Invalid login credentials") ||
+        errorObj.message.includes("Email not confirmed") ||
+        errorObj.message.includes("JWT") ||
+        errorObj.message.includes("token")))
+  );
+};
+
+/**
+ * Check if error is a database error
+ */
+export const isDatabaseError = (error: unknown): boolean => {
+  if (!error) return false;
+
+  const errorObj = error as any;
+  return (
+    errorObj?.code || // Postgres error codes
+    errorObj?.error_code || // Alternative error code field
+    (typeof errorObj?.message === "string" &&
+      errorObj.message.includes("PGRST")) ||
+    errorObj?.details !== undefined ||
+    errorObj?.hint !== undefined
+  );
+};
+
+/**
+ * Retry operation with exponential backoff for network errors
+ */
+export const retryWithExponentialBackoff = async <T>(
+  operation: () => Promise<T>,
+  options: {
+    maxRetries?: number;
+    baseDelay?: number;
+    maxDelay?: number;
+    retryCondition?: (error: unknown) => boolean;
+  } = {},
+): Promise<T> => {
+  const {
+    maxRetries = 3,
+    baseDelay = 1000,
+    maxDelay = 10000,
+    retryCondition = isNetworkError,
+  } = options;
+
+  let lastError: unknown;
+
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
     try {
-      // Try to serialize the object
-      const serialized = JSON.parse(JSON.stringify(error));
-      return {
-        ...serialized,
-        type: "object",
-        constructor: error.constructor?.name || "Object",
-      };
-    } catch {
-      // If serialization fails, extract basic properties
-      const errorObj = error as any;
-      return {
-        message:
-          errorObj.message ||
-          errorObj.error ||
-          errorObj.details ||
-          String(error),
-        type: "object",
-        constructor: error.constructor?.name || "Object",
-        stringValue: String(error),
-      };
+      return await operation();
+    } catch (error) {
+      lastError = error;
+
+      // Don't retry if this isn't a retryable error
+      if (!retryCondition(error)) {
+        throw error;
+      }
+
+      // Don't retry on the last attempt
+      if (attempt === maxRetries) {
+        throw error;
+      }
+
+      // Calculate delay with exponential backoff
+      const delay = Math.min(baseDelay * Math.pow(2, attempt), maxDelay);
+
+      console.warn(
+        `Attempt ${attempt + 1}/${maxRetries + 1} failed, retrying in ${delay}ms`,
+        {
+          error: getErrorMessage(error),
+          attempt: attempt + 1,
+          delay,
+        },
+      );
+
+      await new Promise((resolve) => setTimeout(resolve, delay));
     }
   }
 
-  return {
-    value: error,
-    type: typeof error,
-    stringValue: String(error),
-  };
+  throw lastError;
 };
 
 /**
- * Logs error with context information and proper serialization
+ * Create a timeout promise that rejects after specified duration
  */
-export const logError = (context: string, error: unknown, metadata?: any) => {
-  const errorMessage = getErrorMessage(error);
-  const serializedError = serializeError(error);
-
-  if (process.env.NODE_ENV === "development") {
-    console.error(`[${context}]:`, errorMessage);
-    if (metadata) {
-      console.error("Metadata:", metadata);
-    }
-    console.error("Full error:", serializedError);
-  } else {
-    // In production, log structured error data
-    console.error(`[${context}]:`, {
-      message: errorMessage,
-      error: serializedError,
-      metadata,
-      timestamp: new Date().toISOString(),
-      userAgent: navigator?.userAgent,
-    });
-  }
-};
-
-/**
- * Database-specific error logging (replacement for logDatabaseError)
- */
-export const logDatabaseError = (
-  context: string,
-  error: unknown,
-  metadata?: any,
+export const createTimeoutPromise = (
+  timeoutMs: number,
+  errorMessage?: string,
 ) => {
-  logError(`Database - ${context}`, error, metadata);
+  return new Promise((_, reject) => {
+    setTimeout(() => {
+      const error = new Error(
+        errorMessage || `Operation timed out after ${timeoutMs}ms`,
+      );
+      (error as any).isTimeout = true;
+      reject(error);
+    }, timeoutMs);
+  });
 };
 
 /**
- * Query debug logging (replacement for logQueryDebug) - only in development
+ * Race a promise against a timeout
  */
-export const logQueryDebug = (context: string, query: any) => {
-  if (process.env.NODE_ENV === "development") {
-    console.log(`[Query Debug - ${context}]:`, query);
-  }
+export const withTimeout = <T>(
+  promise: Promise<T>,
+  timeoutMs: number,
+  errorMessage?: string,
+): Promise<T> => {
+  return Promise.race([promise, createTimeoutPromise(timeoutMs, errorMessage)]);
 };
 
 /**
- * Creates a standardized error object
+ * Legacy function aliases for backward compatibility
  */
-export const createError = (message: string, code?: string, details?: any) => {
-  const error = new Error(message) as any;
-  if (code) error.code = code;
-  if (details) error.details = details;
-  return error;
-};
-
-/**
- * Handles and formats Supabase-specific errors
- */
-export const handleSupabaseError = (error: any, context: string) => {
-  const message = getErrorMessage(error);
-  logError(context, error);
-
-  // Return user-friendly error message
-  if (message.includes("duplicate key value")) {
-    return "This item already exists";
-  }
-  if (message.includes("violates foreign key constraint")) {
-    return "Referenced item does not exist";
-  }
-  if (message.includes("violates not-null constraint")) {
-    return "Required field is missing";
-  }
-
-  return message;
-};
-
-/**
- * Gets user-friendly error message with fallback (replacement for getUserErrorMessage)
- */
-export const getUserErrorMessage = (
-  error: unknown,
-  fallback = "An error occurred",
-): string => {
-  const message = getErrorMessage(error, fallback);
-
-  // Convert technical errors to user-friendly messages
-  if (message.includes("Failed to fetch")) {
-    return "Network connection error. Please check your internet connection and try again.";
-  }
-  if (message.includes("PGRST116")) {
-    return "The requested profile could not be found.";
-  }
-  if (message.includes("permission denied")) {
-    return "You don't have permission to access this resource.";
-  }
-  if (message.includes("invalid input")) {
-    return "Invalid information provided. Please check your input and try again.";
-  }
-
-  return message;
-};
-
-/**
- * Safe console.error that prevents [object Object] logging
- */
-export const safeConsoleError = (
-  message: string,
-  error?: unknown,
-  metadata?: any,
-) => {
-  if (error) {
-    const serializedError = serializeError(error);
-    console.error(message, {
-      error: serializedError,
-      metadata,
-      timestamp: new Date().toISOString(),
-    });
-  } else {
-    console.error(
-      message,
-      metadata ? { metadata, timestamp: new Date().toISOString() } : undefined,
-    );
+export const logDatabaseError = logError;
+export const getUserErrorMessage = getErrorMessage;
+export const logQueryDebug = (context: string, query: any, result?: any) => {
+  if (import.meta.env.DEV) {
+    console.log(`[Query Debug] ${context}:`, { query, result });
   }
 };

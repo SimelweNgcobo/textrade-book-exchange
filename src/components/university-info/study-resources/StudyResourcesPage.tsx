@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -8,15 +9,88 @@ import {
   Clock,
   Users,
   Star,
+  RefreshCw,
 } from "lucide-react";
 
 import StudyTipCard from "./StudyTipCard";
 import StudyResourceCard from "./StudyResourceCard";
 import StudyFilters from "./StudyFilters";
+import SponsorshipBanner from "./SponsorshipBanner";
 import { useStudyResources } from "@/hooks/useStudyResources";
 import { STUDY_TIPS, STUDY_RESOURCES } from "@/constants/studyResources";
+import {
+  SPONSORED_STUDY_TIPS,
+  SPONSORED_STUDY_RESOURCES,
+} from "@/constants/sponsoredStudyContent";
+import { getAllStudyContent } from "@/services/admin/studyResourcesService";
+import { StudyTip, StudyResource } from "@/types/university";
+import LoadingSpinner from "@/components/LoadingSpinner";
 
 const StudyResourcesPage = () => {
+  const [allTips, setAllTips] = useState<StudyTip[]>(STUDY_TIPS);
+  const [allResources, setAllResources] =
+    useState<StudyResource[]>(STUDY_RESOURCES);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Fetch admin-added content
+  useEffect(() => {
+    const fetchStudyContent = async () => {
+      try {
+        setIsLoading(true);
+        setError(null);
+
+        // Get admin-added content from database
+        const { tips: adminTips, resources: adminResources } =
+          await getAllStudyContent();
+
+        // Combine static content with admin-added content and sponsored content
+        const combinedTips = [
+          ...STUDY_TIPS,
+          ...SPONSORED_STUDY_TIPS,
+          ...adminTips,
+        ];
+        const combinedResources = [
+          ...STUDY_RESOURCES,
+          ...SPONSORED_STUDY_RESOURCES,
+          ...adminResources,
+        ];
+
+        setAllTips(combinedTips);
+        setAllResources(combinedResources);
+
+        if (adminTips.length === 0 && adminResources.length === 0) {
+          console.log("No admin content found, using static content only");
+        } else {
+          console.log(
+            `Loaded ${adminTips.length} admin tips and ${adminResources.length} admin resources`,
+          );
+        }
+      } catch (err) {
+        console.error("Error fetching study content:", {
+          message: err instanceof Error ? err.message : String(err),
+          type: err instanceof Error ? err.constructor.name : typeof err,
+        });
+
+        // Determine appropriate error message
+        const errorMessage =
+          err instanceof Error && err.message.includes("table")
+            ? "Database not fully set up yet. Showing default study content."
+            : "Failed to load admin content. Showing default study content.";
+
+        setError(errorMessage);
+
+        // Keep static and sponsored content if database fetch fails
+        setAllTips([...STUDY_TIPS, ...SPONSORED_STUDY_TIPS]);
+        setAllResources([...STUDY_RESOURCES, ...SPONSORED_STUDY_RESOURCES]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchStudyContent();
+  }, []);
+
   const {
     searchTerm,
     selectedCategory,
@@ -33,11 +107,36 @@ const StudyResourcesPage = () => {
     setSelectedType,
     toggleBookmark,
     clearFilters,
-  } = useStudyResources({ tips: STUDY_TIPS, resources: STUDY_RESOURCES });
+  } = useStudyResources({ tips: allTips, resources: allResources });
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 py-4 sm:py-8">
+        <div className="container mx-auto px-4 sm:px-6">
+          <div className="flex items-center justify-center min-h-[400px]">
+            <div className="text-center">
+              <LoadingSpinner />
+              <p className="mt-4 text-gray-600">Loading study resources...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 py-4 sm:py-8">
       <div className="container mx-auto px-4 sm:px-6">
+        {/* Error Alert */}
+        {error && (
+          <div className="mb-6 p-4 bg-orange-50 border border-orange-200 rounded-lg">
+            <div className="flex items-center">
+              <RefreshCw className="h-5 w-5 text-orange-600 mr-2" />
+              <p className="text-orange-800">{error}</p>
+            </div>
+          </div>
+        )}
+
         {/* Header */}
         <div className="text-center mb-8 sm:mb-12">
           <div className="w-16 h-16 sm:w-20 sm:h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6">
@@ -53,6 +152,9 @@ const StudyResourcesPage = () => {
             excel in your academic journey.
           </p>
         </div>
+
+        {/* Sponsorship Banner */}
+        <SponsorshipBanner />
 
         {/* Stats Overview */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6 mb-8">

@@ -33,8 +33,6 @@ const BookListing = () => {
 
   // Memoize loadBooks function to prevent infinite loops
   const loadBooks = useCallback(async () => {
-    console.log("Loading books...");
-
     setIsLoading(true);
     setError(null);
 
@@ -79,15 +77,21 @@ const BookListing = () => {
         console.log("No books found with current filters");
       }
     } catch (error) {
-      console.error("Error loading books:", error);
-      const errorMessage =
-        error instanceof Error
-          ? error.message
-          : "Failed to load books. Please try again.";
-      setError(errorMessage);
-      toast.error(errorMessage);
+      const errorDetails = {
+        message: error instanceof Error ? error.message : String(error),
+        name: error instanceof Error ? error.name : "Unknown",
+        stack: error instanceof Error ? error.stack : undefined,
+        timestamp: new Date().toISOString(),
+      };
 
-      // Set empty books array on error to prevent infinite loading
+      console.error("[BookListing] Error loading books:", errorDetails);
+
+      const userMessage =
+        error instanceof Error && error.message.includes("Failed to fetch")
+          ? "Unable to connect to the book database. Please check your internet connection and try again."
+          : "Failed to load books. Please try again later.";
+
+      toast.error(userMessage);
       setBooks([]);
     } finally {
       setIsLoading(false);

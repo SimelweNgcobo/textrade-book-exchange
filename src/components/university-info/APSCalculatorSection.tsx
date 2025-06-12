@@ -69,11 +69,7 @@ const APSCalculatorSection = () => {
   };
 
   const eligibleDegrees =
-    calculation?.eligibleDegrees.filter((d) => d.meetsRequirement) || [];
-  const closeMatches =
-    calculation?.eligibleDegrees.filter(
-      (d) => !d.meetsRequirement && d.apsGap && d.apsGap <= 5,
-    ) || [];
+    calculation?.eligibleDegrees?.filter((d) => d?.meetsRequirement) || [];
 
   return (
     <div className="space-y-8">
@@ -107,8 +103,22 @@ const APSCalculatorSection = () => {
         onCalculationComplete={handleCalculationComplete}
       />
 
+      {/* Error handling for invalid calculation */}
+      {showResults && calculation && !calculation.eligibleDegrees && (
+        <div className="space-y-6">
+          <Alert className="border-red-200 bg-red-50">
+            <AlertTriangle className="h-4 w-4" />
+            <AlertDescription>
+              <strong>Calculation Error:</strong> There was an issue calculating
+              your APS results. Please try again or refresh the page. If the
+              problem persists, contact support.
+            </AlertDescription>
+          </Alert>
+        </div>
+      )}
+
       {/* Results Section */}
-      {showResults && calculation && (
+      {showResults && calculation && calculation.eligibleDegrees && (
         <div className="space-y-6">
           {/* Summary */}
           <Card className="border-book-200">
@@ -134,11 +144,11 @@ const APSCalculatorSection = () => {
                   <div className="text-gray-600">Eligible Programs</div>
                 </div>
 
-                <div className="text-center bg-orange-50 rounded-lg p-6">
-                  <div className="text-3xl font-bold text-orange-600 mb-2">
-                    {closeMatches.length}
+                <div className="text-center bg-blue-50 rounded-lg p-6">
+                  <div className="text-3xl font-bold text-blue-600 mb-2">
+                    {calculation.eligibleDegrees?.length || 0}
                   </div>
-                  <div className="text-gray-600">Close Matches</div>
+                  <div className="text-gray-600">Total Programs Found</div>
                 </div>
               </div>
             </CardContent>
@@ -168,7 +178,7 @@ const APSCalculatorSection = () => {
                         <div className="flex-1">
                           <div className="flex items-center space-x-3 mb-2">
                             <h3 className="font-semibold text-lg text-gray-900">
-                              {eligible.degree.name}
+                              {eligible.degree?.name || "Unknown Program"}
                             </h3>
                             {getEligibilityBadge(
                               eligible.meetsRequirement,
@@ -177,24 +187,31 @@ const APSCalculatorSection = () => {
                           </div>
                           <div className="flex items-center space-x-4 text-sm text-gray-600 mb-2">
                             <span className="font-medium">
-                              {eligible.university.abbreviation}
+                              {eligible.university?.abbreviation ||
+                                eligible.university?.name ||
+                                "Unknown University"}
                             </span>
                             <span>•</span>
-                            <span>{eligible.degree.faculty}</span>
+                            <span>
+                              {eligible.degree?.faculty || "Unknown Faculty"}
+                            </span>
                             <span>•</span>
-                            <span>{eligible.degree.duration}</span>
+                            <span>
+                              {eligible.degree?.duration || "Unknown Duration"}
+                            </span>
                             <span>•</span>
                             <span className="text-book-600 font-medium">
-                              APS: {eligible.degree.apsRequirement}
+                              APS: {eligible.degree?.apsRequirement || "N/A"}
                             </span>
                           </div>
                           <p className="text-sm text-gray-600 leading-relaxed mb-3">
-                            {eligible.degree.description}
+                            {eligible.degree?.description ||
+                              "No description available."}
                           </p>
 
                           {/* Career Prospects */}
                           <div className="flex flex-wrap gap-1 mb-3">
-                            {eligible.degree.careerProspects
+                            {(eligible.degree.careerProspects || [])
                               .slice(0, 4)
                               .map((career, idx) => (
                                 <Badge
@@ -205,12 +222,15 @@ const APSCalculatorSection = () => {
                                   {career}
                                 </Badge>
                               ))}
-                            {eligible.degree.careerProspects.length > 4 && (
+                            {(eligible.degree.careerProspects?.length || 0) >
+                              4 && (
                               <Badge
                                 variant="secondary"
                                 className="text-xs bg-gray-100"
                               >
-                                +{eligible.degree.careerProspects.length - 4}{" "}
+                                +
+                                {(eligible.degree.careerProspects?.length ||
+                                  0) - 4}{" "}
                                 more
                               </Badge>
                             )}
@@ -221,13 +241,17 @@ const APSCalculatorSection = () => {
                       <div className="flex flex-wrap gap-2">
                         <Button
                           size="sm"
-                          onClick={() =>
-                            handleViewBooks(
-                              eligible.university.id,
-                              eligible.degree.id,
-                            )
+                          onClick={() => {
+                            const universityId = eligible.university?.id;
+                            const degreeId = eligible.degree?.id;
+                            if (universityId && degreeId) {
+                              handleViewBooks(universityId, degreeId);
+                            }
+                          }}
+                          disabled={
+                            !eligible.university?.id || !eligible.degree?.id
                           }
-                          className="bg-book-600 hover:bg-book-700 text-white"
+                          className="bg-book-600 hover:bg-book-700 text-white disabled:opacity-50"
                         >
                           <BookOpen className="w-4 h-4 mr-2" />
                           View Books
@@ -236,10 +260,14 @@ const APSCalculatorSection = () => {
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() =>
-                            handleViewUniversity(eligible.university.id)
-                          }
-                          className="border-book-200 text-book-600 hover:bg-book-50"
+                          onClick={() => {
+                            const universityId = eligible.university?.id;
+                            if (universityId) {
+                              handleViewUniversity(universityId);
+                            }
+                          }}
+                          disabled={!eligible.university?.id}
+                          className="border-book-200 text-book-600 hover:bg-book-50 disabled:opacity-50"
                         >
                           <ExternalLink className="w-4 h-4 mr-2" />
                           University Info
@@ -269,69 +297,6 @@ const APSCalculatorSection = () => {
                       </Button>
                     </div>
                   )}
-                </div>
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Close Matches */}
-          {closeMatches.length > 0 && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <AlertTriangle className="w-5 h-5 text-orange-600" />
-                  <span>Programs Within Reach</span>
-                </CardTitle>
-                <CardDescription>
-                  These programs are close to your APS score. Consider improving
-                  specific subjects or exploring alternative pathways.
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {closeMatches.slice(0, 6).map((close, index) => (
-                    <div
-                      key={`${close.university.id}-${close.degree.id}`}
-                      className="border border-orange-200 rounded-lg p-4 bg-orange-50"
-                    >
-                      <div className="flex items-start justify-between mb-3">
-                        <div className="flex-1">
-                          <div className="flex items-center space-x-3 mb-2">
-                            <h3 className="font-semibold text-lg text-gray-900">
-                              {close.degree.name}
-                            </h3>
-                            {getEligibilityBadge(
-                              close.meetsRequirement,
-                              close.apsGap,
-                            )}
-                          </div>
-                          <div className="flex items-center space-x-4 text-sm text-gray-600 mb-2">
-                            <span className="font-medium">
-                              {close.university.abbreviation}
-                            </span>
-                            <span>•</span>
-                            <span>{close.degree.faculty}</span>
-                            <span>•</span>
-                            <span className="text-orange-600 font-medium">
-                              Need {close.apsGap} more points
-                            </span>
-                          </div>
-                          <p className="text-sm text-gray-600 leading-relaxed">
-                            {close.degree.description}
-                          </p>
-                        </div>
-                      </div>
-
-                      <Alert className="mt-3 border-orange-200 bg-orange-50">
-                        <AlertTriangle className="h-4 w-4" />
-                        <AlertDescription className="text-sm">
-                          <strong>Improvement tip:</strong> Focus on improving
-                          your Mathematics or English marks, or consider
-                          bridging courses to boost your APS score.
-                        </AlertDescription>
-                      </Alert>
-                    </div>
-                  ))}
                 </div>
               </CardContent>
             </Card>

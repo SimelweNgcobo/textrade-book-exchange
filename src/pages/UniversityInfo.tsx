@@ -18,9 +18,9 @@ import {
   Users,
   Award,
   Calculator,
-  Search,
   DollarSign,
   TrendingUp,
+  School,
 } from "lucide-react";
 import { SOUTH_AFRICAN_UNIVERSITIES } from "@/constants/universities";
 import UniversityHero from "@/components/university-info/UniversityHero";
@@ -38,6 +38,9 @@ const BursaryExplorerSection = lazy(
 );
 const CampusBooksSection = lazy(
   () => import("@/components/university-info/CampusBooksSection"),
+);
+const UniversityDirectory = lazy(
+  () => import("@/components/university-info/UniversityDirectory"),
 );
 
 const UniversityInfo = () => {
@@ -103,13 +106,20 @@ const UniversityInfo = () => {
             onValueChange={handleTabChange}
             className="w-full"
           >
-            <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 mb-8 h-auto">
+            <TabsList className="grid w-full grid-cols-3 sm:grid-cols-5 mb-8 h-auto">
               <TabsTrigger
                 value="overview"
                 className="flex flex-col items-center gap-1 py-2 px-2 text-center"
               >
                 <University className="h-3 w-3 sm:h-4 sm:w-4" />
                 <span className="text-xs">Overview</span>
+              </TabsTrigger>
+              <TabsTrigger
+                value="universities"
+                className="flex flex-col items-center gap-1 py-2 px-2 text-center"
+              >
+                <School className="h-3 w-3 sm:h-4 sm:w-4" />
+                <span className="text-xs">Universities</span>
               </TabsTrigger>
               <TabsTrigger
                 value="aps-calculator"
@@ -134,9 +144,15 @@ const UniversityInfo = () => {
               </TabsTrigger>
             </TabsList>
 
+            <TabsContent value="universities" className="space-y-6">
+              <Suspense fallback={<LoadingSection />}>
+                <UniversityDirectory />
+              </Suspense>
+            </TabsContent>
+
             <TabsContent value="overview" className="space-y-6">
               {/* Hero Section */}
-              <UniversityHero />
+              <UniversityHero onNavigateToTool={handleTabChange} />
 
               {/* Stats Overview */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">

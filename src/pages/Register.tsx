@@ -40,7 +40,6 @@ const Register = () => {
         throw new Error("Password must be at least 6 characters long");
       }
 
-      console.log("Attempting registration with:", email);
       await register(name, email, password);
 
       // Show confirmation message and redirect to login

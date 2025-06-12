@@ -53,20 +53,34 @@ const EnhancedModerationDashboard = () => {
   const [actionReason, setActionReason] = useState("");
   const { handleError } = useErrorHandler();
 
-  useEffect(() => {
-    loadData();
-    // Don't set up realtime subscription immediately to avoid overload
-    const timer = setTimeout(() => {
-      loadData();
-      setupRealtimeSubscription();
-    }, 2000);
+  // Define functions before useEffect to avoid temporal dead zone
+  const loadData = useCallback(async () => {
+    try {
+      setError(null);
+      setIsLoading(true);
 
-    return () => clearTimeout(timer);
-  }, [loadData, setupRealtimeSubscription]);
+      const data: ModerationData = await loadModerationData();
+      setReports(data.reports);
+      setSuspendedUsers(data.suspendedUsers);
+      setRetryCount(0); // Reset retry count on success
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : "Failed to load moderation data";
+      console.error("Error loading moderation data:", error);
+      setError(errorMessage);
 
-  useEffect(() => {
-    filterData();
-  }, [reports, suspendedUsers, activeTab, filterData]);
+      // Only show toast for user if not a retry
+      if (retryCount === 0) {
+        handleError(error, "Load Moderation Data");
+      }
+
+      setRetryCount((prev) => prev + 1);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [retryCount, handleError]);
 
   const setupRealtimeSubscription = useCallback(() => {
     try {
@@ -111,34 +125,6 @@ const EnhancedModerationDashboard = () => {
     }
   }, [loadData]);
 
-  const loadData = useCallback(async () => {
-    try {
-      setError(null);
-      setIsLoading(true);
-
-      const data: ModerationData = await loadModerationData();
-      setReports(data.reports);
-      setSuspendedUsers(data.suspendedUsers);
-      setRetryCount(0); // Reset retry count on success
-    } catch (error) {
-      const errorMessage =
-        error instanceof Error
-          ? error.message
-          : "Failed to load moderation data";
-      console.error("Error loading moderation data:", error);
-      setError(errorMessage);
-
-      // Only show toast for user if not a retry
-      if (retryCount === 0) {
-        handleError(error, "Load Moderation Data");
-      }
-
-      setRetryCount((prev) => prev + 1);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [retryCount, handleError]);
-
   const filterData = useCallback(() => {
     if (activeTab === "suspended") {
       setFilteredData(suspendedUsers);
@@ -148,6 +134,22 @@ const EnhancedModerationDashboard = () => {
       setFilteredData(reports.filter((report) => report.status === activeTab));
     }
   }, [activeTab, suspendedUsers, reports]);
+
+  // useEffect hooks after function definitions
+  useEffect(() => {
+    loadData();
+    // Don't set up realtime subscription immediately to avoid overload
+    const timer = setTimeout(() => {
+      loadData();
+      setupRealtimeSubscription();
+    }, 2000);
+
+    return () => clearTimeout(timer);
+  }, [loadData, setupRealtimeSubscription]);
+
+  useEffect(() => {
+    filterData();
+  }, [reports, suspendedUsers, activeTab, filterData]);
 
   const handleUpdateReportStatus = async (
     reportId: string,

@@ -125,13 +125,6 @@ const CreateListing = () => {
 
     setErrors(newErrors);
 
-    // Log validation results for debugging
-    if (Object.keys(newErrors).length > 0) {
-      console.log("Form validation failed with errors:", newErrors);
-    } else {
-      console.log("Form validation passed");
-    }
-
     return Object.keys(newErrors).length === 0;
   };
 

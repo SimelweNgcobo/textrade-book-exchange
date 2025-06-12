@@ -33,7 +33,7 @@ export const COMPLETE_TRADITIONAL_UNIVERSITIES: University[] = [
     fullName: "University of Cape Town",
     location: "Cape Town",
     province: "Western Cape",
-    logo: "/logos/universities/uct.svg",
+    logo: "/logos/universities/university-of-cape-town.svg",
     overview:
       "Africa's leading research university, ranked #1 in Africa. Known for academic excellence and research innovation.",
     website: "https://www.uct.ac.za",

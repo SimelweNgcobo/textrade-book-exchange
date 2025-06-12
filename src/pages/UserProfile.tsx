@@ -12,7 +12,7 @@ import { ArrowLeft, Eye } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { logError, getUserErrorMessage } from "@/utils/errorUtils";
+import { logError, getErrorMessage } from "@/utils/errorUtils";
 
 interface UserProfile {
   id: string;
@@ -35,7 +35,7 @@ const UserProfile = () => {
       loadUserProfile();
       loadUserBooks();
     }
-  }, [userId]);
+  }, [userId, loadUserProfile, loadUserBooks]);
 
   const loadUserProfile = async () => {
     if (!userId) return;
@@ -49,14 +49,14 @@ const UserProfile = () => {
 
       if (error) {
         logError("Error fetching user profile", error);
-        toast.error(getUserErrorMessage(error, "Failed to load user profile"));
+        toast.error(getErrorMessage(error, "Failed to load user profile"));
         return;
       }
 
       setProfile(data);
     } catch (error) {
       logError("Error loading profile", error);
-      toast.error(getUserErrorMessage(error, "Failed to load user profile"));
+      toast.error(getErrorMessage(error, "Failed to load user profile"));
     }
   };
 
@@ -70,7 +70,7 @@ const UserProfile = () => {
       setUserBooks(activeBooks);
     } catch (error) {
       logError("Error loading user books", error);
-      toast.error(getUserErrorMessage(error, "Failed to load user books"));
+      toast.error(getErrorMessage(error, "Failed to load user books"));
     } finally {
       setIsLoading(false);
     }

@@ -32,7 +32,10 @@ const BookDetails = () => {
     if (!validId) {
       console.error("Invalid or missing book ID in URL:", id);
       toast.error("Invalid book link - redirecting to browse books");
-      navigate("/books");
+      // Add a small delay to ensure the user sees the error message
+      setTimeout(() => {
+        navigate("/books");
+      }, 2000);
     }
   }, [id, navigate]);
 
@@ -113,7 +116,6 @@ const BookDetails = () => {
       try {
         await navigator.share(shareData);
       } catch (error) {
-        console.log("Error sharing:", error);
         fallbackShare();
       }
     } else {

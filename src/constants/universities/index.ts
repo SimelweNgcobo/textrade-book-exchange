@@ -139,6 +139,9 @@ allUniversities = allUniversities.map((university) =>
 
 export const ALL_SOUTH_AFRICAN_UNIVERSITIES: University[] = allUniversities;
 
+// Alias for backward compatibility
+export const SOUTH_AFRICAN_UNIVERSITIES = ALL_SOUTH_AFRICAN_UNIVERSITIES;
+
 // Production-ready university data loaded
 if (import.meta.env.DEV) {
   const totalPrograms = allUniversities.reduce(

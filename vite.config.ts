@@ -32,6 +32,7 @@ export default defineConfig(({ mode }) => ({
           ],
           supabase: ["@supabase/supabase-js"],
           utils: ["clsx", "tailwind-merge", "date-fns"],
+          // University data in separate chunk (logos removed to reduce size)
         },
         // Add hash to filenames for cache busting
         chunkFileNames: "assets/[name]-[hash].js",
@@ -40,13 +41,15 @@ export default defineConfig(({ mode }) => ({
       },
     },
     // Optimize chunk size warning limit
-    chunkSizeWarningLimit: 1000,
+    chunkSizeWarningLimit: 800, // Reduced for better performance
     // Enable source maps for debugging
     sourcemap: mode === "development",
-    // Minify in production
+    // Enhanced minification for production
     minify: mode === "production" ? "esbuild" : false,
     // Target modern browsers for better performance
-    target: "esnext",
+    target: "es2020", // More compatible than esnext
+    // Enable CSS code splitting
+    cssCodeSplit: true,
   },
   // Optimize dependencies
   optimizeDeps: {

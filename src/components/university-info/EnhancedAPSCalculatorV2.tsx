@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import {
   Card,
   CardContent,
@@ -57,11 +57,7 @@ import {
   validateSubjectMarks,
   getRecommendations,
 } from "@/utils/apsCalculation";
-import {
-  getUniversityPrograms,
-  isProgramAvailable,
-  getUniversityType,
-} from "@/constants/universities/university-specific-programs";
+import { getUniversityType } from "@/constants/universities/university-specific-programs";
 
 interface EnhancedAPSCalculatorV2Props {
   onCalculationComplete: (calculation: APSCalculation) => void;
@@ -83,10 +79,77 @@ const EnhancedAPSCalculatorV2 = ({
   const [universityFilter, setUniversityFilter] = useState<string>(
     selectedUniversityId || "all",
   );
-  const [qualificationFilter, setQualificationFilter] = useState<string>("all"); // all, qualify, close
+  const [qualificationFilter, setQualificationFilter] =
+    useState<string>("qualify"); // all, qualify, close
   const [showAllPrograms, setShowAllPrograms] = useState(false);
   const [customSubject, setCustomSubject] = useState("");
   const [sortBy, setSortBy] = useState<"aps" | "name" | "university">("aps");
+
+  // Normalize subject names for comparison
+  const normalizeSubjectName = useCallback((name: string): string => {
+    const normalized = name.toLowerCase().trim();
+
+    // Handle common variations
+    const subjectMappings: { [key: string]: string } = {
+      mathematics: "mathematics",
+      maths: "mathematics",
+      "mathematical literacy": "mathematical literacy",
+      "math lit": "mathematical literacy",
+      "physical sciences": "physical sciences",
+      physics: "physical sciences",
+      "life sciences": "life sciences",
+      biology: "life sciences",
+      "english home language": "english",
+      "english first additional language": "english",
+      english: "english",
+      accounting: "accounting",
+      "information technology": "information technology",
+      "computer applications technology": "information technology",
+      it: "information technology",
+    };
+
+    return subjectMappings[normalized] || normalized;
+  }, []);
+
+  // Check if user meets subject requirements for a degree
+  const checkSubjectRequirements = useCallback(
+    (
+      degree: { subjects?: string[]; name: string },
+      userSubjects: APSSubject[],
+    ): boolean => {
+      if (!degree.subjects || degree.subjects.length === 0) {
+        return true; // No specific requirements
+      }
+
+      // Map user subjects to standardized names for comparison
+      const userSubjectMap = new Map();
+      userSubjects.forEach((subject) => {
+        const normalizedName = normalizeSubjectName(subject.name);
+        userSubjectMap.set(normalizedName, subject);
+      });
+
+      // Check each required subject
+      for (const requiredSubject of degree.subjects) {
+        if (requiredSubject.isRequired) {
+          const normalizedRequired = normalizeSubjectName(requiredSubject.name);
+          const userSubject = userSubjectMap.get(normalizedRequired);
+
+          if (!userSubject) {
+            // User doesn't have this required subject
+            return false;
+          }
+
+          if (userSubject.level < requiredSubject.level) {
+            // User's level is too low for this subject
+            return false;
+          }
+        }
+      }
+
+      return true;
+    },
+    [normalizeSubjectName],
+  );
 
   // Create calculation with real university data and filtering
   const calculation = useMemo(() => {
@@ -94,18 +157,25 @@ const EnhancedAPSCalculatorV2 = ({
       (s) => !isNonContributing(s.name) && s.marks > 0,
     );
 
+    // Require at least 6 contributing subjects for a valid calculation
     if (contributingSubjects.length >= 6) {
       const totalScore = contributingSubjects.reduce(
         (total, subject) => total + subject.points,
         0,
       );
 
-      // Get all degrees from all universities with validation
+      // Get all degrees from all universities with filtering
       const eligibleDegrees: EligibleDegree[] = [];
 
       ALL_SOUTH_AFRICAN_UNIVERSITIES.forEach((university) => {
         // Skip if university filter is active and doesn't match
         if (universityFilter !== "all" && university.id !== universityFilter) {
+          return;
+        }
+
+        // Ensure university has faculties
+        if (!university.faculties || university.faculties.length === 0) {
+          console.warn(`University ${university.name} has no faculties`);
           return;
         }
 
@@ -118,26 +188,41 @@ const EnhancedAPSCalculatorV2 = ({
             return;
           }
 
+          // Ensure faculty has degrees
+          if (!faculty.degrees || faculty.degrees.length === 0) {
+            return;
+          }
+
           faculty.degrees.forEach((degree) => {
-            // Validate that this program actually exists at this university
-            if (!isProgramAvailable(university.id, degree.id)) {
-              return; // Skip programs not actually offered
+            // Validate degree has required properties
+            if (
+              !degree.id ||
+              !degree.name ||
+              typeof degree.apsRequirement !== "number"
+            ) {
+              console.warn(`Invalid degree data:`, degree);
+              return;
             }
 
-            const meetsRequirement = totalScore >= degree.apsRequirement;
-            const apsGap = meetsRequirement
+            // Check APS requirement
+            const meetsAPSRequirement = totalScore >= degree.apsRequirement;
+            const apsGap = meetsAPSRequirement
               ? 0
               : degree.apsRequirement - totalScore;
+
+            // Check subject requirements
+            const meetsSubjectRequirements = checkSubjectRequirements(
+              degree,
+              contributingSubjects,
+            );
+
+            // Overall qualification check (both APS and subjects)
+            const meetsRequirement =
+              meetsAPSRequirement && meetsSubjectRequirements;
 
             // Apply qualification filter
             if (qualificationFilter === "qualify" && !meetsRequirement) {
               return;
-            }
-            if (
-              qualificationFilter === "close" &&
-              (apsGap > 5 || meetsRequirement)
-            ) {
-              return; // Show only programs within 5 APS points
             }
 
             eligibleDegrees.push({
@@ -164,6 +249,18 @@ const EnhancedAPSCalculatorV2 = ({
         return 0;
       });
 
+      // Debug information in development
+      if (import.meta.env.DEV) {
+        console.log(`APS Calculator Debug:`, {
+          totalScore,
+          contributingSubjects: contributingSubjects.length,
+          universitiesProcessed: ALL_SOUTH_AFRICAN_UNIVERSITIES.length,
+          totalPrograms: eligibleDegrees.length,
+          qualifyingPrograms: eligibleDegrees.filter((d) => d.meetsRequirement)
+            .length,
+        });
+      }
+
       return {
         subjects: contributingSubjects,
         totalScore,
@@ -171,7 +268,14 @@ const EnhancedAPSCalculatorV2 = ({
       };
     }
     return null;
-  }, [subjects, facultyFilter, universityFilter, qualificationFilter, sortBy]);
+  }, [
+    subjects,
+    facultyFilter,
+    universityFilter,
+    qualificationFilter,
+    sortBy,
+    checkSubjectRequirements,
+  ]);
 
   // Get unique universities and faculties for filters
   const availableUniversities = useMemo(() => {
@@ -198,20 +302,21 @@ const EnhancedAPSCalculatorV2 = ({
     const qualifying = calculation.eligibleDegrees.filter(
       (d) => d.meetsRequirement,
     ).length;
-    const close = calculation.eligibleDegrees.filter(
-      (d) => !d.meetsRequirement && (d.apsGap || 0) <= 5,
-    ).length;
     const universities = new Set(
       calculation.eligibleDegrees.map((d) => d.university.id),
     ).size;
 
-    return { total, qualifying, close, universities };
+    return { total, qualifying, universities };
   }, [calculation]);
 
   // Get contributing subjects count (excluding LO)
   const contributingSubjectsCount = subjects.filter(
     (s) => !isNonContributing(s.name) && s.marks > 0,
   ).length;
+
+  // Error handling for university data
+  const hasValidUniversityData =
+    ALL_SOUTH_AFRICAN_UNIVERSITIES && ALL_SOUTH_AFRICAN_UNIVERSITIES.length > 0;
 
   const addSubject = () => {
     if (subjects.length < 8) {
@@ -305,21 +410,24 @@ const EnhancedAPSCalculatorV2 = ({
         <CardContent className="space-y-6">
           {/* Subject Input Section */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Your Subjects</h3>
-            <div className="grid gap-4">
+            <h3 className="text-base sm:text-lg font-semibold">
+              Your Subjects
+            </h3>
+            <div className="grid gap-3 sm:gap-4">
               {subjects.map((subject, index) => (
                 <div
                   key={`subject-${index}-${subject.name}`}
-                  className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3 p-2 border rounded-lg"
+                  className="flex flex-col gap-3 p-3 sm:p-4 border rounded-lg bg-gray-50"
                 >
-                  <div className="flex-1 w-full">
+                  {/* Subject name - full width on mobile */}
+                  <div className="w-full">
                     <Select
                       value={subject.name}
                       onValueChange={(value) =>
                         updateSubject(index, "name", value)
                       }
                     >
-                      <SelectTrigger className="w-full">
+                      <SelectTrigger className="w-full text-sm sm:text-base">
                         <SelectValue placeholder="Select subject" />
                       </SelectTrigger>
                       <SelectContent>
@@ -328,19 +436,23 @@ const EnhancedAPSCalculatorV2 = ({
                             !subjects.some(
                               (sub, i) => i !== index && sub.name === s,
                             ),
-                        ).map((subj, subjIndex) => (
-                          <SelectItem
-                            key={`subject-option-${index}-${subjIndex}-${subj}`}
-                            value={subj}
-                          >
-                            {subj} {isLanguageSubject(subj) && "(Language)"}
-                          </SelectItem>
-                        ))}
+                        )
+                          .sort((a, b) => a.localeCompare(b))
+                          .map((subj, subjIndex) => (
+                            <SelectItem
+                              key={`subject-option-${index}-${subjIndex}-${subj}`}
+                              value={subj}
+                            >
+                              {subj} {isLanguageSubject(subj) && "(Language)"}
+                            </SelectItem>
+                          ))}
                       </SelectContent>
                     </Select>
                   </div>
-                  <div className="flex items-center gap-2 w-full sm:w-auto">
-                    <div className="flex-1 sm:w-24">
+
+                  {/* Mark input and controls */}
+                  <div className="flex items-center gap-2">
+                    <div className="flex-1">
                       <Input
                         type="number"
                         placeholder="Mark %"
@@ -354,29 +466,27 @@ const EnhancedAPSCalculatorV2 = ({
                             parseInt(e.target.value) || 0,
                           )
                         }
-                        className="w-full"
+                        className="w-full text-sm sm:text-base"
                       />
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Badge
-                        variant={subject.points > 0 ? "default" : "secondary"}
-                        className="min-w-[3rem] justify-center"
-                      >
-                        {subject.points}
-                      </Badge>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => removeSubject(index)}
-                        disabled={
-                          subject.name === "Life Orientation" ||
-                          subjects.length <= 3
-                        }
-                        className="shrink-0"
-                      >
-                        <Minus className="h-4 w-4" />
-                      </Button>
-                    </div>
+                    <Badge
+                      variant={subject.points > 0 ? "default" : "secondary"}
+                      className="min-w-[3rem] justify-center text-sm font-medium"
+                    >
+                      {subject.points} pts
+                    </Badge>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => removeSubject(index)}
+                      disabled={
+                        subject.name === "Life Orientation" ||
+                        subjects.length <= 3
+                      }
+                      className="shrink-0 h-8 w-8 p-0"
+                    >
+                      <Minus className="h-3 w-3 sm:h-4 sm:w-4" />
+                    </Button>
                   </div>
                 </div>
               ))}
@@ -411,27 +521,74 @@ const EnhancedAPSCalculatorV2 = ({
             </div>
 
             {/* Status and Calculate */}
-            <div className="flex items-center justify-between">
-              <div className="text-sm text-muted-foreground">
-                Contributing subjects: {contributingSubjectsCount}/7
+            <div className="space-y-3 sm:space-y-0 sm:flex sm:items-center sm:justify-between">
+              <div className="text-xs sm:text-sm text-muted-foreground space-y-1 sm:space-y-0">
+                <div>Contributing subjects: {contributingSubjectsCount}/7</div>
                 {calculation && (
-                  <span className="ml-4 font-semibold">
+                  <div className="font-semibold text-green-600">
                     Total APS: {calculation.totalScore}
-                  </span>
+                  </div>
                 )}
               </div>
-              <div className="flex gap-2">
-                <Button onClick={resetCalculator} variant="outline">
+              <div className="flex gap-2 w-full sm:w-auto">
+                <Button
+                  onClick={resetCalculator}
+                  variant="outline"
+                  className="flex-1 sm:flex-none text-sm"
+                >
                   Reset
                 </Button>
                 <Button
                   onClick={calculateResults}
-                  disabled={contributingSubjectsCount < 6}
+                  disabled={
+                    contributingSubjectsCount < 6 || !hasValidUniversityData
+                  }
+                  className={`flex-1 sm:flex-none text-sm ${
+                    contributingSubjectsCount >= 6 && hasValidUniversityData
+                      ? "bg-green-600 hover:bg-green-700"
+                      : ""
+                  }`}
                 >
+                  <Calculator className="h-4 w-4 mr-1 sm:mr-2" />
                   Calculate APS
                 </Button>
               </div>
             </div>
+
+            {/* Validation Messages */}
+            {contributingSubjectsCount < 6 && (
+              <Alert>
+                <Info className="h-4 w-4" />
+                <AlertDescription>
+                  You need at least 6 contributing subjects (excluding Life
+                  Orientation) to calculate your APS score. Add more subjects to
+                  continue.
+                </AlertDescription>
+              </Alert>
+            )}
+
+            {!hasValidUniversityData && (
+              <Alert className="border-red-200 bg-red-50">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>
+                  <strong>Data Loading Issue:</strong> University data is not
+                  available. Please refresh the page or contact support if the
+                  issue persists.
+                </AlertDescription>
+              </Alert>
+            )}
+
+            {calculation && calculation.totalScore < 20 && showResults && (
+              <Alert className="border-orange-200 bg-orange-50">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>
+                  <strong>Low APS Score:</strong> Your APS score of{" "}
+                  {calculation.totalScore} may limit university options.
+                  Consider improving your marks or exploring bridging courses
+                  and TVET college programs.
+                </AlertDescription>
+              </Alert>
+            )}
           </div>
 
           {/* Results Section */}
@@ -439,58 +596,12 @@ const EnhancedAPSCalculatorV2 = ({
             <div className="space-y-6">
               <Separator />
 
-              {/* Statistics */}
-              {stats && (
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <Card>
-                    <CardContent className="p-4 text-center">
-                      <div className="text-2xl font-bold text-green-600">
-                        {stats.qualifying}
-                      </div>
-                      <div className="text-sm text-muted-foreground">
-                        Qualifying Programs
-                      </div>
-                    </CardContent>
-                  </Card>
-                  <Card>
-                    <CardContent className="p-4 text-center">
-                      <div className="text-2xl font-bold text-yellow-600">
-                        {stats.close}
-                      </div>
-                      <div className="text-sm text-muted-foreground">
-                        Close Programs
-                      </div>
-                    </CardContent>
-                  </Card>
-                  <Card>
-                    <CardContent className="p-4 text-center">
-                      <div className="text-2xl font-bold text-blue-600">
-                        {stats.total}
-                      </div>
-                      <div className="text-sm text-muted-foreground">
-                        Total Programs
-                      </div>
-                    </CardContent>
-                  </Card>
-                  <Card>
-                    <CardContent className="p-4 text-center">
-                      <div className="text-2xl font-bold text-purple-600">
-                        {stats.universities}
-                      </div>
-                      <div className="text-sm text-muted-foreground">
-                        Universities
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
-              )}
-
               {/* Filters */}
               <div className="space-y-3">
-                <h3 className="text-sm font-medium text-gray-700">
+                <h3 className="text-sm sm:text-base font-medium text-gray-700">
                   Filter Results
                 </h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 lg:grid-cols-4">
                   <Select
                     value={universityFilter}
                     onValueChange={setUniversityFilter}
@@ -552,12 +663,6 @@ const EnhancedAPSCalculatorV2 = ({
                       >
                         I Qualify
                       </SelectItem>
-                      <SelectItem
-                        key="filter-qualification-close"
-                        value="close"
-                      >
-                        Close (≤5 APS)
-                      </SelectItem>
                     </SelectContent>
                   </Select>
 
@@ -590,7 +695,7 @@ const EnhancedAPSCalculatorV2 = ({
 
               {/* Results */}
               <div className="space-y-4">
-                <h3 className="text-lg font-semibold">
+                <h3 className="text-base sm:text-lg font-semibold">
                   Matching Programs ({calculation.eligibleDegrees.length})
                 </h3>
 
@@ -598,8 +703,30 @@ const EnhancedAPSCalculatorV2 = ({
                   <Alert>
                     <AlertCircle className="h-4 w-4" />
                     <AlertDescription>
-                      No programs match your current filters. Try adjusting your
-                      criteria.
+                      <div className="space-y-2">
+                        <p>
+                          <strong>
+                            No qualifying programs found with your current APS
+                            score and filters.
+                          </strong>
+                        </p>
+                        <p>Try these adjustments:</p>
+                        <ul className="list-disc list-inside text-sm space-y-1">
+                          <li>
+                            Change qualification filter to "All Programs" to see
+                            all available options
+                          </li>
+                          <li>Select "All Universities" and "All Faculties"</li>
+                          <li>
+                            Consider improving your subject marks to increase
+                            your APS score
+                          </li>
+                          <li>
+                            Look into diploma and certificate programs with
+                            lower APS requirements
+                          </li>
+                        </ul>
+                      </div>
                     </AlertDescription>
                   </Alert>
                 ) : (
@@ -611,49 +738,83 @@ const EnhancedAPSCalculatorV2 = ({
                           key={`${item.university.id}-${item.degree.id}`}
                           className="relative"
                         >
-                          <CardContent className="p-4">
-                            <div className="flex items-start justify-between">
-                              <div className="space-y-2 flex-1">
-                                <div className="flex items-center gap-2">
-                                  <h4 className="font-semibold">
+                          <CardContent className="p-3 sm:p-4">
+                            {/* Mobile-first responsive layout */}
+                            <div className="space-y-3">
+                              {/* Header with degree name and status */}
+                              <div className="flex items-start justify-between gap-2">
+                                <div className="flex items-start gap-2 flex-1 min-w-0">
+                                  <h4 className="font-semibold text-sm sm:text-base leading-tight">
                                     {item.degree.name}
                                   </h4>
                                   {item.meetsRequirement ? (
-                                    <CheckCircle className="h-4 w-4 text-green-600" />
+                                    <CheckCircle className="h-4 w-4 text-green-600 shrink-0 mt-0.5" />
                                   ) : (
-                                    <AlertCircle className="h-4 w-4 text-yellow-600" />
+                                    <AlertCircle className="h-4 w-4 text-yellow-600 shrink-0 mt-0.5" />
                                   )}
                                 </div>
-                                <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                                  <div className="flex items-center gap-1">
-                                    <UniversityIcon className="h-4 w-4" />
-                                    {item.university.name}
+                                <div className="text-right shrink-0">
+                                  <div className="text-base sm:text-lg font-bold">
+                                    APS {item.degree.apsRequirement}
                                   </div>
-                                  <div className="flex items-center gap-1">
-                                    <GraduationCap className="h-4 w-4" />
-                                    {item.degree.faculty}
-                                  </div>
-                                  <div className="flex items-center gap-1">
-                                    <MapPin className="h-4 w-4" />
-                                    {item.university.location}
-                                  </div>
+                                  {item.apsGap && (
+                                    <div className="text-xs sm:text-sm text-yellow-600">
+                                      Need {item.apsGap} more
+                                    </div>
+                                  )}
                                 </div>
-                                <p className="text-sm">
-                                  {item.degree.description}
-                                </p>
                               </div>
-                              <div className="text-right space-y-1">
-                                <div className="text-lg font-bold">
-                                  APS {item.degree.apsRequirement}
-                                </div>
-                                {item.apsGap && (
-                                  <div className="text-sm text-yellow-600">
-                                    Need {item.apsGap} more
+
+                              {/* University and Faculty info - stacked on mobile */}
+                              <div className="space-y-2 sm:space-y-1">
+                                <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 text-xs sm:text-sm text-muted-foreground">
+                                  <div className="flex items-center gap-1 min-w-0">
+                                    <UniversityIcon className="h-3 w-3 sm:h-4 sm:w-4 shrink-0" />
+                                    <span className="truncate">
+                                      {item.university.name}
+                                    </span>
                                   </div>
-                                )}
-                                <div className="text-sm text-muted-foreground">
-                                  {item.degree.duration}
+                                  <div className="flex items-center gap-1 min-w-0">
+                                    <GraduationCap className="h-3 w-3 sm:h-4 sm:w-4 shrink-0" />
+                                    <span className="truncate">
+                                      {item.degree.faculty}
+                                    </span>
+                                  </div>
                                 </div>
+
+                                {/* Location and duration on separate line */}
+                                <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 text-xs sm:text-sm text-muted-foreground">
+                                  <div className="flex items-center gap-1 min-w-0">
+                                    <MapPin className="h-3 w-3 sm:h-4 sm:w-4 shrink-0" />
+                                    <span className="truncate">
+                                      {item.university.location}
+                                    </span>
+                                  </div>
+                                  <div className="text-xs sm:text-sm">
+                                    {item.degree.duration}
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* Description */}
+                              <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">
+                                {item.degree.description}
+                              </p>
+
+                              {/* Status badge for mobile clarity */}
+                              <div className="sm:hidden">
+                                {item.meetsRequirement ? (
+                                  <Badge className="bg-green-100 text-green-800 text-xs">
+                                    ✓ You Qualify
+                                  </Badge>
+                                ) : (
+                                  <Badge
+                                    variant="outline"
+                                    className="border-yellow-300 text-yellow-700 text-xs"
+                                  >
+                                    Close Match
+                                  </Badge>
+                                )}
                               </div>
                             </div>
                           </CardContent>
@@ -667,7 +828,7 @@ const EnhancedAPSCalculatorV2 = ({
                     <Button
                       variant="outline"
                       onClick={() => setShowAllPrograms(true)}
-                      className="w-full"
+                      className="w-full text-sm sm:text-base py-2 sm:py-3"
                     >
                       Show All {calculation.eligibleDegrees.length} Programs
                     </Button>

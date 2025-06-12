@@ -461,5 +461,5 @@ export const UNIVERSITIES_NEEDING_PROGRAMS = [
 ];
 
 // Force comprehensive program updates for all universities
-// DISABLED: This was causing all programs to be dumped into wrong faculties
-export const FORCE_COMPREHENSIVE_PROGRAMS = false;
+// ENABLED: Required for APS calculator to show available programs
+export const FORCE_COMPREHENSIVE_PROGRAMS = true;

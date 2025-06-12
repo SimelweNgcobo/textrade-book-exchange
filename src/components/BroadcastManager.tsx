@@ -49,11 +49,11 @@ const BroadcastManager = () => {
           }
         }
       } catch (error) {
-        console.error("Error checking broadcasts:", {
-          message: error instanceof Error ? error.message : String(error),
-          stack: error instanceof Error ? error.stack : undefined,
-          type: error instanceof Error ? error.constructor.name : typeof error,
-        });
+        // Broadcasts are optional - don't spam console with errors
+        console.log(
+          "ℹ️ [BroadcastManager] Broadcast check skipped:",
+          error instanceof Error ? error.message : String(error),
+        );
       }
     };
 

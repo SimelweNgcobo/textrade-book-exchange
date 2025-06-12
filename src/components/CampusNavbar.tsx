@@ -21,7 +21,10 @@ const CampusNavbar = () => {
   const isActive = (path: string) => {
     if (path === "/university-info" && location.pathname === "/university-info")
       return true;
-    if (path.includes("aps-calculator") && location.search.includes("tool=aps"))
+    if (
+      path.includes("aps-calculator") &&
+      location.search.includes("tool=aps-calculator")
+    )
       return true;
     if (
       path.includes("bursaries") &&
@@ -41,28 +44,33 @@ const CampusNavbar = () => {
   return (
     <nav className="sticky top-0 z-50 bg-white shadow-md border-b border-book-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
-          {/* Logo */}
+        <div className="flex justify-between items-center h-14 sm:h-16">
+          {/* Logo - Mobile Optimized */}
           <div className="flex items-center">
             <button
               onClick={() => handleNavigation("/university-info")}
               className="flex items-center space-x-2 hover:opacity-80 transition-opacity"
             >
-              <div className="w-8 h-8 bg-book-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-lg">R</span>
+              <div className="w-7 h-7 sm:w-8 sm:h-8 bg-book-600 rounded-lg flex items-center justify-center">
+                <span className="text-white font-bold text-base sm:text-lg">
+                  R
+                </span>
               </div>
-              <span className="text-xl font-bold text-book-600">
+              <span className="text-base sm:text-xl font-bold text-book-600 hidden xs:block">
                 ReBooked Campus
+              </span>
+              <span className="text-sm font-bold text-book-600 xs:hidden">
+                ReBooked
               </span>
             </button>
           </div>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-1">
+          <div className="hidden lg:flex items-center space-x-1">
             <Button
               variant="ghost"
               onClick={() => handleNavigation("/university-info")}
-              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+              className={`px-3 py-2 rounded-lg font-medium transition-colors text-sm ${
                 isActive("/university-info")
                   ? "bg-book-50 text-book-600"
                   : "text-gray-600 hover:text-book-600 hover:bg-book-50"
@@ -74,8 +82,10 @@ const CampusNavbar = () => {
 
             <Button
               variant="ghost"
-              onClick={() => handleNavigation("/university-info?tool=aps")}
-              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+              onClick={() =>
+                handleNavigation("/university-info?tool=aps-calculator")
+              }
+              className={`px-3 py-2 rounded-lg font-medium transition-colors text-sm ${
                 isActive("aps-calculator")
                   ? "bg-book-50 text-book-600"
                   : "text-gray-600 hover:text-book-600 hover:bg-book-50"
@@ -90,7 +100,7 @@ const CampusNavbar = () => {
               onClick={() =>
                 handleNavigation("/university-info?tool=bursaries")
               }
-              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+              className={`px-3 py-2 rounded-lg font-medium transition-colors text-sm ${
                 isActive("bursaries")
                   ? "bg-book-50 text-book-600"
                   : "text-gray-600 hover:text-book-600 hover:bg-book-50"
@@ -103,7 +113,7 @@ const CampusNavbar = () => {
             <Button
               variant="ghost"
               onClick={() => handleNavigation("/university-info?tool=books")}
-              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+              className={`px-3 py-2 rounded-lg font-medium transition-colors text-sm ${
                 isActive("campus-books")
                   ? "bg-book-50 text-book-600"
                   : "text-gray-600 hover:text-book-600 hover:bg-book-50"
@@ -116,7 +126,7 @@ const CampusNavbar = () => {
             <Button
               variant="ghost"
               onClick={() => handleNavigation("/study-resources")}
-              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+              className={`px-3 py-2 rounded-lg font-medium transition-colors text-sm ${
                 isActive("/study-resources")
                   ? "bg-book-50 text-book-600"
                   : "text-gray-600 hover:text-book-600 hover:bg-book-50"
@@ -129,7 +139,7 @@ const CampusNavbar = () => {
             <Button
               variant="ghost"
               onClick={() => handleNavigation("/add-program")}
-              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+              className={`px-3 py-2 rounded-lg font-medium transition-colors text-sm ${
                 isActive("/add-program")
                   ? "bg-book-50 text-book-600"
                   : "text-gray-600 hover:text-book-600 hover:bg-book-50"
@@ -140,14 +150,88 @@ const CampusNavbar = () => {
             </Button>
           </div>
 
-          {/* Back to Marketplace Button */}
+          {/* Medium Screen Navigation */}
+          <div className="hidden md:flex lg:hidden items-center space-x-1">
+            <Button
+              variant="ghost"
+              onClick={() => handleNavigation("/university-info")}
+              className={`px-2 py-2 rounded-lg transition-colors ${
+                isActive("/university-info")
+                  ? "bg-book-50 text-book-600"
+                  : "text-gray-600 hover:text-book-600 hover:bg-book-50"
+              }`}
+              size="sm"
+            >
+              <Search className="w-4 h-4" />
+            </Button>
+
+            <Button
+              variant="ghost"
+              onClick={() =>
+                handleNavigation("/university-info?tool=aps-calculator")
+              }
+              className={`px-2 py-2 rounded-lg transition-colors ${
+                isActive("aps-calculator")
+                  ? "bg-book-50 text-book-600"
+                  : "text-gray-600 hover:text-book-600 hover:bg-book-50"
+              }`}
+              size="sm"
+            >
+              <Calculator className="w-4 h-4" />
+            </Button>
+
+            <Button
+              variant="ghost"
+              onClick={() =>
+                handleNavigation("/university-info?tool=bursaries")
+              }
+              className={`px-2 py-2 rounded-lg transition-colors ${
+                isActive("bursaries")
+                  ? "bg-book-50 text-book-600"
+                  : "text-gray-600 hover:text-book-600 hover:bg-book-50"
+              }`}
+              size="sm"
+            >
+              <GraduationCap className="w-4 h-4" />
+            </Button>
+
+            <Button
+              variant="ghost"
+              onClick={() => handleNavigation("/university-info?tool=books")}
+              className={`px-2 py-2 rounded-lg transition-colors ${
+                isActive("campus-books")
+                  ? "bg-book-50 text-book-600"
+                  : "text-gray-600 hover:text-book-600 hover:bg-book-50"
+              }`}
+              size="sm"
+            >
+              <BookOpen className="w-4 h-4" />
+            </Button>
+
+            <Button
+              variant="ghost"
+              onClick={() => handleNavigation("/study-resources")}
+              className={`px-2 py-2 rounded-lg transition-colors ${
+                isActive("/study-resources")
+                  ? "bg-book-50 text-book-600"
+                  : "text-gray-600 hover:text-book-600 hover:bg-book-50"
+              }`}
+              size="sm"
+            >
+              <Lightbulb className="w-4 h-4" />
+            </Button>
+          </div>
+
+          {/* Back to Marketplace Button - Desktop */}
           <div className="hidden md:flex items-center">
             <Button
               onClick={() => handleNavigation("/books")}
-              className="bg-book-600 hover:bg-book-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+              className="bg-book-600 hover:bg-book-700 text-white px-3 py-2 rounded-lg font-medium transition-colors text-xs sm:text-sm"
+              size="sm"
             >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Marketplace
+              <ArrowLeft className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+              <span className="hidden lg:inline">Back to Marketplace</span>
+              <span className="lg:hidden">Marketplace</span>
             </Button>
           </div>
 
@@ -158,9 +242,9 @@ const CampusNavbar = () => {
               className="p-2 rounded-lg text-gray-600 hover:text-book-600 hover:bg-book-50"
             >
               {isMobileMenuOpen ? (
-                <X className="w-6 h-6" />
+                <X className="w-5 h-5" />
               ) : (
-                <Menu className="w-6 h-6" />
+                <Menu className="w-5 h-5" />
               )}
             </button>
           </div>
@@ -169,30 +253,32 @@ const CampusNavbar = () => {
         {/* Mobile Menu */}
         {isMobileMenuOpen && (
           <div className="md:hidden border-t border-book-200">
-            <div className="py-4 space-y-2">
+            <div className="py-3 space-y-1">
               <Button
                 variant="ghost"
                 onClick={() => handleNavigation("/university-info")}
-                className={`w-full justify-start px-4 py-2 rounded-lg font-medium transition-colors ${
+                className={`w-full justify-start px-4 py-3 rounded-lg font-medium transition-colors text-sm ${
                   isActive("/university-info")
                     ? "bg-book-50 text-book-600"
                     : "text-gray-600"
                 }`}
               >
-                <Search className="w-4 h-4 mr-2" />
+                <Search className="w-4 h-4 mr-3" />
                 Home
               </Button>
 
               <Button
                 variant="ghost"
-                onClick={() => handleNavigation("/university-info?tool=aps")}
-                className={`w-full justify-start px-4 py-2 rounded-lg font-medium transition-colors ${
+                onClick={() =>
+                  handleNavigation("/university-info?tool=aps-calculator")
+                }
+                className={`w-full justify-start px-4 py-3 rounded-lg font-medium transition-colors text-sm ${
                   isActive("aps-calculator")
                     ? "bg-book-50 text-book-600"
                     : "text-gray-600"
                 }`}
               >
-                <Calculator className="w-4 h-4 mr-2" />
+                <Calculator className="w-4 h-4 mr-3" />
                 APS Calculator
               </Button>
 
@@ -201,61 +287,61 @@ const CampusNavbar = () => {
                 onClick={() =>
                   handleNavigation("/university-info?tool=bursaries")
                 }
-                className={`w-full justify-start px-4 py-2 rounded-lg font-medium transition-colors ${
+                className={`w-full justify-start px-4 py-3 rounded-lg font-medium transition-colors text-sm ${
                   isActive("bursaries")
                     ? "bg-book-50 text-book-600"
                     : "text-gray-600"
                 }`}
               >
-                <GraduationCap className="w-4 h-4 mr-2" />
+                <GraduationCap className="w-4 h-4 mr-3" />
                 Bursaries
               </Button>
 
               <Button
                 variant="ghost"
                 onClick={() => handleNavigation("/university-info?tool=books")}
-                className={`w-full justify-start px-4 py-2 rounded-lg font-medium transition-colors ${
+                className={`w-full justify-start px-4 py-3 rounded-lg font-medium transition-colors text-sm ${
                   isActive("campus-books")
                     ? "bg-book-50 text-book-600"
                     : "text-gray-600"
                 }`}
               >
-                <BookOpen className="w-4 h-4 mr-2" />
+                <BookOpen className="w-4 h-4 mr-3" />
                 Campus & Books
               </Button>
 
               <Button
                 variant="ghost"
                 onClick={() => handleNavigation("/study-resources")}
-                className={`w-full justify-start px-4 py-2 rounded-lg font-medium transition-colors ${
+                className={`w-full justify-start px-4 py-3 rounded-lg font-medium transition-colors text-sm ${
                   isActive("/study-resources")
                     ? "bg-book-50 text-book-600"
                     : "text-gray-600"
                 }`}
               >
-                <Lightbulb className="w-4 h-4 mr-2" />
+                <Lightbulb className="w-4 h-4 mr-3" />
                 Study Tips
               </Button>
 
               <Button
                 variant="ghost"
                 onClick={() => handleNavigation("/add-program")}
-                className={`w-full justify-start px-4 py-2 rounded-lg font-medium transition-colors ${
+                className={`w-full justify-start px-4 py-3 rounded-lg font-medium transition-colors text-sm ${
                   isActive("/add-program")
                     ? "bg-book-50 text-book-600"
                     : "text-gray-600"
                 }`}
               >
-                <Plus className="w-4 h-4 mr-2" />
+                <Plus className="w-4 h-4 mr-3" />
                 Add Program
               </Button>
 
-              <div className="border-t border-book-200 pt-4 mt-4">
+              <div className="border-t border-book-200 pt-3 mt-3">
                 <Button
                   onClick={() => handleNavigation("/books")}
-                  className="w-full bg-book-600 hover:bg-book-700 text-white px-4 py-2 rounded-lg font-medium"
+                  className="w-full bg-book-600 hover:bg-book-700 text-white px-4 py-3 rounded-lg font-medium text-sm"
                 >
-                  <ArrowLeft className="w-4 h-4 mr-2" />
+                  <ArrowLeft className="w-4 h-4 mr-3" />
                   Back to Marketplace
                 </Button>
               </div>

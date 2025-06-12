@@ -39,7 +39,7 @@ const AdminProtectedRoute: React.FC<AdminProtectedRouteProps> = ({
         clearTimeout(timeout);
       }
     };
-  }, []);
+  }, [hasChecked, isAdmin, isAuthenticated, navigate]);
 
   useEffect(() => {
     if (!isLoading && !hasChecked) {

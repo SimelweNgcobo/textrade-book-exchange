@@ -19,6 +19,19 @@ export const handleBookServiceError = (
     throw new Error("The requested book was not found or has been removed.");
   }
 
+  // Handle UUID format errors
+  if (error?.message?.includes("invalid input syntax for type uuid")) {
+    throw new Error(
+      "Invalid book ID format. Please check the link and try again.",
+    );
+  }
+
+  if (error?.message?.includes("Invalid book ID format")) {
+    throw new Error(
+      "Invalid book ID format. Please check the link and try again.",
+    );
+  }
+
   if (
     error?.message?.includes("relation") &&
     error?.message?.includes("does not exist")

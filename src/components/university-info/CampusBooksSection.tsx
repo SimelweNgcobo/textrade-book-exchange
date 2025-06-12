@@ -38,7 +38,7 @@ import { COMMON_DEGREES } from "@/constants/degrees";
 // Mock book data that would normally come from your actual book service
 const SAMPLE_CAMPUS_BOOKS = [
   {
-    id: "book-1",
+    id: "550e8400-e29b-41d4-a716-446655440001",
     title: "Engineering Mathematics 4th Edition",
     author: "K.A. Stroud",
     university: "uct",
@@ -56,7 +56,7 @@ const SAMPLE_CAMPUS_BOOKS = [
     availability: "Available",
   },
   {
-    id: "book-2",
+    id: "550e8400-e29b-41d4-a716-446655440002",
     title: "Principles of Accounting Vol 1 & 2",
     author: "Weygandt, Kimmel & Kieso",
     university: "wits",
@@ -74,7 +74,7 @@ const SAMPLE_CAMPUS_BOOKS = [
     availability: "Available",
   },
   {
-    id: "book-3",
+    id: "550e8400-e29b-41d4-a716-446655440003",
     title: "Anatomy & Physiology for Health Professionals",
     author: "Booth, Waugh & Grant",
     university: "uct",
@@ -92,7 +92,7 @@ const SAMPLE_CAMPUS_BOOKS = [
     availability: "Available",
   },
   {
-    id: "book-4",
+    id: "550e8400-e29b-41d4-a716-446655440004",
     title: "Introduction to Psychology 6th Edition",
     author: "Plotnik & Kouyoumdjian",
     university: "stellenbosch",
@@ -110,7 +110,7 @@ const SAMPLE_CAMPUS_BOOKS = [
     availability: "Available",
   },
   {
-    id: "book-5",
+    id: "550e8400-e29b-41d4-a716-446655440005",
     title: "Fundamentals of Corporate Finance",
     author: "Ross, Westerfield & Jordan",
     university: "up",
@@ -128,7 +128,7 @@ const SAMPLE_CAMPUS_BOOKS = [
     availability: "Available",
   },
   {
-    id: "book-6",
+    id: "550e8400-e29b-41d4-a716-446655440006",
     title: "Organic Chemistry 8th Edition",
     author: "Vollhardt & Schore",
     university: "ukzn",

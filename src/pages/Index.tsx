@@ -15,20 +15,30 @@ const Index = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    console.log("Index page mounted, loading featured books...");
     loadFeaturedBooks();
   }, []);
 
   const loadFeaturedBooks = async () => {
     try {
       setIsLoading(true);
-      console.log("Fetching books for featured section...");
       const allBooks = await getBooks();
-      console.log("Books fetched for Index page:", allBooks?.length || 0);
       setFeaturedBooks(Array.isArray(allBooks) ? allBooks.slice(0, 4) : []); // Get first 4 books for featured section
     } catch (error) {
-      console.error("Error loading featured books:", error);
-      toast.error("Failed to load featured books");
+      const errorDetails = {
+        message: error instanceof Error ? error.message : String(error),
+        name: error instanceof Error ? error.name : "Unknown",
+        stack: error instanceof Error ? error.stack : undefined,
+        timestamp: new Date().toISOString(),
+      };
+
+      console.error("[Index] Error loading featured books:", errorDetails);
+
+      const userMessage =
+        error instanceof Error && error.message.includes("Failed to fetch")
+          ? "Unable to load featured books. Please check your internet connection and try refreshing the page."
+          : "Failed to load featured books. Please try again later.";
+
+      toast.error(userMessage);
     } finally {
       setIsLoading(false);
     }
