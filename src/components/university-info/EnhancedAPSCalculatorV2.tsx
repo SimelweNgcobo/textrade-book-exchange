@@ -357,14 +357,16 @@ const EnhancedAPSCalculatorV2 = ({
                             !subjects.some(
                               (sub, i) => i !== index && sub.name === s,
                             ),
-                        ).map((subj, subjIndex) => (
-                          <SelectItem
-                            key={`subject-option-${index}-${subjIndex}-${subj}`}
-                            value={subj}
-                          >
-                            {subj} {isLanguageSubject(subj) && "(Language)"}
-                          </SelectItem>
-                        ))}
+                        )
+                          .sort((a, b) => a.localeCompare(b))
+                          .map((subj, subjIndex) => (
+                            <SelectItem
+                              key={`subject-option-${index}-${subjIndex}-${subj}`}
+                              value={subj}
+                            >
+                              {subj} {isLanguageSubject(subj) && "(Language)"}
+                            </SelectItem>
+                          ))}
                       </SelectContent>
                     </Select>
                   </div>
