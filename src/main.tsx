@@ -4,10 +4,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import App from "./App.tsx";
 import ErrorBoundary from "./components/ErrorBoundary.tsx";
 import { validateEnvironment } from "./config/environment";
-import {
-  initCoreWebVitals,
-  PerformanceMonitor,
-} from "./utils/performanceUtils";
+import { initCoreWebVitals, analyzeBundleSize } from "./utils/performanceUtils";
 import { initSecurity } from "./utils/securityUtils";
 import "./index.css";
 
@@ -15,7 +12,7 @@ import "./index.css";
 try {
   validateEnvironment();
 
-  // Check connection health in development
+  // Development-only utilities
   if (import.meta.env.DEV) {
     import("./utils/connectionHealthCheck").then(({ logConnectionHealth }) => {
       logConnectionHealth();
@@ -29,6 +26,11 @@ try {
       .catch((error) => {
         console.warn("Could not load university logo verification:", error);
       });
+
+    // Analyze bundle size
+    setTimeout(() => {
+      analyzeBundleSize();
+    }, 1000);
   }
 } catch (error) {
   console.error("Environment validation failed:", error);
@@ -70,9 +72,7 @@ root.render(
   <React.StrictMode>
     <ErrorBoundary level="app">
       <QueryClientProvider client={queryClient}>
-        <PerformanceMonitor>
-          <App />
-        </PerformanceMonitor>
+        <App />
       </QueryClientProvider>
     </ErrorBoundary>
   </React.StrictMode>,
