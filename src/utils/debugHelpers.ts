@@ -3,7 +3,9 @@
  */
 
 export const testErrorSerialization = () => {
-  console.log("=== Testing Error Serialization ===");
+  if (import.meta.env.DEV) {
+    console.log("=== Testing Error Serialization ===");
+  }
 
   // Test 1: Regular Error object
   const regularError = new Error("Test error message");
@@ -38,7 +40,9 @@ export const testErrorSerialization = () => {
 };
 
 export const clearAuthState = () => {
-  console.log("=== Clearing Authentication State ===");
+  if (import.meta.env.DEV) {
+    console.log("=== Clearing Authentication State ===");
+  }
 
   // Clear localStorage items related to auth
   const authKeys = ["supabase.auth.token", "viewedBroadcasts", "sb-"];
@@ -62,7 +66,9 @@ export const clearAuthState = () => {
 };
 
 export const debugAuthContext = () => {
-  console.log("=== Authentication Context Debug Info ===");
+  if (import.meta.env.DEV) {
+    console.log("=== Authentication Context Debug Info ===");
+  }
   console.log("User Agent:", navigator.userAgent);
   console.log("Online Status:", navigator.onLine);
   console.log("Current URL:", window.location.href);
