@@ -49,11 +49,30 @@ const BroadcastManager = () => {
           }
         }
       } catch (error) {
-        console.error("Error checking broadcasts:", {
+        const errorDetails = {
           message: error instanceof Error ? error.message : String(error),
+          name: error instanceof Error ? error.name : "Unknown",
           stack: error instanceof Error ? error.stack : undefined,
-          type: error instanceof Error ? error.constructor.name : typeof error,
-        });
+          type: typeof error,
+          constructor:
+            error instanceof Error ? error.constructor.name : undefined,
+          timestamp: new Date().toISOString(),
+        };
+
+        console.error(
+          "[BroadcastManager] Error checking broadcasts:",
+          errorDetails,
+        );
+
+        // Only log in development to avoid spam
+        if (import.meta.env.DEV) {
+          const userMessage =
+            error instanceof Error && error.message.includes("Failed to fetch")
+              ? "Unable to check for announcements due to connection issues."
+              : "Failed to load announcements.";
+
+          console.warn(`[BroadcastManager] ${userMessage}`);
+        }
       }
     };
 
