@@ -147,6 +147,11 @@ export interface StudyTip {
   tags?: string[];
   content: string;
   author?: string;
+  isSponsored?: boolean;
+  sponsorName?: string;
+  sponsorLogo?: string;
+  sponsorUrl?: string;
+  sponsorCta?: string;
 }
 
 export interface StudyResource {
@@ -161,6 +166,11 @@ export interface StudyResource {
   provider?: string;
   duration?: string;
   tags?: string[];
+  isSponsored?: boolean;
+  sponsorName?: string;
+  sponsorLogo?: string;
+  sponsorUrl?: string;
+  sponsorCta?: string;
 }
 
 export interface TimeTableEntry {

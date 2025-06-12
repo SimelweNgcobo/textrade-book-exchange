@@ -1,7 +1,15 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Clock, BookOpen, Users, Star, Bookmark } from "lucide-react";
+import {
+  Clock,
+  BookOpen,
+  Users,
+  Star,
+  Bookmark,
+  ExternalLink,
+  Crown,
+} from "lucide-react";
 import { StudyTip } from "@/types/university";
 
 interface StudyTipCardProps {
@@ -57,11 +65,24 @@ const StudyTipCard = ({
   };
 
   return (
-    <Card className="h-full hover:shadow-md transition-shadow">
+    <Card
+      className={`h-full hover:shadow-md transition-shadow ${tip.isSponsored ? "ring-2 ring-yellow-200 bg-gradient-to-br from-yellow-50/30 to-orange-50/30" : ""}`}
+    >
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between gap-4">
           <div className="flex-1">
-            <CardTitle className="text-lg mb-2">{tip.title}</CardTitle>
+            <div className="flex items-center gap-2 mb-2">
+              <CardTitle className="text-lg">{tip.title}</CardTitle>
+              {tip.isSponsored && (
+                <Badge
+                  variant="secondary"
+                  className="bg-yellow-100 text-yellow-800 text-xs"
+                >
+                  <Crown className="w-3 h-3 mr-1" />
+                  Sponsored
+                </Badge>
+              )}
+            </div>
             <div className="flex flex-wrap gap-2 mb-3">
               <Badge
                 variant="secondary"
@@ -107,14 +128,49 @@ const StudyTipCard = ({
         <div className="text-sm space-y-2 max-h-64 overflow-y-auto">
           {formatContent(tip.content)}
         </div>
-        {tip.effectiveness && (
-          <div className="flex items-center gap-1 mt-4 pt-3 border-t">
-            <Star className="w-4 h-4 text-yellow-500" />
-            <span className="text-sm text-gray-600">
-              {tip.effectiveness}% effective
-            </span>
-          </div>
-        )}
+        <div className="flex items-center justify-between mt-4 pt-3 border-t">
+          {tip.effectiveness && (
+            <div className="flex items-center gap-1">
+              <Star className="w-4 h-4 text-yellow-500" />
+              <span className="text-sm text-gray-600">
+                {tip.effectiveness}% effective
+              </span>
+            </div>
+          )}
+
+          {tip.isSponsored && tip.sponsorName && (
+            <div className="flex items-center gap-2">
+              {tip.sponsorLogo && (
+                <img
+                  src={tip.sponsorLogo}
+                  alt={tip.sponsorName}
+                  className="w-4 h-4 object-contain"
+                />
+              )}
+              <span className="text-xs text-gray-500">
+                By {tip.sponsorName}
+              </span>
+              {tip.sponsorUrl && (
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="h-6 px-2 text-xs"
+                  asChild
+                >
+                  <a
+                    href={tip.sponsorUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-1"
+                  >
+                    <ExternalLink className="w-3 h-3" />
+                    {tip.sponsorCta || "Learn More"}
+                  </a>
+                </Button>
+              )}
+            </div>
+          )}
+        </div>
       </CardContent>
     </Card>
   );
