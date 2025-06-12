@@ -29,7 +29,7 @@ export const useNotifications = (): NotificationHookReturn => {
   const retryTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const retryCountRef = useRef(0);
   const isInitialLoadRef = useRef(true);
-  const subscriptionRef = useRef<any>(null);
+  const subscriptionRef = useRef<{ unsubscribe: () => void } | null>(null);
   const refreshingRef = useRef(false); // Prevent concurrent refreshes
 
   const MAX_RETRY_ATTEMPTS = 3;
