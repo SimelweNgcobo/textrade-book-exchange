@@ -6,7 +6,7 @@ import {
   getErrorMessage,
   retryWithExponentialBackoff,
   withTimeout,
-  isNetworkError,
+  isNetworkError
 } from "@/utils/errorUtils";
 
 export interface Profile {
@@ -84,33 +84,42 @@ export const fetchUserProfileQuick = async (
   user: User,
 ): Promise<Profile | null> => {
   try {
-    console.log("Quick profile fetch for user:", user.id);
+    console.log("🔄 Quick profile fetch for user:", user.id);
 
-    // Direct database call with timeout for faster response
-    const { data: profile, error: profileError } = (await Promise.race([
-      supabase
-        .from("profiles")
-        .select("id, name, email, status, profile_picture_url, bio, is_admin")
-        .eq("id", user.id)
-        .single(),
-      new Promise((_, reject) =>
-        setTimeout(() => reject(new Error("Profile fetch timeout")), 8000),
-      ),
-    ])) as any;
+    // Use enhanced retry logic for network resilience
+    const result = await retryWithExponentialBackoff(
+      async () => {
+        return await withTimeout(
+          supabase
+            .from("profiles")
+            .select("id, name, email, status, profile_picture_url, bio, is_admin")
+            .eq("id", user.id)
+            .single(),
+          6000, // 6 second timeout for quick fetch
+          "Quick profile fetch timed out"
+        );
+      },
+      {
+        maxRetries: 2,
+        baseDelay: 500,
+        retryCondition: (error) => isNetworkError(error)
+      }
+    );
+
+    const { data: profile, error: profileError } = result as any;
 
     if (profileError) {
       if (profileError.code === "PGRST116") {
-        console.log(
-          "Profile not found in quick fetch, will create in background",
-        );
+        console.log("ℹ️ Profile not found in quick fetch, will create in background");
         return null; // Return null so fallback is used
       }
-      throw new Error(
-        getErrorMessage(profileError, "Quick profile fetch failed"),
-      );
+
+      logError("Quick profile fetch error", profileError);
+      return null; // Use fallback on any error
     }
 
     if (!profile) {
+      console.log("ℹ️ No profile data returned, using fallback");
       return null; // Use fallback profile
     }
 
@@ -121,7 +130,7 @@ export const fetchUserProfileQuick = async (
       profile.is_admin === true ||
       adminEmails.includes(userEmail.toLowerCase());
 
-    return {
+    const profileData = {
       id: profile.id,
       name:
         profile.name ||
@@ -134,20 +143,25 @@ export const fetchUserProfileQuick = async (
       profile_picture_url: profile.profile_picture_url,
       bio: profile.bio,
     };
+
+    console.log("✅ Quick profile fetch successful");
+    return profileData;
   } catch (error) {
-    console.log("Quick profile fetch failed, using fallback");
+    logError("Quick profile fetch failed", error);
+    console.log("⚠️ Quick profile fetch failed, using fallback");
     return null; // Return null to use fallback
   }
 };
 
 export const fetchUserProfile = async (user: User): Promise<Profile | null> => {
   try {
-    console.log("Fetching profile for user:", user.id);
+    console.log("🔄 Fetching full profile for user:", user.id);
 
-    // Wrap the Supabase call in retry logic for network errors with optimized settings
-    const result = await retryWithBackoff(
+    // Enhanced retry logic with better error handling
+    const result = await retryWithExponentialBackoff(
       async () => {
-        return await supabase
+        return await withTimeout(
+          supabase
           .from("profiles")
           .select("id, name, email, status, profile_picture_url, bio, is_admin")
           .eq("id", user.id)
