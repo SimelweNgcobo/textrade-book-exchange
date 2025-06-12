@@ -598,33 +598,8 @@ export const BURSARY_CATEGORIES = [
   "Professional Organizations",
 ];
 
-export const BURSARY_FIELDS_OF_STUDY = [
-  "All fields",
-  "Accounting",
-  "Actuarial Science",
-  "Agriculture",
-  "Business",
-  "Commerce",
-  "Computer Science",
-  "Counselling",
-  "Economics",
-  "Education",
-  "Engineering",
-  "Finance",
-  "Forestry",
-  "Health Sciences",
-  "Information Technology",
-  "Law",
-  "Logistics",
-  "Mathematics",
-  "Medicine",
-  "Mining Engineering",
-  "Nursing",
-  "Psychology",
-  "Science",
-  "Teaching",
-  "Technology",
-];
+// Use comprehensive fields of study
+export const BURSARY_FIELDS_OF_STUDY = COMPREHENSIVE_FIELDS_OF_STUDY;
 
 export const PROVINCES = [
   "All provinces",
