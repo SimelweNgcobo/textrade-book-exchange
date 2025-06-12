@@ -1,14 +1,11 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import {
-  Search,
   Book,
   Calculator,
   GraduationCap,
-  TrendingUp,
   ArrowRight,
   Star,
 } from "lucide-react";
@@ -16,31 +13,11 @@ import UniversityStats from "./UniversityStats";
 import { SOUTH_AFRICAN_UNIVERSITIES } from "@/constants/universities";
 
 interface UniversityHeroProps {
-  onSearch?: (query: string) => void;
   onNavigateToTool?: (tool: string) => void;
 }
 
-const UniversityHero = ({
-  onSearch,
-  onNavigateToTool,
-}: UniversityHeroProps) => {
+const UniversityHero = ({ onNavigateToTool }: UniversityHeroProps) => {
   const navigate = useNavigate();
-  const [searchQuery, setSearchQuery] = useState("");
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      if (onSearch) {
-        // Use the parent component's search handler
-        onSearch(searchQuery);
-      } else {
-        // Fallback: navigate to search page with query
-        navigate(
-          `/university-info?tool=search&search=${encodeURIComponent(searchQuery)}`,
-        );
-      }
-    }
-  };
 
   const handleToolNavigation = (tool: string) => {
     if (onNavigateToTool) {
@@ -133,29 +110,6 @@ const UniversityHero = ({
                 education.
               </span>
             </p>
-          </div>
-
-          {/* Search Bar - Mobile optimized */}
-          <div className="max-w-2xl mx-auto px-4">
-            <form onSubmit={handleSearch} className="relative">
-              <div className="relative">
-                <Search className="absolute left-3 md:left-4 top-1/2 transform -translate-y-1/2 w-4 h-4 md:w-5 md:h-5 text-gray-400" />
-                <Input
-                  type="text"
-                  placeholder="Search universities, programs..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10 md:pl-12 pr-16 md:pr-20 py-3 md:py-4 text-sm md:text-lg border-2 border-book-200 rounded-xl md:rounded-2xl focus:border-book-400 focus:ring-4 focus:ring-book-100 bg-white/80 backdrop-blur-sm"
-                />
-              </div>
-              <Button
-                type="submit"
-                className="absolute right-1 md:right-2 top-1/2 transform -translate-y-1/2 bg-book-600 hover:bg-book-700 text-white px-3 md:px-6 py-1.5 md:py-2 rounded-lg md:rounded-xl text-sm md:text-base"
-              >
-                <span className="hidden md:inline">Search</span>
-                <Search className="w-4 h-4 md:hidden" />
-              </Button>
-            </form>
           </div>
 
           {/* Quick Stats */}
