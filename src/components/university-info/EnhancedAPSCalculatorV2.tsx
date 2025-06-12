@@ -407,21 +407,24 @@ const EnhancedAPSCalculatorV2 = ({
         <CardContent className="space-y-6">
           {/* Subject Input Section */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Your Subjects</h3>
-            <div className="grid gap-4">
+            <h3 className="text-base sm:text-lg font-semibold">
+              Your Subjects
+            </h3>
+            <div className="grid gap-3 sm:gap-4">
               {subjects.map((subject, index) => (
                 <div
                   key={`subject-${index}-${subject.name}`}
-                  className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3 p-2 border rounded-lg"
+                  className="flex flex-col gap-3 p-3 sm:p-4 border rounded-lg bg-gray-50"
                 >
-                  <div className="flex-1 w-full">
+                  {/* Subject name - full width on mobile */}
+                  <div className="w-full">
                     <Select
                       value={subject.name}
                       onValueChange={(value) =>
                         updateSubject(index, "name", value)
                       }
                     >
-                      <SelectTrigger className="w-full">
+                      <SelectTrigger className="w-full text-sm sm:text-base">
                         <SelectValue placeholder="Select subject" />
                       </SelectTrigger>
                       <SelectContent>
@@ -443,8 +446,10 @@ const EnhancedAPSCalculatorV2 = ({
                       </SelectContent>
                     </Select>
                   </div>
-                  <div className="flex items-center gap-2 w-full sm:w-auto">
-                    <div className="flex-1 sm:w-24">
+
+                  {/* Mark input and controls */}
+                  <div className="flex items-center gap-2">
+                    <div className="flex-1">
                       <Input
                         type="number"
                         placeholder="Mark %"
@@ -458,29 +463,27 @@ const EnhancedAPSCalculatorV2 = ({
                             parseInt(e.target.value) || 0,
                           )
                         }
-                        className="w-full"
+                        className="w-full text-sm sm:text-base"
                       />
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Badge
-                        variant={subject.points > 0 ? "default" : "secondary"}
-                        className="min-w-[3rem] justify-center"
-                      >
-                        {subject.points}
-                      </Badge>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => removeSubject(index)}
-                        disabled={
-                          subject.name === "Life Orientation" ||
-                          subjects.length <= 3
-                        }
-                        className="shrink-0"
-                      >
-                        <Minus className="h-4 w-4" />
-                      </Button>
-                    </div>
+                    <Badge
+                      variant={subject.points > 0 ? "default" : "secondary"}
+                      className="min-w-[3rem] justify-center text-sm font-medium"
+                    >
+                      {subject.points} pts
+                    </Badge>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => removeSubject(index)}
+                      disabled={
+                        subject.name === "Life Orientation" ||
+                        subjects.length <= 3
+                      }
+                      className="shrink-0 h-8 w-8 p-0"
+                    >
+                      <Minus className="h-3 w-3 sm:h-4 sm:w-4" />
+                    </Button>
                   </div>
                 </div>
               ))}
