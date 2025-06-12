@@ -56,7 +56,7 @@ const SAMPLE_CAMPUS_BOOKS = [
     availability: "Available",
   },
   {
-    id: "book-2",
+    id: "550e8400-e29b-41d4-a716-446655440002",
     title: "Principles of Accounting Vol 1 & 2",
     author: "Weygandt, Kimmel & Kieso",
     university: "wits",
