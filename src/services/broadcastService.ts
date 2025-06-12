@@ -54,13 +54,17 @@ export const getActiveBroadcasts = async (): Promise<Broadcast[]> => {
       title: broadcast.title,
       createdAt: broadcast.created_at,
       isActive: broadcast.is_active,
+      priority: broadcast.priority as "low" | "normal" | "high" | "urgent",
       expiresAt: broadcast.expires_at,
+      targetAudience: broadcast.target_audience as "all" | "users" | "admin",
       createdBy: broadcast.created_by,
     }));
+
   } catch (error) {
-    logError("Error fetching active broadcasts", error);
-    console.log("⚠️ Failed to fetch broadcasts, returning empty array");
-    return []; // Return empty array on any error
+    logError("Error in getActiveBroadcasts", error);
+    // Return empty array instead of throwing to prevent app crashes
+    console.warn("🚨 Failed to fetch broadcasts, returning empty array");
+    return [];
   }
 };
     return await retryWithConnection(fetchBroadcastsOperation, 2, 1000);
