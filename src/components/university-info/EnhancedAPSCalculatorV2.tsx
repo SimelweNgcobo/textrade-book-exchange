@@ -529,10 +529,10 @@ const EnhancedAPSCalculatorV2 = ({
                   <Card>
                     <CardContent className="p-4 text-center">
                       <div className="text-2xl font-bold text-yellow-600">
-                        {stats.close}
+                        {calculation.totalScore}
                       </div>
                       <div className="text-sm text-muted-foreground">
-                        Close Programs
+                        Your APS Score
                       </div>
                     </CardContent>
                   </Card>
