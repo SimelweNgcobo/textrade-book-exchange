@@ -2,15 +2,16 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import {
   getNotifications,
-  clearNotificationCache,
   markNotificationAsRead,
   deleteNotification,
 } from "@/services/notificationService";
 import { supabase } from "@/integrations/supabase/client";
 import { Database } from "@/integrations/supabase/types";
-import { debugLog } from "@/utils/debugHelpers";
 
 type Notification = Database["public"]["Tables"]["notifications"]["Row"];
+
+const MAX_RETRY_ATTEMPTS = 3;
+const RETRY_DELAYS = [5000, 15000, 30000]; // Progressive retry delays
 
 interface NotificationHookReturn {
   unreadCount: number;
@@ -20,6 +21,8 @@ interface NotificationHookReturn {
   hasError: boolean;
   lastError?: string;
   refreshNotifications: () => Promise<void>;
+  markAsRead: (id: string) => Promise<void>;
+  deleteNotification: (id: string) => Promise<void>;
   clearError: () => void;
 }
 
@@ -35,9 +38,6 @@ export const useNotifications = (): NotificationHookReturn => {
   const subscriptionRef = useRef<{ unsubscribe: () => void } | null>(null);
   const refreshingRef = useRef(false); // Prevent concurrent refreshes
 
-  const MAX_RETRY_ATTEMPTS = 3;
-  const RETRY_DELAYS = [5000, 15000, 30000]; // Progressive retry delays
-
   const clearError = useCallback(() => {
     setHasError(false);
     setLastError(undefined);
@@ -49,7 +49,6 @@ export const useNotifications = (): NotificationHookReturn => {
       if (!isAuthenticated || !user) {
         setNotifications([]);
         setHasError(false);
-        setLastError(undefined);
         return;
       }
 
@@ -58,84 +57,119 @@ export const useNotifications = (): NotificationHookReturn => {
         return;
       }
 
-      refreshingRef.current = true;
-
-      // Only show loading on initial load or manual refresh (not on retries)
-      if (!isRetry || isInitialLoadRef.current) {
-        setIsLoading(true);
-      }
-
       try {
-        const userNotifications = await getNotifications(user.id);
+        refreshingRef.current = true;
 
-        // Check if we got valid data
-        if (Array.isArray(userNotifications)) {
-          // Deduplicate notifications by ID to prevent duplicates
-          const uniqueNotifications = userNotifications.filter(
-            (notification, index, array) =>
-              array.findIndex((n) => n.id === notification.id) === index,
+        if (!isRetry && isInitialLoadRef.current) {
+          setIsLoading(true);
+          isInitialLoadRef.current = false;
+        }
+
+        console.log("🔄 Refreshing notifications...");
+
+        const data = await getNotifications(user.id);
+        if (data) {
+          // Deduplicate notifications by ID and timestamp
+          const uniqueNotifications = data.filter(
+            (notification, index, self) => {
+              const isDuplicate =
+                self.findIndex(
+                  (n) =>
+                    n.id === notification.id ||
+                    (n.title === notification.title &&
+                      n.message === notification.message &&
+                      Math.abs(
+                        new Date(n.created_at).getTime() -
+                          new Date(notification.created_at).getTime(),
+                      ) < 10000),
+                ) !== index;
+              return !isDuplicate;
+            },
           );
 
           setNotifications(uniqueNotifications);
-          setHasError(false);
-          setLastError(undefined);
-          retryCountRef.current = 0;
-          isInitialLoadRef.current = false;
-
-          // Clear any pending retry
-          if (retryTimeoutRef.current) {
-            clearTimeout(retryTimeoutRef.current);
-            retryTimeoutRef.current = null;
+          console.log(
+            `✅ Loaded ${uniqueNotifications.length} unique notifications`,
+          );
+          if (uniqueNotifications.length !== data.length) {
+            console.log(
+              `ℹ️ Removed ${data.length - uniqueNotifications.length} duplicate notifications`,
+            );
           }
-        } else {
-          throw new Error("Invalid data format received");
         }
+
+        setHasError(false);
+        setLastError(undefined);
+        retryCountRef.current = 0;
       } catch (error) {
         const errorMessage =
-          error instanceof Error ? error.message : "Unknown error occurred";
-
-        if (import.meta.env.DEV) {
-          console.warn("Error in refreshNotifications:", errorMessage);
-        }
+          error instanceof Error ? error.message : String(error);
+        console.warn("⚠️ Notification refresh failed:", errorMessage);
 
         setHasError(true);
         setLastError(errorMessage);
 
-        // Implement progressive retry with exponential backoff
-        if (
-          retryCountRef.current < MAX_RETRY_ATTEMPTS &&
-          !retryTimeoutRef.current
-        ) {
-          const delay =
-            RETRY_DELAYS[retryCountRef.current] ||
-            RETRY_DELAYS[RETRY_DELAYS.length - 1];
+        // Retry logic for network errors only
+        const isNetworkError =
+          errorMessage.includes("Failed to fetch") ||
+          errorMessage.includes("network") ||
+          errorMessage.includes("timeout");
+
+        if (isNetworkError && retryCountRef.current < MAX_RETRY_ATTEMPTS) {
+          const delay = RETRY_DELAYS[retryCountRef.current] || 30000;
+          retryCountRef.current++;
+
+          console.log(
+            `ℹ️ Retrying notification fetch in ${delay}ms (attempt ${retryCountRef.current}/${MAX_RETRY_ATTEMPTS})`,
+          );
 
           retryTimeoutRef.current = setTimeout(() => {
-            retryTimeoutRef.current = null;
-            retryCountRef.current++;
-
-            if (isAuthenticated && user) {
-              refreshNotifications(true);
-            }
+            refreshNotifications(true);
           }, delay);
         }
-
-        // Keep existing notifications if we have them (don't clear on error)
-        // This provides better UX by showing stale data rather than empty state
       } finally {
         setIsLoading(false);
         refreshingRef.current = false;
       }
     },
-    [user, isAuthenticated],
+    [user?.id, isAuthenticated],
   );
 
-  // Initial load effect
+  const markAsRead = useCallback(async (notificationId: string) => {
+    try {
+      await markNotificationAsRead(notificationId);
+
+      // Update local state
+      setNotifications((prev) =>
+        prev.map((notification) =>
+          notification.id === notificationId
+            ? { ...notification, read: true }
+            : notification,
+        ),
+      );
+    } catch (error) {
+      console.error("Failed to mark notification as read:", error);
+    }
+  }, []);
+
+  const deleteNotif = useCallback(async (notificationId: string) => {
+    try {
+      await deleteNotification(notificationId);
+
+      // Update local state
+      setNotifications((prev) =>
+        prev.filter((notification) => notification.id !== notificationId),
+      );
+    } catch (error) {
+      console.error("Failed to delete notification:", error);
+    }
+  }, []);
+
+  // Initial load and auth state changes
   useEffect(() => {
     if (isAuthenticated && user) {
       refreshNotifications();
     } else {
-      // Clear state when user logs out
       setNotifications([]);
       setHasError(false);
       setLastError(undefined);
@@ -147,12 +181,12 @@ export const useNotifications = (): NotificationHookReturn => {
         retryTimeoutRef.current = null;
       }
     }
-  }, [user?.id, isAuthenticated]); // Constants don't need to be in dependencies
+  }, [user?.id, isAuthenticated, refreshNotifications]);
 
-  // Set up real-time subscription for notifications with debouncing
+  // Set up real-time subscription for notifications
   useEffect(() => {
     if (!isAuthenticated || !user) {
-      // Clean up any existing subscription
+      // Clean up existing subscription
       if (subscriptionRef.current) {
         try {
           supabase.removeChannel(subscriptionRef.current);
@@ -164,20 +198,21 @@ export const useNotifications = (): NotificationHookReturn => {
       return;
     }
 
-    // Clean up previous subscription if it exists
-    if (subscriptionRef.current) {
-      try {
-        supabase.removeChannel(subscriptionRef.current);
-      } catch (error) {
-        console.error("Error removing previous notification channel:", error);
-      }
-    }
-
-    let debounceTimeout: NodeJS.Timeout | null = null;
-
     try {
-      subscriptionRef.current = supabase
-        .channel(`notifications_${user.id}_${Date.now()}`) // Add timestamp to ensure unique channel
+      // Clean up previous subscription if it exists
+      if (subscriptionRef.current) {
+        try {
+          supabase.removeChannel(subscriptionRef.current);
+        } catch (error) {
+          console.error("Error removing previous notification channel:", error);
+        }
+      }
+
+      // Create a unique channel name with timestamp to avoid conflicts
+      const channelName = `notifications_${user.id}_${Date.now()}`;
+
+      const channel = supabase
+        .channel(channelName)
         .on(
           "postgres_changes",
           {
@@ -186,92 +221,30 @@ export const useNotifications = (): NotificationHookReturn => {
             table: "notifications",
             filter: `user_id=eq.${user.id}`,
           },
-          (payload) => {
-            // Debounce the refresh to prevent multiple rapid calls
-            if (debounceTimeout) {
-              clearTimeout(debounceTimeout);
+          () => {
+            // Debounce refresh to prevent rapid-fire updates
+            if (retryTimeoutRef.current) {
+              clearTimeout(retryTimeoutRef.current);
             }
 
-            debounceTimeout = setTimeout(() => {
-              // Clear cache and refresh on any notification changes
-              clearNotificationCache(user.id);
-
-              // Only refresh if we don't have errors or if this is an insert/update
-              if (!hasError || payload.eventType === "INSERT") {
-                refreshNotifications().catch((error) => {
-                  if (import.meta.env.DEV) {
-                    console.error(
-                      "Error refreshing notifications from subscription:",
-                      error,
-                    );
-                  }
-                });
-              }
+            retryTimeoutRef.current = setTimeout(() => {
+              refreshNotifications();
             }, 1000); // 1 second debounce
           },
         )
-        .subscribe((status) => {
-          if (status === "SUBSCRIBED") {
-            if (import.meta.env.DEV) {
-              console.log("Notification subscription established");
-            }
-          } else if (status === "CHANNEL_ERROR") {
-            console.warn("Notification subscription error");
-          }
-        });
+        .subscribe();
 
-      return () => {
-        if (debounceTimeout) {
-          clearTimeout(debounceTimeout);
-        }
-        try {
-          debugLog("Refreshing notifications...");
-
-          const data = await getNotifications(user.id);
-          if (data) {
-            // Deduplicate notifications by ID and timestamp
-            const uniqueNotifications = data.filter(
-              (notification, index, self) => {
-                const isDuplicate =
-                  self.findIndex(
-                    (n) =>
-                      n.id === notification.id ||
-                      (n.title === notification.title &&
-                        n.message === notification.message &&
-                        Math.abs(
-                          new Date(n.created_at).getTime() -
-                            new Date(notification.created_at).getTime(),
-                        ) < 10000),
-                  ) !== index;
-                return !isDuplicate;
-              },
-            );
-
-            setNotifications(uniqueNotifications);
-            debugLog(
-              `Loaded ${uniqueNotifications.length} unique notifications (${data.length - uniqueNotifications.length} duplicates removed)`,
-            );
-          }
-
-          setHasError(false);
-          setLastError(undefined);
-          retryCountRef.current = 0;
-        } catch (error) {
-          console.error("Error removing notification channel:", error);
-        }
-        subscriptionRef.current = null;
-      };
+      subscriptionRef.current = channel;
     } catch (error) {
       console.error("Error setting up notification subscription:", error);
     }
-  }, [user?.id, isAuthenticated, refreshNotifications]); // Include refreshNotifications
+  }, [user?.id, isAuthenticated, refreshNotifications]);
 
   // Cleanup retry timeout and subscription on unmount
   useEffect(() => {
     return () => {
       if (retryTimeoutRef.current) {
         clearTimeout(retryTimeoutRef.current);
-        retryTimeoutRef.current = null;
       }
       if (subscriptionRef.current) {
         try {
@@ -292,13 +265,15 @@ export const useNotifications = (): NotificationHookReturn => {
   const totalCount = notifications.length;
 
   return {
+    notifications,
     unreadCount,
     totalCount,
-    notifications,
     isLoading,
     hasError,
     lastError,
-    refreshNotifications: () => refreshNotifications(false),
+    refreshNotifications,
+    markAsRead,
+    deleteNotification: deleteNotif,
     clearError,
   };
 };
