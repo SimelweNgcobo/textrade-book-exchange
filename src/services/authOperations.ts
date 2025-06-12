@@ -177,15 +177,10 @@ export const fetchUserProfile = async (user: User): Promise<Profile | null> => {
         );
       },
       {
-        maxRetries: 2, // Reduced from 3 to 2 for faster timeout
-        baseDelay: 500, // Reduced from 1000ms to 500ms
-        maxDelay: 5000, // Reduced max delay
-        onRetry: (attempt, error) => {
-          console.log(
-            `[AuthContext] Profile fetch retry ${attempt}/2:`,
-            error instanceof Error ? error.message : String(error),
-          );
-        },
+        maxRetries: 2,
+        baseDelay: 500,
+        maxDelay: 5000,
+        retryCondition: (error) => isNetworkError(error),
       },
     );
 
@@ -279,7 +274,7 @@ export const createUserProfile = async (user: User): Promise<Profile> => {
     };
 
     // Use retry logic for profile creation as well
-    const result = await retryWithBackoff(async () => {
+    const result = await retryWithExponentialBackoff(async () => {
       return await supabase
         .from("profiles")
         .insert([profileData])
