@@ -219,7 +219,7 @@ export class ActivityService {
       // Fallback: Get activities from notifications table
       console.log("🔄 Fetching activities from notifications table...");
 
-      let notifQuery = supabase
+      const notifQuery = supabase
         .from("notifications")
         .select("*")
         .eq("user_id", userId)
