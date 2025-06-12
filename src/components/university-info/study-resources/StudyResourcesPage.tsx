@@ -46,14 +46,27 @@ const StudyResourcesPage = () => {
         setAllTips(combinedTips);
         setAllResources(combinedResources);
 
-        console.log(
-          `Loaded ${adminTips.length} admin tips and ${adminResources.length} admin resources`,
-        );
+        if (adminTips.length === 0 && adminResources.length === 0) {
+          console.log("No admin content found, using static content only");
+        } else {
+          console.log(
+            `Loaded ${adminTips.length} admin tips and ${adminResources.length} admin resources`,
+          );
+        }
       } catch (err) {
-        console.error("Error fetching study content:", err);
-        setError(
-          "Failed to load some study content. Showing available content.",
-        );
+        console.error("Error fetching study content:", {
+          message: err instanceof Error ? err.message : String(err),
+          type: err instanceof Error ? err.constructor.name : typeof err,
+        });
+
+        // Determine appropriate error message
+        const errorMessage =
+          err instanceof Error && err.message.includes("table")
+            ? "Database not fully set up yet. Showing default study content."
+            : "Failed to load admin content. Showing default study content.";
+
+        setError(errorMessage);
+
         // Keep static content if database fetch fails
         setAllTips(STUDY_TIPS);
         setAllResources(STUDY_RESOURCES);
