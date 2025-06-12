@@ -97,9 +97,24 @@ const AdminStudyResourcesTab = () => {
       const { tips, resources } = await getAllStudyContent();
       setStudyTips(tips);
       setStudyResources(resources);
+
+      if (tips.length === 0 && resources.length === 0) {
+        toast.info(
+          "Database tables not set up yet. Admin features will be available once the database is configured.",
+        );
+      }
     } catch (error) {
-      console.error("Error loading study content:", error);
-      toast.error("Failed to load study content");
+      console.error("Error loading study content:", {
+        message: error instanceof Error ? error.message : String(error),
+        type: error instanceof Error ? error.constructor.name : typeof error,
+      });
+
+      const errorMessage =
+        error instanceof Error && error.message.includes("table")
+          ? "Database tables not set up yet. Please contact a system administrator."
+          : "Failed to load study content. Please try again.";
+
+      toast.error(errorMessage);
     } finally {
       setIsLoading(false);
     }
