@@ -307,7 +307,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         handleError(error, "Auth State Change");
       }
     },
-    [handleError],
+    [handleError, upgradeProfileIfNeeded],
   );
 
   // Initialize auth with better error handling
