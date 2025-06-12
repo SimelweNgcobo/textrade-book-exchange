@@ -18,14 +18,7 @@ try {
       logConnectionHealth();
     });
 
-    // Verify university logos in development
-    import("./utils/universityLogoVerification")
-      .then(({ verifyUniversityLogos }) => {
-        verifyUniversityLogos();
-      })
-      .catch((error) => {
-        console.warn("Could not load university logo verification:", error);
-      });
+    // University logo verification removed
 
     // Analyze bundle size
     setTimeout(() => {
