@@ -74,7 +74,11 @@ const UniversityDirectory = () => {
     nmu: "/logos/universities/nelson-mandela-university.svg",
   };
 
-  const getUniversityLogo = (university: any) => {
+  const getUniversityLogo = (university: {
+    id?: string;
+    abbreviation?: string;
+    name: string;
+  }) => {
     // First try to match by university ID (most reliable)
     if (university.id && logoMap[university.id]) {
       return logoMap[university.id];
