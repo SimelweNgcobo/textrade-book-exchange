@@ -3,6 +3,154 @@ import { Degree } from "@/types/university";
 // Comprehensive database of all university programs with APS scores
 // Based on 2024/2025 admission requirements across South African universities
 
+// Diploma Programs (2-3 years, lower APS requirements)
+export const DIPLOMA_PROGRAMS: Degree[] = [
+  {
+    id: "dip-information-technology",
+    name: "Diploma in Information Technology",
+    faculty: "Information Technology",
+    duration: "3 years",
+    apsRequirement: 22,
+    description:
+      "Practical IT skills including programming, networking, and database management.",
+    subjects: [
+      { name: "Mathematics", level: 4, isRequired: true },
+      { name: "English", level: 4, isRequired: true },
+      { name: "Information Technology", level: 3, isRequired: false },
+    ],
+    careerProspects: [
+      "IT Support Specialist",
+      "Junior Developer",
+      "Network Technician",
+      "Database Administrator",
+      "System Administrator",
+    ],
+  },
+  {
+    id: "dip-business-management",
+    name: "Diploma in Business Management",
+    faculty: "Commerce",
+    duration: "3 years",
+    apsRequirement: 20,
+    description:
+      "Foundational business skills including management, marketing, and finance.",
+    subjects: [
+      { name: "Mathematics", level: 3, isRequired: true },
+      { name: "English", level: 4, isRequired: true },
+      { name: "Business Studies", level: 3, isRequired: false },
+    ],
+    careerProspects: [
+      "Business Administrator",
+      "Team Leader",
+      "Marketing Assistant",
+      "Office Manager",
+      "Small Business Owner",
+    ],
+  },
+  {
+    id: "dip-nursing",
+    name: "Diploma in Nursing",
+    faculty: "Health Sciences",
+    duration: "3 years",
+    apsRequirement: 28,
+    description: "Professional nursing training for healthcare settings.",
+    subjects: [
+      { name: "Mathematics", level: 4, isRequired: true },
+      { name: "English", level: 4, isRequired: true },
+      { name: "Life Sciences", level: 4, isRequired: true },
+    ],
+    careerProspects: [
+      "Professional Nurse",
+      "Clinic Nurse",
+      "Hospital Nurse",
+      "Community Health Nurse",
+      "Occupational Health Nurse",
+    ],
+  },
+  {
+    id: "dip-electrical-engineering",
+    name: "Diploma in Electrical Engineering",
+    faculty: "Engineering",
+    duration: "3 years",
+    apsRequirement: 26,
+    description: "Practical electrical engineering for technician roles.",
+    subjects: [
+      { name: "Mathematics", level: 4, isRequired: true },
+      { name: "Physical Sciences", level: 4, isRequired: true },
+      { name: "English", level: 4, isRequired: true },
+    ],
+    careerProspects: [
+      "Electrical Technician",
+      "Maintenance Technician",
+      "Control Systems Technician",
+      "Power Systems Technician",
+      "Industrial Electrician",
+    ],
+  },
+];
+
+// Higher Certificate Programs (1 year, lowest APS requirements)
+export const HIGHER_CERTIFICATE_PROGRAMS: Degree[] = [
+  {
+    id: "hc-information-systems",
+    name: "Higher Certificate in Information Systems",
+    faculty: "Information Technology",
+    duration: "1 year",
+    apsRequirement: 15,
+    description: "Basic computer skills and information systems fundamentals.",
+    subjects: [
+      { name: "Mathematics", level: 3, isRequired: true },
+      { name: "English", level: 3, isRequired: true },
+    ],
+    careerProspects: [
+      "Computer Operator",
+      "Data Capturer",
+      "IT Support Assistant",
+      "Office Administrator",
+      "Technical Assistant",
+    ],
+  },
+  {
+    id: "hc-business-administration",
+    name: "Higher Certificate in Business Administration",
+    faculty: "Commerce",
+    duration: "1 year",
+    apsRequirement: 15,
+    description:
+      "Basic business and administrative skills for entry-level positions.",
+    subjects: [
+      { name: "Mathematics", level: 3, isRequired: true },
+      { name: "English", level: 3, isRequired: true },
+    ],
+    careerProspects: [
+      "Administrative Assistant",
+      "Receptionist",
+      "Office Clerk",
+      "Customer Service Representative",
+      "Sales Assistant",
+    ],
+  },
+  {
+    id: "hc-education",
+    name: "Higher Certificate in Education",
+    faculty: "Education",
+    duration: "1 year",
+    apsRequirement: 18,
+    description: "Foundation education skills for teaching assistant roles.",
+    subjects: [
+      { name: "Mathematics", level: 3, isRequired: true },
+      { name: "English", level: 4, isRequired: true },
+    ],
+    careerProspects: [
+      "Teaching Assistant",
+      "Education Support Worker",
+      "Childcare Worker",
+      "Community Educator",
+      "Training Assistant",
+    ],
+  },
+];
+
 export const ENGINEERING_PROGRAMS: Degree[] = [
   // Faculty of Engineering / Engineering and Built Environment
   {
