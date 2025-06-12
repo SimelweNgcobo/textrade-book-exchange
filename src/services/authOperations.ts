@@ -79,6 +79,61 @@ export const logoutUser = async () => {
   console.log("Logout successful");
 };
 
+export const fetchUserProfileQuick = async (
+  user: User,
+): Promise<Profile | null> => {
+  try {
+    console.log("Quick profile fetch for user:", user.id);
+
+    // Direct database call without retries for faster response
+    const { data: profile, error: profileError } = await supabase
+      .from("profiles")
+      .select("id, name, email, status, profile_picture_url, bio, is_admin")
+      .eq("id", user.id)
+      .single();
+
+    if (profileError) {
+      if (profileError.code === "PGRST116") {
+        console.log(
+          "Profile not found in quick fetch, will create in background",
+        );
+        return null; // Return null so fallback is used
+      }
+      throw new Error(
+        getErrorMessage(profileError, "Quick profile fetch failed"),
+      );
+    }
+
+    if (!profile) {
+      return null; // Use fallback profile
+    }
+
+    // Quick admin check without background updates
+    const adminEmails = ["AdminSimnLi@gmail.com", "adminsimnli@gmail.com"];
+    const userEmail = profile.email || user.email || "";
+    const isAdmin =
+      profile.is_admin === true ||
+      adminEmails.includes(userEmail.toLowerCase());
+
+    return {
+      id: profile.id,
+      name:
+        profile.name ||
+        user.user_metadata?.name ||
+        user.email?.split("@")[0] ||
+        "User",
+      email: profile.email || user.email || "",
+      isAdmin,
+      status: profile.status || "active",
+      profile_picture_url: profile.profile_picture_url,
+      bio: profile.bio,
+    };
+  } catch (error) {
+    console.log("Quick profile fetch failed, using fallback");
+    return null; // Return null to use fallback
+  }
+};
+
 export const fetchUserProfile = async (user: User): Promise<Profile | null> => {
   try {
     console.log("Fetching profile for user:", user.id);
