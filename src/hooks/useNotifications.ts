@@ -222,9 +222,37 @@ export const useNotifications = (): NotificationHookReturn => {
           clearTimeout(debounceTimeout);
         }
         try {
-          if (subscriptionRef.current) {
-            supabase.removeChannel(subscriptionRef.current);
+          debugLog("Refreshing notifications...");
+
+          const data = await fetchNotifications(user.id);
+          if (data) {
+            // Deduplicate notifications by ID and timestamp
+            const uniqueNotifications = data.filter(
+              (notification, index, self) => {
+                const isDuplicate =
+                  self.findIndex(
+                    (n) =>
+                      n.id === notification.id ||
+                      (n.title === notification.title &&
+                        n.message === notification.message &&
+                        Math.abs(
+                          new Date(n.created_at).getTime() -
+                            new Date(notification.created_at).getTime(),
+                        ) < 10000),
+                  ) !== index;
+                return !isDuplicate;
+              },
+            );
+
+            setNotifications(uniqueNotifications);
+            debugLog(
+              `Loaded ${uniqueNotifications.length} unique notifications (${data.length - uniqueNotifications.length} duplicates removed)`,
+            );
           }
+
+          setHasError(false);
+          setLastError(undefined);
+          retryCountRef.current = 0;
         } catch (error) {
           console.error("Error removing notification channel:", error);
         }
