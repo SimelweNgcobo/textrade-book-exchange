@@ -22,6 +22,49 @@ import { StudyTip, StudyResource } from "@/types/university";
 import LoadingSpinner from "@/components/LoadingSpinner";
 
 const StudyResourcesPage = () => {
+  const [allTips, setAllTips] = useState<StudyTip[]>(STUDY_TIPS);
+  const [allResources, setAllResources] =
+    useState<StudyResource[]>(STUDY_RESOURCES);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Fetch admin-added content
+  useEffect(() => {
+    const fetchStudyContent = async () => {
+      try {
+        setIsLoading(true);
+        setError(null);
+
+        // Get admin-added content from database
+        const { tips: adminTips, resources: adminResources } =
+          await getAllStudyContent();
+
+        // Combine static content with admin-added content
+        const combinedTips = [...STUDY_TIPS, ...adminTips];
+        const combinedResources = [...STUDY_RESOURCES, ...adminResources];
+
+        setAllTips(combinedTips);
+        setAllResources(combinedResources);
+
+        console.log(
+          `Loaded ${adminTips.length} admin tips and ${adminResources.length} admin resources`,
+        );
+      } catch (err) {
+        console.error("Error fetching study content:", err);
+        setError(
+          "Failed to load some study content. Showing available content.",
+        );
+        // Keep static content if database fetch fails
+        setAllTips(STUDY_TIPS);
+        setAllResources(STUDY_RESOURCES);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchStudyContent();
+  }, []);
+
   const {
     searchTerm,
     selectedCategory,
@@ -38,7 +81,7 @@ const StudyResourcesPage = () => {
     setSelectedType,
     toggleBookmark,
     clearFilters,
-  } = useStudyResources({ tips: STUDY_TIPS, resources: STUDY_RESOURCES });
+  } = useStudyResources({ tips: allTips, resources: allResources });
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 py-4 sm:py-8">
