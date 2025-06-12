@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -8,6 +9,7 @@ import {
   Clock,
   Users,
   Star,
+  RefreshCw,
 } from "lucide-react";
 
 import StudyTipCard from "./StudyTipCard";
@@ -15,6 +17,9 @@ import StudyResourceCard from "./StudyResourceCard";
 import StudyFilters from "./StudyFilters";
 import { useStudyResources } from "@/hooks/useStudyResources";
 import { STUDY_TIPS, STUDY_RESOURCES } from "@/constants/studyResources";
+import { getAllStudyContent } from "@/services/admin/studyResourcesService";
+import { StudyTip, StudyResource } from "@/types/university";
+import LoadingSpinner from "@/components/LoadingSpinner";
 
 const StudyResourcesPage = () => {
   const {
