@@ -1,5 +1,5 @@
 import CampusNavbar from "@/components/CampusNavbar";
-import StudyResourcesPage from "@/components/university-info/StudyResourcesPage";
+import StudyResourcesPage from "@/components/university-info/study-resources/StudyResourcesPage";
 import SEO from "@/components/SEO";
 
 const StudyResources = () => {
