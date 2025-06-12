@@ -3373,17 +3373,36 @@ export const INFORMATION_TECHNOLOGY_PROGRAMS: Degree[] = [
   },
 ];
 
-// Helper function to combine all programs into faculty groups
+// Helper function to combine all programs into faculty groups including all qualification levels
 export const getAllProgramsByFaculty = () => {
   return {
-    engineering: ENGINEERING_PROGRAMS,
-    healthSciences: HEALTH_SCIENCES_PROGRAMS,
+    engineering: [
+      ...ENGINEERING_PROGRAMS,
+      ...DIPLOMA_PROGRAMS.filter((p) => p.faculty === "Engineering"),
+    ],
+    healthSciences: [
+      ...HEALTH_SCIENCES_PROGRAMS,
+      ...DIPLOMA_PROGRAMS.filter((p) => p.faculty === "Health Sciences"),
+    ],
     humanities: HUMANITIES_PROGRAMS,
-    commerce: COMMERCE_PROGRAMS,
+    commerce: [
+      ...COMMERCE_PROGRAMS,
+      ...DIPLOMA_PROGRAMS.filter((p) => p.faculty === "Commerce"),
+      ...HIGHER_CERTIFICATE_PROGRAMS.filter((p) => p.faculty === "Commerce"),
+    ],
     law: LAW_PROGRAMS,
     science: SCIENCE_PROGRAMS,
-    education: EDUCATION_PROGRAMS,
-    informationTechnology: INFORMATION_TECHNOLOGY_PROGRAMS,
+    education: [
+      ...EDUCATION_PROGRAMS,
+      ...HIGHER_CERTIFICATE_PROGRAMS.filter((p) => p.faculty === "Education"),
+    ],
+    informationTechnology: [
+      ...INFORMATION_TECHNOLOGY_PROGRAMS,
+      ...DIPLOMA_PROGRAMS.filter((p) => p.faculty === "Information Technology"),
+      ...HIGHER_CERTIFICATE_PROGRAMS.filter(
+        (p) => p.faculty === "Information Technology",
+      ),
+    ],
     agriculture: AGRICULTURE_PROGRAMS,
     veterinary: VETERINARY_PROGRAMS,
     theology: THEOLOGY_PROGRAMS,
