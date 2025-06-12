@@ -75,34 +75,29 @@ export const getBroadcastViews = async (
   broadcastId: string,
 ): Promise<BroadcastView[]> => {
   try {
-    const result = await retryWithExponentialBackoff(
-      async () => {
-        return await withTimeout(
-          supabase
-            .from("broadcast_views")
-            .select("*")
-            .eq("broadcast_id", broadcastId),
-          5000,
-          "Broadcast views fetch timed out",
-        );
-      },
-      {
-        maxRetries: 1,
-        baseDelay: 500,
-        retryCondition: (error) => isNetworkError(error),
-      },
-    );
-
-    const { data, error } = result as any;
+    const { data, error } = (await withTimeout(
+      supabase
+        .from("broadcast_views")
+        .select("*")
+        .eq("broadcast_id", broadcastId),
+      8000, // Reasonable timeout for views
+      "Broadcast views fetch timed out",
+    )) as any;
 
     if (error) {
-      logError("Error fetching broadcast views", error);
+      console.warn(
+        "⚠️ Broadcast views fetch error:",
+        error.message || "Unknown error",
+      );
       return [];
     }
 
     return data || [];
   } catch (error) {
-    logError("Error in getBroadcastViews", error);
+    console.warn(
+      "⚠️ Broadcast views fetch failed:",
+      error instanceof Error ? error.message : String(error),
+    );
     return [];
   }
 };
@@ -112,30 +107,25 @@ export const markBroadcastAsViewed = async (
   userId: string,
 ): Promise<void> => {
   try {
-    const result = await retryWithExponentialBackoff(
-      async () => {
-        return await withTimeout(
-          supabase
-            .from("broadcast_views")
-            .upsert({ broadcast_id: broadcastId, user_id: userId }),
-          5000,
-          "Mark broadcast as viewed timed out",
-        );
-      },
-      {
-        maxRetries: 1,
-        baseDelay: 500,
-        retryCondition: (error) => isNetworkError(error),
-      },
-    );
-
-    const { error } = result as any;
+    const { error } = (await withTimeout(
+      supabase
+        .from("broadcast_views")
+        .upsert({ broadcast_id: broadcastId, user_id: userId }),
+      8000,
+      "Mark broadcast as viewed timed out",
+    )) as any;
 
     if (error) {
-      logError("Error marking broadcast as viewed", error);
+      console.warn(
+        "⚠️ Mark broadcast as viewed error:",
+        error.message || "Unknown error",
+      );
     }
   } catch (error) {
-    logError("Error in markBroadcastAsViewed", error);
+    console.warn(
+      "⚠️ Mark broadcast as viewed failed:",
+      error instanceof Error ? error.message : String(error),
+    );
   }
 };
 
