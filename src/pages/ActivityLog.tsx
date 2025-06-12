@@ -80,6 +80,10 @@ const ActivityLog = () => {
     }
   }, [user]);
 
+  useEffect(() => {
+    loadActivities();
+  }, [user, loadActivities]);
+
   const getActivityIcon = (type: string) => {
     switch (type) {
       case "purchase":
