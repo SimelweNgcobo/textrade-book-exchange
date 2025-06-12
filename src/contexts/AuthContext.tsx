@@ -334,7 +334,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           code: error.name,
         });
         setInitError(
-          getUserErrorMessage(error, "Failed to initialize authentication"),
+          getErrorMessage(error, "Failed to initialize authentication"),
         );
         return;
       }
@@ -348,7 +348,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
       setAuthInitialized(true);
     } catch (error) {
-      const errorMessage = getUserErrorMessage(
+      const errorMessage = getErrorMessage(
         error,
         "Failed to initialize authentication",
       );
