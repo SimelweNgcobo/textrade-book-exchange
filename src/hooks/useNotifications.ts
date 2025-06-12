@@ -29,6 +29,8 @@ export const useNotifications = (): NotificationHookReturn => {
   const retryTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const retryCountRef = useRef(0);
   const isInitialLoadRef = useRef(true);
+  const subscriptionRef = useRef<any>(null);
+  const refreshingRef = useRef(false); // Prevent concurrent refreshes
 
   const MAX_RETRY_ATTEMPTS = 3;
   const RETRY_DELAYS = [5000, 15000, 30000]; // Progressive retry delays
@@ -48,6 +50,13 @@ export const useNotifications = (): NotificationHookReturn => {
         return;
       }
 
+      // Prevent concurrent refresh calls
+      if (refreshingRef.current) {
+        return;
+      }
+
+      refreshingRef.current = true;
+
       // Only show loading on initial load or manual refresh (not on retries)
       if (!isRetry || isInitialLoadRef.current) {
         setIsLoading(true);
@@ -58,7 +67,13 @@ export const useNotifications = (): NotificationHookReturn => {
 
         // Check if we got valid data
         if (Array.isArray(userNotifications)) {
-          setNotifications(userNotifications);
+          // Deduplicate notifications by ID to prevent duplicates
+          const uniqueNotifications = userNotifications.filter(
+            (notification, index, array) =>
+              array.findIndex((n) => n.id === notification.id) === index,
+          );
+
+          setNotifications(uniqueNotifications);
           setHasError(false);
           setLastError(undefined);
           retryCountRef.current = 0;
@@ -106,6 +121,7 @@ export const useNotifications = (): NotificationHookReturn => {
         // This provides better UX by showing stale data rather than empty state
       } finally {
         setIsLoading(false);
+        refreshingRef.current = false;
       }
     },
     [user, isAuthenticated],
@@ -128,17 +144,37 @@ export const useNotifications = (): NotificationHookReturn => {
         retryTimeoutRef.current = null;
       }
     }
-  }, [refreshNotifications, isAuthenticated, user]);
+  }, [user?.id, isAuthenticated]); // Only depend on user.id, not the full refresh function
 
-  // Set up real-time subscription for notifications
+  // Set up real-time subscription for notifications with debouncing
   useEffect(() => {
-    if (!isAuthenticated || !user) return;
+    if (!isAuthenticated || !user) {
+      // Clean up any existing subscription
+      if (subscriptionRef.current) {
+        try {
+          supabase.removeChannel(subscriptionRef.current);
+        } catch (error) {
+          console.error("Error removing notification channel:", error);
+        }
+        subscriptionRef.current = null;
+      }
+      return;
+    }
 
-    let channel: any = null;
+    // Clean up previous subscription if it exists
+    if (subscriptionRef.current) {
+      try {
+        supabase.removeChannel(subscriptionRef.current);
+      } catch (error) {
+        console.error("Error removing previous notification channel:", error);
+      }
+    }
+
+    let debounceTimeout: NodeJS.Timeout | null = null;
 
     try {
-      channel = supabase
-        .channel(`notifications:${user.id}`)
+      subscriptionRef.current = supabase
+        .channel(`notifications_${user.id}_${Date.now()}`) // Add timestamp to ensure unique channel
         .on(
           "postgres_changes",
           {
@@ -148,18 +184,27 @@ export const useNotifications = (): NotificationHookReturn => {
             filter: `user_id=eq.${user.id}`,
           },
           (payload) => {
-            // Clear cache and refresh on any notification changes
-            clearNotificationCache(user.id);
-
-            // Only refresh if we don't have errors or if this is an insert/update
-            if (!hasError || payload.eventType === "INSERT") {
-              refreshNotifications().catch((error) => {
-                console.error(
-                  "Error refreshing notifications from subscription:",
-                  error,
-                );
-              });
+            // Debounce the refresh to prevent multiple rapid calls
+            if (debounceTimeout) {
+              clearTimeout(debounceTimeout);
             }
+
+            debounceTimeout = setTimeout(() => {
+              // Clear cache and refresh on any notification changes
+              clearNotificationCache(user.id);
+
+              // Only refresh if we don't have errors or if this is an insert/update
+              if (!hasError || payload.eventType === "INSERT") {
+                refreshNotifications().catch((error) => {
+                  if (import.meta.env.DEV) {
+                    console.error(
+                      "Error refreshing notifications from subscription:",
+                      error,
+                    );
+                  }
+                });
+              }
+            }, 1000); // 1 second debounce
           },
         )
         .subscribe((status) => {
@@ -173,25 +218,40 @@ export const useNotifications = (): NotificationHookReturn => {
         });
 
       return () => {
+        if (debounceTimeout) {
+          clearTimeout(debounceTimeout);
+        }
         try {
-          if (channel) {
-            supabase.removeChannel(channel);
+          if (subscriptionRef.current) {
+            supabase.removeChannel(subscriptionRef.current);
           }
         } catch (error) {
           console.error("Error removing notification channel:", error);
         }
+        subscriptionRef.current = null;
       };
     } catch (error) {
       console.error("Error setting up notification subscription:", error);
     }
-  }, [user, isAuthenticated, refreshNotifications, hasError]);
+  }, [user?.id, isAuthenticated]); // Only depend on user.id
 
-  // Cleanup retry timeout on unmount
+  // Cleanup retry timeout and subscription on unmount
   useEffect(() => {
     return () => {
       if (retryTimeoutRef.current) {
         clearTimeout(retryTimeoutRef.current);
         retryTimeoutRef.current = null;
+      }
+      if (subscriptionRef.current) {
+        try {
+          supabase.removeChannel(subscriptionRef.current);
+        } catch (error) {
+          console.error(
+            "Error removing notification channel on unmount:",
+            error,
+          );
+        }
+        subscriptionRef.current = null;
       }
     };
   }, []);
