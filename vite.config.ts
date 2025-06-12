@@ -45,17 +45,7 @@ export default defineConfig(({ mode }) => ({
     // Enable source maps for debugging
     sourcemap: mode === "development",
     // Enhanced minification for production
-    minify: mode === "production" ? "terser" : false,
-    terserOptions:
-      mode === "production"
-        ? {
-            compress: {
-              drop_console: true, // Remove console.logs in production
-              drop_debugger: true,
-              pure_funcs: ["console.log", "console.debug"], // Remove specific console calls
-            },
-          }
-        : undefined,
+    minify: mode === "production" ? "esbuild" : false,
     // Target modern browsers for better performance
     target: "es2020", // More compatible than esnext
     // Enable CSS code splitting
