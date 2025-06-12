@@ -46,9 +46,22 @@ const UniversityExplorer = ({
   onViewBooks,
 }: UniversityExplorerProps) => {
   const navigate = useNavigate();
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchParams] = useSearchParams();
+  const urlSearchQuery = searchParams.get("search") || "";
+
+  const [searchTerm, setSearchTerm] = useState(urlSearchQuery);
   const [selectedProvince, setSelectedProvince] = useState<string>("all");
-  const [showAdvancedSearch, setShowAdvancedSearch] = useState(false);
+  const [showAdvancedSearch, setShowAdvancedSearch] = useState(
+    Boolean(urlSearchQuery),
+  );
+
+  // Update search term when URL search parameter changes
+  useEffect(() => {
+    setSearchTerm(urlSearchQuery);
+    if (urlSearchQuery) {
+      setShowAdvancedSearch(true);
+    }
+  }, [urlSearchQuery]);
 
   const provinces = [
     "Eastern Cape",
