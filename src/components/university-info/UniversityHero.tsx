@@ -31,10 +31,12 @@ const UniversityHero = ({
     e.preventDefault();
     if (searchQuery.trim()) {
       if (onSearch) {
+        // Use the parent component's search handler
         onSearch(searchQuery);
       } else {
+        // Fallback: navigate to search page with query
         navigate(
-          `/university-info?tool=home&search=${encodeURIComponent(searchQuery)}`,
+          `/university-info?tool=search&search=${encodeURIComponent(searchQuery)}`,
         );
       }
     }
@@ -42,9 +44,21 @@ const UniversityHero = ({
 
   const handleToolNavigation = (tool: string) => {
     if (onNavigateToTool) {
-      onNavigateToTool(tool);
+      // Map the quick action tools to the actual tab names
+      const toolMap: Record<string, string> = {
+        aps: "aps-calculator",
+        bursaries: "bursaries",
+        books: "books",
+      };
+      onNavigateToTool(toolMap[tool] || tool);
     } else {
-      navigate(`/university-info?tool=${tool}`);
+      // Fallback navigation
+      const toolMap: Record<string, string> = {
+        aps: "aps-calculator",
+        bursaries: "bursaries",
+        books: "books",
+      };
+      navigate(`/university-info?tool=${toolMap[tool] || tool}`);
     }
   };
 
