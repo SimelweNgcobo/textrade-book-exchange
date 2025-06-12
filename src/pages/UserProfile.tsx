@@ -12,7 +12,7 @@ import { ArrowLeft, Eye } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { logError, getUserErrorMessage } from "@/utils/errorUtils";
+import { logError, getErrorMessage } from "@/utils/errorUtils";
 
 interface UserProfile {
   id: string;
