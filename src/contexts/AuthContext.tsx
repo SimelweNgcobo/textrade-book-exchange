@@ -205,7 +205,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
               const now = Date.now();
 
               // Only send notification if last login was more than 5 minutes ago
-              if (!lastLogin || now - parseInt(lastLogin) > 300000) {
+              if (!lastLogin || (now - parseInt(lastLogin)) > 300000) {
                 sessionStorage.setItem(lastLoginKey, now.toString());
 
                 addNotification({
@@ -251,13 +251,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
               });
             }
 
-            // Fallback profile is already set, just notify about background loading
+            // Fallback profile is already set, no need for notification spam
             if (isTimeoutError) {
-              addNotification({
-                userId: session.user.id,
-                title: "Profile Loading",
-                message:
-                  "Your profile is loading in the background. You can continue using the app.",
+              // Skip notification for timeout - user can continue normally
+              console.log("[AuthContext] Profile will load in background");
                 type: "info",
                 read: false,
               }).catch(() => {
