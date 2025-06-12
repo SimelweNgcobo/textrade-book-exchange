@@ -1,11 +1,29 @@
 import { supabase } from "@/integrations/supabase/client";
 import { StudyTip, StudyResource } from "@/types/university";
 
+// Helper function to check if database tables are available
+const checkTableAvailability = async (tableName: string): Promise<boolean> => {
+  try {
+    const { error } = await supabase.from(tableName).select("*").limit(1);
+
+    return !error || error.code !== "PGRST116";
+  } catch {
+    return false;
+  }
+};
+
 // Study Tips Management
 export const createStudyTip = async (
   tip: Omit<StudyTip, "id">,
 ): Promise<StudyTip> => {
   try {
+    const isTableAvailable = await checkTableAvailability("study_tips");
+    if (!isTableAvailable) {
+      throw new Error(
+        "Study tips table is not available. Please contact an administrator to set up the database.",
+      );
+    }
+
     const { data, error } = await supabase
       .from("study_tips")
       .insert([
@@ -23,7 +41,14 @@ export const createStudyTip = async (
       .select()
       .single();
 
-    if (error) throw error;
+    if (error) {
+      console.error("Database error creating study tip:", {
+        code: error.code,
+        message: error.message,
+        details: error.details,
+      });
+      throw error;
+    }
 
     return {
       id: data.id,
@@ -37,8 +62,13 @@ export const createStudyTip = async (
       author: data.author,
     };
   } catch (error) {
-    console.error("Error creating study tip:", error);
-    throw new Error("Failed to create study tip");
+    console.error("Error creating study tip:", {
+      message: error instanceof Error ? error.message : String(error),
+      type: error instanceof Error ? error.constructor.name : typeof error,
+    });
+    throw new Error(
+      error instanceof Error ? error.message : "Failed to create study tip",
+    );
   }
 };
 
