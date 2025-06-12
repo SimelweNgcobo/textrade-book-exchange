@@ -86,31 +86,19 @@ export const fetchUserProfileQuick = async (
   try {
     console.log("🔄 Quick profile fetch for user:", user.id);
 
-    // Use enhanced retry logic for network resilience
-    const result = await retryWithExponentialBackoff(
-      async () => {
-        return await withTimeout(
-          supabase
-            .from("profiles")
-            .select(
-              "id, name, email, status, profile_picture_url, bio, is_admin",
-            )
-            .eq("id", user.id)
-            .single(),
-          6000, // 6 second timeout for quick fetch
-          "Quick profile fetch timed out",
-        );
-      },
-      {
-        maxRetries: 2,
-        baseDelay: 500,
-        retryCondition: (error) => isNetworkError(error),
-      },
-    );
-
-    const { data: profile, error: profileError } = result as any;
+    // Simplified approach with just one try and longer timeout
+    const { data: profile, error: profileError } = (await withTimeout(
+      supabase
+        .from("profiles")
+        .select("id, name, email, status, profile_picture_url, bio, is_admin")
+        .eq("id", user.id)
+        .single(),
+      12000, // Increased to 12 seconds
+      "Quick profile fetch timed out after 12 seconds",
+    )) as any;
 
     if (profileError) {
+      // Profile not found is normal for new users
       if (profileError.code === "PGRST116") {
         console.log(
           "ℹ️ Profile not found in quick fetch, will create in background",
@@ -118,7 +106,12 @@ export const fetchUserProfileQuick = async (
         return null; // Return null so fallback is used
       }
 
-      logError("Quick profile fetch error", profileError);
+      // For other errors, log details but don't spam
+      console.warn("⚠️ Quick profile fetch error:", {
+        message: profileError.message || "Unknown error",
+        code: profileError.code || "No code",
+        hint: profileError.hint || "No hint",
+      });
       return null; // Use fallback on any error
     }
 
@@ -151,9 +144,19 @@ export const fetchUserProfileQuick = async (
     console.log("✅ Quick profile fetch successful");
     return profileData;
   } catch (error) {
-    logError("Quick profile fetch failed", error);
-    console.log("⚠️ Quick profile fetch failed, using fallback");
-    return null; // Return null to use fallback
+    // Enhanced error logging to debug the timeout issue
+    const errorDetails = {
+      message: error instanceof Error ? error.message : String(error),
+      name: error instanceof Error ? error.name : "Unknown",
+      isTimeout: (error as any)?.isTimeout || false,
+      stack: error instanceof Error ? error.stack?.split("\n")[0] : undefined,
+    };
+
+    console.warn("⚠️ Quick profile fetch failed:", errorDetails);
+
+    // Don't log as error since this is expected to fail sometimes
+    // Just use fallback profile
+    return null;
   }
 };
 
