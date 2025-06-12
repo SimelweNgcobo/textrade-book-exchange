@@ -10,7 +10,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Search, MapPin, ExternalLink, BookOpen, Users, Calendar, Star } from "lucide-react";
+import {
+  Search,
+  MapPin,
+  ExternalLink,
+  BookOpen,
+  Users,
+  Calendar,
+  Star,
+} from "lucide-react";
 import { SOUTH_AFRICAN_UNIVERSITIES } from "@/constants/universities";
 
 const UniversityDirectory = () => {
@@ -57,7 +65,9 @@ const UniversityDirectory = () => {
               South African Universities Directory
             </h1>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Complete directory of all {SOUTH_AFRICAN_UNIVERSITIES.length} South African universities with logos, contact information, and key details.
+              Complete directory of all {SOUTH_AFRICAN_UNIVERSITIES.length}{" "}
+              South African universities with logos, contact information, and
+              key details.
             </p>
           </div>
 
@@ -77,7 +87,10 @@ const UniversityDirectory = () => {
                   </div>
                 </div>
                 <div className="md:w-48">
-                  <Select value={selectedProvince} onValueChange={setSelectedProvince}>
+                  <Select
+                    value={selectedProvince}
+                    onValueChange={setSelectedProvince}
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="All Provinces" />
                     </SelectTrigger>
@@ -98,7 +111,8 @@ const UniversityDirectory = () => {
           {/* Results Count */}
           <div className="mb-6">
             <p className="text-gray-600">
-              Showing {filteredUniversities.length} of {SOUTH_AFRICAN_UNIVERSITIES.length} universities
+              Showing {filteredUniversities.length} of{" "}
+              {SOUTH_AFRICAN_UNIVERSITIES.length} universities
             </p>
           </div>
 
@@ -123,77 +137,92 @@ const UniversityDirectory = () => {
 
                       {/* University Information */}
                       <div className="flex-1 min-w-0">
-                          <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-4">
-                            <div className="flex-1">
-                              <div className="flex flex-wrap items-start gap-3 mb-3">
-                                <div>
-                                  <h3 className="text-xl lg:text-2xl font-bold text-gray-900 mb-1">
-                                    {university.name}
-                                  </h3>
-                                  <p className="text-lg text-gray-600 font-medium">
-                                    {university.abbreviation}
-                                  </p>
-                                </div>
-                                <Badge variant="secondary" className="bg-book-50 text-book-700">
-                                  {university.type || "University"}
-                                </Badge>
+                        <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-4">
+                          <div className="flex-1">
+                            <div className="flex flex-wrap items-start gap-3 mb-3">
+                              <div>
+                                <h3 className="text-xl lg:text-2xl font-bold text-gray-900 mb-1">
+                                  {university.name}
+                                </h3>
+                                <p className="text-lg text-gray-600 font-medium">
+                                  {university.abbreviation}
+                                </p>
                               </div>
+                              <Badge
+                                variant="secondary"
+                                className="bg-book-50 text-book-700"
+                              >
+                                {university.type || "University"}
+                              </Badge>
+                            </div>
 
-                              <div className="flex items-center gap-2 mb-4">
-                                <MapPin className="h-4 w-4 text-gray-400" />
-                                <span className="text-gray-600">
-                                  {university.location}, {university.province}
+                            <div className="flex items-center gap-2 mb-4">
+                              <MapPin className="h-4 w-4 text-gray-400" />
+                              <span className="text-gray-600">
+                                {university.location}, {university.province}
+                              </span>
+                            </div>
+
+                            <p className="text-gray-600 leading-relaxed mb-4">
+                              {university.overview}
+                            </p>
+
+                            {/* University Stats */}
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
+                              <div className="flex items-center gap-2">
+                                <Users className="h-4 w-4 text-book-600" />
+                                <span className="text-sm text-gray-600">
+                                  {university.studentPopulation
+                                    ? `${university.studentPopulation.toLocaleString()}+`
+                                    : "25,000+"}{" "}
+                                  Students
                                 </span>
                               </div>
-
-                              <p className="text-gray-600 leading-relaxed mb-4">
-                                {university.overview}
-                              </p>
-
-                              {/* University Stats */}
-                              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
-                                <div className="flex items-center gap-2">
-                                  <Users className="h-4 w-4 text-book-600" />
-                                  <span className="text-sm text-gray-600">
-                                    {university.studentPopulation ? `${university.studentPopulation.toLocaleString()}+` : "25,000+"} Students
-                                  </span>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                  <BookOpen className="h-4 w-4 text-book-600" />
-                                  <span className="text-sm text-gray-600">
-                                    {university.faculties?.length || "6"} Faculties
-                                  </span>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                  <Calendar className="h-4 w-4 text-book-600" />
-                                  <span className="text-sm text-gray-600">
-                                    Est. {university.establishedYear || university.established || "1959"}
-                                  </span>
-                                </div>
+                              <div className="flex items-center gap-2">
+                                <BookOpen className="h-4 w-4 text-book-600" />
+                                <span className="text-sm text-gray-600">
+                                  {university.faculties?.length || "6"}{" "}
+                                  Faculties
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <Calendar className="h-4 w-4 text-book-600" />
+                                <span className="text-sm text-gray-600">
+                                  Est.{" "}
+                                  {university.establishedYear ||
+                                    university.established ||
+                                    "1959"}
+                                </span>
                               </div>
                             </div>
+                          </div>
 
-                            {/* Action Buttons */}
-                            <div className="flex flex-col sm:flex-row lg:flex-col gap-2 lg:w-48">
-                              <Button
-                                className="bg-book-600 hover:bg-book-700 text-white"
-                                onClick={() => university.website && window.open(university.website, '_blank')}
-                              >
-                                <ExternalLink className="h-4 w-4 mr-2" />
-                                Visit Website
-                              </Button>
-                              <Button variant="outline" className="border-book-200 text-book-600 hover:bg-book-50">
-                                <BookOpen className="h-4 w-4 mr-2" />
-                                View Programs
-                              </Button>
-                            </div>
+                          {/* Action Buttons */}
+                          <div className="flex flex-col sm:flex-row lg:flex-col gap-2 lg:w-48">
+                            <Button
+                              className="bg-book-600 hover:bg-book-700 text-white"
+                              onClick={() =>
+                                university.website &&
+                                window.open(university.website, "_blank")
+                              }
+                            >
+                              <ExternalLink className="h-4 w-4 mr-2" />
+                              Visit Website
+                            </Button>
+                            <Button
+                              variant="outline"
+                              className="border-book-200 text-book-600 hover:bg-book-50"
+                            >
+                              <BookOpen className="h-4 w-4 mr-2" />
+                              View Programs
+                            </Button>
                           </div>
                         </div>
                       </div>
-                    </CardContent>
-                  </Card>
-                );
-              })}
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
             </div>
           ) : (
             <div className="text-center py-12">
