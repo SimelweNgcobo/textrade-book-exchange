@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { getNotifications } from "@/services/notificationService";
 import { supabase } from "@/integrations/supabase/client";
@@ -11,6 +11,7 @@ interface NotificationHookReturn {
   totalCount: number;
   notifications: Notification[];
   isLoading: boolean;
+  hasError: boolean;
   refreshNotifications: () => Promise<void>;
 }
 
@@ -18,24 +19,53 @@ export const useNotifications = (): NotificationHookReturn => {
   const { user, isAuthenticated } = useAuth();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [hasError, setHasError] = useState(false);
+  const retryTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const refreshNotifications = useCallback(async () => {
     if (!isAuthenticated || !user) {
       setNotifications([]);
+      setHasError(false);
       return;
     }
 
     setIsLoading(true);
+    setHasError(false);
+
     try {
       const userNotifications = await getNotifications(user.id);
-      // getNotifications now always returns an array, even on error
-      setNotifications(userNotifications);
+
+      // Check if we got data (getNotifications returns empty array on error)
+      if (Array.isArray(userNotifications)) {
+        setNotifications(userNotifications);
+        setHasError(false);
+
+        // Clear any pending retry
+        if (retryTimeoutRef.current) {
+          clearTimeout(retryTimeoutRef.current);
+          retryTimeoutRef.current = null;
+        }
+      } else {
+        // Unexpected data format
+        setHasError(true);
+        setNotifications([]);
+      }
     } catch (error) {
       // This should rarely happen now since getNotifications handles errors internally
       if (import.meta.env.DEV) {
         console.warn("Unexpected error in refreshNotifications:", error);
       }
-      setNotifications([]); // Fallback to empty array
+      setHasError(true);
+      setNotifications([]);
+
+      // Retry after 30 seconds if there's an error
+      if (!retryTimeoutRef.current) {
+        retryTimeoutRef.current = setTimeout(() => {
+          if (isAuthenticated && user) {
+            refreshNotifications();
+          }
+        }, 30000);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -86,11 +116,21 @@ export const useNotifications = (): NotificationHookReturn => {
   const unreadCount = notifications.filter((n) => !n.read).length;
   const totalCount = notifications.length;
 
+  // Cleanup retry timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (retryTimeoutRef.current) {
+        clearTimeout(retryTimeoutRef.current);
+      }
+    };
+  }, []);
+
   return {
     unreadCount,
     totalCount,
     notifications,
     isLoading,
+    hasError,
     refreshNotifications,
   };
 };
