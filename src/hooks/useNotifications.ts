@@ -144,7 +144,7 @@ export const useNotifications = (): NotificationHookReturn => {
         retryTimeoutRef.current = null;
       }
     }
-  }, [user?.id, isAuthenticated]); // Only depend on user.id, not the full refresh function
+  }, [user?.id, isAuthenticated, RETRY_DELAYS]); // Include RETRY_DELAYS
 
   // Set up real-time subscription for notifications with debouncing
   useEffect(() => {
