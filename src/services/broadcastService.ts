@@ -274,3 +274,58 @@ export const deleteBroadcast = async (id: string): Promise<void> => {
     throw error;
   }
 };
+
+// Additional helper functions for BroadcastManager
+export const getLatestBroadcast = async (): Promise<Broadcast | null> => {
+  try {
+    const broadcasts = await getActiveBroadcasts();
+    return broadcasts.length > 0 ? broadcasts[0] : null;
+  } catch (error) {
+    logError("Error getting latest broadcast", error);
+    return null;
+  }
+};
+
+export const hasBroadcastBeenViewed = async (
+  broadcastId: string,
+  userId: string,
+): Promise<boolean> => {
+  try {
+    const result = await retryWithExponentialBackoff(
+      async () => {
+        return await withTimeout(
+          supabase
+            .from("broadcast_views")
+            .select("id")
+            .eq("broadcast_id", broadcastId)
+            .eq("user_id", userId)
+            .single(),
+          3000,
+          "Check broadcast view timed out",
+        );
+      },
+      {
+        maxRetries: 1,
+        baseDelay: 300,
+        retryCondition: (error) => isNetworkError(error),
+      },
+    );
+
+    const { data, error } = result as any;
+    return !error && !!data;
+  } catch (error) {
+    logError("Error checking broadcast view status", error);
+    return false;
+  }
+};
+
+export const dismissBroadcast = async (
+  broadcastId: string,
+  userId: string,
+): Promise<void> => {
+  try {
+    await markBroadcastAsViewed(broadcastId, userId);
+  } catch (error) {
+    logError("Error dismissing broadcast", error);
+  }
+};
