@@ -21,7 +21,10 @@ const CampusNavbar = () => {
   const isActive = (path: string) => {
     if (path === "/university-info" && location.pathname === "/university-info")
       return true;
-    if (path.includes("aps-calculator") && location.search.includes("tool=aps"))
+    if (
+      path.includes("aps-calculator") &&
+      location.search.includes("tool=aps-calculator")
+    )
       return true;
     if (
       path.includes("bursaries") &&
@@ -79,7 +82,9 @@ const CampusNavbar = () => {
 
             <Button
               variant="ghost"
-              onClick={() => handleNavigation("/university-info?tool=aps")}
+              onClick={() =>
+                handleNavigation("/university-info?tool=aps-calculator")
+              }
               className={`px-3 py-2 rounded-lg font-medium transition-colors text-sm ${
                 isActive("aps-calculator")
                   ? "bg-book-50 text-book-600"
@@ -162,7 +167,9 @@ const CampusNavbar = () => {
 
             <Button
               variant="ghost"
-              onClick={() => handleNavigation("/university-info?tool=aps")}
+              onClick={() =>
+                handleNavigation("/university-info?tool=aps-calculator")
+              }
               className={`px-2 py-2 rounded-lg transition-colors ${
                 isActive("aps-calculator")
                   ? "bg-book-50 text-book-600"
@@ -262,7 +269,9 @@ const CampusNavbar = () => {
 
               <Button
                 variant="ghost"
-                onClick={() => handleNavigation("/university-info?tool=aps")}
+                onClick={() =>
+                  handleNavigation("/university-info?tool=aps-calculator")
+                }
                 className={`w-full justify-start px-4 py-3 rounded-lg font-medium transition-colors text-sm ${
                   isActive("aps-calculator")
                     ? "bg-book-50 text-book-600"

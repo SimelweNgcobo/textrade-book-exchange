@@ -89,7 +89,7 @@ const CourseDetail = () => {
   };
 
   const handleCalculateAPS = () => {
-    navigate("/university-info?tool=aps");
+    navigate("/university-info?tool=aps-calculator");
   };
 
   // Graduation ceremony image for success theme
