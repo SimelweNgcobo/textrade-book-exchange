@@ -175,26 +175,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           );
 
           try {
-            // Try to load full profile with shorter timeout
-            const profilePromise = fetchUserProfileQuick(session.user);
-            const timeoutPromise = new Promise((_, reject) => {
-              setTimeout(() => {
-                const timeoutError = new Error(
-                  "Profile fetch timeout",
-                ) as Error & {
-                  code: string;
-                  isTimeout: boolean;
-                };
-                timeoutError.code = "PROFILE_FETCH_TIMEOUT";
-                timeoutError.isTimeout = true;
-                reject(timeoutError);
-              }, 15000); // Reduced to 15 seconds for faster UX
-            });
-
-            const userProfile = await Promise.race([
-              profilePromise,
-              timeoutPromise,
-            ]);
+            // Try to load full profile with reasonable timeout
+            const userProfile = await fetchUserProfileQuick(session.user);
 
             if (userProfile) {
               setProfile(userProfile as UserProfile);
@@ -210,7 +192,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
               const now = Date.now();
 
               // Only send notification if last login was more than 5 minutes ago
-              if (!lastLogin || now - parseInt(lastLogin) > 300000) {
+              if (!lastLogin || (now - parseInt(lastLogin)) > 300000) {
                 sessionStorage.setItem(lastLoginKey, now.toString());
 
                 addNotification({
@@ -270,23 +252,12 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
             );
             fetchUserProfile(session.user)
               .then((profile) => {
-                if (profile) {
-                  setProfile(profile);
-                  console.log(
-                    "[AuthContext] Background profile fetch successful",
-                  );
-                }
-              })
-              .catch((bgError) => {
-                console.warn("[AuthContext] Background profile fetch failed:", {
-                  message:
-                    bgError instanceof Error
-                      ? bgError.message
-                      : String(bgError),
-                  timestamp: new Date().toISOString(),
-                });
-              });
-          }, 2000); // Wait 2 seconds before starting background load
+            if (userProfile) {
+              setProfile(userProfile as UserProfile);
+              console.log("✅ [AuthContext] Full profile loaded successfully");
+            } else {
+              console.log("ℹ️ [AuthContext] Using fallback profile (normal for new users)");
+            }
 
           // Set up periodic profile upgrade check (every 30 seconds)
           const upgradeInterval = setInterval(() => {
