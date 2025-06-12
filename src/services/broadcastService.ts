@@ -329,3 +329,19 @@ export const dismissBroadcast = async (
     logError("Error dismissing broadcast", error);
   }
 };
+
+export const saveBroadcastToNotifications = async (
+  broadcast: Broadcast,
+  userId: string,
+): Promise<void> => {
+  try {
+    await addNotification({
+      user_id: userId,
+      title: broadcast.title,
+      message: broadcast.message,
+      type: "info",
+    });
+  } catch (error) {
+    logError("Error saving broadcast to notifications", error);
+  }
+};
