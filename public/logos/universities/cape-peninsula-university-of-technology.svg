@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 250 100">
+  <!-- CPUT Logo -->
+  <path d="M20 20 Q50 10 80 20 Q50 30 20 20" fill="#cc0000"/>
+  <path d="M20 40 Q50 30 80 40 Q50 50 20 40" fill="#0066cc"/>
+  <path d="M20 60 Q50 50 80 60 Q50 70 20 60" fill="#009900"/>
+  <text x="100" y="30" font-family="Arial" font-size="12" font-weight="bold" fill="#003366">CAPE PENINSULA</text>
+  <text x="100" y="45" font-family="Arial" font-size="12" font-weight="bold" fill="#003366">UNIVERSITY OF</text>
+  <text x="100" y="60" font-family="Arial" font-size="12" font-weight="bold" fill="#003366">TECHNOLOGY</text>
+  <text x="100" y="75" font-family="Arial" font-size="10" fill="#666">CPUT</text>
+</svg>
