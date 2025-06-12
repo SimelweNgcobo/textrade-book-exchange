@@ -28,12 +28,14 @@ export const useNotifications = (): NotificationHookReturn => {
     setIsLoading(true);
     try {
       const userNotifications = await getNotifications(user.id);
-      setNotifications(
-        Array.isArray(userNotifications) ? userNotifications : [],
-      );
+      // getNotifications now always returns an array, even on error
+      setNotifications(userNotifications);
     } catch (error) {
-      console.error("Error refreshing notifications:", error);
-      setNotifications([]); // Set empty array on error
+      // This should rarely happen now since getNotifications handles errors internally
+      if (import.meta.env.DEV) {
+        console.warn("Unexpected error in refreshNotifications:", error);
+      }
+      setNotifications([]); // Fallback to empty array
     } finally {
       setIsLoading(false);
     }
