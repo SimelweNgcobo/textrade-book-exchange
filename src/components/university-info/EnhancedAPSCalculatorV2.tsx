@@ -79,7 +79,8 @@ const EnhancedAPSCalculatorV2 = ({
   const [universityFilter, setUniversityFilter] = useState<string>(
     selectedUniversityId || "all",
   );
-  const [qualificationFilter, setQualificationFilter] = useState<string>("all"); // all, qualify, close
+  const [qualificationFilter, setQualificationFilter] =
+    useState<string>("qualify"); // all, qualify, close
   const [showAllPrograms, setShowAllPrograms] = useState(false);
   const [customSubject, setCustomSubject] = useState("");
   const [sortBy, setSortBy] = useState<"aps" | "name" | "university">("aps");
