@@ -13,37 +13,33 @@ export const getActiveBroadcasts = async (): Promise<Broadcast[]> => {
   try {
     console.log("🔄 Fetching active broadcasts...");
 
-    const result = await retryWithExponentialBackoff(
-      async () => {
-        return await withTimeout(
-          supabase
-            .from("broadcasts")
-            .select("*")
-            .eq("is_active", true)
-            .or("expires_at.is.null,expires_at.gt." + new Date().toISOString())
-            .order("created_at", { ascending: false }),
-          8000, // 8 second timeout
-          "Broadcast fetch timed out",
-        );
-      },
-      {
-        maxRetries: 2,
-        baseDelay: 1000,
-        retryCondition: (error) => isNetworkError(error),
-      },
-    );
-
-    const { data, error } = result as any;
+    // Simplified approach with longer timeout and no retries
+    // Broadcasts are not critical for app functionality
+    const { data, error } = (await withTimeout(
+      supabase
+        .from("broadcasts")
+        .select("*")
+        .eq("is_active", true)
+        .or("expires_at.is.null,expires_at.gt." + new Date().toISOString())
+        .order("created_at", { ascending: false }),
+      15000, // Increased to 15 seconds
+      "Broadcast fetch timed out after 15 seconds",
+    )) as any;
 
     if (error) {
-      // If broadcasts table doesn't exist, return empty array
+      // If broadcasts table doesn't exist, return empty array (normal)
       if (error.code === "42P01" || error.code === "PGRST106") {
         console.log("ℹ️ Broadcasts table not found, returning empty array");
         return [];
       }
 
-      logError("Database error fetching broadcasts", error);
-      return []; // Return empty array instead of throwing
+      // Log error details but don't spam console
+      console.warn("⚠️ Broadcast fetch error:", {
+        message: error.message || "Unknown error",
+        code: error.code || "No code",
+        hint: error.hint || "No hint",
+      });
+      return []; // Return empty array - broadcasts are optional
     }
 
     console.log(`✅ Found ${data?.length || 0} active broadcasts`);
@@ -60,9 +56,17 @@ export const getActiveBroadcasts = async (): Promise<Broadcast[]> => {
       createdBy: broadcast.created_by,
     }));
   } catch (error) {
-    logError("Error in getActiveBroadcasts", error);
-    // Return empty array instead of throwing to prevent app crashes
-    console.warn("🚨 Failed to fetch broadcasts, returning empty array");
+    // Enhanced error logging for debugging timeout issues
+    const errorDetails = {
+      message: error instanceof Error ? error.message : String(error),
+      name: error instanceof Error ? error.name : "Unknown",
+      isTimeout: (error as any)?.isTimeout || false,
+      stack: error instanceof Error ? error.stack?.split("\n")[0] : undefined,
+    };
+
+    console.warn("⚠️ Broadcast fetch failed:", errorDetails);
+
+    // Return empty array - broadcasts are not critical for app functionality
     return [];
   }
 };
