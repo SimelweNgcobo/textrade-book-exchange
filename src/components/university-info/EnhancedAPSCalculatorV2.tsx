@@ -773,49 +773,83 @@ const EnhancedAPSCalculatorV2 = ({
                           key={`${item.university.id}-${item.degree.id}`}
                           className="relative"
                         >
-                          <CardContent className="p-4">
-                            <div className="flex items-start justify-between">
-                              <div className="space-y-2 flex-1">
-                                <div className="flex items-center gap-2">
-                                  <h4 className="font-semibold">
+                          <CardContent className="p-3 sm:p-4">
+                            {/* Mobile-first responsive layout */}
+                            <div className="space-y-3">
+                              {/* Header with degree name and status */}
+                              <div className="flex items-start justify-between gap-2">
+                                <div className="flex items-start gap-2 flex-1 min-w-0">
+                                  <h4 className="font-semibold text-sm sm:text-base leading-tight">
                                     {item.degree.name}
                                   </h4>
                                   {item.meetsRequirement ? (
-                                    <CheckCircle className="h-4 w-4 text-green-600" />
+                                    <CheckCircle className="h-4 w-4 text-green-600 shrink-0 mt-0.5" />
                                   ) : (
-                                    <AlertCircle className="h-4 w-4 text-yellow-600" />
+                                    <AlertCircle className="h-4 w-4 text-yellow-600 shrink-0 mt-0.5" />
                                   )}
                                 </div>
-                                <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                                  <div className="flex items-center gap-1">
-                                    <UniversityIcon className="h-4 w-4" />
-                                    {item.university.name}
+                                <div className="text-right shrink-0">
+                                  <div className="text-base sm:text-lg font-bold">
+                                    APS {item.degree.apsRequirement}
                                   </div>
-                                  <div className="flex items-center gap-1">
-                                    <GraduationCap className="h-4 w-4" />
-                                    {item.degree.faculty}
-                                  </div>
-                                  <div className="flex items-center gap-1">
-                                    <MapPin className="h-4 w-4" />
-                                    {item.university.location}
-                                  </div>
+                                  {item.apsGap && (
+                                    <div className="text-xs sm:text-sm text-yellow-600">
+                                      Need {item.apsGap} more
+                                    </div>
+                                  )}
                                 </div>
-                                <p className="text-sm">
-                                  {item.degree.description}
-                                </p>
                               </div>
-                              <div className="text-right space-y-1">
-                                <div className="text-lg font-bold">
-                                  APS {item.degree.apsRequirement}
-                                </div>
-                                {item.apsGap && (
-                                  <div className="text-sm text-yellow-600">
-                                    Need {item.apsGap} more
+
+                              {/* University and Faculty info - stacked on mobile */}
+                              <div className="space-y-2 sm:space-y-1">
+                                <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 text-xs sm:text-sm text-muted-foreground">
+                                  <div className="flex items-center gap-1 min-w-0">
+                                    <UniversityIcon className="h-3 w-3 sm:h-4 sm:w-4 shrink-0" />
+                                    <span className="truncate">
+                                      {item.university.name}
+                                    </span>
                                   </div>
-                                )}
-                                <div className="text-sm text-muted-foreground">
-                                  {item.degree.duration}
+                                  <div className="flex items-center gap-1 min-w-0">
+                                    <GraduationCap className="h-3 w-3 sm:h-4 sm:w-4 shrink-0" />
+                                    <span className="truncate">
+                                      {item.degree.faculty}
+                                    </span>
+                                  </div>
                                 </div>
+
+                                {/* Location and duration on separate line */}
+                                <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 text-xs sm:text-sm text-muted-foreground">
+                                  <div className="flex items-center gap-1 min-w-0">
+                                    <MapPin className="h-3 w-3 sm:h-4 sm:w-4 shrink-0" />
+                                    <span className="truncate">
+                                      {item.university.location}
+                                    </span>
+                                  </div>
+                                  <div className="text-xs sm:text-sm">
+                                    {item.degree.duration}
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* Description */}
+                              <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">
+                                {item.degree.description}
+                              </p>
+
+                              {/* Status badge for mobile clarity */}
+                              <div className="sm:hidden">
+                                {item.meetsRequirement ? (
+                                  <Badge className="bg-green-100 text-green-800 text-xs">
+                                    ✓ You Qualify
+                                  </Badge>
+                                ) : (
+                                  <Badge
+                                    variant="outline"
+                                    className="border-yellow-300 text-yellow-700 text-xs"
+                                  >
+                                    Close Match
+                                  </Badge>
+                                )}
                               </div>
                             </div>
                           </CardContent>
