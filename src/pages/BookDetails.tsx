@@ -113,7 +113,6 @@ const BookDetails = () => {
       try {
         await navigator.share(shareData);
       } catch (error) {
-        console.log("Error sharing:", error);
         fallbackShare();
       }
     } else {
