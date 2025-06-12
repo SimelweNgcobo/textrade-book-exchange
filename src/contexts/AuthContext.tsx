@@ -125,24 +125,36 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         setUser(session.user);
 
         if (session.user) {
+          // Create immediate fallback profile first
+          const fallbackProfile = {
+            id: session.user.id,
+            name:
+              session.user.user_metadata?.name ||
+              session.user.email?.split("@")[0] ||
+              "User",
+            email: session.user.email || "",
+            isAdmin: false,
+            status: "active",
+            profile_picture_url: session.user.user_metadata?.avatar_url,
+            bio: undefined,
+          };
+
+          // Set fallback profile immediately so user can use the app
+          setProfile(fallbackProfile);
+          console.log(
+            "[AuthContext] Using immediate fallback profile while loading...",
+          );
+
           try {
-            // Add timeout for profile fetching with retry logic
-            const profilePromise = fetchUserProfile(session.user);
-
-            // Create a more informative timeout with progress tracking
+            // Try to load full profile with shorter timeout
+            const profilePromise = fetchUserProfileQuick(session.user);
             const timeoutPromise = new Promise((_, reject) => {
-              // Log progress at intervals
-              const progressInterval = setInterval(() => {
-                console.log("[AuthContext] Profile fetch still in progress...");
-              }, 10000); // Log every 10 seconds
-
               setTimeout(() => {
-                clearInterval(progressInterval);
                 const timeoutError = new Error("Profile fetch timeout");
                 (timeoutError as any).code = "PROFILE_FETCH_TIMEOUT";
                 (timeoutError as any).isTimeout = true;
                 reject(timeoutError);
-              }, 45000); // 45 second timeout to accommodate retry logic + network delays
+              }, 15000); // Reduced to 15 seconds for faster UX
             });
 
             const userProfile = await Promise.race([
@@ -150,8 +162,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
               timeoutPromise,
             ]);
 
-            setProfile(userProfile as UserProfile);
-            console.log("[AuthContext] Profile loaded successfully");
+            if (userProfile) {
+              setProfile(userProfile as UserProfile);
+              console.log("[AuthContext] Full profile loaded successfully");
+            }
 
             // Add login notification for authenticated users (non-blocking)
             if (event === "SIGNED_IN") {
