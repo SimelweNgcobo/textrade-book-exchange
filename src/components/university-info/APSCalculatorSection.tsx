@@ -148,11 +148,11 @@ const APSCalculatorSection = () => {
                   <div className="text-gray-600">Eligible Programs</div>
                 </div>
 
-                <div className="text-center bg-orange-50 rounded-lg p-6">
-                  <div className="text-3xl font-bold text-orange-600 mb-2">
-                    {closeMatches.length}
+                <div className="text-center bg-blue-50 rounded-lg p-6">
+                  <div className="text-3xl font-bold text-blue-600 mb-2">
+                    {calculation.eligibleDegrees?.length || 0}
                   </div>
-                  <div className="text-gray-600">Close Matches</div>
+                  <div className="text-gray-600">Total Programs Found</div>
                 </div>
               </div>
             </CardContent>
