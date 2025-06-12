@@ -2,6 +2,7 @@ import { ReactNode } from "react";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
 import { Toaster } from "@/components/ui/sonner";
+import ConnectionStatus from "./ConnectionStatus";
 
 interface LayoutProps {
   children: ReactNode;
@@ -15,6 +16,7 @@ const Layout = ({ children }: LayoutProps) => {
         <div className="w-full max-w-full">{children}</div>
       </main>
       <Footer />
+      <ConnectionStatus />
       <Toaster
         position="top-center"
         toastOptions={{
