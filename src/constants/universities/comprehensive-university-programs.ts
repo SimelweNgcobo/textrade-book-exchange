@@ -3413,7 +3413,7 @@ export const getAllProgramsByFaculty = () => {
   };
 };
 
-// Export all programs as a single array
+// Export all programs as a single array including diplomas and certificates
 export const ALL_COMPREHENSIVE_PROGRAMS: Degree[] = [
   ...ENGINEERING_PROGRAMS,
   ...HEALTH_SCIENCES_PROGRAMS,
@@ -3430,4 +3430,6 @@ export const ALL_COMPREHENSIVE_PROGRAMS: Degree[] = [
   ...MUSIC_PROGRAMS,
   ...SPORTS_SCIENCE_PROGRAMS,
   ...SOCIAL_WORK_PROGRAMS,
+  ...DIPLOMA_PROGRAMS,
+  ...HIGHER_CERTIFICATE_PROGRAMS,
 ];
