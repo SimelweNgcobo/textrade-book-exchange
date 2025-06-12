@@ -324,6 +324,9 @@ const AdminStudyResourcesTab = () => {
     );
   }
 
+  const isDatabaseNotSetup =
+    studyTips.length === 0 && studyResources.length === 0 && !isLoading;
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -338,6 +341,56 @@ const AdminStudyResourcesTab = () => {
           Refresh
         </Button>
       </div>
+
+      {isDatabaseNotSetup && (
+        <Alert className="border-blue-200 bg-blue-50">
+          <RefreshCw className="h-4 w-4" />
+          <AlertDescription>
+            <div className="space-y-2">
+              <p>
+                <strong>Database Setup Required</strong>
+              </p>
+              <p>
+                The study resources database tables need to be created. Please
+                run the following SQL commands in your Supabase dashboard:
+              </p>
+              <div className="bg-gray-100 p-2 rounded text-sm font-mono mt-2">
+                <p>CREATE TABLE study_tips (</p>
+                <p>
+                  &nbsp;&nbsp;id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+                </p>
+                <p>&nbsp;&nbsp;title TEXT NOT NULL,</p>
+                <p>&nbsp;&nbsp;category TEXT NOT NULL,</p>
+                <p>&nbsp;&nbsp;difficulty TEXT NOT NULL,</p>
+                <p>&nbsp;&nbsp;estimated_time TEXT,</p>
+                <p>&nbsp;&nbsp;effectiveness INTEGER,</p>
+                <p>&nbsp;&nbsp;tags TEXT[],</p>
+                <p>&nbsp;&nbsp;content TEXT NOT NULL,</p>
+                <p>&nbsp;&nbsp;author TEXT,</p>
+                <p>&nbsp;&nbsp;created_at TIMESTAMP DEFAULT NOW()</p>
+                <p>);</p>
+                <br />
+                <p>CREATE TABLE study_resources (</p>
+                <p>
+                  &nbsp;&nbsp;id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+                </p>
+                <p>&nbsp;&nbsp;title TEXT NOT NULL,</p>
+                <p>&nbsp;&nbsp;description TEXT NOT NULL,</p>
+                <p>&nbsp;&nbsp;type TEXT NOT NULL,</p>
+                <p>&nbsp;&nbsp;category TEXT NOT NULL,</p>
+                <p>&nbsp;&nbsp;difficulty TEXT NOT NULL,</p>
+                <p>&nbsp;&nbsp;url TEXT NOT NULL,</p>
+                <p>&nbsp;&nbsp;rating DECIMAL,</p>
+                <p>&nbsp;&nbsp;provider TEXT,</p>
+                <p>&nbsp;&nbsp;duration TEXT,</p>
+                <p>&nbsp;&nbsp;tags TEXT[],</p>
+                <p>&nbsp;&nbsp;created_at TIMESTAMP DEFAULT NOW()</p>
+                <p>);</p>
+              </div>
+            </div>
+          </AlertDescription>
+        </Alert>
+      )}
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
         <Card>
