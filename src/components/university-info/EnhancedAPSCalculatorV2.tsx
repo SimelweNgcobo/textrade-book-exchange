@@ -265,7 +265,14 @@ const EnhancedAPSCalculatorV2 = ({
       };
     }
     return null;
-  }, [subjects, facultyFilter, universityFilter, qualificationFilter, sortBy]);
+  }, [
+    subjects,
+    facultyFilter,
+    universityFilter,
+    qualificationFilter,
+    sortBy,
+    checkSubjectRequirements,
+  ]);
 
   // Get unique universities and faculties for filters
   const availableUniversities = useMemo(() => {
