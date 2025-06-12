@@ -38,7 +38,7 @@ import { COMMON_DEGREES } from "@/constants/degrees";
 // Mock book data that would normally come from your actual book service
 const SAMPLE_CAMPUS_BOOKS = [
   {
-    id: "book-1",
+    id: "550e8400-e29b-41d4-a716-446655440001",
     title: "Engineering Mathematics 4th Edition",
     author: "K.A. Stroud",
     university: "uct",
