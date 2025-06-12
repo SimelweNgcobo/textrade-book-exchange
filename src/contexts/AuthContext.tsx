@@ -17,7 +17,7 @@ import {
   Profile,
 } from "@/services/authOperations";
 import { addNotification } from "@/services/notificationService";
-import { logError, getUserErrorMessage } from "@/utils/errorUtils";
+import { logError, getErrorMessage } from "@/utils/errorUtils";
 
 // Import debug utilities for development
 if (process.env.NODE_ENV === "development") {
