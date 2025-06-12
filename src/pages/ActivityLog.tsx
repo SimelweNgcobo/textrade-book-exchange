@@ -33,10 +33,6 @@ const ActivityLog = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    loadActivities();
-  }, [user, loadActivities]);
-
   const loadActivities = useCallback(async () => {
     if (!user) {
       setIsLoading(false);
