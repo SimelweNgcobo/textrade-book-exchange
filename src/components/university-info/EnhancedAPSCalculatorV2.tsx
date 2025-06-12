@@ -626,12 +626,6 @@ const EnhancedAPSCalculatorV2 = ({
                       >
                         I Qualify
                       </SelectItem>
-                      <SelectItem
-                        key="filter-qualification-close"
-                        value="close"
-                      >
-                        Close (≤5 APS)
-                      </SelectItem>
                     </SelectContent>
                   </Select>
 
