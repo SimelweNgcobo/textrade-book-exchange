@@ -138,6 +138,24 @@ const UniversityProfile = () => {
                 </div>
 
                 <div className="flex-1 text-center sm:text-left">
+                  <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-2 sm:mb-3">
+                    {university.name}
+                  </h1>
+                  <div className="flex flex-col sm:flex-row items-center sm:items-start gap-2 sm:gap-4 mb-3 sm:mb-4">
+                    <div className="flex items-center gap-1 sm:gap-2">
+                      <MapPin className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400 flex-shrink-0" />
+                      <span className="text-xs sm:text-sm lg:text-base">
+                        {university.location}, {university.province}
+                      </span>
+                    </div>
+                    <Badge
+                      variant="secondary"
+                      className="bg-book-50 text-book-700 text-xs sm:text-sm"
+                    >
+                      Public University
+                    </Badge>
+                  </div>
+                </div>
                       <MapPin className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
                       <span className="text-xs sm:text-sm lg:text-base">
                         {university.location}, {university.province}
