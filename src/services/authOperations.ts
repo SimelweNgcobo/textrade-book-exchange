@@ -6,7 +6,7 @@ import {
   getErrorMessage,
   retryWithExponentialBackoff,
   withTimeout,
-  isNetworkError
+  isNetworkError,
 } from "@/utils/errorUtils";
 
 export interface Profile {
@@ -92,25 +92,29 @@ export const fetchUserProfileQuick = async (
         return await withTimeout(
           supabase
             .from("profiles")
-            .select("id, name, email, status, profile_picture_url, bio, is_admin")
+            .select(
+              "id, name, email, status, profile_picture_url, bio, is_admin",
+            )
             .eq("id", user.id)
             .single(),
           6000, // 6 second timeout for quick fetch
-          "Quick profile fetch timed out"
+          "Quick profile fetch timed out",
         );
       },
       {
         maxRetries: 2,
         baseDelay: 500,
-        retryCondition: (error) => isNetworkError(error)
-      }
+        retryCondition: (error) => isNetworkError(error),
+      },
     );
 
     const { data: profile, error: profileError } = result as any;
 
     if (profileError) {
       if (profileError.code === "PGRST116") {
-        console.log("ℹ️ Profile not found in quick fetch, will create in background");
+        console.log(
+          "ℹ️ Profile not found in quick fetch, will create in background",
+        );
         return null; // Return null so fallback is used
       }
 
@@ -162,10 +166,15 @@ export const fetchUserProfile = async (user: User): Promise<Profile | null> => {
       async () => {
         return await withTimeout(
           supabase
-          .from("profiles")
-          .select("id, name, email, status, profile_picture_url, bio, is_admin")
-          .eq("id", user.id)
-          .single();
+            .from("profiles")
+            .select(
+              "id, name, email, status, profile_picture_url, bio, is_admin",
+            )
+            .eq("id", user.id)
+            .single(),
+          10000, // 10 second timeout for full fetch
+          "Full profile fetch timed out",
+        );
       },
       {
         maxRetries: 2, // Reduced from 3 to 2 for faster timeout
