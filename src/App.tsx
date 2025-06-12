@@ -192,6 +192,7 @@ function App() {
                 <>{/* Debug components removed from production */}</>
               )}
             </Router>
+            <Analytics />
           </CartProvider>
         </AuthProvider>
       </AuthErrorBoundary>
