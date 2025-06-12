@@ -180,10 +180,16 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
             if (userProfile) {
               setProfile(userProfile as UserProfile);
-              console.log("[AuthContext] Full profile loaded successfully");
+              console.log("✅ [AuthContext] Full profile loaded successfully");
+            } else {
+              console.log("ℹ️ [AuthContext] Using fallback profile (normal for new users)");
             }
+          } catch (profileError) {
+            // Profile fetch failed, but we already have fallback profile set
+            console.log("ℹ️ [AuthContext] Profile fetch failed, using fallback profile");
+          }
 
-            // Add login notification for authenticated users (non-blocking)
+          try {
             // Only add notification for actual sign-in events, not session restoration
             if (event === "SIGNED_IN" && !isInitializing) {
               // Check if we already sent a login notification recently to prevent duplicates
