@@ -233,7 +233,7 @@ export const useNotifications = (): NotificationHookReturn => {
     } catch (error) {
       console.error("Error setting up notification subscription:", error);
     }
-  }, [user?.id, isAuthenticated]); // Only depend on user.id
+  }, [user?.id, isAuthenticated, refreshNotifications]); // Include refreshNotifications
 
   // Cleanup retry timeout and subscription on unmount
   useEffect(() => {
