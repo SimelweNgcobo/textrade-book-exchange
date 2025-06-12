@@ -1,54 +1,58 @@
 import { supabase } from "@/integrations/supabase/client";
 import { Broadcast, BroadcastInput, BroadcastView } from "@/types/broadcast";
 import { addNotification } from "./notificationService";
-import { retryWithConnection } from "@/utils/connectionHealthCheck";
-
-// Enhanced error logging function
-const logDetailedError = (context: string, error: unknown) => {
-  const errorDetails = {
-    message: error instanceof Error ? error.message : String(error),
-    name: error instanceof Error ? error.name : "Unknown",
-    stack: error instanceof Error ? error.stack : undefined,
-    type: typeof error,
-    constructor: error instanceof Error ? error.constructor.name : undefined,
-    timestamp: new Date().toISOString(),
-  };
-
-  console.error(`[BroadcastService] ${context}:`, errorDetails);
-};
+import {
+  logError,
+  getErrorMessage,
+  retryWithExponentialBackoff,
+  withTimeout,
+  isNetworkError
+} from "@/utils/errorUtils";
 
 export const getActiveBroadcasts = async (): Promise<Broadcast[]> => {
   try {
     console.log("🔄 Fetching active broadcasts...");
 
-    const fetchBroadcastsOperation = async () => {
-      const { data, error } = await supabase
-        .from("broadcasts")
-        .select("*")
-        .eq("is_active", true)
-        .or("expires_at.is.null,expires_at.gt." + new Date().toISOString())
-        .order("created_at", { ascending: false });
-
-      if (error) {
-        // If broadcasts table doesn't exist, return empty array
-        if (error.code === "42P01" || error.code === "PGRST106") {
-          console.log("ℹ️ Broadcasts table not found, returning empty array");
-          return [];
-        }
-
-        logDetailedError("Database error fetching broadcasts", error);
-        throw new Error(
-          `Failed to fetch broadcasts: ${error.message || "Unknown database error"}`,
+    const result = await retryWithExponentialBackoff(
+      async () => {
+        return await withTimeout(
+          supabase
+            .from("broadcasts")
+            .select("*")
+            .eq("is_active", true)
+            .or("expires_at.is.null,expires_at.gt." + new Date().toISOString())
+            .order("created_at", { ascending: false }),
+          8000, // 8 second timeout
+          "Broadcast fetch timed out"
         );
+      },
+      {
+        maxRetries: 2,
+        baseDelay: 1000,
+        retryCondition: (error) => isNetworkError(error)
+      }
+    );
+
+    const { data, error } = result as any;
+
+    if (error) {
+      // If broadcasts table doesn't exist, return empty array
+      if (error.code === "42P01" || error.code === "PGRST106") {
+        console.log("ℹ️ Broadcasts table not found, returning empty array");
+        return [];
       }
 
-      console.log(`✅ Found ${data?.length || 0} active broadcasts`);
+      logError("Database error fetching broadcasts", error);
+      return []; // Return empty array instead of throwing
+    }
 
-      return (data || []).map((broadcast) => ({
-        id: broadcast.id,
-        message: broadcast.message,
-        title: broadcast.title,
-        createdAt: broadcast.created_at,
+    console.log(`✅ Found ${data?.length || 0} active broadcasts`);
+
+    return (data || []).map((broadcast) => ({
+      id: broadcast.id,
+      message: broadcast.message,
+      title: broadcast.title,
+      createdAt: broadcast.created_at,
         isActive: broadcast.is_active,
         priority: broadcast.priority as "low" | "normal" | "high" | "urgent",
         expiresAt: broadcast.expires_at,
@@ -59,6 +63,7 @@ export const getActiveBroadcasts = async (): Promise<Broadcast[]> => {
 
     // Use retry logic for network resilience
     return await retryWithConnection(fetchBroadcastsOperation, 2, 1000);
+
   } catch (error) {
     logDetailedError("Error in getActiveBroadcasts", error);
 
@@ -113,9 +118,7 @@ export const createBroadcast = async (
 
       if (error) {
         logDetailedError("Error creating broadcast", error);
-        throw new Error(
-          `Failed to create broadcast: ${error.message || "Unknown database error"}`,
-        );
+        throw new Error(`Failed to create broadcast: ${error.message || 'Unknown database error'}`);
       }
 
       console.log("✅ Broadcast created successfully");
@@ -145,9 +148,7 @@ export const markBroadcastAsViewed = async (
   broadcastId: string,
 ): Promise<void> => {
   try {
-    console.log(
-      `👁️ Marking broadcast as viewed: ${broadcastId} for user: ${userId}`,
-    );
+    console.log(`👁️ Marking broadcast as viewed: ${broadcastId} for user: ${userId}`);
 
     const markViewedOperation = async () => {
       const { error } = await supabase.from("broadcast_views").upsert({
@@ -159,9 +160,7 @@ export const markBroadcastAsViewed = async (
 
       if (error && error.code !== "42P01" && error.code !== "PGRST106") {
         logDetailedError("Error marking broadcast as viewed", error);
-        throw new Error(
-          `Failed to mark broadcast as viewed: ${error.message || "Unknown database error"}`,
-        );
+        throw new Error(`Failed to mark broadcast as viewed: ${error.message || 'Unknown database error'}`);
       }
     };
 
@@ -190,9 +189,7 @@ export const dismissBroadcast = async (
 
       if (error && error.code !== "42P01" && error.code !== "PGRST106") {
         logDetailedError("Error dismissing broadcast", error);
-        throw new Error(
-          `Failed to dismiss broadcast: ${error.message || "Unknown database error"}`,
-        );
+        throw new Error(`Failed to dismiss broadcast: ${error.message || 'Unknown database error'}`);
       }
     };
 
@@ -209,9 +206,7 @@ export const hasBroadcastBeenViewed = async (
   broadcastId: string,
 ): Promise<boolean> => {
   try {
-    console.log(
-      `🔍 Checking if broadcast viewed: ${broadcastId} for user: ${userId}`,
-    );
+    console.log(`🔍 Checking if broadcast viewed: ${broadcastId} for user: ${userId}`);
 
     const checkViewedOperation = async () => {
       const { data, error } = await supabase
@@ -223,11 +218,7 @@ export const hasBroadcastBeenViewed = async (
 
       if (error) {
         // If table doesn't exist or no record found, assume not viewed
-        if (
-          error.code === "42P01" ||
-          error.code === "PGRST106" ||
-          error.code === "PGRST116"
-        ) {
+        if (error.code === "42P01" || error.code === "PGRST106" || error.code === "PGRST116") {
           return false;
         }
         logDetailedError("Error checking broadcast view status", error);
