@@ -568,10 +568,18 @@ export const ADDITIONAL_BURSARIES: Bursary[] = [
   },
 ];
 
+// Import additional valid bursaries
+import {
+  ADDITIONAL_VALID_BURSARIES,
+  COMPREHENSIVE_FIELDS_OF_STUDY,
+  BURSARY_PROVIDERS,
+} from "./validBursaries";
+
 // Combine all bursaries
 export const ALL_BURSARIES: Bursary[] = [
   ...ENHANCED_BURSARIES,
   ...ADDITIONAL_BURSARIES,
+  ...ADDITIONAL_VALID_BURSARIES,
 ];
 
 // Export as BURSARIES for backward compatibility
