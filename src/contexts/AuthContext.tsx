@@ -114,6 +114,32 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     setUserStats(null);
   }, []);
 
+  // Profile health check to upgrade fallback profiles
+  const upgradeProfileIfNeeded = useCallback(
+    async (currentUser: User) => {
+      if (!profile || (!profile.bio && !profile.profile_picture_url)) {
+        console.log("[AuthContext] Attempting to upgrade basic profile...");
+        try {
+          const fullProfile = await fetchUserProfileQuick(currentUser);
+          if (
+            fullProfile &&
+            (fullProfile.bio ||
+              fullProfile.profile_picture_url ||
+              fullProfile.isAdmin)
+          ) {
+            setProfile(fullProfile);
+            console.log("[AuthContext] Profile upgraded successfully");
+          }
+        } catch (error) {
+          console.log(
+            "[AuthContext] Profile upgrade failed, keeping current profile",
+          );
+        }
+      }
+    },
+    [profile],
+  );
+
   // Handle auth state changes with improved error handling
   const handleAuthStateChange = useCallback(
     async (session: Session, event?: string) => {
