@@ -258,6 +258,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
             } else {
               console.log("ℹ️ [AuthContext] Using fallback profile (normal for new users)");
             }
+          } catch (profileError) {
+            // Profile fetch failed, but we already have fallback profile set
+            console.log("ℹ️ [AuthContext] Profile fetch failed, using fallback profile");
+          }
 
           // Set up periodic profile upgrade check (every 30 seconds)
           const upgradeInterval = setInterval(() => {
