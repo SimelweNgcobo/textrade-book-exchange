@@ -633,10 +633,10 @@ const EnhancedAPSCalculatorV2 = ({
 
               {/* Filters */}
               <div className="space-y-3">
-                <h3 className="text-sm font-medium text-gray-700">
+                <h3 className="text-sm sm:text-base font-medium text-gray-700">
                   Filter Results
                 </h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 lg:grid-cols-4">
                   <Select
                     value={universityFilter}
                     onValueChange={setUniversityFilter}
