@@ -1,7 +1,5 @@
-
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { useEffect } from "react";
-import { Analytics } from "@vercel/analytics/react";
 import { AuthProvider } from "./contexts/AuthContext";
 import { CartProvider } from "./contexts/CartContext";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -34,8 +32,8 @@ import Privacy from "./pages/Privacy";
 import AdminReports from "./pages/AdminReports";
 import Notifications from "./pages/Notifications";
 import Confirm from "./pages/Confirm";
-import Verify from "./pages/Verify";
-import ConfirmEmailChange from "./pages/ConfirmEmailChange";
+import Verify from "./Verify";
+import ConfirmEmailChange from "./ConfirmEmailChange";
 import EditBook from "./pages/EditBook";
 import Cart from "./pages/Cart";
 import Report from "./pages/Report";
@@ -194,7 +192,6 @@ function App() {
                 <>{/* Debug components removed from production */}</>
               )}
             </Router>
-            <Analytics />
           </CartProvider>
         </AuthProvider>
       </AuthErrorBoundary>
