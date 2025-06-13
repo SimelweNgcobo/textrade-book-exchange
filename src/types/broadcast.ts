@@ -1,27 +1,12 @@
+
 export interface Broadcast {
   id: string;
-  message: string;
   title: string;
-  createdAt: string;
+  message: string;
+  type: "info" | "warning" | "success" | "error";
+  priority: "low" | "medium" | "high";
   isActive: boolean;
-  priority: "low" | "normal" | "high" | "urgent";
+  createdAt: string;
   expiresAt?: string;
-  targetAudience: "all" | "users" | "admin";
-  createdBy: string;
-}
-
-export interface BroadcastInput {
-  message: string;
-  title: string;
-  priority: "low" | "normal" | "high" | "urgent";
-  expiresAt?: string;
-  targetAudience: "all" | "users" | "admin";
-  createdBy: string;
-}
-
-export interface BroadcastView {
-  userId: string;
-  broadcastId: string;
-  viewedAt: string;
-  dismissed: boolean;
+  targetAudience?: string;
 }

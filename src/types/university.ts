@@ -1,3 +1,4 @@
+
 export interface Subject {
   name: string;
   level: number;
@@ -147,6 +148,8 @@ export interface StudyTip {
   tags?: string[];
   content: string;
   author?: string;
+  description?: string; // Added missing property
+  isActive?: boolean; // Added missing property
   isSponsored?: boolean;
   sponsorName?: string;
   sponsorLogo?: string;
@@ -166,6 +169,9 @@ export interface StudyResource {
   provider?: string;
   duration?: string;
   tags?: string[];
+  downloadUrl?: string; // Added missing property
+  isActive?: boolean; // Added missing property
+  isFeatured?: boolean; // Added missing property
   isSponsored?: boolean;
   sponsorName?: string;
   sponsorLogo?: string;

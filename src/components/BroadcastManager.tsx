@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import {
@@ -34,8 +35,8 @@ const BroadcastManager = () => {
           if (!hasViewed) {
             setCurrentBroadcast(latestBroadcast);
             setShowBroadcast(true);
-            // Save to notifications for logged-in users
-            await saveBroadcastToNotifications(user.id, latestBroadcast);
+            // Save to notifications for logged-in users - fix parameter order
+            await saveBroadcastToNotifications(latestBroadcast, user.id);
           }
         } else {
           // For guests, use localStorage
