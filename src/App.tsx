@@ -32,8 +32,8 @@ import Privacy from "./pages/Privacy";
 import AdminReports from "./pages/AdminReports";
 import Notifications from "./pages/Notifications";
 import Confirm from "./pages/Confirm";
-import Verify from "./Verify";
-import ConfirmEmailChange from "./ConfirmEmailChange";
+import Verify from "./pages/Verify";
+import ConfirmEmailChange from "./pages/ConfirmEmailChange";
 import EditBook from "./pages/EditBook";
 import Cart from "./pages/Cart";
 import Report from "./pages/Report";
@@ -44,7 +44,6 @@ import FacultyDetail from "./pages/FacultyDetail";
 import CourseDetail from "./pages/CourseDetail";
 import StudyResources from "./pages/StudyResources";
 import AddProgram from "./pages/AddProgram";
-import FakeDataDemo from "./pages/FakeDataDemo";
 
 import "./App.css";
 
