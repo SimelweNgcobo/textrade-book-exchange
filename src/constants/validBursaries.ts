@@ -183,7 +183,7 @@ export const ADDITIONAL_VALID_BURSARIES: Bursary[] = [
       "South African citizen",
       "Studying computer science, software engineering, mobile development",
       "Academic excellence (minimum 70%)",
-      "Demonstrated coding skills",
+      "Strong coding skills",
       "Underrepresented groups in tech preferred",
     ],
     applicationDeadline: "30 April 2024",

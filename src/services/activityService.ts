@@ -235,29 +235,8 @@ export class ActivityService {
           notifError,
         );
 
-        // If we can't get activities, create some sample ones for better UX
-        console.log("No activities found, creating sample activities...");
-
-        const sampleActivities: Activity[] = [
-          {
-            id: `sample-${Date.now()}-1`,
-            user_id: userId,
-            type: "profile_updated",
-            title: "Profile Updated",
-            description: "Your profile information was updated",
-            created_at: new Date().toISOString(),
-          },
-          {
-            id: `sample-${Date.now()}-2`,
-            user_id: userId,
-            type: "login",
-            title: "Login",
-            description: "Logged into your account",
-            created_at: new Date(Date.now() - 3600000).toISOString(), // 1 hour ago
-          },
-        ];
-
-        return sampleActivities;
+        // Return empty array if no activities found
+        return [];
       }
 
       console.log(

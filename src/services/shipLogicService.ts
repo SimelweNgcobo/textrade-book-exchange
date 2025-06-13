@@ -14,7 +14,7 @@ import {
 } from "@/types/shiplogic";
 
 const SHIPLOGIC_BASE_URL = "https://api.shiplogic.com/v2";
-const SHIPLOGIC_API_KEY = "09c881d9d88b450e8440f3e22e4d40ab";
+const SHIPLOGIC_API_KEY = import.meta.env.VITE_SHIPLOGIC_API_KEY || "";
 
 // Create axios client for ShipLogic API
 const shiplogicClient: AxiosInstance = axios.create({
