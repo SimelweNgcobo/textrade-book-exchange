@@ -49,14 +49,6 @@ const ActivityLog = () => {
       );
 
       setActivities(userActivities);
-        const newActivities = await ActivityService.getUserActivities(
-          user.id,
-          100,
-        );
-        setActivities(newActivities);
-      } else {
-        setActivities(userActivities);
-      }
     } catch (error) {
       console.error("Error loading activities:", error);
       setError("Failed to load activities. Please try again.");
