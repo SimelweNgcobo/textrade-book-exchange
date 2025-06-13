@@ -1,3 +1,4 @@
+
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { useEffect } from "react";
 import { Analytics } from "@vercel/analytics/react";
@@ -45,6 +46,7 @@ import FacultyDetail from "./pages/FacultyDetail";
 import CourseDetail from "./pages/CourseDetail";
 import StudyResources from "./pages/StudyResources";
 import AddProgram from "./pages/AddProgram";
+import FakeDataDemo from "./pages/FakeDataDemo";
 
 import "./App.css";
 
