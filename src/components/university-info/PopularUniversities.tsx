@@ -112,11 +112,40 @@ const PopularUniversities = ({
                 <CardHeader className="pb-3 md:pb-4 p-4 md:p-6">
                   <div className="flex items-start justify-between">
                     <div className="flex items-center space-x-2 md:space-x-3 flex-1 min-w-0">
-                      <div className="w-10 h-10 md:w-14 md:h-14 bg-book-100 rounded-lg md:rounded-xl flex items-center justify-center shadow-sm flex-shrink-0">
-                        <span className="text-book-600 font-bold text-xs md:text-sm">
-                          {university.abbreviation}
-                        </span>
-                      </div>
+                      {university.logo ? (
+                        <div className="w-10 h-10 md:w-14 md:h-14 rounded-lg md:rounded-xl bg-white border border-gray-200 p-1.5 md:p-2 flex items-center justify-center shadow-sm flex-shrink-0">
+                          <img
+                            src={university.logo}
+                            alt={`${university.name} logo`}
+                            className="w-full h-full object-contain"
+                            onError={(e) => {
+                              const target = e.target as HTMLImageElement;
+                              target.style.display = "none";
+                              const fallback =
+                                target.parentElement?.querySelector(
+                                  ".logo-fallback",
+                                );
+                              if (fallback)
+                                (fallback as HTMLElement).style.display =
+                                  "flex";
+                            }}
+                          />
+                          <div
+                            className="logo-fallback w-full h-full bg-book-100 rounded-lg flex items-center justify-center"
+                            style={{ display: "none" }}
+                          >
+                            <span className="text-book-600 font-bold text-xs md:text-sm">
+                              {university.abbreviation}
+                            </span>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="w-10 h-10 md:w-14 md:h-14 bg-book-100 rounded-lg md:rounded-xl flex items-center justify-center shadow-sm flex-shrink-0">
+                          <span className="text-book-600 font-bold text-xs md:text-sm">
+                            {university.abbreviation}
+                          </span>
+                        </div>
+                      )}
                       <div className="flex-1 min-w-0">
                         <h3 className="font-bold text-sm md:text-lg text-gray-900 group-hover:text-book-600 transition-colors leading-tight">
                           {university.name}

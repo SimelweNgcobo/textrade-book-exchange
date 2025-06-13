@@ -6,7 +6,6 @@ import ErrorBoundary from "./components/ErrorBoundary.tsx";
 import { validateEnvironment } from "./config/environment";
 import { initCoreWebVitals, analyzeBundleSize } from "./utils/performanceUtils";
 import { initSecurity } from "./utils/securityUtils";
-import { errorMonitor } from "./utils/errorMonitoring";
 import "./index.css";
 
 // Validate environment variables

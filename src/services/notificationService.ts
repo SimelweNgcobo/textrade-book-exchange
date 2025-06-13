@@ -149,38 +149,10 @@ export const getNotifications = async (
   }
 };
 
-// Notification deduplication system
-const NOTIFICATION_COOLDOWN = 10000; // 10 seconds cooldown between same notifications
-const notificationCooldowns = new Map<string, number>();
-
-const generateNotificationKey = (
-  userId: string,
-  title: string,
-  message: string,
-): string => {
-  return `${userId}_${title}_${message}`;
-};
-
 export const addNotification = async (
   notification: NotificationInput,
 ): Promise<void> => {
   try {
-    // Check for duplicate notification cooldown
-    const notificationKey = generateNotificationKey(
-      notification.userId,
-      notification.title,
-      notification.message,
-    );
-    const now = Date.now();
-    const lastSent = notificationCooldowns.get(notificationKey);
-
-    if (lastSent && now - lastSent < NOTIFICATION_COOLDOWN) {
-      console.log("Notification blocked due to cooldown:", notification.title);
-      return; // Skip duplicate notification
-    }
-
-    console.log("Adding notification:", notification);
-
     const { error } = await supabase.from("notifications").insert([
       {
         user_id: notification.userId,
@@ -194,19 +166,6 @@ export const addNotification = async (
     if (error) {
       console.error("Error adding notification:", error);
       throw error;
-    }
-
-    // Update cooldown timestamp
-    notificationCooldowns.set(notificationKey, now);
-
-    // Clean up old cooldown entries (keep only last 100)
-    if (notificationCooldowns.size > 100) {
-      const entries = Array.from(notificationCooldowns.entries());
-      entries.sort((a, b) => b[1] - a[1]); // Sort by timestamp desc
-      notificationCooldowns.clear();
-      entries.slice(0, 50).forEach(([key, timestamp]) => {
-        notificationCooldowns.set(key, timestamp);
-      });
     }
 
     // Invalidate cache after adding new notification

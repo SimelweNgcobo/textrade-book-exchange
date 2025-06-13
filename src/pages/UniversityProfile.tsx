@@ -126,24 +126,24 @@ const UniversityProfile = () => {
               </div>
             </div>
 
-            {/* University Info - Mobile Optimized */}
-            <div className="bg-gradient-to-b from-book-50 to-white p-4 sm:p-6 md:p-8 rounded-t-lg">
-              <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6">
-                <div className="flex-shrink-0">
-                  <div className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 bg-book-100 rounded-xl flex items-center justify-center shadow-sm border border-gray-200">
-                    <span className="text-book-600 font-bold text-lg sm:text-xl md:text-2xl">
-                      {university.abbreviation}
-                    </span>
-                  </div>
-                </div>
-
+            {/* University Logo and Info - Mobile Optimized */}
+            <div className="space-y-4">
+              {/* Logo and Basic Info */}
+              <div className="flex flex-col sm:flex-row items-center sm:items-start space-y-4 sm:space-y-0 sm:space-x-4 lg:space-x-6">
+                {university.logo && (
+                  <img
+                    src={university.logo}
+                    alt={`${university.name} logo`}
+                    className="w-16 h-16 sm:w-20 sm:h-20 rounded-lg object-contain bg-white border border-gray-200 p-2 flex-shrink-0"
+                  />
+                )}
                 <div className="flex-1 text-center sm:text-left">
-                  <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-2 sm:mb-3">
+                  <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 mb-2 leading-tight">
                     {university.name}
                   </h1>
-                  <div className="flex flex-col sm:flex-row items-center sm:items-start gap-2 sm:gap-4 mb-3 sm:mb-4">
-                    <div className="flex items-center gap-1 sm:gap-2">
-                      <MapPin className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400 flex-shrink-0" />
+                  <div className="flex flex-col sm:flex-row items-center sm:items-start space-y-2 sm:space-y-0 sm:space-x-4 text-gray-600">
+                    <div className="flex items-center">
+                      <MapPin className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
                       <span className="text-xs sm:text-sm lg:text-base">
                         {university.location}, {university.province}
                       </span>
