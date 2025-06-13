@@ -9,4 +9,5 @@ export interface Broadcast {
   createdAt: string;
   expiresAt?: string;
   targetAudience?: string;
+  createdBy?: string;
 }

@@ -61,3 +61,80 @@ export const saveBroadcastToNotifications = async (
     console.error("Error saving broadcast to notifications:", error);
   }
 };
+
+// Add the missing createBroadcast function
+export const createBroadcast = async (
+  broadcast: Omit<Broadcast, "id" | "createdAt">,
+): Promise<Broadcast> => {
+  try {
+    // For now, create a mock broadcast since we don't have a broadcasts table
+    const newBroadcast: Broadcast = {
+      id: `broadcast-${Date.now()}`,
+      title: broadcast.title,
+      message: broadcast.message,
+      type: broadcast.type,
+      priority: broadcast.priority,
+      isActive: broadcast.isActive,
+      createdAt: new Date().toISOString(),
+      expiresAt: broadcast.expiresAt,
+      targetAudience: broadcast.targetAudience,
+      createdBy: broadcast.createdBy,
+    };
+
+    // In a real implementation, this would be saved to the database
+    console.log("Created broadcast:", newBroadcast);
+    
+    return newBroadcast;
+  } catch (error) {
+    console.error("Error creating broadcast:", error);
+    throw new Error("Failed to create broadcast");
+  }
+};
+
+export const updateBroadcast = async (
+  id: string,
+  updates: Partial<Broadcast>,
+): Promise<Broadcast> => {
+  try {
+    // For now, create a mock updated broadcast
+    const updatedBroadcast: Broadcast = {
+      id,
+      title: updates.title || "",
+      message: updates.message || "",
+      type: updates.type || "info",
+      priority: updates.priority || "medium",
+      isActive: updates.isActive ?? true,
+      createdAt: updates.createdAt || new Date().toISOString(),
+      expiresAt: updates.expiresAt,
+      targetAudience: updates.targetAudience,
+      createdBy: updates.createdBy,
+    };
+
+    console.log("Updated broadcast:", updatedBroadcast);
+    
+    return updatedBroadcast;
+  } catch (error) {
+    console.error("Error updating broadcast:", error);
+    throw new Error("Failed to update broadcast");
+  }
+};
+
+export const deleteBroadcast = async (id: string): Promise<void> => {
+  try {
+    // In a real implementation, this would delete from the database
+    console.log("Deleted broadcast:", id);
+  } catch (error) {
+    console.error("Error deleting broadcast:", error);
+    throw new Error("Failed to delete broadcast");
+  }
+};
+
+export const getAllBroadcasts = async (): Promise<Broadcast[]> => {
+  try {
+    // For now, return an empty array since we don't have a broadcasts table
+    return [];
+  } catch (error) {
+    console.error("Error fetching broadcasts:", error);
+    return [];
+  }
+};

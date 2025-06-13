@@ -1,316 +1,336 @@
-import React, { useState, useEffect, useCallback } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useState, useEffect, useCallback } from "react";
+import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Loader2, TrendingDown, Zap, Star, Package } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import {
-  getAllQuickQuotes,
-  compareProviders,
-  formatCurrency,
-  getProviderById,
-  QuickQuoteRequest,
-  QuickQuoteResponse,
-} from "@/utils/shippingUtils";
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Loader2 } from "lucide-react";
 
-interface ShippingComparisonProps {
-  request: QuickQuoteRequest;
-  onProviderSelect?: (provider: "courierGuy" | "shipLogic") => void;
-  autoLoad?: boolean;
-  showDetails?: boolean;
-}
+const ShippingComparison = () => {
+  const [quotes, setQuotes] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [fromAddress, setFromAddress] = useState({
+    streetAddress: "",
+    suburb: "",
+    city: "",
+    postalCode: "",
+    province: "",
+  });
+  const [toAddress, setToAddress] = useState({
+    streetAddress: "",
+    suburb: "",
+    city: "",
+    postalCode: "",
+    province: "",
+  });
+  const [parcelDetails, setParcelDetails] = useState({
+    weight: "",
+    length: "",
+    width: "",
+    height: "",
+  });
 
-const ShippingComparison = ({
-  request,
-  onProviderSelect,
-  autoLoad = false,
-  showDetails = true,
-}: ShippingComparisonProps) => {
-  const [isLoading, setIsLoading] = useState(false);
-  const [quotes, setQuotes] = useState<QuickQuoteResponse[]>([]);
-  const [comparison, setComparison] = useState<{
-    cheapest: QuickQuoteResponse | null;
-    fastest: QuickQuoteResponse | null;
-    recommended: QuickQuoteResponse | null;
-  }>({ cheapest: null, fastest: null, recommended: null });
-
-  useEffect(() => {
-    if (autoLoad) {
-      handleGetQuotes();
-    }
-  }, [autoLoad, request, handleGetQuotes]);
-
+  // Move handleGetQuotes function declaration before useEffect
   const handleGetQuotes = useCallback(async () => {
-    setIsLoading(true);
-    setQuotes([]);
+    if (!fromAddress.city || !toAddress.city || !parcelDetails.weight) {
+      toast.error("Please fill in all required fields");
+      return;
+    }
 
+    setLoading(true);
     try {
-      const fetchedQuotes = await getAllQuickQuotes(request);
-      setQuotes(fetchedQuotes);
+      const response = await fetch("/api/delivery-quotes", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          fromAddress,
+          toAddress,
+          parcelDetails: {
+            ...parcelDetails,
+            weight: parseFloat(parcelDetails.weight),
+            length: parseFloat(parcelDetails.length),
+            width: parseFloat(parcelDetails.width),
+            height: parseFloat(parcelDetails.height),
+          },
+        }),
+      });
 
-      if (fetchedQuotes.length === 0) {
-        toast.warning("No quotes available at the moment");
-      } else {
-        const comparisonResult = compareProviders(fetchedQuotes);
-        setComparison(comparisonResult);
-        toast.success(
-          `Found ${fetchedQuotes.length} shipping option${fetchedQuotes.length > 1 ? "s" : ""}`,
-        );
+      if (!response.ok) {
+        throw new Error("Failed to get quotes");
       }
+
+      const data = await response.json();
+      setQuotes(data.quotes || []);
+      toast.success("Quotes retrieved successfully!");
     } catch (error) {
       console.error("Error getting quotes:", error);
-      toast.error("Failed to get shipping quotes. Please try again.");
+      toast.error("Failed to get delivery quotes");
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
-  }, [request]);
+  }, [fromAddress, toAddress, parcelDetails]);
 
-  const getRecommendationIcon = (quote: QuickQuoteResponse) => {
-    if (comparison.recommended?.provider === quote.provider) {
-      return <Star className="h-4 w-4 text-yellow-500" />;
-    }
-    if (comparison.cheapest?.provider === quote.provider) {
-      return <TrendingDown className="h-4 w-4 text-green-500" />;
-    }
-    if (comparison.fastest?.provider === quote.provider) {
-      return <Zap className="h-4 w-4 text-blue-500" />;
-    }
-    return null;
-  };
+  useEffect(() => {
+    // Auto-fetch quotes when all required fields are filled
+    if (fromAddress.city && toAddress.city && parcelDetails.weight) {
+      const timeoutId = setTimeout(() => {
+        handleGetQuotes();
+      }, 1000);
 
-  const getRecommendationText = (quote: QuickQuoteResponse) => {
-    if (comparison.recommended?.provider === quote.provider) {
-      return "Recommended";
+      return () => clearTimeout(timeoutId);
     }
-    if (comparison.cheapest?.provider === quote.provider) {
-      return "Cheapest";
-    }
-    if (comparison.fastest?.provider === quote.provider) {
-      return "Fastest";
-    }
-    return null;
-  };
+  }, [handleGetQuotes, fromAddress.city, toAddress.city, parcelDetails.weight]);
 
   return (
-    <div className="space-y-4">
-      {/* Header */}
-      <Card>
+    <div className="container mx-auto p-4">
+      <h1 className="text-2xl font-bold mb-4">Shipping Comparison</h1>
+
+      {/* From Address */}
+      <Card className="mb-4">
         <CardHeader>
-          <CardTitle className="flex items-center justify-between">
-            <span className="flex items-center">
-              <Package className="mr-2 h-5 w-5" />
-              Shipping Options Comparison
-            </span>
-            {!autoLoad && (
-              <Button onClick={handleGetQuotes} disabled={isLoading} size="sm">
-                {isLoading ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Loading...
-                  </>
-                ) : (
-                  "Get Quotes"
-                )}
-              </Button>
-            )}
-          </CardTitle>
+          <CardTitle>From Address</CardTitle>
         </CardHeader>
-        {showDetails && (
-          <CardContent>
-            <div className="text-sm text-gray-600">
-              <p>
-                <strong>From:</strong> {request.fromCity}
-              </p>
-              <p>
-                <strong>To:</strong> {request.toCity}
-              </p>
-              <p>
-                <strong>Weight:</strong> {request.weight}kg
-              </p>
+        <CardContent className="grid gap-4">
+          <div>
+            <Label htmlFor="fromStreetAddress">Street Address</Label>
+            <Input
+              type="text"
+              id="fromStreetAddress"
+              value={fromAddress.streetAddress}
+              onChange={(e) =>
+                setFromAddress({ ...fromAddress, streetAddress: e.target.value })
+              }
+            />
+          </div>
+          <div>
+            <Label htmlFor="fromSuburb">Suburb</Label>
+            <Input
+              type="text"
+              id="fromSuburb"
+              value={fromAddress.suburb}
+              onChange={(e) =>
+                setFromAddress({ ...fromAddress, suburb: e.target.value })
+              }
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="fromCity">City</Label>
+              <Input
+                type="text"
+                id="fromCity"
+                value={fromAddress.city}
+                onChange={(e) =>
+                  setFromAddress({ ...fromAddress, city: e.target.value })
+                }
+              />
             </div>
-          </CardContent>
-        )}
+            <div>
+              <Label htmlFor="fromPostalCode">Postal Code</Label>
+              <Input
+                type="text"
+                id="fromPostalCode"
+                value={fromAddress.postalCode}
+                onChange={(e) =>
+                  setFromAddress({ ...fromAddress, postalCode: e.target.value })
+                }
+              />
+            </div>
+          </div>
+          <div>
+            <Label htmlFor="fromProvince">Province</Label>
+            <Select
+              onValueChange={(value) =>
+                setFromAddress({ ...fromAddress, province: value })
+              }
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select a province" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Gauteng">Gauteng</SelectItem>
+                <SelectItem value="Western Cape">Western Cape</SelectItem>
+                <SelectItem value="KwaZulu-Natal">KwaZulu-Natal</SelectItem>
+                <SelectItem value="Eastern Cape">Eastern Cape</SelectItem>
+                <SelectItem value="Northern Cape">Northern Cape</SelectItem>
+                <SelectItem value="Limpopo">Limpopo</SelectItem>
+                <SelectItem value="Mpumalanga">Mpumalanga</SelectItem>
+                <SelectItem value="North West">North West</SelectItem>
+                <SelectItem value="Free State">Free State</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </CardContent>
       </Card>
 
-      {/* Loading State */}
-      {isLoading && (
-        <Card>
-          <CardContent className="text-center py-8">
-            <Loader2 className="h-8 w-8 mx-auto mb-4 animate-spin" />
-            <p className="text-gray-500">
-              Getting quotes from shipping providers...
-            </p>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Quotes Display */}
-      {quotes.length > 0 && !isLoading && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {quotes.map((quote, index) => {
-            const provider = getProviderById(quote.provider);
-            const recommendationText = getRecommendationText(quote);
-            const recommendationIcon = getRecommendationIcon(quote);
-
-            return (
-              <Card
-                key={index}
-                className={`transition-all hover:shadow-md ${
-                  comparison.recommended?.provider === quote.provider
-                    ? "ring-2 ring-yellow-500 ring-opacity-50"
-                    : ""
-                }`}
-              >
-                <CardContent className="p-4">
-                  <div className="space-y-3">
-                    {/* Provider Header */}
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-2">
-                        <span className="text-lg">{provider?.logo}</span>
-                        <h4 className="font-semibold">{provider?.name}</h4>
-                      </div>
-                      {recommendationText && (
-                        <div className="flex items-center space-x-1">
-                          {recommendationIcon}
-                          <Badge
-                            variant="outline"
-                            className={`text-xs ${
-                              recommendationText === "Recommended"
-                                ? "border-yellow-500 text-yellow-700"
-                                : recommendationText === "Cheapest"
-                                  ? "border-green-500 text-green-700"
-                                  : "border-blue-500 text-blue-700"
-                            }`}
-                          >
-                            {recommendationText}
-                          </Badge>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Price and Service */}
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <div className="text-2xl font-bold text-gray-900">
-                          {formatCurrency(quote.price)}
-                        </div>
-                        <div className="text-sm text-gray-500">
-                          {quote.serviceName}
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <div className="text-lg font-semibold text-gray-700">
-                          {quote.estimatedDays} day
-                          {quote.estimatedDays !== 1 ? "s" : ""}
-                        </div>
-                        <div className="text-xs text-gray-500">
-                          Estimated delivery
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Provider Features */}
-                    {showDetails && provider && (
-                      <div className="text-xs text-gray-600">
-                        <div className="flex flex-wrap gap-1">
-                          {provider.features
-                            .slice(0, 2)
-                            .map((feature, featureIndex) => (
-                              <Badge
-                                key={featureIndex}
-                                variant="secondary"
-                                className="text-xs"
-                              >
-                                {feature}
-                              </Badge>
-                            ))}
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Select Button */}
-                    {onProviderSelect && (
-                      <Button
-                        onClick={() => onProviderSelect(quote.provider)}
-                        variant={
-                          comparison.recommended?.provider === quote.provider
-                            ? "default"
-                            : "outline"
-                        }
-                        className="w-full"
-                        size="sm"
-                      >
-                        Select {provider?.name}
-                      </Button>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            );
-          })}
-        </div>
-      )}
-
-      {/* No Results */}
-      {quotes.length === 0 && !isLoading && !autoLoad && (
-        <Card>
-          <CardContent className="text-center py-8">
-            <Package className="h-12 w-12 mx-auto mb-4 opacity-50" />
-            <p className="text-gray-500">
-              Click "Get Quotes" to compare shipping options
-            </p>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Summary */}
-      {quotes.length > 1 && !isLoading && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Quick Summary</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-              {comparison.cheapest && (
-                <div className="text-center p-3 bg-green-50 rounded">
-                  <TrendingDown className="h-5 w-5 text-green-600 mx-auto mb-1" />
-                  <div className="font-semibold">Cheapest Option</div>
-                  <div className="text-green-700">
-                    {getProviderById(comparison.cheapest.provider)?.name}
-                  </div>
-                  <div className="text-green-600 font-bold">
-                    {formatCurrency(comparison.cheapest.price)}
-                  </div>
-                </div>
-              )}
-
-              {comparison.fastest && (
-                <div className="text-center p-3 bg-blue-50 rounded">
-                  <Zap className="h-5 w-5 text-blue-600 mx-auto mb-1" />
-                  <div className="font-semibold">Fastest Option</div>
-                  <div className="text-blue-700">
-                    {getProviderById(comparison.fastest.provider)?.name}
-                  </div>
-                  <div className="text-blue-600 font-bold">
-                    {comparison.fastest.estimatedDays} day
-                    {comparison.fastest.estimatedDays !== 1 ? "s" : ""}
-                  </div>
-                </div>
-              )}
-
-              {comparison.recommended && (
-                <div className="text-center p-3 bg-yellow-50 rounded">
-                  <Star className="h-5 w-5 text-yellow-600 mx-auto mb-1" />
-                  <div className="font-semibold">Recommended</div>
-                  <div className="text-yellow-700">
-                    {getProviderById(comparison.recommended.provider)?.name}
-                  </div>
-                  <div className="text-yellow-600 font-bold">Best Value</div>
-                </div>
-              )}
+      {/* To Address */}
+      <Card className="mb-4">
+        <CardHeader>
+          <CardTitle>To Address</CardTitle>
+        </CardHeader>
+        <CardContent className="grid gap-4">
+          <div>
+            <Label htmlFor="toStreetAddress">Street Address</Label>
+            <Input
+              type="text"
+              id="toStreetAddress"
+              value={toAddress.streetAddress}
+              onChange={(e) =>
+                setToAddress({ ...toAddress, streetAddress: e.target.value })
+              }
+            />
+          </div>
+          <div>
+            <Label htmlFor="toSuburb">Suburb</Label>
+            <Input
+              type="text"
+              id="toSuburb"
+              value={toAddress.suburb}
+              onChange={(e) =>
+                setToAddress({ ...toAddress, suburb: e.target.value })
+              }
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="toCity">City</Label>
+              <Input
+                type="text"
+                id="toCity"
+                value={toAddress.city}
+                onChange={(e) =>
+                  setToAddress({ ...toAddress, city: e.target.value })
+                }
+              />
             </div>
-          </CardContent>
-        </Card>
+            <div>
+              <Label htmlFor="toPostalCode">Postal Code</Label>
+              <Input
+                type="text"
+                id="toPostalCode"
+                value={toAddress.postalCode}
+                onChange={(e) =>
+                  setToAddress({ ...toAddress, postalCode: e.target.value })
+                }
+              />
+            </div>
+          </div>
+          <div>
+            <Label htmlFor="toProvince">Province</Label>
+            <Select
+              onValueChange={(value) =>
+                setToAddress({ ...toAddress, province: value })
+              }
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select a province" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Gauteng">Gauteng</SelectItem>
+                <SelectItem value="Western Cape">Western Cape</SelectItem>
+                <SelectItem value="KwaZulu-Natal">KwaZulu-Natal</SelectItem>
+                <SelectItem value="Eastern Cape">Eastern Cape</SelectItem>
+                <SelectItem value="Northern Cape">Northern Cape</SelectItem>
+                <SelectItem value="Limpopo">Limpopo</SelectItem>
+                <SelectItem value="Mpumalanga">Mpumalanga</SelectItem>
+                <SelectItem value="North West">North West</SelectItem>
+                <SelectItem value="Free State">Free State</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Parcel Details */}
+      <Card className="mb-4">
+        <CardHeader>
+          <CardTitle>Parcel Details</CardTitle>
+        </CardHeader>
+        <CardContent className="grid gap-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="weight">Weight (kg)</Label>
+              <Input
+                type="number"
+                id="weight"
+                value={parcelDetails.weight}
+                onChange={(e) =>
+                  setParcelDetails({ ...parcelDetails, weight: e.target.value })
+                }
+              />
+            </div>
+            <div>
+              <Label htmlFor="length">Length (cm)</Label>
+              <Input
+                type="number"
+                id="length"
+                value={parcelDetails.length}
+                onChange={(e) =>
+                  setParcelDetails({ ...parcelDetails, length: e.target.value })
+                }
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="width">Width (cm)</Label>
+              <Input
+                type="number"
+                id="width"
+                value={parcelDetails.width}
+                onChange={(e) =>
+                  setParcelDetails({ ...parcelDetails, width: e.target.value })
+                }
+              />
+            </div>
+            <div>
+              <Label htmlFor="height">Height (cm)</Label>
+              <Input
+                type="number"
+                id="height"
+                value={parcelDetails.height}
+                onChange={(e) =>
+                  setParcelDetails({ ...parcelDetails, height: e.target.value })
+                }
+              />
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Get Quotes Button */}
+      <Button onClick={handleGetQuotes} disabled={loading}>
+        {loading ? (
+          <>
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            Getting Quotes...
+          </>
+        ) : (
+          "Get Delivery Quotes"
+        )}
+      </Button>
+
+      {/* Display Quotes */}
+      {quotes.length > 0 && (
+        <div className="mt-8">
+          <h2 className="text-xl font-semibold mb-4">Delivery Quotes:</h2>
+          <ul>
+            {quotes.map((quote, index) => (
+              <li key={index} className="mb-2">
+                {quote.carrier}: R{quote.price} - ETA: {quote.eta}
+              </li>
+            ))}
+          </ul>
+        </div>
       )}
     </div>
   );
