@@ -1,6 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { useEffect } from "react";
-import { Analytics } from "@vercel/analytics/react";
 import { AuthProvider } from "./contexts/AuthContext";
 import { CartProvider } from "./contexts/CartContext";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -192,7 +191,6 @@ function App() {
                 <>{/* Debug components removed from production */}</>
               )}
             </Router>
-            <Analytics />
           </CartProvider>
         </AuthProvider>
       </AuthErrorBoundary>

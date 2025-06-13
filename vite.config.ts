@@ -32,7 +32,8 @@ export default defineConfig(({ mode }) => ({
           ],
           supabase: ["@supabase/supabase-js"],
           utils: ["clsx", "tailwind-merge", "date-fns"],
-          // University data in separate chunk (logos removed to reduce size)
+          // University data in separate chunk (removed logos to reduce size)
+          university: ["src/constants/universities"],
         },
         // Add hash to filenames for cache busting
         chunkFileNames: "assets/[name]-[hash].js",
@@ -45,7 +46,17 @@ export default defineConfig(({ mode }) => ({
     // Enable source maps for debugging
     sourcemap: mode === "development",
     // Enhanced minification for production
-    minify: mode === "production" ? "esbuild" : false,
+    minify: mode === "production" ? "terser" : false,
+    terserOptions:
+      mode === "production"
+        ? {
+            compress: {
+              drop_console: true, // Remove console.logs in production
+              drop_debugger: true,
+              pure_funcs: ["console.log", "console.debug"], // Remove specific console calls
+            },
+          }
+        : undefined,
     // Target modern browsers for better performance
     target: "es2020", // More compatible than esnext
     // Enable CSS code splitting
