@@ -48,22 +48,7 @@ const ActivityLog = () => {
         100,
       );
 
-      // If no real activities found, create some sample activities for demo
-      if (userActivities.length === 0) {
-        console.log("No activities found, creating sample activities...");
-
-        // Log current login as activity
-        await ActivityService.logLogin(user.id);
-
-        // Log profile view
-        await ActivityService.logActivity(
-          user.id,
-          "profile_updated",
-          "Viewed activity page",
-          "Checked activity history for the first time",
-        );
-
-        // Fetch again after creating sample activities
+      setActivities(userActivities);
         const newActivities = await ActivityService.getUserActivities(
           user.id,
           100,
