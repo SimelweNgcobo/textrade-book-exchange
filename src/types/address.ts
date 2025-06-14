@@ -20,6 +20,17 @@ export interface UserProfile {
   avatar_url?: string;
   bio?: string;
   university?: string;
+  status?: "active" | "suspended" | string; // string for flexibility if other statuses exist
+  suspension_reason?: string;
+  created_at: string; // Assuming this is always present
+  pickup_address?: Address; // Added from profiles table schema
+  shipping_address?: Address; // Added from profiles table schema
+  addresses_same?: boolean; // Added from profiles table schema
+  profile_picture_url?: string; // Added from profiles table schema
+  updated_at?: string; // Added from profiles table schema
+  pending_email?: string; // From emailChangeService logic potentially on profiles
+  pending_email_token?: string;
+  pending_email_expires_at?: string;
 }
 
 export interface UserStats {

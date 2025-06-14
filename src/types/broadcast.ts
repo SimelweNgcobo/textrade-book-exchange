@@ -4,10 +4,12 @@ export interface Broadcast {
   title: string;
   message: string;
   type: "info" | "warning" | "success" | "error";
-  priority: "low" | "medium" | "high";
-  isActive: boolean;
+  priority: "low" | "medium" | "normal" | "high" | "urgent"; // Updated to include 'normal' and 'urgent'
+  active: boolean; // Changed from isActive to active
   createdAt: string;
+  updatedAt?: string; // Added updatedAt
   expiresAt?: string;
-  targetAudience?: string;
+  targetAudience?: "all" | "users" | "admin"; // Made type more specific
   createdBy?: string;
 }
+

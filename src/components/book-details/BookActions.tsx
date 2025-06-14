@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ShoppingCart, CreditCard, Edit, User } from "lucide-react";
 import { Book } from "@/types/book";
-import { UserProfile } from "@/types/address";
+import { UserProfile } from "@/types/address"; // UserProfile includes id
 
 interface BookActionsProps {
   book: Book;
@@ -11,8 +11,8 @@ interface BookActionsProps {
   onBuyNow: () => void;
   onAddToCart: () => void;
   onEditBook: () => void;
-  onShare: () => void;
-  onViewSellerProfile: () => void;
+  onShare: () => void; // This prop seems unused in the component
+  onViewSellerProfile: () => void; // This prop seems unused in the component
 }
 
 const BookActions = ({
@@ -21,10 +21,10 @@ const BookActions = ({
   onBuyNow,
   onAddToCart,
   onEditBook,
-  onShare,
-  onViewSellerProfile,
+  // onShare, // Prop was unused
+  // onViewSellerProfile, // Prop was unused
 }: BookActionsProps) => {
-  const isOwner = user?.id === book.seller?.id;
+  const isOwner = user?.id === book.seller?.id; // seller is an object with id
   const isSold = book.sold;
 
   return (
@@ -80,9 +80,16 @@ const BookActions = ({
           <div className="pt-3 border-t border-gray-200 space-y-2">
             <Button
               onClick={() => {
-                const listingsUrl = `${window.location.origin}/books?seller=${book?.seller_id}`;
-                navigator.clipboard.writeText(listingsUrl);
-                alert("Seller listings link copied to clipboard!");
+                // seller_id on book type might be string | undefined or seller object.
+                // Assuming seller object exists from `isOwner` check
+                const sellerId = book.seller?.id; 
+                if (sellerId) {
+                  const listingsUrl = `${window.location.origin}/books?seller=${sellerId}`;
+                  navigator.clipboard.writeText(listingsUrl);
+                  toast.success("Seller listings link copied to clipboard!"); // Using toast for better UX
+                } else {
+                  toast.error("Could not find seller information for this book.");
+                }
               }}
               variant="outline"
               className="w-full"
@@ -99,3 +106,4 @@ const BookActions = ({
 };
 
 export default BookActions;
+

@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -13,7 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useAuth } from "@/contexts/AuthContext";
-import { emailChangeService } from "@/services/emailChangeService";
+import { EmailChangeService } from "@/services/emailChangeService";
 import { toast } from "sonner";
 
 interface EmailChangeDialogProps {
@@ -39,11 +38,16 @@ const EmailChangeDialog = ({ open, onOpenChange }: EmailChangeDialogProps) => {
     setError("");
 
     try {
-      await emailChangeService.initiateEmailChange(newEmail, password);
-      toast.success("Email change initiated! Check your new email for confirmation.");
-      onOpenChange(false);
-      setNewEmail("");
-      setPassword("");
+      const result = await EmailChangeService.requestEmailChange(user.id, newEmail);
+      if (result.success) {
+        toast.success(result.message || "Email change initiated! Check your new email for confirmation.");
+        onOpenChange(false);
+        setNewEmail("");
+        setPassword("");
+      } else {
+        setError(result.message || "Failed to change email");
+        toast.error(result.message || "Failed to change email");
+      }
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : "Failed to change email";
       setError(errorMessage);

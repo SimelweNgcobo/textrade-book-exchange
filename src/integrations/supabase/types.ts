@@ -90,6 +90,62 @@ export type Database = {
         }
         Relationships: []
       }
+      broadcasts: {
+        Row: {
+          active: boolean
+          created_at: string
+          created_by: string | null
+          expires_at: string | null
+          id: string
+          message: string
+          priority: Database["public"]["Enums"]["broadcast_priority"]
+          target_audience:
+            | Database["public"]["Enums"]["broadcast_target_audience"]
+            | null
+          title: string
+          type: Database["public"]["Enums"]["broadcast_type"]
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          created_by?: string | null
+          expires_at?: string | null
+          id?: string
+          message: string
+          priority?: Database["public"]["Enums"]["broadcast_priority"]
+          target_audience?:
+            | Database["public"]["Enums"]["broadcast_target_audience"]
+            | null
+          title: string
+          type?: Database["public"]["Enums"]["broadcast_type"]
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          created_by?: string | null
+          expires_at?: string | null
+          id?: string
+          message?: string
+          priority?: Database["public"]["Enums"]["broadcast_priority"]
+          target_audience?:
+            | Database["public"]["Enums"]["broadcast_target_audience"]
+            | null
+          title?: string
+          type?: Database["public"]["Enums"]["broadcast_type"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "broadcasts_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       contact_messages: {
         Row: {
           created_at: string
@@ -377,7 +433,9 @@ export type Database = {
       }
     }
     Enums: {
-      [_ in never]: never
+      broadcast_priority: "low" | "normal" | "medium" | "high" | "urgent"
+      broadcast_target_audience: "all" | "users" | "admin"
+      broadcast_type: "info" | "warning" | "success" | "error"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -492,6 +550,10 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      broadcast_priority: ["low", "normal", "medium", "high", "urgent"],
+      broadcast_target_audience: ["all", "users", "admin"],
+      broadcast_type: ["info", "warning", "success", "error"],
+    },
   },
 } as const

@@ -11,7 +11,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Plus, Edit, Trash2, FileText, BookOpen, User } from "lucide-react";
 import { toast } from "sonner";
-import { studyResourcesService } from "@/services/admin/studyResourcesService";
+import { studyResourcesService } from "@/services/admin/studyResourcesService"; // Corrected import
 
 interface StudyResource {
   id: string;
@@ -45,43 +45,70 @@ interface StudyTip {
   updatedAt: string;
 }
 
+// Define specific types for form data to ensure proper type checking
+type ResourceFormType = 'guide' | 'template' | 'tip';
+type ResourceFormDifficulty = 'beginner' | 'intermediate' | 'advanced';
+type TipFormDifficulty = 'beginner' | 'intermediate' | 'advanced';
+
+interface ResourceFormData {
+  title: string;
+  description: string;
+  type: ResourceFormType;
+  difficulty: ResourceFormDifficulty;
+  category: string;
+  tags: string; // Kept as string for input, converted on submit
+  content: string;
+  author: string;
+  featured: boolean;
+}
+
+interface TipFormData {
+  title: string;
+  content: string;
+  category: string;
+  difficulty: TipFormDifficulty;
+  tags: string; // Kept as string for input, converted on submit
+  featured: boolean;
+  author: string;
+}
+
+
 const AdminStudyResourcesTab = () => {
   const [resources, setResources] = useState<StudyResource[]>([]);
   const [tips, setTips] = useState<StudyTip[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   
-  // Form states
   const [showResourceForm, setShowResourceForm] = useState(false);
   const [showTipForm, setShowTipForm] = useState(false);
   const [editingResource, setEditingResource] = useState<StudyResource | null>(null);
   const [editingTip, setEditingTip] = useState<StudyTip | null>(null);
 
-  // Resource form data
-  const [resourceForm, setResourceForm] = useState({
+  const initialResourceFormState: ResourceFormData = {
     title: '',
     description: '',
-    type: 'guide' as const,
-    difficulty: 'beginner' as const,
+    type: 'guide',
+    difficulty: 'beginner',
     category: '',
     tags: '',
     content: '',
     author: '',
     featured: false,
-  });
+  };
 
-  // Tip form data
-  const [tipForm, setTipForm] = useState({
+  const initialTipFormState: TipFormData = {
     title: '',
     content: '',
     category: '',
-    difficulty: 'beginner' as const,
+    difficulty: 'beginner',
     tags: '',
     featured: false,
     author: '',
-  });
+  };
 
-  // Load data
+  const [resourceForm, setResourceForm] = useState<ResourceFormData>(initialResourceFormState);
+  const [tipForm, setTipForm] = useState<TipFormData>(initialTipFormState);
+
   useEffect(() => {
     loadData();
   }, []);
@@ -94,8 +121,8 @@ const AdminStudyResourcesTab = () => {
         studyResourcesService.getStudyResources(),
         studyResourcesService.getStudyTips(),
       ]);
-      setResources(resourcesData);
-      setTips(tipsData);
+      setResources(resourcesData as StudyResource[]); // Cast if service returns 'any'
+      setTips(tipsData as StudyTip[]); // Cast if service returns 'any'
     } catch (error) {
       console.error('Error loading study resources:', error);
       setError('Failed to load study resources');
@@ -105,20 +132,19 @@ const AdminStudyResourcesTab = () => {
     }
   };
 
-  // Resource handlers
   const handleResourceSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const resourceData = {
+      const resourcePayload = {
         ...resourceForm,
         tags: resourceForm.tags.split(',').map(tag => tag.trim()).filter(Boolean),
       };
 
       if (editingResource) {
-        await studyResourcesService.updateStudyResource(editingResource.id, resourceData);
+        await studyResourcesService.updateStudyResource(editingResource.id, resourcePayload);
         toast.success('Resource updated successfully');
       } else {
-        await studyResourcesService.createStudyResource(resourceData);
+        await studyResourcesService.createStudyResource(resourcePayload);
         toast.success('Resource created successfully');
       }
 
@@ -133,16 +159,16 @@ const AdminStudyResourcesTab = () => {
   const handleTipSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const tipData = {
+      const tipPayload = {
         ...tipForm,
         tags: tipForm.tags.split(',').map(tag => tag.trim()).filter(Boolean),
       };
 
       if (editingTip) {
-        await studyResourcesService.updateStudyTip(editingTip.id, tipData);
+        await studyResourcesService.updateStudyTip(editingTip.id, tipPayload);
         toast.success('Tip updated successfully');
       } else {
-        await studyResourcesService.createStudyTip(tipData);
+        await studyResourcesService.createStudyTip(tipPayload);
         toast.success('Tip created successfully');
       }
 
@@ -155,31 +181,13 @@ const AdminStudyResourcesTab = () => {
   };
 
   const resetResourceForm = () => {
-    setResourceForm({
-      title: '',
-      description: '',
-      type: 'guide',
-      difficulty: 'beginner',
-      category: '',
-      tags: '',
-      content: '',
-      author: '',
-      featured: false,
-    });
+    setResourceForm(initialResourceFormState);
     setEditingResource(null);
     setShowResourceForm(false);
   };
 
   const resetTipForm = () => {
-    setTipForm({
-      title: '',
-      content: '',
-      category: '',
-      difficulty: 'beginner',
-      tags: '',
-      featured: false,
-      author: '',
-    });
+    setTipForm(initialTipFormState);
     setEditingTip(null);
     setShowTipForm(false);
   };
@@ -191,7 +199,7 @@ const AdminStudyResourcesTab = () => {
       type: resource.type,
       difficulty: resource.difficulty,
       category: resource.category,
-      tags: resource.tags.join(', '),
+      tags: resource.tags.join(', '), // This line had error TS2322, should be fine with ResourceFormData.tags as string
       content: resource.content,
       author: resource.author,
       featured: resource.featured,
@@ -257,11 +265,11 @@ const AdminStudyResourcesTab = () => {
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold">Study Resources Management</h2>
         <div className="flex gap-2">
-          <Button onClick={() => setShowResourceForm(true)}>
+          <Button onClick={() => { setShowResourceForm(true); setEditingResource(null); setResourceForm(initialResourceFormState); }}>
             <Plus className="h-4 w-4 mr-2" />
             Add Resource
           </Button>
-          <Button onClick={() => setShowTipForm(true)}>
+          <Button onClick={() => { setShowTipForm(true); setEditingTip(null); setTipForm(initialTipFormState); }}>
             <Plus className="h-4 w-4 mr-2" />
             Add Tip
           </Button>
@@ -284,6 +292,7 @@ const AdminStudyResourcesTab = () => {
               </CardHeader>
               <CardContent>
                 <form onSubmit={handleResourceSubmit} className="space-y-4">
+                  {/* ... form fields ... */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <Label htmlFor="resource-title">Title</Label>
@@ -320,7 +329,7 @@ const AdminStudyResourcesTab = () => {
                       <Label htmlFor="resource-type">Type</Label>
                       <Select
                         value={resourceForm.type}
-                        onValueChange={(value: 'guide' | 'template' | 'tip') => 
+                        onValueChange={(value: ResourceFormType) => // Use specific form type
                           setResourceForm(prev => ({ ...prev, type: value }))
                         }
                       >
@@ -338,7 +347,7 @@ const AdminStudyResourcesTab = () => {
                       <Label htmlFor="resource-difficulty">Difficulty</Label>
                       <Select
                         value={resourceForm.difficulty}
-                        onValueChange={(value: 'beginner' | 'intermediate' | 'advanced') => 
+                        onValueChange={(value: ResourceFormDifficulty) => // Use specific form type
                           setResourceForm(prev => ({ ...prev, difficulty: value }))
                         }
                       >
@@ -472,7 +481,8 @@ const AdminStudyResourcesTab = () => {
               </CardHeader>
               <CardContent>
                 <form onSubmit={handleTipSubmit} className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                 {/* ... form fields ... */}
+                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <Label htmlFor="tip-title">Title</Label>
                       <Input
@@ -509,7 +519,7 @@ const AdminStudyResourcesTab = () => {
                       <Label htmlFor="tip-difficulty">Difficulty</Label>
                       <Select
                         value={tipForm.difficulty}
-                        onValueChange={(value: 'beginner' | 'intermediate' | 'advanced') => 
+                        onValueChange={(value: TipFormDifficulty) => // Use specific form type
                           setTipForm(prev => ({ ...prev, difficulty: value }))
                         }
                       >
@@ -624,3 +634,4 @@ const AdminStudyResourcesTab = () => {
 };
 
 export default AdminStudyResourcesTab;
+
