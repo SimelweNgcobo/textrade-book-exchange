@@ -1062,13 +1062,13 @@ const EnhancedAPSCalculatorV2 = () => {
                       value={
                         selectedUniversities.length === 1
                           ? selectedUniversities[0]
-                          : ""
+                          : "all-universities"
                       }
                       onValueChange={(value) => {
-                        if (value) {
-                          setSelectedUniversities([value]);
-                        } else {
+                        if (value === "all-universities") {
                           setSelectedUniversities([]);
+                        } else {
+                          setSelectedUniversities([value]);
                         }
                       }}
                     >
@@ -1097,13 +1097,13 @@ const EnhancedAPSCalculatorV2 = () => {
                       value={
                         selectedFaculties.length === 1
                           ? selectedFaculties[0]
-                          : ""
+                          : "all-faculties"
                       }
                       onValueChange={(value) => {
-                        if (value) {
-                          setSelectedFaculties([value]);
-                        } else {
+                        if (value === "all-faculties") {
                           setSelectedFaculties([]);
+                        } else {
+                          setSelectedFaculties([value]);
                         }
                       }}
                     >
