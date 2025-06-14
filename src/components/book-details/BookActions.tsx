@@ -1,6 +1,7 @@
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { ShoppingCart, CreditCard, Edit, Share2, User } from "lucide-react";
+import { ShoppingCart, CreditCard, Edit, User } from "lucide-react";
 import { Book } from "@/types/book";
 import { UserProfile } from "@/types/address";
 

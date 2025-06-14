@@ -1,980 +1,622 @@
+
 import { useState, useEffect } from "react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import {
-  Plus,
-  Edit,
-  Trash2,
-  BookOpen,
-  Lightbulb,
-  RefreshCw,
-  ExternalLink,
-  Star,
-  Clock,
-  Target,
-} from "lucide-react";
-import { StudyTip, StudyResource } from "@/types/university";
-import {
-  getAllStudyContent,
-  createStudyTip,
-  updateStudyTip,
-  deleteStudyTip,
-  createStudyResource,
-  updateStudyResource,
-  deleteStudyResource,
-} from "@/services/admin/studyResourcesService";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Plus, Edit, Trash2, FileText, BookOpen, User } from "lucide-react";
 import { toast } from "sonner";
-import LoadingSpinner from "@/components/LoadingSpinner";
+import { studyResourcesService } from "@/services/admin/studyResourcesService";
+
+interface StudyResource {
+  id: string;
+  title: string;
+  description: string;
+  type: 'guide' | 'template' | 'tip';
+  difficulty: 'beginner' | 'intermediate' | 'advanced';
+  category: string;
+  tags: string[];
+  content: string;
+  author: string;
+  featured: boolean;
+  views: number;
+  likes: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface StudyTip {
+  id: string;
+  title: string;
+  content: string;
+  category: string;
+  difficulty: 'beginner' | 'intermediate' | 'advanced';
+  tags: string[];
+  featured: boolean;
+  views: number;
+  likes: number;
+  author: string;
+  createdAt: string;
+  updatedAt: string;
+}
 
 const AdminStudyResourcesTab = () => {
-  const [studyTips, setStudyTips] = useState<StudyTip[]>([]);
-  const [studyResources, setStudyResources] = useState<StudyResource[]>([]);
+  const [resources, setResources] = useState<StudyResource[]>([]);
+  const [tips, setTips] = useState<StudyTip[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  
+  // Form states
+  const [showResourceForm, setShowResourceForm] = useState(false);
+  const [showTipForm, setShowTipForm] = useState(false);
+  const [editingResource, setEditingResource] = useState<StudyResource | null>(null);
   const [editingTip, setEditingTip] = useState<StudyTip | null>(null);
-  const [editingResource, setEditingResource] = useState<StudyResource | null>(
-    null,
-  );
-  const [showTipDialog, setShowTipDialog] = useState(false);
-  const [showResourceDialog, setShowResourceDialog] = useState(false);
 
-  // Form states for new/editing content
-  const [tipForm, setTipForm] = useState({
-    title: "",
-    category: "",
-    difficulty: "Beginner" as "Beginner" | "Intermediate" | "Advanced",
-    estimatedTime: "",
-    effectiveness: 80,
-    tags: "",
-    content: "",
-    author: "",
-  });
-
+  // Resource form data
   const [resourceForm, setResourceForm] = useState({
-    title: "",
-    description: "",
-    type: "website" as "pdf" | "video" | "website" | "tool" | "course",
-    category: "",
-    difficulty: "Beginner" as "Beginner" | "Intermediate" | "Advanced",
-    url: "",
-    rating: 4.5,
-    provider: "",
-    duration: "",
-    tags: "",
+    title: '',
+    description: '',
+    type: 'guide' as const,
+    difficulty: 'beginner' as const,
+    category: '',
+    tags: '',
+    content: '',
+    author: '',
+    featured: false,
   });
 
-  // Load study content
-  const loadStudyContent = async () => {
+  // Tip form data
+  const [tipForm, setTipForm] = useState({
+    title: '',
+    content: '',
+    category: '',
+    difficulty: 'beginner' as const,
+    tags: '',
+    featured: false,
+    author: '',
+  });
+
+  // Load data
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  const loadData = async () => {
+    setIsLoading(true);
+    setError(null);
     try {
-      setIsLoading(true);
-      const { tips, resources } = await getAllStudyContent();
-      setStudyTips(tips);
-      setStudyResources(resources);
-
-      if (tips.length === 0 && resources.length === 0) {
-        toast.info(
-          "Database tables not set up yet. Admin features will be available once the database is configured.",
-        );
-      }
+      const [resourcesData, tipsData] = await Promise.all([
+        studyResourcesService.getStudyResources(),
+        studyResourcesService.getStudyTips(),
+      ]);
+      setResources(resourcesData);
+      setTips(tipsData);
     } catch (error) {
-      console.error("Error loading study content:", {
-        message: error instanceof Error ? error.message : String(error),
-        type: error instanceof Error ? error.constructor.name : typeof error,
-      });
-
-      const errorMessage =
-        error instanceof Error && error.message.includes("table")
-          ? "Database tables not set up yet. Please contact a system administrator."
-          : "Failed to load study content. Please try again.";
-
-      toast.error(errorMessage);
+      console.error('Error loading study resources:', error);
+      setError('Failed to load study resources');
+      toast.error('Failed to load study resources');
     } finally {
       setIsLoading(false);
     }
   };
 
-  useEffect(() => {
-    loadStudyContent();
-  }, []);
-
-  // Study Tip handlers
-  const handleCreateTip = async () => {
+  // Resource handlers
+  const handleResourceSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
     try {
-      setIsSubmitting(true);
-      const newTip = await createStudyTip({
-        ...tipForm,
-        tags: tipForm.tags
-          .split(",")
-          .map((tag) => tag.trim())
-          .filter(Boolean),
-      });
-      setStudyTips((prev) => [newTip, ...prev]);
-      setShowTipDialog(false);
-      resetTipForm();
-      toast.success("Study tip created successfully");
-    } catch (error) {
-      console.error("Error creating study tip:", error);
-      toast.error("Failed to create study tip");
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const handleUpdateTip = async () => {
-    if (!editingTip) return;
-
-    try {
-      setIsSubmitting(true);
-      const updatedTip = await updateStudyTip(editingTip.id, {
-        ...tipForm,
-        tags: tipForm.tags
-          .split(",")
-          .map((tag) => tag.trim())
-          .filter(Boolean),
-      });
-      setStudyTips((prev) =>
-        prev.map((tip) => (tip.id === editingTip.id ? updatedTip : tip)),
-      );
-      setShowTipDialog(false);
-      setEditingTip(null);
-      resetTipForm();
-      toast.success("Study tip updated successfully");
-    } catch (error) {
-      console.error("Error updating study tip:", error);
-      toast.error("Failed to update study tip");
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const handleDeleteTip = async (tipId: string) => {
-    if (!confirm("Are you sure you want to delete this study tip?")) return;
-
-    try {
-      await deleteStudyTip(tipId);
-      setStudyTips((prev) => prev.filter((tip) => tip.id !== tipId));
-      toast.success("Study tip deleted successfully");
-    } catch (error) {
-      console.error("Error deleting study tip:", error);
-      toast.error("Failed to delete study tip");
-    }
-  };
-
-  // Study Resource handlers
-  const handleCreateResource = async () => {
-    try {
-      setIsSubmitting(true);
-      const newResource = await createStudyResource({
+      const resourceData = {
         ...resourceForm,
-        tags: resourceForm.tags
-          .split(",")
-          .map((tag) => tag.trim())
-          .filter(Boolean),
-      });
-      setStudyResources((prev) => [newResource, ...prev]);
-      setShowResourceDialog(false);
+        tags: resourceForm.tags.split(',').map(tag => tag.trim()).filter(Boolean),
+      };
+
+      if (editingResource) {
+        await studyResourcesService.updateStudyResource(editingResource.id, resourceData);
+        toast.success('Resource updated successfully');
+      } else {
+        await studyResourcesService.createStudyResource(resourceData);
+        toast.success('Resource created successfully');
+      }
+
       resetResourceForm();
-      toast.success("Study resource created successfully");
+      loadData();
     } catch (error) {
-      console.error("Error creating study resource:", error);
-      toast.error("Failed to create study resource");
-    } finally {
-      setIsSubmitting(false);
+      console.error('Error saving resource:', error);
+      toast.error('Failed to save resource');
     }
   };
 
-  const handleUpdateResource = async () => {
-    if (!editingResource) return;
-
+  const handleTipSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
     try {
-      setIsSubmitting(true);
-      const updatedResource = await updateStudyResource(editingResource.id, {
-        ...resourceForm,
-        tags: resourceForm.tags
-          .split(",")
-          .map((tag) => tag.trim())
-          .filter(Boolean),
-      });
-      setStudyResources((prev) =>
-        prev.map((resource) =>
-          resource.id === editingResource.id ? updatedResource : resource,
-        ),
-      );
-      setShowResourceDialog(false);
-      setEditingResource(null);
-      resetResourceForm();
-      toast.success("Study resource updated successfully");
+      const tipData = {
+        ...tipForm,
+        tags: tipForm.tags.split(',').map(tag => tag.trim()).filter(Boolean),
+      };
+
+      if (editingTip) {
+        await studyResourcesService.updateStudyTip(editingTip.id, tipData);
+        toast.success('Tip updated successfully');
+      } else {
+        await studyResourcesService.createStudyTip(tipData);
+        toast.success('Tip created successfully');
+      }
+
+      resetTipForm();
+      loadData();
     } catch (error) {
-      console.error("Error updating study resource:", error);
-      toast.error("Failed to update study resource");
-    } finally {
-      setIsSubmitting(false);
+      console.error('Error saving tip:', error);
+      toast.error('Failed to save tip');
     }
-  };
-
-  const handleDeleteResource = async (resourceId: string) => {
-    if (!confirm("Are you sure you want to delete this study resource?"))
-      return;
-
-    try {
-      await deleteStudyResource(resourceId);
-      setStudyResources((prev) =>
-        prev.filter((resource) => resource.id !== resourceId),
-      );
-      toast.success("Study resource deleted successfully");
-    } catch (error) {
-      console.error("Error deleting study resource:", error);
-      toast.error("Failed to delete study resource");
-    }
-  };
-
-  // Form helpers
-  const resetTipForm = () => {
-    setTipForm({
-      title: "",
-      category: "",
-      difficulty: "Beginner",
-      estimatedTime: "",
-      effectiveness: 80,
-      tags: "",
-      content: "",
-      author: "",
-    });
   };
 
   const resetResourceForm = () => {
     setResourceForm({
-      title: "",
-      description: "",
-      type: "website",
-      category: "",
-      difficulty: "Beginner",
-      url: "",
-      rating: 4.5,
-      provider: "",
-      duration: "",
-      tags: "",
+      title: '',
+      description: '',
+      type: 'guide',
+      difficulty: 'beginner',
+      category: '',
+      tags: '',
+      content: '',
+      author: '',
+      featured: false,
     });
+    setEditingResource(null);
+    setShowResourceForm(false);
   };
 
-  const openEditTip = (tip: StudyTip) => {
-    setEditingTip(tip);
+  const resetTipForm = () => {
     setTipForm({
-      title: tip.title,
-      category: tip.category,
-      difficulty: tip.difficulty,
-      estimatedTime: tip.estimatedTime,
-      effectiveness: tip.effectiveness || 80,
-      tags: tip.tags?.join(", ") || "",
-      content: tip.content,
-      author: tip.author || "",
+      title: '',
+      content: '',
+      category: '',
+      difficulty: 'beginner',
+      tags: '',
+      featured: false,
+      author: '',
     });
-    setShowTipDialog(true);
+    setEditingTip(null);
+    setShowTipForm(false);
   };
 
-  const openEditResource = (resource: StudyResource) => {
-    setEditingResource(resource);
+  const editResource = (resource: StudyResource) => {
     setResourceForm({
       title: resource.title,
       description: resource.description,
       type: resource.type,
-      category: resource.category,
       difficulty: resource.difficulty,
-      url: resource.url,
-      rating: resource.rating || 4.5,
-      provider: resource.provider || "",
-      duration: resource.duration || "",
-      tags: resource.tags?.join(", ") || "",
+      category: resource.category,
+      tags: resource.tags.join(', '),
+      content: resource.content,
+      author: resource.author,
+      featured: resource.featured,
     });
-    setShowResourceDialog(true);
+    setEditingResource(resource);
+    setShowResourceForm(true);
+  };
+
+  const editTip = (tip: StudyTip) => {
+    setTipForm({
+      title: tip.title,
+      content: tip.content,
+      category: tip.category,
+      difficulty: tip.difficulty,
+      tags: tip.tags.join(', '),
+      featured: tip.featured,
+      author: tip.author,
+    });
+    setEditingTip(tip);
+    setShowTipForm(true);
+  };
+
+  const deleteResource = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this resource?')) return;
+    
+    try {
+      await studyResourcesService.deleteStudyResource(id);
+      toast.success('Resource deleted successfully');
+      loadData();
+    } catch (error) {
+      console.error('Error deleting resource:', error);
+      toast.error('Failed to delete resource');
+    }
+  };
+
+  const deleteTip = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this tip?')) return;
+    
+    try {
+      await studyResourcesService.deleteStudyTip(id);
+      toast.success('Tip deleted successfully');
+      loadData();
+    } catch (error) {
+      console.error('Error deleting tip:', error);
+      toast.error('Failed to delete tip');
+    }
   };
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <LoadingSpinner />
-      </div>
-    );
+    return <div>Loading study resources...</div>;
   }
 
-  const isDatabaseNotSetup =
-    studyTips.length === 0 && studyResources.length === 0 && !isLoading;
+  if (error) {
+    return (
+      <Alert variant="destructive">
+        <AlertDescription>{error}</AlertDescription>
+      </Alert>
+    );
+  }
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold">Study Resources Management</h2>
-          <p className="text-gray-600">
-            Manage study tips and resources for students
-          </p>
+        <h2 className="text-2xl font-bold">Study Resources Management</h2>
+        <div className="flex gap-2">
+          <Button onClick={() => setShowResourceForm(true)}>
+            <Plus className="h-4 w-4 mr-2" />
+            Add Resource
+          </Button>
+          <Button onClick={() => setShowTipForm(true)}>
+            <Plus className="h-4 w-4 mr-2" />
+            Add Tip
+          </Button>
         </div>
-        <Button onClick={loadStudyContent} variant="outline" size="sm">
-          <RefreshCw className="h-4 w-4 mr-2" />
-          Refresh
-        </Button>
       </div>
 
-      {isDatabaseNotSetup && (
-        <Alert className="border-blue-200 bg-blue-50">
-          <RefreshCw className="h-4 w-4" />
-          <AlertDescription>
-            <div className="space-y-2">
-              <p>
-                <strong>Database Setup Required</strong>
-              </p>
-              <p>
-                The study resources database tables need to be created. Please
-                run the following SQL commands in your Supabase dashboard:
-              </p>
-              <div className="bg-gray-100 p-2 rounded text-sm font-mono mt-2">
-                <p>CREATE TABLE study_tips (</p>
-                <p>
-                  &nbsp;&nbsp;id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-                </p>
-                <p>&nbsp;&nbsp;title TEXT NOT NULL,</p>
-                <p>&nbsp;&nbsp;category TEXT NOT NULL,</p>
-                <p>&nbsp;&nbsp;difficulty TEXT NOT NULL,</p>
-                <p>&nbsp;&nbsp;estimated_time TEXT,</p>
-                <p>&nbsp;&nbsp;effectiveness INTEGER,</p>
-                <p>&nbsp;&nbsp;tags TEXT[],</p>
-                <p>&nbsp;&nbsp;content TEXT NOT NULL,</p>
-                <p>&nbsp;&nbsp;author TEXT,</p>
-                <p>&nbsp;&nbsp;created_at TIMESTAMP DEFAULT NOW()</p>
-                <p>);</p>
-                <br />
-                <p>CREATE TABLE study_resources (</p>
-                <p>
-                  &nbsp;&nbsp;id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-                </p>
-                <p>&nbsp;&nbsp;title TEXT NOT NULL,</p>
-                <p>&nbsp;&nbsp;description TEXT NOT NULL,</p>
-                <p>&nbsp;&nbsp;type TEXT NOT NULL,</p>
-                <p>&nbsp;&nbsp;category TEXT NOT NULL,</p>
-                <p>&nbsp;&nbsp;difficulty TEXT NOT NULL,</p>
-                <p>&nbsp;&nbsp;url TEXT NOT NULL,</p>
-                <p>&nbsp;&nbsp;rating DECIMAL,</p>
-                <p>&nbsp;&nbsp;provider TEXT,</p>
-                <p>&nbsp;&nbsp;duration TEXT,</p>
-                <p>&nbsp;&nbsp;tags TEXT[],</p>
-                <p>&nbsp;&nbsp;created_at TIMESTAMP DEFAULT NOW()</p>
-                <p>);</p>
-              </div>
-            </div>
-          </AlertDescription>
-        </Alert>
-      )}
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center">
-              <Lightbulb className="h-8 w-8 text-blue-600" />
-              <div className="ml-4">
-                <p className="text-2xl font-bold">{studyTips.length}</p>
-                <p className="text-gray-600">Study Tips</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center">
-              <BookOpen className="h-8 w-8 text-green-600" />
-              <div className="ml-4">
-                <p className="text-2xl font-bold">{studyResources.length}</p>
-                <p className="text-gray-600">Study Resources</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center">
-              <Target className="h-8 w-8 text-purple-600" />
-              <div className="ml-4">
-                <p className="text-2xl font-bold">
-                  {studyTips.length + studyResources.length}
-                </p>
-                <p className="text-gray-600">Total Items</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      <Tabs defaultValue="tips" className="space-y-6">
+      <Tabs defaultValue="resources" className="space-y-6">
         <TabsList>
-          <TabsTrigger value="tips">Study Tips</TabsTrigger>
-          <TabsTrigger value="resources">Study Resources</TabsTrigger>
+          <TabsTrigger value="resources">Study Resources ({resources.length})</TabsTrigger>
+          <TabsTrigger value="tips">Study Tips ({tips.length})</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="tips">
-          <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <div>
-                  <CardTitle>Study Tips</CardTitle>
-                  <CardDescription>
-                    Manage study tips and learning strategies
-                  </CardDescription>
-                </div>
-                <Dialog open={showTipDialog} onOpenChange={setShowTipDialog}>
-                  <DialogTrigger asChild>
-                    <Button
-                      onClick={() => {
-                        resetTipForm();
-                        setEditingTip(null);
-                      }}
-                    >
-                      <Plus className="h-4 w-4 mr-2" />
-                      Add Study Tip
+        <TabsContent value="resources" className="space-y-4">
+          {showResourceForm && (
+            <Card>
+              <CardHeader>
+                <CardTitle>
+                  {editingResource ? 'Edit Resource' : 'Create New Resource'}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <form onSubmit={handleResourceSubmit} className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="resource-title">Title</Label>
+                      <Input
+                        id="resource-title"
+                        value={resourceForm.title}
+                        onChange={(e) => setResourceForm(prev => ({ ...prev, title: e.target.value }))}
+                        required
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="resource-author">Author</Label>
+                      <Input
+                        id="resource-author"
+                        value={resourceForm.author}
+                        onChange={(e) => setResourceForm(prev => ({ ...prev, author: e.target.value }))}
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <Label htmlFor="resource-description">Description</Label>
+                    <Textarea
+                      id="resource-description"
+                      value={resourceForm.description}
+                      onChange={(e) => setResourceForm(prev => ({ ...prev, description: e.target.value }))}
+                      required
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                      <Label htmlFor="resource-type">Type</Label>
+                      <Select
+                        value={resourceForm.type}
+                        onValueChange={(value: 'guide' | 'template' | 'tip') => 
+                          setResourceForm(prev => ({ ...prev, type: value }))
+                        }
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="guide">Guide</SelectItem>
+                          <SelectItem value="template">Template</SelectItem>
+                          <SelectItem value="tip">Tip</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label htmlFor="resource-difficulty">Difficulty</Label>
+                      <Select
+                        value={resourceForm.difficulty}
+                        onValueChange={(value: 'beginner' | 'intermediate' | 'advanced') => 
+                          setResourceForm(prev => ({ ...prev, difficulty: value }))
+                        }
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="beginner">Beginner</SelectItem>
+                          <SelectItem value="intermediate">Intermediate</SelectItem>
+                          <SelectItem value="advanced">Advanced</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label htmlFor="resource-category">Category</Label>
+                      <Input
+                        id="resource-category"
+                        value={resourceForm.category}
+                        onChange={(e) => setResourceForm(prev => ({ ...prev, category: e.target.value }))}
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <Label htmlFor="resource-tags">Tags (comma separated)</Label>
+                    <Input
+                      id="resource-tags"
+                      value={resourceForm.tags}
+                      onChange={(e) => setResourceForm(prev => ({ ...prev, tags: e.target.value }))}
+                      placeholder="study tips, university, guide"
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="resource-content">Content</Label>
+                    <Textarea
+                      id="resource-content"
+                      value={resourceForm.content}
+                      onChange={(e) => setResourceForm(prev => ({ ...prev, content: e.target.value }))}
+                      rows={10}
+                      required
+                    />
+                  </div>
+
+                  <div className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      id="resource-featured"
+                      checked={resourceForm.featured}
+                      onChange={(e) => setResourceForm(prev => ({ ...prev, featured: e.target.checked }))}
+                    />
+                    <Label htmlFor="resource-featured">Featured Resource</Label>
+                  </div>
+
+                  <div className="flex gap-2">
+                    <Button type="submit">
+                      {editingResource ? 'Update Resource' : 'Create Resource'}
                     </Button>
-                  </DialogTrigger>
-                  <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
-                    <DialogHeader>
-                      <DialogTitle>
-                        {editingTip ? "Edit" : "Create"} Study Tip
-                      </DialogTitle>
-                      <DialogDescription>
-                        {editingTip
-                          ? "Update the study tip details"
-                          : "Add a new study tip for students"}
-                      </DialogDescription>
-                    </DialogHeader>
-                    <div className="space-y-4">
-                      <Input
-                        placeholder="Tip title"
-                        value={tipForm.title}
-                        onChange={(e) =>
-                          setTipForm((prev) => ({
-                            ...prev,
-                            title: e.target.value,
-                          }))
-                        }
-                      />
-                      <div className="grid grid-cols-2 gap-4">
-                        <Input
-                          placeholder="Category"
-                          value={tipForm.category}
-                          onChange={(e) =>
-                            setTipForm((prev) => ({
-                              ...prev,
-                              category: e.target.value,
-                            }))
-                          }
-                        />
-                        <Select
-                          value={tipForm.difficulty}
-                          onValueChange={(
-                            value: "Beginner" | "Intermediate" | "Advanced",
-                          ) =>
-                            setTipForm((prev) => ({
-                              ...prev,
-                              difficulty: value,
-                            }))
-                          }
-                        >
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="Beginner">Beginner</SelectItem>
-                            <SelectItem value="Intermediate">
-                              Intermediate
-                            </SelectItem>
-                            <SelectItem value="Advanced">Advanced</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div className="grid grid-cols-2 gap-4">
-                        <Input
-                          placeholder="Estimated time (e.g., 15 min)"
-                          value={tipForm.estimatedTime}
-                          onChange={(e) =>
-                            setTipForm((prev) => ({
-                              ...prev,
-                              estimatedTime: e.target.value,
-                            }))
-                          }
-                        />
-                        <Input
-                          type="number"
-                          placeholder="Effectiveness (1-100)"
-                          min="1"
-                          max="100"
-                          value={tipForm.effectiveness}
-                          onChange={(e) =>
-                            setTipForm((prev) => ({
-                              ...prev,
-                              effectiveness: parseInt(e.target.value) || 80,
-                            }))
-                          }
-                        />
-                      </div>
-                      <Input
-                        placeholder="Tags (comma-separated)"
-                        value={tipForm.tags}
-                        onChange={(e) =>
-                          setTipForm((prev) => ({
-                            ...prev,
-                            tags: e.target.value,
-                          }))
-                        }
-                      />
-                      <Input
-                        placeholder="Author (optional)"
-                        value={tipForm.author}
-                        onChange={(e) =>
-                          setTipForm((prev) => ({
-                            ...prev,
-                            author: e.target.value,
-                          }))
-                        }
-                      />
-                      <Textarea
-                        placeholder="Tip content (supports markdown)"
-                        value={tipForm.content}
-                        onChange={(e) =>
-                          setTipForm((prev) => ({
-                            ...prev,
-                            content: e.target.value,
-                          }))
-                        }
-                        rows={8}
-                      />
-                    </div>
-                    <DialogFooter>
-                      <Button
-                        variant="outline"
-                        onClick={() => setShowTipDialog(false)}
-                      >
-                        Cancel
-                      </Button>
-                      <Button
-                        onClick={editingTip ? handleUpdateTip : handleCreateTip}
-                        disabled={
-                          isSubmitting || !tipForm.title || !tipForm.content
-                        }
-                      >
-                        {isSubmitting ? (
-                          <LoadingSpinner />
-                        ) : editingTip ? (
-                          "Update"
-                        ) : (
-                          "Create"
-                        )}
-                      </Button>
-                    </DialogFooter>
-                  </DialogContent>
-                </Dialog>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {studyTips.map((tip) => (
-                  <div key={tip.id} className="border rounded-lg p-4">
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <h3 className="font-semibold text-lg">{tip.title}</h3>
-                        <div className="flex items-center gap-2 mt-2">
-                          <Badge variant="secondary">{tip.category}</Badge>
-                          <Badge
-                            variant={
-                              tip.difficulty === "Beginner"
-                                ? "default"
-                                : tip.difficulty === "Intermediate"
-                                  ? "secondary"
-                                  : "destructive"
-                            }
-                          >
-                            {tip.difficulty}
+                    <Button type="button" variant="outline" onClick={resetResourceForm}>
+                      Cancel
+                    </Button>
+                  </div>
+                </form>
+              </CardContent>
+            </Card>
+          )}
+
+          <div className="grid gap-4">
+            {resources.map((resource) => (
+              <Card key={resource.id}>
+                <CardContent className="p-4">
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-2">
+                        <FileText className="h-4 w-4" />
+                        <h3 className="font-semibold">{resource.title}</h3>
+                        {resource.featured && (
+                          <Badge variant="default">
+                            <span className="text-xs">Featured</span>
                           </Badge>
-                          <div className="flex items-center text-sm text-gray-600">
-                            <Clock className="h-3 w-3 mr-1" />
-                            {tip.estimatedTime}
-                          </div>
-                          {tip.effectiveness && (
-                            <div className="flex items-center text-sm text-gray-600">
-                              <Star className="h-3 w-3 mr-1" />
-                              {tip.effectiveness}%
-                            </div>
-                          )}
-                        </div>
-                        <p className="text-gray-600 mt-2 line-clamp-2">
-                          {tip.content.slice(0, 150)}...
-                        </p>
-                        {tip.tags && tip.tags.length > 0 && (
-                          <div className="flex flex-wrap gap-1 mt-2">
-                            {tip.tags.map((tag, index) => (
-                              <Badge
-                                key={index}
-                                variant="outline"
-                                className="text-xs"
-                              >
-                                {tag}
-                              </Badge>
-                            ))}
-                          </div>
                         )}
                       </div>
-                      <div className="flex items-center gap-2 ml-4">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => openEditTip(tip)}
-                        >
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleDeleteTip(tip.id)}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
+                      <p className="text-sm text-gray-600 mb-2">{resource.description}</p>
+                      <div className="flex flex-wrap gap-2 mb-2">
+                        <Badge variant="outline">
+                          <span className="text-xs">{resource.type}</span>
+                        </Badge>
+                        <Badge variant="outline">
+                          <span className="text-xs">{resource.difficulty}</span>
+                        </Badge>
+                        <Badge variant="outline">
+                          <span className="text-xs">{resource.category}</span>
+                        </Badge>
+                      </div>
+                      <div className="flex items-center gap-4 text-xs text-gray-500">
+                        <span className="flex items-center gap-1">
+                          <User className="h-3 w-3" />
+                          {resource.author}
+                        </span>
+                        <span>{resource.views} views</span>
+                        <span>{resource.likes} likes</span>
                       </div>
                     </div>
+                    <div className="flex gap-2">
+                      <Button size="sm" variant="outline" onClick={() => editResource(resource)}>
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        onClick={() => deleteResource(resource.id)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </div>
-                ))}
-                {studyTips.length === 0 && (
-                  <div className="text-center py-8 text-gray-500">
-                    <Lightbulb className="h-12 w-12 mx-auto mb-4 text-gray-300" />
-                    <p>No study tips found. Create your first study tip!</p>
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
         </TabsContent>
 
-        <TabsContent value="resources">
-          <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <div>
-                  <CardTitle>Study Resources</CardTitle>
-                  <CardDescription>
-                    Manage external study resources and tools
-                  </CardDescription>
-                </div>
-                <Dialog
-                  open={showResourceDialog}
-                  onOpenChange={setShowResourceDialog}
-                >
-                  <DialogTrigger asChild>
-                    <Button
-                      onClick={() => {
-                        resetResourceForm();
-                        setEditingResource(null);
-                      }}
-                    >
-                      <Plus className="h-4 w-4 mr-2" />
-                      Add Resource
+        <TabsContent value="tips" className="space-y-4">
+          {showTipForm && (
+            <Card>
+              <CardHeader>
+                <CardTitle>
+                  {editingTip ? 'Edit Study Tip' : 'Create New Study Tip'}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <form onSubmit={handleTipSubmit} className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="tip-title">Title</Label>
+                      <Input
+                        id="tip-title"
+                        value={tipForm.title}
+                        onChange={(e) => setTipForm(prev => ({ ...prev, title: e.target.value }))}
+                        required
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="tip-author">Author</Label>
+                      <Input
+                        id="tip-author"
+                        value={tipForm.author}
+                        onChange={(e) => setTipForm(prev => ({ ...prev, author: e.target.value }))}
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <Label htmlFor="tip-content">Content</Label>
+                    <Textarea
+                      id="tip-content"
+                      value={tipForm.content}
+                      onChange={(e) => setTipForm(prev => ({ ...prev, content: e.target.value }))}
+                      rows={6}
+                      required
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="tip-difficulty">Difficulty</Label>
+                      <Select
+                        value={tipForm.difficulty}
+                        onValueChange={(value: 'beginner' | 'intermediate' | 'advanced') => 
+                          setTipForm(prev => ({ ...prev, difficulty: value }))
+                        }
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="beginner">Beginner</SelectItem>
+                          <SelectItem value="intermediate">Intermediate</SelectItem>
+                          <SelectItem value="advanced">Advanced</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label htmlFor="tip-category">Category</Label>
+                      <Input
+                        id="tip-category"
+                        value={tipForm.category}
+                        onChange={(e) => setTipForm(prev => ({ ...prev, category: e.target.value }))}
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <Label htmlFor="tip-tags">Tags (comma separated)</Label>
+                    <Input
+                      id="tip-tags"
+                      value={tipForm.tags}
+                      onChange={(e) => setTipForm(prev => ({ ...prev, tags: e.target.value }))}
+                      placeholder="productivity, time management, study methods"
+                    />
+                  </div>
+
+                  <div className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      id="tip-featured"
+                      checked={tipForm.featured}
+                      onChange={(e) => setTipForm(prev => ({ ...prev, featured: e.target.checked }))}
+                    />
+                    <Label htmlFor="tip-featured">Featured Tip</Label>
+                  </div>
+
+                  <div className="flex gap-2">
+                    <Button type="submit">
+                      {editingTip ? 'Update Tip' : 'Create Tip'}
                     </Button>
-                  </DialogTrigger>
-                  <DialogContent className="max-w-2xl">
-                    <DialogHeader>
-                      <DialogTitle>
-                        {editingResource ? "Edit" : "Create"} Study Resource
-                      </DialogTitle>
-                      <DialogDescription>
-                        {editingResource
-                          ? "Update the study resource details"
-                          : "Add a new study resource for students"}
-                      </DialogDescription>
-                    </DialogHeader>
-                    <div className="space-y-4">
-                      <Input
-                        placeholder="Resource title"
-                        value={resourceForm.title}
-                        onChange={(e) =>
-                          setResourceForm((prev) => ({
-                            ...prev,
-                            title: e.target.value,
-                          }))
-                        }
-                      />
-                      <Textarea
-                        placeholder="Resource description"
-                        value={resourceForm.description}
-                        onChange={(e) =>
-                          setResourceForm((prev) => ({
-                            ...prev,
-                            description: e.target.value,
-                          }))
-                        }
-                        rows={3}
-                      />
-                      <div className="grid grid-cols-2 gap-4">
-                        <Select
-                          value={resourceForm.type}
-                          onValueChange={(
-                            value:
-                              | "pdf"
-                              | "video"
-                              | "website"
-                              | "tool"
-                              | "course",
-                          ) =>
-                            setResourceForm((prev) => ({
-                              ...prev,
-                              type: value,
-                            }))
-                          }
-                        >
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="website">Website</SelectItem>
-                            <SelectItem value="video">Video</SelectItem>
-                            <SelectItem value="pdf">PDF</SelectItem>
-                            <SelectItem value="tool">Tool</SelectItem>
-                            <SelectItem value="course">Course</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <Select
-                          value={resourceForm.difficulty}
-                          onValueChange={(
-                            value: "Beginner" | "Intermediate" | "Advanced",
-                          ) =>
-                            setResourceForm((prev) => ({
-                              ...prev,
-                              difficulty: value,
-                            }))
-                          }
-                        >
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="Beginner">Beginner</SelectItem>
-                            <SelectItem value="Intermediate">
-                              Intermediate
-                            </SelectItem>
-                            <SelectItem value="Advanced">Advanced</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <Input
-                        placeholder="Category"
-                        value={resourceForm.category}
-                        onChange={(e) =>
-                          setResourceForm((prev) => ({
-                            ...prev,
-                            category: e.target.value,
-                          }))
-                        }
-                      />
-                      <Input
-                        placeholder="URL"
-                        value={resourceForm.url}
-                        onChange={(e) =>
-                          setResourceForm((prev) => ({
-                            ...prev,
-                            url: e.target.value,
-                          }))
-                        }
-                      />
-                      <div className="grid grid-cols-3 gap-4">
-                        <Input
-                          placeholder="Provider"
-                          value={resourceForm.provider}
-                          onChange={(e) =>
-                            setResourceForm((prev) => ({
-                              ...prev,
-                              provider: e.target.value,
-                            }))
-                          }
-                        />
-                        <Input
-                          placeholder="Duration"
-                          value={resourceForm.duration}
-                          onChange={(e) =>
-                            setResourceForm((prev) => ({
-                              ...prev,
-                              duration: e.target.value,
-                            }))
-                          }
-                        />
-                        <Input
-                          type="number"
-                          placeholder="Rating (1-5)"
-                          min="1"
-                          max="5"
-                          step="0.1"
-                          value={resourceForm.rating}
-                          onChange={(e) =>
-                            setResourceForm((prev) => ({
-                              ...prev,
-                              rating: parseFloat(e.target.value) || 4.5,
-                            }))
-                          }
-                        />
-                      </div>
-                      <Input
-                        placeholder="Tags (comma-separated)"
-                        value={resourceForm.tags}
-                        onChange={(e) =>
-                          setResourceForm((prev) => ({
-                            ...prev,
-                            tags: e.target.value,
-                          }))
-                        }
-                      />
-                    </div>
-                    <DialogFooter>
-                      <Button
-                        variant="outline"
-                        onClick={() => setShowResourceDialog(false)}
-                      >
-                        Cancel
-                      </Button>
-                      <Button
-                        onClick={
-                          editingResource
-                            ? handleUpdateResource
-                            : handleCreateResource
-                        }
-                        disabled={
-                          isSubmitting ||
-                          !resourceForm.title ||
-                          !resourceForm.url
-                        }
-                      >
-                        {isSubmitting ? (
-                          <LoadingSpinner />
-                        ) : editingResource ? (
-                          "Update"
-                        ) : (
-                          "Create"
-                        )}
-                      </Button>
-                    </DialogFooter>
-                  </DialogContent>
-                </Dialog>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {studyResources.map((resource) => (
-                  <div key={resource.id} className="border rounded-lg p-4">
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <h3 className="font-semibold text-lg">
-                          {resource.title}
-                        </h3>
-                        <div className="flex items-center gap-2 mt-2">
-                          <Badge variant="secondary">{resource.category}</Badge>
-                          <Badge variant="outline">{resource.type}</Badge>
-                          <Badge
-                            variant={
-                              resource.difficulty === "Beginner"
-                                ? "default"
-                                : resource.difficulty === "Intermediate"
-                                  ? "secondary"
-                                  : "destructive"
-                            }
-                          >
-                            {resource.difficulty}
+                    <Button type="button" variant="outline" onClick={resetTipForm}>
+                      Cancel
+                    </Button>
+                  </div>
+                </form>
+              </CardContent>
+            </Card>
+          )}
+
+          <div className="grid gap-4">
+            {tips.map((tip) => (
+              <Card key={tip.id}>
+                <CardContent className="p-4">
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-2">
+                        <BookOpen className="h-4 w-4" />
+                        <h3 className="font-semibold">{tip.title}</h3>
+                        {tip.featured && (
+                          <Badge variant="default">
+                            <span className="text-xs">Featured</span>
                           </Badge>
-                          {resource.rating && (
-                            <div className="flex items-center text-sm text-gray-600">
-                              <Star className="h-3 w-3 mr-1" />
-                              {resource.rating}
-                            </div>
-                          )}
-                        </div>
-                        <p className="text-gray-600 mt-2">
-                          {resource.description}
-                        </p>
-                        <div className="flex items-center gap-4 mt-2 text-sm text-gray-600">
-                          {resource.provider && (
-                            <span>Provider: {resource.provider}</span>
-                          )}
-                          {resource.duration && (
-                            <span>Duration: {resource.duration}</span>
-                          )}
-                          <a
-                            href={resource.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="flex items-center text-blue-600 hover:underline"
-                          >
-                            <ExternalLink className="h-3 w-3 mr-1" />
-                            Visit
-                          </a>
-                        </div>
-                        {resource.tags && resource.tags.length > 0 && (
-                          <div className="flex flex-wrap gap-1 mt-2">
-                            {resource.tags.map((tag, index) => (
-                              <Badge
-                                key={index}
-                                variant="outline"
-                                className="text-xs"
-                              >
-                                {tag}
-                              </Badge>
-                            ))}
-                          </div>
                         )}
                       </div>
-                      <div className="flex items-center gap-2 ml-4">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => openEditResource(resource)}
-                        >
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleDeleteResource(resource.id)}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
+                      <p className="text-sm text-gray-600 mb-2 line-clamp-3">{tip.content}</p>
+                      <div className="flex flex-wrap gap-2 mb-2">
+                        <Badge variant="outline">
+                          <span className="text-xs">{tip.difficulty}</span>
+                        </Badge>
+                        <Badge variant="outline">
+                          <span className="text-xs">{tip.category}</span>
+                        </Badge>
+                      </div>
+                      <div className="flex items-center gap-4 text-xs text-gray-500">
+                        <span className="flex items-center gap-1">
+                          <User className="h-3 w-3" />
+                          {tip.author}
+                        </span>
+                        <span>{tip.views} views</span>
+                        <span>{tip.likes} likes</span>
                       </div>
                     </div>
+                    <div className="flex gap-2">
+                      <Button size="sm" variant="outline" onClick={() => editTip(tip)}>
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        onClick={() => deleteTip(tip.id)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </div>
-                ))}
-                {studyResources.length === 0 && (
-                  <div className="text-center py-8 text-gray-500">
-                    <BookOpen className="h-12 w-12 mx-auto mb-4 text-gray-300" />
-                    <p>No study resources found. Create your first resource!</p>
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
         </TabsContent>
       </Tabs>
     </div>
