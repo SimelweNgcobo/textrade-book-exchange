@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -38,8 +39,10 @@ const AdminSettingsTab = ({
   const [newBroadcast, setNewBroadcast] = useState({
     title: "",
     message: "",
-    priority: "normal" as "low" | "normal" | "high" | "urgent",
+    type: "info" as "info" | "warning" | "success" | "error",
+    priority: "normal" as "low" | "normal" | "medium" | "high" | "urgent",
     targetAudience: "all" as "all" | "users" | "admin",
+    active: true,
     expiresAt: "",
   });
   const [isCreating, setIsCreating] = useState(false);
@@ -55,8 +58,10 @@ const AdminSettingsTab = ({
       await createBroadcast({
         title: newBroadcast.title,
         message: newBroadcast.message,
+        type: newBroadcast.type,
         priority: newBroadcast.priority,
         targetAudience: newBroadcast.targetAudience,
+        active: newBroadcast.active,
         expiresAt: newBroadcast.expiresAt || undefined,
         createdBy: user.id,
       });
@@ -69,8 +74,10 @@ const AdminSettingsTab = ({
       setNewBroadcast({
         title: "",
         message: "",
+        type: "info",
         priority: "normal",
         targetAudience: "all",
+        active: true,
         expiresAt: "",
       });
     } catch (error) {
@@ -110,10 +117,32 @@ const AdminSettingsTab = ({
               />
             </div>
             <div className="space-y-2">
+              <Label htmlFor="broadcast-type">Type</Label>
+              <Select
+                value={newBroadcast.type}
+                onValueChange={(value: "info" | "warning" | "success" | "error") =>
+                  setNewBroadcast((prev) => ({ ...prev, type: value }))
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="info">Info</SelectItem>
+                  <SelectItem value="warning">Warning</SelectItem>
+                  <SelectItem value="success">Success</SelectItem>
+                  <SelectItem value="error">Error</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
               <Label htmlFor="broadcast-priority">Priority</Label>
               <Select
                 value={newBroadcast.priority}
-                onValueChange={(value: "low" | "normal" | "high" | "urgent") =>
+                onValueChange={(value: "low" | "normal" | "medium" | "high" | "urgent") =>
                   setNewBroadcast((prev) => ({ ...prev, priority: value }))
                 }
               >
@@ -123,14 +152,12 @@ const AdminSettingsTab = ({
                 <SelectContent>
                   <SelectItem value="low">Low</SelectItem>
                   <SelectItem value="normal">Normal</SelectItem>
+                  <SelectItem value="medium">Medium</SelectItem>
                   <SelectItem value="high">High</SelectItem>
                   <SelectItem value="urgent">Urgent</SelectItem>
                 </SelectContent>
               </Select>
             </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="broadcast-audience">Target Audience</Label>
               <Select
@@ -152,20 +179,21 @@ const AdminSettingsTab = ({
                 </SelectContent>
               </Select>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="broadcast-expires">Expires At (Optional)</Label>
-              <Input
-                id="broadcast-expires"
-                type="datetime-local"
-                value={newBroadcast.expiresAt}
-                onChange={(e) =>
-                  setNewBroadcast((prev) => ({
-                    ...prev,
-                    expiresAt: e.target.value,
-                  }))
-                }
-              />
-            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="broadcast-expires">Expires At (Optional)</Label>
+            <Input
+              id="broadcast-expires"
+              type="datetime-local"
+              value={newBroadcast.expiresAt}
+              onChange={(e) =>
+                setNewBroadcast((prev) => ({
+                  ...prev,
+                  expiresAt: e.target.value,
+                }))
+              }
+            />
           </div>
 
           <div className="space-y-2">

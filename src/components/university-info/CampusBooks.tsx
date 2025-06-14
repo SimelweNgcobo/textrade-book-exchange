@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -63,6 +64,7 @@ const CampusBooks = ({
         university?: string;
         universityYear?: string;
         condition?: string;
+        search?: string;
       } = {};
 
       if (selectedUniversityFilter) {

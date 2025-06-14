@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -53,7 +52,20 @@ const AccountInformation = ({ profile, onProfileUpdate }: AccountInformationProp
 
       if (error) throw error;
 
-      const updatedProfile = { ...profile, ...data };
+      // Convert the Supabase response to UserProfile type
+      const updatedProfile: UserProfile = {
+        ...profile,
+        name: data.name,
+        bio: data.bio,
+        updated_at: data.updated_at,
+        pickup_address: typeof data.pickup_address === 'object' && data.pickup_address !== null 
+          ? data.pickup_address as any 
+          : undefined,
+        shipping_address: typeof data.shipping_address === 'object' && data.shipping_address !== null 
+          ? data.shipping_address as any 
+          : undefined,
+      };
+      
       onProfileUpdate(updatedProfile);
       setIsEditing(false);
       toast.success("Profile updated successfully!");
