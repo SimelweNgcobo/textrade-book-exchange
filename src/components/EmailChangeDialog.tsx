@@ -47,13 +47,7 @@ const EmailChangeDialog = ({
   const [isCheckingPending, setIsCheckingPending] = useState(false);
   const [isCancelling, setIsCancelling] = useState(false);
 
-  // Check for pending email change when dialog opens
-  useEffect(() => {
-    if (isOpen && user) {
-      checkPendingChange();
-    }
-  }, [isOpen, user, checkPendingChange]);
-
+  // Move checkPendingChange before useEffect
   const checkPendingChange = useCallback(async () => {
     if (!user) return;
 
@@ -74,6 +68,13 @@ const EmailChangeDialog = ({
       setIsCheckingPending(false);
     }
   }, [user]);
+
+  // Check for pending email change when dialog opens
+  useEffect(() => {
+    if (isOpen && user) {
+      checkPendingChange();
+    }
+  }, [isOpen, user, checkPendingChange]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

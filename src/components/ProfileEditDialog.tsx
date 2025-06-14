@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
@@ -13,6 +14,7 @@ import {
 import { User, Mail, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { ActivityService } from "@/services/activityService";
 
 interface ProfileEditDialogProps {
   isOpen: boolean;

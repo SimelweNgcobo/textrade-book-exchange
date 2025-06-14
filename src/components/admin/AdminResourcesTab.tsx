@@ -63,63 +63,59 @@ import {
   StudyResource,
   UserSubmittedProgram,
 } from "@/types/university";
+import { 
+  normalizeStudyTip, 
+  normalizeStudyResource, 
+  normalizeTagsToArray, 
+  normalizeTagsToString 
+} from "@/utils/typeHelpers";
 import { toast } from "sonner";
 
 // Initial data - in real app this would come from your backend
 const INITIAL_TIPS: StudyTip[] = [
-  {
+  normalizeStudyTip({
     id: "tip-1",
     title: "The Pomodoro Technique for Focused Study",
     description: "Boost productivity with 25-minute focused study sessions",
     category: "time-management",
-    difficulty: "beginner",
+    difficulty: "Beginner",
     tags: ["productivity", "focus", "time-management"],
     content: "The Pomodoro Technique is a time management method...",
-    isActive: true,
-    createdAt: "2024-01-15T10:00:00Z",
-    updatedAt: "2024-01-15T10:00:00Z",
-  },
-  {
+  }),
+  normalizeStudyTip({
     id: "tip-2",
     title: "Active Reading Strategies",
     description: "Transform passive reading into active learning",
     category: "study-techniques",
-    difficulty: "intermediate",
+    difficulty: "Intermediate",
     tags: ["reading", "comprehension", "notes"],
     content: "Active reading involves engaging with the text...",
-    isActive: true,
-    createdAt: "2024-01-16T10:00:00Z",
-    updatedAt: "2024-01-16T10:00:00Z",
-  },
+  }),
 ];
 
 const INITIAL_RESOURCES: StudyResource[] = [
-  {
+  normalizeStudyResource({
     id: "resource-1",
     title: "Weekly Study Planner Template",
     description: "Comprehensive weekly planner to organize your study schedule",
-    type: "template",
+    type: "pdf",
     category: "time-management",
+    url: "#",
     downloadUrl: "#",
     tags: ["planning", "schedule", "organization"],
-    isActive: true,
     isFeatured: true,
-    createdAt: "2024-01-15T10:00:00Z",
-    updatedAt: "2024-01-15T10:00:00Z",
-  },
-  {
+  }),
+  normalizeStudyResource({
     id: "resource-2",
     title: "Mathematics Formula Sheet",
     description: "Essential formulas for Grades 10-12",
     type: "pdf",
     category: "study-guides",
+    url: "#",
     downloadUrl: "#",
     tags: ["mathematics", "formulas", "reference"],
-    isActive: true,
     isFeatured: false,
-    createdAt: "2024-01-16T10:00:00Z",
-    updatedAt: "2024-01-16T10:00:00Z",
-  },
+  }),
 ];
 
 const INITIAL_PROGRAMS: UserSubmittedProgram[] = [
@@ -153,18 +149,14 @@ const INITIAL_PROGRAMS: UserSubmittedProgram[] = [
 const AdminResourcesTab = () => {
   const [activeTab, setActiveTab] = useState("tips");
   const [tips, setTips] = useState<StudyTip[]>(INITIAL_TIPS);
-  const [resources, setResources] =
-    useState<StudyResource[]>(INITIAL_RESOURCES);
-  const [submittedPrograms, setSubmittedPrograms] =
-    useState<UserSubmittedProgram[]>(INITIAL_PROGRAMS);
+  const [resources, setResources] = useState<StudyResource[]>(INITIAL_RESOURCES);
+  const [submittedPrograms, setSubmittedPrograms] = useState<UserSubmittedProgram[]>(INITIAL_PROGRAMS);
 
   // Dialog states
   const [isCreateTipOpen, setIsCreateTipOpen] = useState(false);
   const [isCreateResourceOpen, setIsCreateResourceOpen] = useState(false);
   const [editingTip, setEditingTip] = useState<StudyTip | null>(null);
-  const [editingResource, setEditingResource] = useState<StudyResource | null>(
-    null,
-  );
+  const [editingResource, setEditingResource] = useState<StudyResource | null>(null);
 
   // Search and filter states
   const [searchTerm, setSearchTerm] = useState("");
@@ -176,7 +168,7 @@ const AdminResourcesTab = () => {
     title: "",
     description: "",
     category: "general",
-    difficulty: "beginner",
+    difficulty: "Beginner",
     tags: [],
     content: "",
   });
@@ -199,21 +191,15 @@ const AdminResourcesTab = () => {
       return;
     }
 
-    const newTip: StudyTip = {
+    const newTip = normalizeStudyTip({
       id: `tip-${Date.now()}`,
       title: tipForm.title!,
       description: tipForm.description!,
-      category: tipForm.category as StudyTip["category"],
-      difficulty: tipForm.difficulty as StudyTip["difficulty"],
-      tags:
-        typeof tipForm.tags === "string"
-          ? tipForm.tags.split(",").map((t) => t.trim())
-          : tipForm.tags || [],
+      category: tipForm.category!,
+      difficulty: tipForm.difficulty!,
+      tags: normalizeTagsToArray(tipForm.tags || []),
       content: tipForm.content!,
-      isActive: true,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
+    });
 
     setTips([...tips, newTip]);
     setIsCreateTipOpen(false);
@@ -221,7 +207,7 @@ const AdminResourcesTab = () => {
       title: "",
       description: "",
       category: "general",
-      difficulty: "beginner",
+      difficulty: "Beginner",
       tags: [],
       content: "",
     });
@@ -235,23 +221,17 @@ const AdminResourcesTab = () => {
       return;
     }
 
-    const newResource: StudyResource = {
+    const newResource = normalizeStudyResource({
       id: `resource-${Date.now()}`,
       title: resourceForm.title!,
       description: resourceForm.description!,
-      type: resourceForm.type as StudyResource["type"],
-      category: resourceForm.category as StudyResource["category"],
-      url: resourceForm.url,
+      type: resourceForm.type!,
+      category: resourceForm.category!,
+      url: resourceForm.url || "",
       downloadUrl: resourceForm.downloadUrl,
-      tags:
-        typeof resourceForm.tags === "string"
-          ? resourceForm.tags.split(",").map((t) => t.trim())
-          : resourceForm.tags || [],
-      isActive: true,
+      tags: normalizeTagsToArray(resourceForm.tags || []),
       isFeatured: resourceForm.isFeatured || false,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
+    });
 
     setResources([...resources, newResource]);
     setIsCreateResourceOpen(false);
@@ -273,35 +253,26 @@ const AdminResourcesTab = () => {
     setEditingTip(tip);
     setTipForm({
       ...tip,
-      tags: tip.tags.join(", "),
+      tags: normalizeTagsToString(tip.tags),
     });
     setIsCreateTipOpen(true);
   };
 
   const handleUpdateTip = () => {
-    if (
-      !editingTip ||
-      !tipForm.title ||
-      !tipForm.description ||
-      !tipForm.content
-    ) {
+    if (!editingTip || !tipForm.title || !tipForm.description || !tipForm.content) {
       toast.error("Please fill in all required fields");
       return;
     }
 
-    const updatedTip: StudyTip = {
+    const updatedTip = normalizeStudyTip({
       ...editingTip,
       title: tipForm.title!,
       description: tipForm.description!,
-      category: tipForm.category as StudyTip["category"],
-      difficulty: tipForm.difficulty as StudyTip["difficulty"],
-      tags:
-        typeof tipForm.tags === "string"
-          ? tipForm.tags.split(",").map((t) => t.trim())
-          : tipForm.tags || [],
+      category: tipForm.category!,
+      difficulty: tipForm.difficulty!,
+      tags: normalizeTagsToArray(tipForm.tags || []),
       content: tipForm.content!,
-      updatedAt: new Date().toISOString(),
-    };
+    });
 
     setTips(tips.map((t) => (t.id === editingTip.id ? updatedTip : t)));
     setIsCreateTipOpen(false);
@@ -310,7 +281,7 @@ const AdminResourcesTab = () => {
       title: "",
       description: "",
       category: "general",
-      difficulty: "beginner",
+      difficulty: "Beginner",
       tags: [],
       content: "",
     });
@@ -353,7 +324,7 @@ const AdminResourcesTab = () => {
     setTips((prev) =>
       prev.map((t) =>
         t.id === tipId
-          ? { ...t, isActive: !t.isActive, updatedAt: new Date().toISOString() }
+          ? { ...t, isActive: !t.isActive }
           : t,
       ),
     );
@@ -364,7 +335,7 @@ const AdminResourcesTab = () => {
     setResources((prev) =>
       prev.map((r) =>
         r.id === resourceId
-          ? { ...r, isActive: !r.isActive, updatedAt: new Date().toISOString() }
+          ? { ...r, isActive: !r.isActive }
           : r,
       ),
     );
@@ -375,11 +346,7 @@ const AdminResourcesTab = () => {
     setResources((prev) =>
       prev.map((r) =>
         r.id === resourceId
-          ? {
-              ...r,
-              isFeatured: !r.isFeatured,
-              updatedAt: new Date().toISOString(),
-            }
+          ? { ...r, isFeatured: !r.isFeatured }
           : r,
       ),
     );
@@ -404,7 +371,7 @@ const AdminResourcesTab = () => {
   const filteredTips = tips.filter((tip) => {
     const matchesSearch =
       tip.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      tip.description.toLowerCase().includes(searchTerm.toLowerCase());
+      tip.description!.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory =
       filterCategory === "all" || tip.category === filterCategory;
     const matchesStatus =
@@ -435,8 +402,6 @@ const AdminResourcesTab = () => {
         return <FileText className="h-4 w-4" />;
       case "video":
         return <Play className="h-4 w-4" />;
-      case "template":
-        return <Download className="h-4 w-4" />;
       case "tool":
         return <Target className="h-4 w-4" />;
       default:
@@ -573,7 +538,7 @@ const AdminResourcesTab = () => {
                       title: "",
                       description: "",
                       category: "general",
-                      difficulty: "beginner",
+                      difficulty: "Beginner",
                       tags: [],
                       content: "",
                     });
@@ -636,7 +601,7 @@ const AdminResourcesTab = () => {
                         onValueChange={(value) =>
                           setTipForm((prev) => ({
                             ...prev,
-                            category: value as StudyTip["category"],
+                            category: value,
                           }))
                         }
                       >
@@ -675,11 +640,11 @@ const AdminResourcesTab = () => {
                           <SelectValue placeholder="Select difficulty" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="beginner">Beginner</SelectItem>
-                          <SelectItem value="intermediate">
+                          <SelectItem value="Beginner">Beginner</SelectItem>
+                          <SelectItem value="Intermediate">
                             Intermediate
                           </SelectItem>
-                          <SelectItem value="advanced">Advanced</SelectItem>
+                          <SelectItem value="Advanced">Advanced</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -689,15 +654,11 @@ const AdminResourcesTab = () => {
                       Tags (comma-separated)
                     </label>
                     <Input
-                      value={
-                        typeof tipForm.tags === "string"
-                          ? tipForm.tags
-                          : tipForm.tags?.join(", ") || ""
-                      }
+                      value={normalizeTagsToString(tipForm.tags || [])}
                       onChange={(e) =>
                         setTipForm((prev) => ({
                           ...prev,
-                          tags: e.target.value,
+                          tags: normalizeTagsToArray(e.target.value),
                         }))
                       }
                       placeholder="productivity, focus, time-management"
@@ -779,9 +740,9 @@ const AdminResourcesTab = () => {
                                 </Badge>
                                 <Badge
                                   className={`text-xs ${
-                                    tip.difficulty === "beginner"
+                                    tip.difficulty === "Beginner"
                                       ? "bg-green-100 text-green-800"
-                                      : tip.difficulty === "intermediate"
+                                      : tip.difficulty === "Intermediate"
                                         ? "bg-yellow-100 text-yellow-800"
                                         : "bg-red-100 text-red-800"
                                   }`}
@@ -800,9 +761,9 @@ const AdminResourcesTab = () => {
                         <TableCell className="hidden lg:table-cell">
                           <Badge
                             className={`text-xs ${
-                              tip.difficulty === "beginner"
+                              tip.difficulty === "Beginner"
                                 ? "bg-green-100 text-green-800"
-                                : tip.difficulty === "intermediate"
+                                : tip.difficulty === "Intermediate"
                                   ? "bg-yellow-100 text-yellow-800"
                                   : "bg-red-100 text-red-800"
                             }`}
@@ -942,9 +903,9 @@ const AdminResourcesTab = () => {
                         <SelectContent>
                           <SelectItem value="pdf">PDF Document</SelectItem>
                           <SelectItem value="video">Video</SelectItem>
-                          <SelectItem value="template">Template</SelectItem>
+                          <SelectItem value="website">Website</SelectItem>
                           <SelectItem value="tool">Tool</SelectItem>
-                          <SelectItem value="article">Article</SelectItem>
+                          <SelectItem value="course">Course</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -957,7 +918,7 @@ const AdminResourcesTab = () => {
                         onValueChange={(value) =>
                           setResourceForm((prev) => ({
                             ...prev,
-                            category: value as StudyResource["category"],
+                            category: value,
                           }))
                         }
                       >
@@ -1015,15 +976,11 @@ const AdminResourcesTab = () => {
                       Tags (comma-separated)
                     </label>
                     <Input
-                      value={
-                        typeof resourceForm.tags === "string"
-                          ? resourceForm.tags
-                          : resourceForm.tags?.join(", ") || ""
-                      }
+                      value={normalizeTagsToString(resourceForm.tags || [])}
                       onChange={(e) =>
                         setResourceForm((prev) => ({
                           ...prev,
-                          tags: e.target.value,
+                          tags: normalizeTagsToArray(e.target.value),
                         }))
                       }
                       placeholder="mathematics, formulas, reference"

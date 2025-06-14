@@ -1,113 +1,71 @@
 import { supabase } from "@/integrations/supabase/client";
-import { logError } from "@/utils/errorUtils";
+
+// Define activity types
+export type ActivityType = 
+  | "profile_updated" 
+  | "purchase" 
+  | "sale" 
+  | "listing_created" 
+  | "login";
 
 export interface Activity {
   id: string;
   user_id: string;
-  type:
-    | "purchase"
-    | "sale"
-    | "listing_created"
-    | "listing_updated"
-    | "listing_deleted"
-    | "wishlist_added"
-    | "wishlist_removed"
-    | "rating_given"
-    | "rating_received"
-    | "profile_updated"
-    | "login"
-    | "search"
-    | "book_viewed";
+  type: ActivityType;
   title: string;
   description: string;
-  metadata?: {
-    book_id?: string;
-    book_title?: string;
-    price?: number;
-    target_user_id?: string;
-    target_user_name?: string;
-    rating?: number;
-    search_query?: string;
-    category?: string;
-    [key: string]: unknown;
-  };
+  metadata?: Record<string, any>;
   created_at: string;
 }
 
-export interface ActivitySummary {
-  total_activities: number;
-  recent_activities: Activity[];
-  activity_by_type: { [key: string]: number };
-  last_active: string;
-}
-
-// Activity types that should NOT create notifications to prevent spam
-const SILENT_ACTIVITY_TYPES = new Set([
-  "search",
-  "book_viewed",
-  "login",
-  "profile_updated",
+// Silent activities that don't need notifications
+const SILENT_ACTIVITY_TYPES = new Set<ActivityType>([
+  "login"
 ]);
-
-// Simple activity-to-notification type mapping
-const getNotificationTypeForActivity = (
-  activityType: Activity["type"],
-): "info" | "success" | "warning" | "error" => {
-  switch (activityType) {
-    case "purchase":
-    case "sale":
-      return "success";
-    case "listing_created":
-    case "listing_updated":
-      return "info";
-    case "listing_deleted":
-      return "warning";
-    case "rating_received":
-      return "success";
-    default:
-      return "info";
-  }
-};
 
 export class ActivityService {
   /**
-   * Enhanced error logging with detailed information
+   * Log a profile update activity
    */
-  private static logDetailedError(context: string, error: unknown) {
-    const errorObj = error as Record<string, unknown>;
-    const errorInfo = {
-      errorType: typeof error,
-      errorMessage: errorObj?.message || "No message",
-      errorCode: errorObj?.code || "No code",
-      errorDetails: errorObj?.details || "No details",
-      errorHint: errorObj?.hint || "No hint",
-      errorName: errorObj?.name || "No name",
-    };
+  static async logProfileUpdate(userId: string): Promise<void> {
+    try {
+      if (!userId) {
+        console.warn("❌ No userId provided for profile update logging");
+        return;
+      }
 
-    console.error(`[ActivityService] ${context}:`, {
-      error,
-      ...errorInfo,
-    });
+      // Log to console
+      console.log(`📝 Profile updated for user: ${userId}`);
+      
+      // Create notification for profile update
+      const { error } = await supabase.from("notifications").insert({
+        user_id: userId,
+        title: "Profile Updated",
+        message: "Your profile has been successfully updated",
+        type: "success",
+        read: false,
+      });
 
-    if (logError) {
-      logError(`ActivityService - ${context}`, error);
+      if (error) {
+        console.warn("Failed to create profile update notification:", error);
+      } else {
+        console.log("✅ Profile update notification created");
+      }
+    } catch (error) {
+      console.error("Error logging profile update activity:", error);
     }
   }
 
   /**
-   * Log a new activity for a user with enhanced error handling and duplicate prevention
+   * Generic activity logging method
    */
   static async logActivity(
     userId: string,
-    type: Activity["type"],
+    type: ActivityType,
     title: string,
     description: string,
-    metadata?: Activity["metadata"],
-  ): Promise<{
-    success: boolean;
-    error?: string;
-    details?: Record<string, unknown>;
-  }> {
+    metadata?: Record<string, any>
+  ): Promise<{ success: boolean; error?: string; details?: any }> {
     try {
       // Validate required parameters
       if (!userId || !type || !title || !description) {
@@ -123,25 +81,25 @@ export class ActivityService {
 
       // For silent activities, we can create a simple log without notification
       if (SILENT_ACTIVITY_TYPES.has(type)) {
-        // Just log the activity without creating a notification
         console.log(`📝 Silent activity logged: ${type} - ${title}`);
         return { success: true };
       }
 
       // For important activities, create a notification
-      // Use the notification service directly instead of duplicating logic
-      const { addNotification } = await import(
-        "@/services/notificationService"
-      );
-
       try {
-        await addNotification({
-          userId,
-          title: `Activity: ${title}`,
-          message: description,
-          type: getNotificationTypeForActivity(type),
-          read: false,
-        });
+        const { error: notificationError } = await supabase
+          .from("notifications")
+          .insert({
+            user_id: userId,
+            title: `Activity: ${title}`,
+            message: description,
+            type: this.getNotificationTypeForActivity(type),
+            read: false,
+          });
+
+        if (notificationError) {
+          throw notificationError;
+        }
 
         console.log(`✅ Activity notification created: ${type} - ${title}`);
         return { success: true };
@@ -172,7 +130,7 @@ export class ActivityService {
   static async getUserActivities(
     userId: string,
     limit: number = 50,
-    type?: Activity["type"],
+    type?: ActivityType,
   ): Promise<Activity[]> {
     try {
       if (!userId) {
@@ -234,8 +192,6 @@ export class ActivityService {
           "Error fetching activity notifications",
           notifError,
         );
-
-        // Return empty array if no activities found
         return [];
       }
 
@@ -245,9 +201,8 @@ export class ActivityService {
 
       // Convert notifications to activities
       return (notifications || []).map((notif) => {
-        // Parse the activity type and metadata from the notification
         const message = notif.message || "";
-        let activityType: Activity["type"] = "profile_updated";
+        let activityType: ActivityType = "profile_updated";
         let cleanDescription = message;
         let parsedMetadata = {};
 
@@ -298,83 +253,34 @@ export class ActivityService {
         };
       });
     } catch (error) {
-      this.logDetailedError("Exception in getUserActivities", error);
-
-      // Return empty array instead of throwing to prevent app crashes
+      this.logDetailedError("Error fetching user activities", error);
       return [];
     }
   }
 
   /**
-   * Get activity summary for dashboard
+   * Helper method to get notification type for activity
    */
-  static async getActivitySummary(userId: string): Promise<ActivitySummary> {
-    try {
-      const activities = await this.getUserActivities(userId, 100);
-
-      const activityByType = activities.reduce(
-        (acc, activity) => {
-          acc[activity.type] = (acc[activity.type] || 0) + 1;
-          return acc;
-        },
-        {} as { [key: string]: number },
-      );
-
-      const lastActive =
-        activities.length > 0
-          ? activities[0].created_at
-          : new Date().toISOString();
-
-      return {
-        total_activities: activities.length,
-        recent_activities: activities.slice(0, 10),
-        activity_by_type: activityByType,
-        last_active: lastActive,
-      };
-    } catch (error) {
-      this.logDetailedError("Exception in getActivitySummary", error);
-
-      // Return default summary
-      return {
-        total_activities: 0,
-        recent_activities: [],
-        activity_by_type: {},
-        last_active: new Date().toISOString(),
-      };
-    }
+  private static getNotificationTypeForActivity(activityType: ActivityType): string {
+    const typeMap: Record<ActivityType, string> = {
+      profile_updated: "success",
+      purchase: "info",
+      sale: "success",
+      listing_created: "info",
+      login: "info",
+    };
+    return typeMap[activityType] || "info";
   }
 
   /**
-   * Clear old activities (older than specified days)
+   * Helper method for detailed error logging
    */
-  static async clearOldActivities(
-    userId: string,
-    olderThanDays: number = 90,
-  ): Promise<boolean> {
-    try {
-      const cutoffDate = new Date();
-      cutoffDate.setDate(cutoffDate.getDate() - olderThanDays);
-
-      // Clear from notifications table (our activity storage)
-      const { error } = await supabase
-        .from("notifications")
-        .delete()
-        .eq("user_id", userId)
-        .like("title", "Activity:%")
-        .lt("created_at", cutoffDate.toISOString());
-
-      if (error) {
-        this.logDetailedError("Error clearing old activities", error);
-        return false;
-      }
-
-      console.log(
-        `✅ Cleared activities older than ${olderThanDays} days for user ${userId}`,
-      );
-      return true;
-    } catch (error) {
-      this.logDetailedError("Exception clearing old activities", error);
-      return false;
-    }
+  private static logDetailedError(message: string, error: any): void {
+    console.error(`❌ ${message}:`, {
+      error: error?.message || error,
+      stack: error?.stack,
+      details: error?.details || error?.hint,
+      timestamp: new Date().toISOString(),
+    });
   }
 }
