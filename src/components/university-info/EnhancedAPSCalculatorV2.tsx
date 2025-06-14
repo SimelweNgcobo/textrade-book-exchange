@@ -702,7 +702,9 @@ const EnhancedAPSCalculatorV2 = () => {
                         <SelectValue placeholder="Select subject" />
                       </SelectTrigger>
                       <SelectContent>
-                        {SUBJECT_OPTIONS.map((option) => (
+                        {SUBJECT_OPTIONS.filter(
+                          (option) => option && option.trim() !== "",
+                        ).map((option) => (
                           <SelectItem key={option} value={option}>
                             {option}
                           </SelectItem>
