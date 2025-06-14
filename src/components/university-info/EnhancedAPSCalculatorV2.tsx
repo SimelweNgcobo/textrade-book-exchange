@@ -27,12 +27,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/components/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -78,9 +73,14 @@ import {
 import {
   SOUTH_AFRICAN_UNIVERSITIES,
   UNIVERSITY_YEARS,
-} from "@/constants/universities";
+} from "@/constants/universities/index";
 import { toast } from "sonner";
-import { University, Degree, APSSubject, EligibleDegree } from "@/types/university";
+import {
+  University,
+  Degree,
+  APSSubject,
+  EligibleDegree,
+} from "@/types/university";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { cn } from "@/lib/utils";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -164,13 +164,16 @@ const checkEligibility = (
   }
 
   // Check required subjects
-  if (degree.subjects && degree.subjects.length > 0) {
+  if (
+    degree.subjects &&
+    Array.isArray(degree.subjects) &&
+    degree.subjects.length > 0
+  ) {
     degree.subjects.forEach((subject) => {
       // Check if subject is required for this degree
-      const isRequired = typeof subject === 'string' 
-        ? false 
-        : subject.isRequired;
-      const subjectName = typeof subject === 'string' ? subject : subject.name;
+      const isRequired =
+        typeof subject === "string" ? false : subject.isRequired;
+      const subjectName = typeof subject === "string" ? subject : subject.name;
 
       if (isRequired) {
         // Find the subject in student's subjects
@@ -179,10 +182,12 @@ const checkEligibility = (
         );
 
         // Check if student has the subject and meets minimum level
-        const subjectLevel = typeof subject === 'string' ? 4 : subject.level;
-        
+        const subjectLevel = typeof subject === "string" ? 4 : subject.level;
+
         if (!studentSubject) {
-          reasons.push(`${subjectName} is required but not in your subject list`);
+          reasons.push(
+            `${subjectName} is required but not in your subject list`,
+          );
           eligible = false;
         } else if (studentSubject.level < subjectLevel) {
           reasons.push(
@@ -219,6 +224,11 @@ const findEligibleDegrees = (
 
   // Process each university
   filteredUniversities.forEach((university) => {
+    // Ensure university has faculties array
+    if (!university?.faculties || !Array.isArray(university.faculties)) {
+      return;
+    }
+
     // Process each faculty in the university
     university.faculties.forEach((faculty) => {
       // Skip faculty if faculty filter is applied and doesn't match
@@ -231,13 +241,19 @@ const findEligibleDegrees = (
         return;
       }
 
+      // Ensure faculty has degrees array
+      if (!faculty?.degrees || !Array.isArray(faculty.degrees)) {
+        return;
+      }
+
       // Process each degree in the faculty
       faculty.degrees.forEach((degree) => {
         // Skip if APS requirement is outside filter range
         if (
           (filters.minAPS !== undefined &&
             degree.apsRequirement < filters.minAPS) ||
-          (filters.maxAPS !== undefined && degree.apsRequirement > filters.maxAPS)
+          (filters.maxAPS !== undefined &&
+            degree.apsRequirement > filters.maxAPS)
         ) {
           return;
         }
@@ -270,7 +286,8 @@ const findEligibleDegrees = (
         eligibleDegrees.push({
           degree: {
             ...degree,
-            subjects: degree.subjects || []
+            subjects: degree.subjects || [],
+            careerProspects: degree.careerProspects || [],
           },
           university,
           meetsRequirement: eligible,
@@ -297,13 +314,17 @@ const EnhancedAPSCalculatorV2 = () => {
   );
 
   // State for filters
-  const [selectedUniversities, setSelectedUniversities] = useState<string[]>([]);
+  const [selectedUniversities, setSelectedUniversities] = useState<string[]>(
+    [],
+  );
   const [selectedFaculties, setSelectedFaculties] = useState<string[]>([]);
   const [minAPS, setMinAPS] = useState<number | undefined>(undefined);
   const [maxAPS, setMaxAPS] = useState<number | undefined>(undefined);
   const [searchKeywords, setSearchKeywords] = useState("");
   const [showOnlyEligible, setShowOnlyEligible] = useState(false);
-  const [sortBy, setSortBy] = useState<"name" | "university" | "aps" | "alphabetical">("aps");
+  const [sortBy, setSortBy] = useState<
+    "name" | "university" | "aps" | "alphabetical"
+  >("aps");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
   const [savedCalculations, setSavedCalculations] = useLocalStorage<
     {
@@ -328,10 +349,7 @@ const EnhancedAPSCalculatorV2 = () => {
     let total = 0;
     subjects.forEach((subject) => {
       // Skip Life Orientation if not included
-      if (
-        !includeLifeOrientation &&
-        subject.name === "Life Orientation"
-      ) {
+      if (!includeLifeOrientation && subject.name === "Life Orientation") {
         return;
       }
       total += subject.points;
@@ -343,9 +361,13 @@ const EnhancedAPSCalculatorV2 = () => {
   const allFaculties = useMemo(() => {
     const faculties = new Set<string>();
     SOUTH_AFRICAN_UNIVERSITIES.forEach((university) => {
-      university.faculties.forEach((faculty) => {
-        faculties.add(faculty.name);
-      });
+      if (university?.faculties && Array.isArray(university.faculties)) {
+        university.faculties.forEach((faculty) => {
+          if (faculty?.name) {
+            faculties.add(faculty.name);
+          }
+        });
+      }
     });
     return Array.from(faculties).sort();
   }, []);
@@ -353,7 +375,9 @@ const EnhancedAPSCalculatorV2 = () => {
   // Find eligible degrees
   const eligibleDegrees = useMemo(() => {
     return findEligibleDegrees(totalAPS, subjects, SOUTH_AFRICAN_UNIVERSITIES, {
-      universityIds: selectedUniversities.length ? selectedUniversities : undefined,
+      universityIds: selectedUniversities.length
+        ? selectedUniversities
+        : undefined,
       facultyNames: selectedFaculties.length ? selectedFaculties : undefined,
       minAPS,
       maxAPS,
@@ -471,9 +495,13 @@ const EnhancedAPSCalculatorV2 = () => {
   }, [eligibleDegrees]);
 
   // Handle subject change
-  const handleSubjectChange = (index: number, field: keyof APSSubject, value: any) => {
+  const handleSubjectChange = (
+    index: number,
+    field: keyof APSSubject,
+    value: any,
+  ) => {
     const updatedSubjects = [...subjects];
-    
+
     if (field === "name") {
       updatedSubjects[index].name = value;
     } else if (field === "marks") {
@@ -482,7 +510,7 @@ const EnhancedAPSCalculatorV2 = () => {
       updatedSubjects[index].level = calculateAPS(updatedSubjects[index].marks);
       updatedSubjects[index].points = updatedSubjects[index].level;
     }
-    
+
     setSubjects(updatedSubjects);
   };
 
@@ -625,9 +653,9 @@ const EnhancedAPSCalculatorV2 = () => {
   // Sort options
   const sortOptions: Array<"name" | "university" | "aps" | "alphabetical"> = [
     "name",
-    "university", 
+    "university",
     "aps",
-    "alphabetical"
+    "alphabetical",
   ];
 
   return (
@@ -659,7 +687,10 @@ const EnhancedAPSCalculatorV2 = () => {
             <CardContent className="space-y-4">
               {/* Subject Inputs */}
               {subjects.map((subject, index) => (
-                <div key={index} className="grid grid-cols-12 gap-2 items-center">
+                <div
+                  key={index}
+                  className="grid grid-cols-12 gap-2 items-center"
+                >
                   <div className="col-span-6">
                     <Select
                       value={subject.name}
@@ -671,7 +702,9 @@ const EnhancedAPSCalculatorV2 = () => {
                         <SelectValue placeholder="Select subject" />
                       </SelectTrigger>
                       <SelectContent>
-                        {SUBJECT_OPTIONS.map((option) => (
+                        {SUBJECT_OPTIONS.filter(
+                          (option) => option && option.trim() !== "",
+                        ).map((option) => (
                           <SelectItem key={option} value={option}>
                             {option}
                           </SelectItem>
@@ -721,7 +754,10 @@ const EnhancedAPSCalculatorV2 = () => {
                 {showAdvancedOptions && (
                   <div className="mt-4 space-y-4 p-4 border rounded-md">
                     <div className="flex items-center justify-between">
-                      <Label htmlFor="include-lo" className="flex items-center gap-2">
+                      <Label
+                        htmlFor="include-lo"
+                        className="flex items-center gap-2"
+                      >
                         <Info className="h-4 w-4" />
                         Include Life Orientation
                       </Label>
@@ -814,7 +850,9 @@ const EnhancedAPSCalculatorV2 = () => {
                       <Input
                         id="calculation-name"
                         value={activeCalculationName}
-                        onChange={(e) => setActiveCalculationName(e.target.value)}
+                        onChange={(e) =>
+                          setActiveCalculationName(e.target.value)
+                        }
                         placeholder="e.g., My Grade 12 Marks"
                       />
                     </div>
@@ -926,9 +964,7 @@ const EnhancedAPSCalculatorV2 = () => {
                 <h4 className="font-medium mb-2">Top Universities for You</h4>
                 <div className="space-y-2">
                   {Object.entries(eligibilityStats.byUniversity)
-                    .sort(
-                      ([, a], [, b]) => b.percentage - a.percentage,
-                    )
+                    .sort(([, a], [, b]) => b.percentage - a.percentage)
                     .slice(0, 3)
                     .map(([uniId, stats]) => {
                       const university = SOUTH_AFRICAN_UNIVERSITIES.find(
@@ -967,9 +1003,7 @@ const EnhancedAPSCalculatorV2 = () => {
                 <h4 className="font-medium mb-2">Top Faculties for You</h4>
                 <div className="space-y-2">
                   {Object.entries(eligibilityStats.byFaculty)
-                    .sort(
-                      ([, a], [, b]) => b.percentage - a.percentage,
-                    )
+                    .sort(([, a], [, b]) => b.percentage - a.percentage)
                     .slice(0, 3)
                     .map(([faculty, stats]) => (
                       <div
@@ -1030,13 +1064,13 @@ const EnhancedAPSCalculatorV2 = () => {
                       value={
                         selectedUniversities.length === 1
                           ? selectedUniversities[0]
-                          : ""
+                          : "all-universities"
                       }
                       onValueChange={(value) => {
-                        if (value) {
-                          setSelectedUniversities([value]);
-                        } else {
+                        if (value === "all-universities") {
                           setSelectedUniversities([]);
+                        } else {
+                          setSelectedUniversities([value]);
                         }
                       }}
                     >
@@ -1044,8 +1078,12 @@ const EnhancedAPSCalculatorV2 = () => {
                         <SelectValue placeholder="All Universities" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">All Universities</SelectItem>
-                        {SOUTH_AFRICAN_UNIVERSITIES.map((uni) => (
+                        <SelectItem value="all-universities">
+                          All Universities
+                        </SelectItem>
+                        {SOUTH_AFRICAN_UNIVERSITIES.filter(
+                          (uni) => uni.id && uni.id.trim() !== "",
+                        ).map((uni) => (
                           <SelectItem key={uni.id} value={uni.id}>
                             {uni.name}
                           </SelectItem>
@@ -1063,13 +1101,13 @@ const EnhancedAPSCalculatorV2 = () => {
                       value={
                         selectedFaculties.length === 1
                           ? selectedFaculties[0]
-                          : ""
+                          : "all-faculties"
                       }
                       onValueChange={(value) => {
-                        if (value) {
-                          setSelectedFaculties([value]);
-                        } else {
+                        if (value === "all-faculties") {
                           setSelectedFaculties([]);
+                        } else {
+                          setSelectedFaculties([value]);
                         }
                       }}
                     >
@@ -1077,12 +1115,16 @@ const EnhancedAPSCalculatorV2 = () => {
                         <SelectValue placeholder="All Faculties" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">All Faculties</SelectItem>
-                        {allFaculties.map((faculty) => (
-                          <SelectItem key={faculty} value={faculty}>
-                            {faculty}
-                          </SelectItem>
-                        ))}
+                        <SelectItem value="all-faculties">
+                          All Faculties
+                        </SelectItem>
+                        {allFaculties
+                          .filter((faculty) => faculty && faculty.trim() !== "")
+                          .map((faculty) => (
+                            <SelectItem key={faculty} value={faculty}>
+                              {faculty}
+                            </SelectItem>
+                          ))}
                       </SelectContent>
                     </Select>
                   </div>
@@ -1164,10 +1206,7 @@ const EnhancedAPSCalculatorV2 = () => {
                     <Label htmlFor="sort-by" className="text-sm">
                       Sort by:
                     </Label>
-                    <Select
-                      value={sortBy}
-                      onValueChange={handleSortChange}
-                    >
+                    <Select value={sortBy} onValueChange={handleSortChange}>
                       <SelectTrigger id="sort-by" className="h-8 w-[130px]">
                         <SelectValue />
                       </SelectTrigger>
@@ -1175,7 +1214,9 @@ const EnhancedAPSCalculatorV2 = () => {
                         <SelectItem value="aps">APS Requirement</SelectItem>
                         <SelectItem value="name">Degree Name</SelectItem>
                         <SelectItem value="university">University</SelectItem>
-                        <SelectItem value="alphabetical">Alphabetical</SelectItem>
+                        <SelectItem value="alphabetical">
+                          Alphabetical
+                        </SelectItem>
                       </SelectContent>
                     </Select>
                     <Button
@@ -1201,9 +1242,7 @@ const EnhancedAPSCalculatorV2 = () => {
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="font-medium flex items-center gap-2">
                     <GraduationCap className="h-4 w-4" />
-                    <span>
-                      {filteredAndSortedDegrees.length} Degrees Found
-                    </span>
+                    <span>{filteredAndSortedDegrees.length} Degrees Found</span>
                   </h3>
                   <Button
                     variant="outline"
@@ -1264,9 +1303,7 @@ const EnhancedAPSCalculatorV2 = () => {
                           <div
                             className={cn(
                               "h-1",
-                              meetsRequirement
-                                ? "bg-green-500"
-                                : "bg-gray-200",
+                              meetsRequirement ? "bg-green-500" : "bg-gray-200",
                             )}
                           />
                           <CardContent className="p-4">
@@ -1279,7 +1316,9 @@ const EnhancedAPSCalculatorV2 = () => {
                                     }
                                     className="uppercase text-xs"
                                   >
-                                    {meetsRequirement ? "Eligible" : "Not Eligible"}
+                                    {meetsRequirement
+                                      ? "Eligible"
+                                      : "Not Eligible"}
                                   </Badge>
                                   {apsGap && (
                                     <Badge
@@ -1301,7 +1340,10 @@ const EnhancedAPSCalculatorV2 = () => {
                                 </div>
 
                                 <div className="flex flex-wrap gap-2 mt-2">
-                                  <Badge variant="secondary" className="text-xs">
+                                  <Badge
+                                    variant="secondary"
+                                    className="text-xs"
+                                  >
                                     {degree.faculty}
                                   </Badge>
                                   <Badge variant="outline" className="text-xs">
@@ -1315,6 +1357,8 @@ const EnhancedAPSCalculatorV2 = () => {
 
                                 {/* Career Prospects */}
                                 {degree.careerProspects &&
+                                  degree.careerProspects &&
+                                  Array.isArray(degree.careerProspects) &&
                                   degree.careerProspects.length > 0 && (
                                     <div className="mt-2">
                                       <h4 className="text-sm font-medium mb-1">
@@ -1366,28 +1410,31 @@ const EnhancedAPSCalculatorV2 = () => {
                                           <li>
                                             Your APS score ({totalAPS}) is{" "}
                                             {apsGap} points below the
-                                            requirement (
-                                            {degree.apsRequirement})
+                                            requirement ({degree.apsRequirement}
+                                            )
                                           </li>
                                         )}
                                         {degree.subjects &&
                                           degree.subjects.map(
                                             (subject, idx) => {
                                               // Check if subject is required
-                                              const isRequired = typeof subject === 'string' 
-                                                ? false 
-                                                : subject.isRequired;
-                                              
+                                              const isRequired =
+                                                typeof subject === "string"
+                                                  ? false
+                                                  : subject.isRequired;
+
                                               if (!isRequired) return null;
-                                              
-                                              const subjectName = typeof subject === 'string' 
-                                                ? subject 
-                                                : subject.name;
-                                              
-                                              const subjectLevel = typeof subject === 'string' 
-                                                ? 4 
-                                                : subject.level;
-                                              
+
+                                              const subjectName =
+                                                typeof subject === "string"
+                                                  ? subject
+                                                  : subject.name;
+
+                                              const subjectLevel =
+                                                typeof subject === "string"
+                                                  ? 4
+                                                  : subject.level;
+
                                               // Find if student has this subject
                                               const studentSubject =
                                                 subjects.find(
@@ -1411,10 +1458,9 @@ const EnhancedAPSCalculatorV2 = () => {
                                               ) {
                                                 return (
                                                   <li key={idx}>
-                                                    {subjectName} requires
-                                                    level {subjectLevel} but
-                                                    you have level{" "}
-                                                    {studentSubject.level}
+                                                    {subjectName} requires level{" "}
+                                                    {subjectLevel} but you have
+                                                    level {studentSubject.level}
                                                   </li>
                                                 );
                                               }
@@ -1484,9 +1530,9 @@ const EnhancedAPSCalculatorV2 = () => {
                   </AccordionTrigger>
                   <AccordionContent>
                     <p className="mb-2">
-                      The Admission Point Score (APS) is calculated based on your
-                      Grade 12 (Matric) subject marks. Each subject is assigned
-                      points according to the percentage achieved:
+                      The Admission Point Score (APS) is calculated based on
+                      your Grade 12 (Matric) subject marks. Each subject is
+                      assigned points according to the percentage achieved:
                     </p>
                     <Table>
                       <TableHeader>
@@ -1580,15 +1626,11 @@ const EnhancedAPSCalculatorV2 = () => {
                       <li>
                         National Benchmark Tests (NBTs) for some universities
                       </li>
-                      <li>
-                        Faculty-specific selection tests or interviews
-                      </li>
+                      <li>Faculty-specific selection tests or interviews</li>
                       <li>
                         Portfolio submissions (for creative arts programs)
                       </li>
-                      <li>
-                        Previous academic performance and academic record
-                      </li>
+                      <li>Previous academic performance and academic record</li>
                       <li>
                         Extracurricular activities and leadership experience
                       </li>
