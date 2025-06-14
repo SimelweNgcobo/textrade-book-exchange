@@ -287,6 +287,7 @@ const findEligibleDegrees = (
           degree: {
             ...degree,
             subjects: degree.subjects || [],
+            careerProspects: degree.careerProspects || [],
           },
           university,
           meetsRequirement: eligible,
