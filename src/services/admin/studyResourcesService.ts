@@ -1,3 +1,4 @@
+
 // Placeholder for study resources service
 // In a real app, this would interact with Supabase or another backend
 
@@ -66,5 +67,10 @@ export const studyResourcesService = {
   deleteStudyTip: async (id: string): Promise<void> => {
     console.log(`Deleting study tip ${id}`);
     await new Promise(resolve => setTimeout(resolve, 500));
+  },
+  getAllStudyContent: async (): Promise<any[]> => {
+    console.log("Fetching all study content...");
+    await new Promise(resolve => setTimeout(resolve, 500));
+    return [];
   },
 };

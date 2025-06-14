@@ -1,4 +1,5 @@
 
+
 export interface Broadcast {
   id: string;
   title: string;
@@ -12,4 +13,3 @@ export interface Broadcast {
   targetAudience?: "all" | "users" | "admin"; // Made type more specific
   createdBy?: string;
 }
-

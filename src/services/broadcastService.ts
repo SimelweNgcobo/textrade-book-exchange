@@ -1,4 +1,5 @@
 
+
 import { supabase } from "@/integrations/supabase/client";
 import { Broadcast } from "@/types/broadcast"; // Ensure this type is updated as well
 
@@ -231,4 +232,3 @@ export const {
   dismissBroadcast,
   saveBroadcastToNotifications,
 } = broadcastService;
-
