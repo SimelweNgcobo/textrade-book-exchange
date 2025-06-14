@@ -212,18 +212,11 @@ const AddProgramForm = () => {
       };
 
       // Here you would typically send to your backend
-      console.log("Submitting program:", submissionData);
-
-      // Simulate API call with proper error handling
-      await new Promise((resolve, reject) => {
+      // In a real implementation, this would submit to your backend API
+      // For now, we'll just simulate success
+      await new Promise((resolve) => {
         setTimeout(() => {
-          // Simulate random success/failure for demo
-          if (Math.random() > 0.1) {
-            // 90% success rate
-            resolve(true);
-          } else {
-            reject(new Error("Network error"));
-          }
+          resolve(true);
         }, 1000);
       });
 

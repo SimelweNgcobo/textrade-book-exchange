@@ -14,17 +14,23 @@ const AdminDebug = () => {
   const runAdminCheck = async () => {
     if (!user) return;
 
-    console.log("=== ADMIN DEBUG ===");
-    console.log("User ID:", user.id);
-    console.log("User Email:", user.email);
-    console.log("Profile:", profile);
-    console.log("isAuthenticated:", isAuthenticated);
-    console.log("isAdmin:", isAdmin);
-    console.log("isLoading:", isLoading);
+    // Debug information available in development mode only
+    if (import.meta.env.DEV) {
+      console.log("=== ADMIN DEBUG ===");
+      console.log("User ID:", user.id);
+      console.log("User Email:", user.email);
+      console.log("Profile:", profile);
+      console.log("isAuthenticated:", isAuthenticated);
+      console.log("isAdmin:", isAdmin);
+      console.log("isLoading:", isLoading);
+    }
 
     // Manual admin verification
     const manualAdminCheck = await verifyAdminStatus(user.id);
-    console.log("Manual admin check result:", manualAdminCheck);
+
+    if (import.meta.env.DEV) {
+      console.log("Manual admin check result:", manualAdminCheck);
+    }
 
     setDebugResult({
       userId: user.id,

@@ -48,30 +48,7 @@ const ActivityLog = () => {
         100,
       );
 
-      // If no real activities found, create some sample activities for demo
-      if (userActivities.length === 0) {
-        console.log("No activities found, creating sample activities...");
-
-        // Log current login as activity
-        await ActivityService.logLogin(user.id);
-
-        // Log profile view
-        await ActivityService.logActivity(
-          user.id,
-          "profile_updated",
-          "Viewed activity page",
-          "Checked activity history for the first time",
-        );
-
-        // Fetch again after creating sample activities
-        const newActivities = await ActivityService.getUserActivities(
-          user.id,
-          100,
-        );
-        setActivities(newActivities);
-      } else {
-        setActivities(userActivities);
-      }
+      setActivities(userActivities);
     } catch (error) {
       console.error("Error loading activities:", error);
       setError("Failed to load activities. Please try again.");
