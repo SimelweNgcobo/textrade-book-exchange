@@ -1342,6 +1342,8 @@ const EnhancedAPSCalculatorV2 = () => {
 
                                 {/* Career Prospects */}
                                 {degree.careerProspects &&
+                                  degree.careerProspects &&
+                                  Array.isArray(degree.careerProspects) &&
                                   degree.careerProspects.length > 0 && (
                                     <div className="mt-2">
                                       <h4 className="text-sm font-medium mb-1">
