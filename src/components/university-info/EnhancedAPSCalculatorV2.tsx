@@ -73,7 +73,7 @@ import {
 import {
   SOUTH_AFRICAN_UNIVERSITIES,
   UNIVERSITY_YEARS,
-} from "@/constants/universities";
+} from "@/constants/universities/index";
 import { toast } from "sonner";
 import {
   University,
