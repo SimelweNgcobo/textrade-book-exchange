@@ -1076,7 +1076,9 @@ const EnhancedAPSCalculatorV2 = () => {
                         <SelectValue placeholder="All Universities" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">All Universities</SelectItem>
+                        <SelectItem value="all-universities">
+                          All Universities
+                        </SelectItem>
                         {SOUTH_AFRICAN_UNIVERSITIES.map((uni) => (
                           <SelectItem key={uni.id} value={uni.id}>
                             {uni.name}
@@ -1109,7 +1111,9 @@ const EnhancedAPSCalculatorV2 = () => {
                         <SelectValue placeholder="All Faculties" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">All Faculties</SelectItem>
+                        <SelectItem value="all-faculties">
+                          All Faculties
+                        </SelectItem>
                         {allFaculties.map((faculty) => (
                           <SelectItem key={faculty} value={faculty}>
                             {faculty}
