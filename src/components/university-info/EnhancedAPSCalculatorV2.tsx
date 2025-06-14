@@ -360,9 +360,13 @@ const EnhancedAPSCalculatorV2 = () => {
   const allFaculties = useMemo(() => {
     const faculties = new Set<string>();
     SOUTH_AFRICAN_UNIVERSITIES.forEach((university) => {
-      university.faculties.forEach((faculty) => {
-        faculties.add(faculty.name);
-      });
+      if (university?.faculties && Array.isArray(university.faculties)) {
+        university.faculties.forEach((faculty) => {
+          if (faculty?.name) {
+            faculties.add(faculty.name);
+          }
+        });
+      }
     });
     return Array.from(faculties).sort();
   }, []);
