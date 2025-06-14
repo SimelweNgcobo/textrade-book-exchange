@@ -1,4 +1,3 @@
-
 export interface Subject {
   name: string;
   level: number;
@@ -8,6 +7,7 @@ export interface Subject {
 export interface Degree {
   id: string;
   name: string;
+  code: string; // Added missing code property
   faculty: string;
   duration: string;
   apsRequirement: number;
@@ -47,13 +47,14 @@ export interface University {
   logo: string;
   overview: string;
   website: string;
-  studentPortal: string;
-  admissionsContact: string;
+  studentPortal?: string; // Made optional
+  admissionsContact?: string; // Made optional
   faculties: Faculty[];
-  applicationInfo: ApplicationInfo;
+  applicationInfo?: ApplicationInfo; // Made optional
   establishedYear?: number;
   studentPopulation?: number;
   campuses?: string[];
+  type?: string; // Added type property
 }
 
 // APS Calculator Types

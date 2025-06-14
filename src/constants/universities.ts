@@ -394,6 +394,9 @@ export const SOUTH_AFRICAN_UNIVERSITIES: University[] = [
   },
 ];
 
+// Export alias for compatibility
+export const ALL_SOUTH_AFRICAN_UNIVERSITIES = SOUTH_AFRICAN_UNIVERSITIES;
+
 export const SOUTH_AFRICAN_UNIVERSITIES_SIMPLE: SimpleUniversity[] = [
   {
     id: "uct",

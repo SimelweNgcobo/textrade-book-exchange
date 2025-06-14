@@ -38,7 +38,7 @@ export const UNIVERSITY_IDS_TO_ABBREV = Object.fromEntries(
 // All university IDs
 export const ALL_UNIVERSITY_IDS = Object.values(UNIVERSITY_ABBREVIATIONS);
 
-// Course assignment rule types
+// Course assignment rule types - Updated to match usage
 export type CourseAssignmentRule =
   | { type: "all" }
   | { type: "exclude"; universities: string[] }

@@ -115,8 +115,7 @@ const StudyResourcesPage = () => {
         <div className="container mx-auto px-4 sm:px-6">
           <div className="flex items-center justify-center min-h-[400px]">
             <div className="text-center">
-              <LoadingSpinner />
-              <p className="mt-4 text-gray-600">Loading study resources...</p>
+              <LoadingSpinner text="Loading study resources..." />
             </div>
           </div>
         </div>
