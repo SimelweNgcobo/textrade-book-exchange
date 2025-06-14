@@ -1079,7 +1079,9 @@ const EnhancedAPSCalculatorV2 = () => {
                         <SelectItem value="all-universities">
                           All Universities
                         </SelectItem>
-                        {SOUTH_AFRICAN_UNIVERSITIES.map((uni) => (
+                        {SOUTH_AFRICAN_UNIVERSITIES.filter(
+                          (uni) => uni.id && uni.id.trim() !== "",
+                        ).map((uni) => (
                           <SelectItem key={uni.id} value={uni.id}>
                             {uni.name}
                           </SelectItem>
@@ -1114,11 +1116,13 @@ const EnhancedAPSCalculatorV2 = () => {
                         <SelectItem value="all-faculties">
                           All Faculties
                         </SelectItem>
-                        {allFaculties.map((faculty) => (
-                          <SelectItem key={faculty} value={faculty}>
-                            {faculty}
-                          </SelectItem>
-                        ))}
+                        {allFaculties
+                          .filter((faculty) => faculty && faculty.trim() !== "")
+                          .map((faculty) => (
+                            <SelectItem key={faculty} value={faculty}>
+                              {faculty}
+                            </SelectItem>
+                          ))}
                       </SelectContent>
                     </Select>
                   </div>
