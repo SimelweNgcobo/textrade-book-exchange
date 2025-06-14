@@ -24,10 +24,6 @@ interface StudyTipPayload {
   author: string;
 }
 
-// Assuming StudyResource and StudyTip types are defined in AdminStudyResourcesTab.tsx or a shared types file
-// For now, let's use any for return types to get it compiling.
-// Ideally, these would be proper types from e.g. src/types/study.ts
-
 export const studyResourcesService = {
   getStudyResources: async (): Promise<any[]> => {
     console.log("Fetching study resources...");
@@ -73,4 +69,14 @@ export const studyResourcesService = {
     await new Promise(resolve => setTimeout(resolve, 500));
     return [];
   },
+};
+
+// Export the function directly as well for compatibility
+export const getAllStudyContent = async (): Promise<{ tips: any[], resources: any[] }> => {
+  console.log("Fetching all study content...");
+  await new Promise(resolve => setTimeout(resolve, 500));
+  return {
+    tips: [],
+    resources: []
+  };
 };
