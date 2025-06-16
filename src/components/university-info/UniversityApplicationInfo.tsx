@@ -12,10 +12,10 @@ import {
 import { ApplicationInfo } from "@/types/university";
 
 interface UniversityApplicationInfoProps {
-  applicationInfo: ApplicationInfo;
+  applicationInfo?: ApplicationInfo;
   universityName: string;
   universityAbbreviation?: string;
-  website: string;
+  website?: string;
 }
 
 const UniversityApplicationInfo = ({
@@ -24,6 +24,51 @@ const UniversityApplicationInfo = ({
   universityAbbreviation,
   website,
 }: UniversityApplicationInfoProps) => {
+  // If applicationInfo is not provided, return a default message
+  if (!applicationInfo) {
+    return (
+      <Card className="border-2">
+        <CardHeader className="pb-3">
+          <CardTitle className="flex items-center justify-between text-lg">
+            <span className="flex items-center gap-2">
+              <Calendar className="h-5 w-5 text-blue-600" />
+              Application Information
+            </span>
+            <Badge className="bg-gray-100 text-gray-800 border-gray-200 flex items-center gap-1">
+              <AlertCircle className="h-4 w-4" />
+              Information Unavailable
+            </Badge>
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="p-3 bg-gray-50 border border-gray-200 rounded-lg">
+            <p className="text-sm font-medium text-gray-600">
+              Application information for {universityName} will be available
+              soon.
+            </p>
+          </div>
+
+          {website && (
+            <div className="pt-2">
+              <Button
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white text-sm sm:text-base"
+                onClick={() => window.open(website, "_blank")}
+              >
+                <ExternalLink className="h-4 w-4 mr-2" />
+                <span className="hidden sm:inline">
+                  Visit {universityName} Website
+                </span>
+                <span className="sm:hidden">
+                  Visit {universityAbbreviation || universityName}
+                </span>
+              </Button>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    );
+  }
+
   const isApplicationOpen = applicationInfo.isOpen;
   const currentDate = new Date();
   const openingDate = new Date(applicationInfo.openingDate + ", 2024");
