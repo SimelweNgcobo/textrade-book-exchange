@@ -59,12 +59,20 @@ const UniversityInfo = () => {
   // Memoized statistics calculation for better performance
   const stats = useMemo(() => {
     const totalPrograms = SOUTH_AFRICAN_UNIVERSITIES.reduce((total, uni) => {
+      // Safely handle undefined or null faculties
+      if (!uni.faculties || !Array.isArray(uni.faculties)) {
+        return total;
+      }
+
       return (
         total +
-        uni.faculties.reduce(
-          (facTotal, fac) => facTotal + fac.degrees.length,
-          0,
-        )
+        uni.faculties.reduce((facTotal, fac) => {
+          // Safely handle undefined or null degrees
+          if (!fac || !fac.degrees || !Array.isArray(fac.degrees)) {
+            return facTotal;
+          }
+          return facTotal + fac.degrees.length;
+        }, 0)
       );
     }, 0);
 
