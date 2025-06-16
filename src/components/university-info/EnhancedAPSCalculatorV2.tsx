@@ -263,6 +263,11 @@ const findEligibleDegrees = (
 
       // Process each degree in the faculty
       faculty.degrees.forEach((degree) => {
+        // Safely check if degree exists and has required properties
+        if (!degree || typeof degree.apsRequirement !== "number") {
+          return;
+        }
+
         // Skip if APS requirement is outside filter range
         if (
           (filters.minAPS !== undefined &&
@@ -277,9 +282,10 @@ const findEligibleDegrees = (
         if (filters.keywords) {
           const keywords = filters.keywords.toLowerCase();
           const matchesKeyword =
-            degree.name.toLowerCase().includes(keywords) ||
-            degree.description.toLowerCase().includes(keywords) ||
-            faculty.name.toLowerCase().includes(keywords);
+            (degree.name && degree.name.toLowerCase().includes(keywords)) ||
+            (degree.description &&
+              degree.description.toLowerCase().includes(keywords)) ||
+            (faculty.name && faculty.name.toLowerCase().includes(keywords));
 
           if (!matchesKeyword) {
             return;
