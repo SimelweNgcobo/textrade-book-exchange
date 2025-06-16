@@ -32,10 +32,25 @@ const UniversityProfile = () => {
 
   useEffect(() => {
     if (universityId) {
-      const found = SOUTH_AFRICAN_UNIVERSITIES.find(
-        (uni) => uni.id === universityId,
-      );
-      setUniversity(found || null);
+      try {
+        // Ensure SOUTH_AFRICAN_UNIVERSITIES is defined and is an array
+        if (
+          !SOUTH_AFRICAN_UNIVERSITIES ||
+          !Array.isArray(SOUTH_AFRICAN_UNIVERSITIES)
+        ) {
+          console.error("SOUTH_AFRICAN_UNIVERSITIES is not properly defined");
+          setUniversity(null);
+          return;
+        }
+
+        const found = SOUTH_AFRICAN_UNIVERSITIES.find(
+          (uni) => uni && uni.id === universityId,
+        );
+        setUniversity(found || null);
+      } catch (error) {
+        console.error("Error finding university:", error);
+        setUniversity(null);
+      }
     }
   }, [universityId]);
 
