@@ -213,9 +213,17 @@ const findEligibleDegrees = (
 ): EligibleDegree[] => {
   const eligibleDegrees: EligibleDegree[] = [];
 
+  // Safely handle universities array
+  if (!universities || !Array.isArray(universities)) {
+    console.warn("Universities array is not properly defined");
+    return eligibleDegrees;
+  }
+
   // Filter universities if specified
   const filteredUniversities = filters.universityIds?.length
-    ? universities.filter((uni) => filters.universityIds?.includes(uni.id))
+    ? universities.filter(
+        (uni) => uni && filters.universityIds?.includes(uni.id),
+      )
     : universities;
 
   // Process each university
