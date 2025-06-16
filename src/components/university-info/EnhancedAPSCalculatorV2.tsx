@@ -214,6 +214,12 @@ const findEligibleDegrees = (
   const eligibleDegrees: EligibleDegree[] = [];
 
   try {
+    // Safely handle subjects array
+    if (!subjects || !Array.isArray(subjects)) {
+      console.warn("Subjects array is not properly defined");
+      return eligibleDegrees;
+    }
+
     // Safely handle universities array
     if (!universities || !Array.isArray(universities)) {
       console.warn("Universities array is not properly defined");
