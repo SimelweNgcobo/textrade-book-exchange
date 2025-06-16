@@ -337,7 +337,10 @@ const UniversityProfile = () => {
                     <div className="text-center p-3 sm:p-4 bg-book-50 rounded-lg">
                       <BookOpen className="w-6 h-6 sm:w-8 sm:h-8 text-book-600 mx-auto mb-2" />
                       <div className="text-lg sm:text-2xl font-bold text-book-600">
-                        {university.faculties.length}
+                        {university.faculties &&
+                        Array.isArray(university.faculties)
+                          ? university.faculties.length
+                          : 0}
                       </div>
                       <div className="text-xs sm:text-sm text-gray-600">
                         Faculties
