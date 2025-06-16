@@ -69,10 +69,29 @@ const UniversityApplicationInfo = ({
     );
   }
 
-  const isApplicationOpen = applicationInfo.isOpen;
+  const isApplicationOpen = applicationInfo.isOpen ?? false;
   const currentDate = new Date();
-  const openingDate = new Date(applicationInfo.openingDate + ", 2024");
-  const closingDate = new Date(applicationInfo.closingDate + ", 2024");
+
+  // Safely handle date parsing
+  let openingDate: Date;
+  let closingDate: Date;
+
+  try {
+    openingDate = new Date(applicationInfo.openingDate + ", 2024");
+    closingDate = new Date(applicationInfo.closingDate + ", 2024");
+
+    // Check if dates are valid
+    if (isNaN(openingDate.getTime())) {
+      openingDate = new Date(); // fallback to current date
+    }
+    if (isNaN(closingDate.getTime())) {
+      closingDate = new Date(); // fallback to current date
+    }
+  } catch (error) {
+    console.error("Error parsing application dates:", error);
+    openingDate = new Date();
+    closingDate = new Date();
+  }
 
   const isBeforeOpening = currentDate < openingDate;
   const isAfterClosing = currentDate > closingDate;
