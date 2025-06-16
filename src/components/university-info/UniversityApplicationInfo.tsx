@@ -104,14 +104,14 @@ const UniversityApplicationInfo = ({
         status: "Opening Soon",
         color: "bg-blue-100 text-blue-800 border-blue-200",
         icon: <Clock className="h-4 w-4" />,
-        message: `Applications open on ${applicationInfo.openingDate}`,
+        message: `Applications open on ${applicationInfo.openingDate || "TBD"}`,
       };
     } else if (isCurrentlyOpen) {
       return {
         status: "Open Now",
         color: "bg-green-100 text-green-800 border-green-200",
         icon: <CheckCircle className="h-4 w-4" />,
-        message: `Applications close on ${applicationInfo.closingDate}`,
+        message: `Applications close on ${applicationInfo.closingDate || "TBD"}`,
       };
     } else {
       return {
@@ -160,14 +160,14 @@ const UniversityApplicationInfo = ({
                 <Calendar className="h-3 w-3 text-green-600" />
                 <span className="text-gray-600">Opens:</span>
                 <span className="font-medium">
-                  {applicationInfo.openingDate}
+                  {applicationInfo.openingDate || "TBD"}
                 </span>
               </div>
               <div className="flex items-center gap-2 text-sm">
                 <Calendar className="h-3 w-3 text-red-600" />
                 <span className="text-gray-600">Closes:</span>
                 <span className="font-medium">
-                  {applicationInfo.closingDate}
+                  {applicationInfo.closingDate || "TBD"}
                 </span>
               </div>
             </div>
@@ -234,7 +234,8 @@ const UniversityApplicationInfo = ({
         {/* Academic Year Info */}
         <div className="text-center pt-2 border-t">
           <p className="text-xs text-gray-500">
-            Applications for <strong>{applicationInfo.academicYear}</strong>{" "}
+            Applications for{" "}
+            <strong>{applicationInfo.academicYear || "Current"}</strong>{" "}
             academic year
           </p>
         </div>
