@@ -214,7 +214,7 @@ const UniversityProfile = () => {
                 applicationInfo={university.applicationInfo}
                 universityName={university.name}
                 universityAbbreviation={university.abbreviation}
-                website={university.website}
+                website={university.website || ""}
               />
 
               {/* Hero Image Section */}
