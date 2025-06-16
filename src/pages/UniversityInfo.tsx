@@ -58,22 +58,59 @@ const UniversityInfo = () => {
 
   // Memoized statistics calculation for better performance
   const stats = useMemo(() => {
-    const totalPrograms = SOUTH_AFRICAN_UNIVERSITIES.reduce((total, uni) => {
-      return (
-        total +
-        uni.faculties.reduce(
-          (facTotal, fac) => facTotal + fac.degrees.length,
-          0,
-        )
-      );
-    }, 0);
+    try {
+      // Ensure SOUTH_AFRICAN_UNIVERSITIES is defined and is an array
+      if (
+        !SOUTH_AFRICAN_UNIVERSITIES ||
+        !Array.isArray(SOUTH_AFRICAN_UNIVERSITIES)
+      ) {
+        console.warn("SOUTH_AFRICAN_UNIVERSITIES is not properly defined");
+        return {
+          universities: 0,
+          students: "0",
+          programs: "0",
+          resources: "Loading...",
+        };
+      }
 
-    return {
-      universities: SOUTH_AFRICAN_UNIVERSITIES.length,
-      students: "1M+",
-      programs: `${totalPrograms}+`,
-      resources: "Growing Daily",
-    };
+      const totalPrograms = SOUTH_AFRICAN_UNIVERSITIES.reduce((total, uni) => {
+        // Safely handle undefined or null universities
+        if (!uni) {
+          return total;
+        }
+
+        // Safely handle undefined or null faculties
+        if (!uni.faculties || !Array.isArray(uni.faculties)) {
+          return total;
+        }
+
+        return (
+          total +
+          uni.faculties.reduce((facTotal, fac) => {
+            // Safely handle undefined or null degrees
+            if (!fac || !fac.degrees || !Array.isArray(fac.degrees)) {
+              return facTotal;
+            }
+            return facTotal + fac.degrees.length;
+          }, 0)
+        );
+      }, 0);
+
+      return {
+        universities: SOUTH_AFRICAN_UNIVERSITIES.length,
+        students: "1M+",
+        programs: `${totalPrograms}+`,
+        resources: "Growing Daily",
+      };
+    } catch (error) {
+      console.error("Error calculating university statistics:", error);
+      return {
+        universities: 0,
+        students: "Error",
+        programs: "Error",
+        resources: "Error",
+      };
+    }
   }, []);
 
   // Loading component for lazy-loaded sections

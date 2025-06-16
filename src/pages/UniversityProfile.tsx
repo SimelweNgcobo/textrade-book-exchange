@@ -32,10 +32,25 @@ const UniversityProfile = () => {
 
   useEffect(() => {
     if (universityId) {
-      const found = SOUTH_AFRICAN_UNIVERSITIES.find(
-        (uni) => uni.id === universityId,
-      );
-      setUniversity(found || null);
+      try {
+        // Ensure SOUTH_AFRICAN_UNIVERSITIES is defined and is an array
+        if (
+          !SOUTH_AFRICAN_UNIVERSITIES ||
+          !Array.isArray(SOUTH_AFRICAN_UNIVERSITIES)
+        ) {
+          console.error("SOUTH_AFRICAN_UNIVERSITIES is not properly defined");
+          setUniversity(null);
+          return;
+        }
+
+        const found = SOUTH_AFRICAN_UNIVERSITIES.find(
+          (uni) => uni && uni.id === universityId,
+        );
+        setUniversity(found || null);
+      } catch (error) {
+        console.error("Error finding university:", error);
+        setUniversity(null);
+      }
     }
   }, [universityId]);
 
@@ -65,12 +80,26 @@ const UniversityProfile = () => {
   }
 
   const handleViewBooks = () => {
-    navigate(`/books?university=${university.id}`);
+    try {
+      if (university && university.id) {
+        navigate(`/books?university=${university.id}`);
+      } else {
+        console.error("University data is not available for book navigation");
+      }
+    } catch (error) {
+      console.error("Error navigating to books:", error);
+    }
   };
 
   const handleExternalLink = () => {
-    if (university.website) {
-      window.open(university.website, "_blank");
+    try {
+      if (university && university.website) {
+        window.open(university.website, "_blank");
+      } else {
+        console.error("University website is not available");
+      }
+    } catch (error) {
+      console.error("Error opening external link:", error);
     }
   };
 
@@ -185,7 +214,7 @@ const UniversityProfile = () => {
                 applicationInfo={university.applicationInfo}
                 universityName={university.name}
                 universityAbbreviation={university.abbreviation}
-                website={university.website}
+                website={university.website || ""}
               />
 
               {/* Hero Image Section */}
@@ -224,46 +253,61 @@ const UniversityProfile = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
-                    {university.faculties.map((faculty, index) => (
-                      <div
-                        key={`${university.id}-${faculty.id}-${index}`}
-                        className="border border-gray-200 rounded-lg p-3 sm:p-4 hover:border-book-300 hover:shadow-md transition-all duration-200 cursor-pointer group"
-                        onClick={() =>
-                          navigate(
-                            `/university/${university.id}/faculty/${faculty.id}`,
-                          )
-                        }
-                      >
-                        <div className="flex items-start justify-between">
-                          <div className="flex-1 min-w-0">
-                            <h3 className="font-semibold text-base sm:text-lg text-gray-900 mb-2 group-hover:text-book-600 transition-colors leading-tight">
-                              {faculty.name}
-                            </h3>
-                            <p className="text-gray-600 text-xs sm:text-sm leading-relaxed mb-3 line-clamp-3">
-                              {faculty.description}
-                            </p>
-                            <div className="flex items-center justify-between">
-                              <Badge
-                                variant="secondary"
-                                className="bg-book-50 text-book-700 text-xs"
-                              >
-                                {faculty.degrees.length} Programs
-                              </Badge>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                className="text-book-600 hover:text-book-700 hover:bg-book-50 p-1 h-auto"
-                              >
-                                <ExternalLink className="w-3 h-3 sm:w-4 sm:h-4" />
-                              </Button>
+                    {university.faculties && Array.isArray(university.faculties)
+                      ? university.faculties.map((faculty, index) => {
+                          // Safely handle undefined faculty or degrees
+                          if (!faculty) return null;
+
+                          const degreesCount =
+                            faculty.degrees && Array.isArray(faculty.degrees)
+                              ? faculty.degrees.length
+                              : 0;
+
+                          return (
+                            <div
+                              key={`${university.id}-${faculty.id || index}-${index}`}
+                              className="border border-gray-200 rounded-lg p-3 sm:p-4 hover:border-book-300 hover:shadow-md transition-all duration-200 cursor-pointer group"
+                              onClick={() =>
+                                navigate(
+                                  `/university/${university.id}/faculty/${faculty.id}`,
+                                )
+                              }
+                            >
+                              <div className="flex items-start justify-between">
+                                <div className="flex-1 min-w-0">
+                                  <h3 className="font-semibold text-base sm:text-lg text-gray-900 mb-2 group-hover:text-book-600 transition-colors leading-tight">
+                                    {faculty.name || "Faculty Name"}
+                                  </h3>
+                                  <p className="text-gray-600 text-xs sm:text-sm leading-relaxed mb-3 line-clamp-3">
+                                    {faculty.description ||
+                                      "Faculty description will be available soon."}
+                                  </p>
+                                  <div className="flex items-center justify-between">
+                                    <Badge
+                                      variant="secondary"
+                                      className="bg-book-50 text-book-700 text-xs"
+                                    >
+                                      {degreesCount} Programs
+                                    </Badge>
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      className="text-book-600 hover:text-book-700 hover:bg-book-50 p-1 h-auto"
+                                    >
+                                      <ExternalLink className="w-3 h-3 sm:w-4 sm:h-4" />
+                                    </Button>
+                                  </div>
+                                </div>
+                              </div>
                             </div>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
+                          );
+                        })
+                      : null}
                   </div>
 
-                  {university.faculties.length === 0 && (
+                  {(!university.faculties ||
+                    !Array.isArray(university.faculties) ||
+                    university.faculties.length === 0) && (
                     <div className="text-center py-6 sm:py-8">
                       <BookOpen className="w-8 h-8 sm:w-12 sm:h-12 text-gray-300 mx-auto mb-4" />
                       <p className="text-gray-600 text-sm sm:text-base">
@@ -322,7 +366,10 @@ const UniversityProfile = () => {
                     <div className="text-center p-3 sm:p-4 bg-book-50 rounded-lg">
                       <BookOpen className="w-6 h-6 sm:w-8 sm:h-8 text-book-600 mx-auto mb-2" />
                       <div className="text-lg sm:text-2xl font-bold text-book-600">
-                        {university.faculties.length}
+                        {university.faculties &&
+                        Array.isArray(university.faculties)
+                          ? university.faculties.length
+                          : 0}
                       </div>
                       <div className="text-xs sm:text-sm text-gray-600">
                         Faculties
