@@ -1,6 +1,6 @@
 import { APSSubject, APSCalculation, EligibleDegree } from "@/types/university";
 import { calculateAPSPoints } from "@/constants/degrees";
-import { ALL_SOUTH_AFRICAN_UNIVERSITIES } from "@/constants/universities";
+import { SOUTH_AFRICAN_UNIVERSITIES } from "@/constants/universities/index";
 import { isNonContributing } from "@/constants/subjects";
 
 export const calculateAPS = (subjects: APSSubject[]): APSCalculation => {
@@ -18,7 +18,7 @@ export const calculateAPS = (subjects: APSSubject[]): APSCalculation => {
   // Find eligible degrees from all universities
   const eligibleDegrees: EligibleDegree[] = [];
 
-  ALL_SOUTH_AFRICAN_UNIVERSITIES.forEach((university) => {
+  SOUTH_AFRICAN_UNIVERSITIES.forEach((university) => {
     university.faculties.forEach((faculty) => {
       faculty.degrees.forEach((degree) => {
         const meetsRequirement = totalScore >= degree.apsRequirement;

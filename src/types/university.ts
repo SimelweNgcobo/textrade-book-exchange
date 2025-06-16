@@ -1,3 +1,4 @@
+
 export interface Subject {
   name: string;
   level: number;
@@ -7,7 +8,7 @@ export interface Subject {
 export interface Degree {
   id: string;
   name: string;
-  code: string; // Added missing code property
+  code: string;
   faculty: string;
   duration: string;
   apsRequirement: number;
@@ -47,14 +48,14 @@ export interface University {
   logo: string;
   overview: string;
   website: string;
-  studentPortal?: string; // Made optional
-  admissionsContact?: string; // Made optional
+  studentPortal?: string;
+  admissionsContact?: string;
   faculties: Faculty[];
-  applicationInfo?: ApplicationInfo; // Made optional
+  applicationInfo?: ApplicationInfo;
   establishedYear?: number;
   studentPopulation?: number;
   campuses?: string[];
-  type?: string; // Added type property
+  type?: string;
 }
 
 // APS Calculator Types
@@ -149,8 +150,8 @@ export interface StudyTip {
   tags?: string[];
   content: string;
   author?: string;
-  description?: string; // Added missing property
-  isActive?: boolean; // Added missing property
+  description?: string;
+  isActive?: boolean;
   isSponsored?: boolean;
   sponsorName?: string;
   sponsorLogo?: string;
@@ -170,9 +171,9 @@ export interface StudyResource {
   provider?: string;
   duration?: string;
   tags?: string[];
-  downloadUrl?: string; // Added missing property
-  isActive?: boolean; // Added missing property
-  isFeatured?: boolean; // Added missing property
+  downloadUrl?: string;
+  isActive?: boolean;
+  isFeatured?: boolean;
   isSponsored?: boolean;
   sponsorName?: string;
   sponsorLogo?: string;
