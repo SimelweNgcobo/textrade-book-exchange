@@ -80,12 +80,26 @@ const UniversityProfile = () => {
   }
 
   const handleViewBooks = () => {
-    navigate(`/books?university=${university.id}`);
+    try {
+      if (university && university.id) {
+        navigate(`/books?university=${university.id}`);
+      } else {
+        console.error("University data is not available for book navigation");
+      }
+    } catch (error) {
+      console.error("Error navigating to books:", error);
+    }
   };
 
   const handleExternalLink = () => {
-    if (university.website) {
-      window.open(university.website, "_blank");
+    try {
+      if (university && university.website) {
+        window.open(university.website, "_blank");
+      } else {
+        console.error("University website is not available");
+      }
+    } catch (error) {
+      console.error("Error opening external link:", error);
     }
   };
 
