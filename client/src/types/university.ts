@@ -1,3 +1,4 @@
+
 export interface Subject {
   name: string;
   level: number;
@@ -51,7 +52,7 @@ export interface University {
   website?: string;
   studentPortal?: string;
   admissionsContact?: string;
-  faculties: Faculty[];
+  faculties?: Faculty[]; // Made optional to match constants
   applicationInfo?: ApplicationInfo;
   establishedYear?: number;
   studentPopulation?: number;
