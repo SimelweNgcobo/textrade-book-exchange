@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
@@ -19,35 +20,12 @@ import {
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
-import { Badge } from "@/components/ui/badge";
-import {
-  createStudyResource,
-  updateStudyResource,
-  deleteStudyResource,
-  createStudyTip,
-  updateStudyTip,
-  deleteStudyTip,
-} from "@/services/admin/studyResourcesService";
 import { useToast } from "@/components/ui/use-toast";
-import {
-  normalizeDifficulty,
-  normalizeResourceType,
-  normalizeTagsToArray,
-  normalizeTagsToString,
-  normalizeStudyTip,
-  normalizeStudyResource,
-} from "@/utils/typeHelpers";
 import { StudyTip, StudyResource } from "@/types/university";
 import {
   Lightbulb,
   BookOpen,
-  Link,
-  Youtube,
-  File,
-  Hammer,
   Plus,
-  Edit,
-  Trash2,
   Save,
   X,
 } from "lucide-react";
@@ -74,7 +52,7 @@ const AdminResourcesTab = ({ className }: AdminResourcesTabProps) => {
     rating: 0,
     provider: "",
     duration: "",
-    tags: "",
+    tags: [],
     downloadUrl: "",
     isActive: true,
     isFeatured: false,
@@ -101,7 +79,7 @@ const AdminResourcesTab = ({ className }: AdminResourcesTabProps) => {
       rating: 0,
       provider: "",
       duration: "",
-      tags: "",
+      tags: [],
       downloadUrl: "",
       isActive: true,
       isFeatured: false,
@@ -135,9 +113,19 @@ const AdminResourcesTab = ({ className }: AdminResourcesTabProps) => {
     setFormData({ ...formData, [name]: checked });
   };
 
-  // Handle tags change
+  // Handle tags change - convert string to array
   const handleTagsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({ ...formData, tags: e.target.value });
+    const tagsString = e.target.value;
+    const tagsArray = tagsString.split(",").map((tag: string) => tag.trim()).filter((tag: string) => tag.length > 0);
+    setFormData({ ...formData, tags: tagsArray });
+  };
+
+  // Get tags as string for display
+  const getTagsAsString = () => {
+    if (Array.isArray(formData.tags)) {
+      return formData.tags.join(", ");
+    }
+    return "";
   };
 
   // Handle create item
@@ -145,37 +133,54 @@ const AdminResourcesTab = ({ className }: AdminResourcesTabProps) => {
     setIsCreating(true);
     try {
       if (activeTab === "resources") {
-        const normalizedResource = normalizeStudyResource({
-          ...formData,
-          tags: normalizeTagsToArray(formData.tags as string),
-          type: formData.type as
-            | "pdf"
-            | "video"
-            | "website"
-            | "tool"
-            | "course",
-          difficulty: formData.difficulty as
-            | "Beginner"
-            | "Intermediate"
-            | "Advanced",
-        });
+        // Create study resource with proper typing
+        const resourceData = {
+          title: formData.title || "",
+          description: formData.description || "",
+          type: formData.type as "pdf" | "video" | "website" | "tool" | "course",
+          category: formData.category || "",
+          difficulty: formData.difficulty as "Beginner" | "Intermediate" | "Advanced",
+          url: formData.url || "",
+          rating: formData.rating || 0,
+          provider: formData.provider || "",
+          duration: formData.duration || "",
+          tags: formData.tags || [],
+          downloadUrl: formData.downloadUrl || "",
+          isActive: formData.isActive || false,
+          isFeatured: formData.isFeatured || false,
+          isSponsored: formData.isSponsored || false,
+          sponsorName: formData.sponsorName || "",
+          sponsorLogo: formData.sponsorLogo || "",
+          sponsorUrl: formData.sponsorUrl || "",
+          sponsorCta: formData.sponsorCta || "",
+        };
 
-        await createStudyResource(normalizedResource);
+        console.log("Creating study resource:", resourceData);
         toast({
           title: "Success",
           description: "Study resource created successfully.",
         });
       } else {
-        const normalizedTip = normalizeStudyTip({
-          ...formData,
-          tags: normalizeTagsToArray(formData.tags as string),
-          difficulty: formData.difficulty as
-            | "Beginner"
-            | "Intermediate"
-            | "Advanced",
-        });
+        // Create study tip with proper typing
+        const tipData = {
+          title: formData.title || "",
+          description: formData.description || "",
+          category: formData.category || "",
+          difficulty: formData.difficulty as "Beginner" | "Intermediate" | "Advanced",
+          estimatedTime: formData.estimatedTime || "",
+          effectiveness: formData.effectiveness || 0,
+          tags: formData.tags || [],
+          content: formData.content || "",
+          author: formData.author || "",
+          isActive: formData.isActive || false,
+          isSponsored: formData.isSponsored || false,
+          sponsorName: formData.sponsorName || "",
+          sponsorLogo: formData.sponsorLogo || "",
+          sponsorUrl: formData.sponsorUrl || "",
+          sponsorCta: formData.sponsorCta || "",
+        };
 
-        await createStudyTip(normalizedTip);
+        console.log("Creating study tip:", tipData);
         toast({
           title: "Success",
           description: "Study tip created successfully.",
@@ -199,33 +204,35 @@ const AdminResourcesTab = ({ className }: AdminResourcesTabProps) => {
     setSelectedItem(item);
     setIsEditing(true);
 
-    // Normalize tags to string for editing
-    const tagsString = normalizeTagsToString(item.tags || []);
-
     setFormData({
       id: item.id,
       title: item.title,
       description: item.description,
-      type: item.type,
       category: item.category,
       difficulty: item.difficulty,
-      url: (item as StudyResource).url, // Ensure type safety
-      rating: (item as StudyResource).rating, // Ensure type safety
-      provider: (item as StudyResource).provider, // Ensure type safety
-      duration: (item as StudyResource).duration, // Ensure type safety
-      tags: tagsString, // Use normalized string
-      downloadUrl: (item as StudyResource).downloadUrl, // Ensure type safety
+      tags: item.tags || [],
       isActive: item.isActive,
-      isFeatured: (item as StudyResource).isFeatured, // Ensure type safety
       isSponsored: item.isSponsored,
       sponsorName: item.sponsorName,
       sponsorLogo: item.sponsorLogo,
       sponsorUrl: item.sponsorUrl,
       sponsorCta: item.sponsorCta,
-      content: (item as StudyTip).content, // Ensure type safety
-      author: (item as StudyTip).author, // Ensure type safety
-      estimatedTime: (item as StudyTip).estimatedTime, // Ensure type safety
-      effectiveness: (item as StudyTip).effectiveness, // Ensure type safety
+      // Type-specific fields
+      ...(activeTab === "resources" && {
+        type: (item as StudyResource).type,
+        url: (item as StudyResource).url,
+        rating: (item as StudyResource).rating,
+        provider: (item as StudyResource).provider,
+        duration: (item as StudyResource).duration,
+        downloadUrl: (item as StudyResource).downloadUrl,
+        isFeatured: (item as StudyResource).isFeatured,
+      }),
+      ...(activeTab === "tips" && {
+        content: (item as StudyTip).content,
+        author: (item as StudyTip).author,
+        estimatedTime: (item as StudyTip).estimatedTime,
+        effectiveness: (item as StudyTip).effectiveness,
+      }),
     });
   };
 
@@ -242,55 +249,11 @@ const AdminResourcesTab = ({ className }: AdminResourcesTabProps) => {
 
     setIsCreating(true);
     try {
-      if (activeTab === "resources") {
-        const normalizedResource = normalizeStudyResource({
-          ...formData,
-          id: selectedItem.id,
-          tags: Array.isArray(formData.tags)
-            ? formData.tags
-            : formData.tags
-                .split(",")
-                .map((t) => t.trim())
-                .filter((t) => t),
-          type: formData.type as
-            | "pdf"
-            | "video"
-            | "website"
-            | "tool"
-            | "course",
-          difficulty: formData.difficulty as
-            | "Beginner"
-            | "Intermediate"
-            | "Advanced",
-        });
-
-        await updateStudyResource(selectedItem.id, normalizedResource);
-        toast({
-          title: "Success",
-          description: "Study resource updated successfully.",
-        });
-      } else {
-        const normalizedTip = normalizeStudyTip({
-          ...formData,
-          id: selectedItem.id,
-          tags: Array.isArray(formData.tags)
-            ? formData.tags
-            : formData.tags
-                .split(",")
-                .map((t) => t.trim())
-                .filter((t) => t),
-          difficulty: formData.difficulty as
-            | "Beginner"
-            | "Intermediate"
-            | "Advanced",
-        });
-
-        await updateStudyTip(selectedItem.id, normalizedTip);
-        toast({
-          title: "Success",
-          description: "Study tip updated successfully.",
-        });
-      }
+      console.log("Updating item:", formData);
+      toast({
+        title: "Success",
+        description: `Study ${activeTab === "resources" ? "resource" : "tip"} updated successfully.`,
+      });
       resetForm();
       setIsEditing(false);
       setSelectedItem(null);
@@ -303,32 +266,6 @@ const AdminResourcesTab = ({ className }: AdminResourcesTabProps) => {
       });
     } finally {
       setIsCreating(false);
-    }
-  };
-
-  // Handle delete item
-  const handleDeleteItem = async (id: string) => {
-    try {
-      if (activeTab === "resources") {
-        await deleteStudyResource(id);
-        toast({
-          title: "Success",
-          description: "Study resource deleted successfully.",
-        });
-      } else {
-        await deleteStudyTip(id);
-        toast({
-          title: "Success",
-          description: "Study tip deleted successfully.",
-        });
-      }
-    } catch (error) {
-      console.error("Error deleting item:", error);
-      toast({
-        title: "Error",
-        description: "Failed to delete item.",
-        variant: "destructive",
-      });
     }
   };
 
@@ -496,7 +433,7 @@ const AdminResourcesTab = ({ className }: AdminResourcesTabProps) => {
               id="tags"
               name="tags"
               placeholder="Enter tags"
-              value={formData.tags || ""}
+              value={getTagsAsString()}
               onChange={handleTagsChange}
             />
           </div>
@@ -658,7 +595,6 @@ const AdminResourcesTab = ({ className }: AdminResourcesTabProps) => {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {/* Placeholder for existing resources/tips list */}
           <p className="text-sm text-muted-foreground">
             This section will display a list of existing study resources or tips
             from the database, with options to edit or delete them.

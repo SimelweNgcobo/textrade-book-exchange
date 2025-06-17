@@ -7,15 +7,15 @@ export interface Subject {
 export interface Degree {
   id: string;
   name: string;
-  code?: string; // Made optional with default generation
+  code?: string;
   faculty: string;
   duration: string;
   apsRequirement: number;
   description: string;
   subjects: Subject[];
   careerProspects: string[];
-  universitySpecificAPS?: { [universityId: string]: number }; // University-specific APS requirements
-  assignmentRule?: "all" | { exclude: string[] }; // Program assignment rule for debugging
+  universitySpecificAPS?: { [universityId: string]: number };
+  assignmentRule?: "all" | { exclude: string[] };
 }
 
 export interface Faculty {
@@ -48,7 +48,7 @@ export interface University {
   province: string;
   logo: string;
   overview: string;
-  website: string;
+  website?: string;
   studentPortal?: string;
   admissionsContact?: string;
   faculties: Faculty[];
@@ -246,7 +246,6 @@ export const isUniversityValid = (
     typeof university.province === "string" &&
     typeof university.logo === "string" &&
     typeof university.overview === "string" &&
-    typeof university.website === "string" &&
     Array.isArray(university.faculties)
   );
 };
@@ -271,13 +270,12 @@ export const isAPSSubjectValid = (subject: any): subject is APSSubject => {
 export const getDefaultDegreeCode = (degree: Degree): string => {
   if (degree.code) return degree.code;
 
-  // Generate code from degree name
   const cleanName = degree.name
-    .replace(/[^a-zA-Z0-9\s]/g, "") // Remove special characters
-    .replace(/\s+/g, "-") // Replace spaces with hyphens
+    .replace(/[^a-zA-Z0-9\s]/g, "")
+    .replace(/\s+/g, "-")
     .toLowerCase();
 
-  return cleanName.substring(0, 20); // Limit length
+  return cleanName.substring(0, 20);
 };
 
 export const getDefaultFacultyDescription = (faculty: Faculty): string => {

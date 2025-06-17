@@ -44,7 +44,6 @@ const ShippingComparison = () => {
     height: "",
   });
 
-  // Move handleGetQuotes function declaration before useEffect
   const handleGetQuotes = useCallback(async () => {
     if (!fromAddress.city || !toAddress.city || !parcelDetails.weight) {
       toast.error("Please fill in all required fields");
@@ -87,7 +86,6 @@ const ShippingComparison = () => {
   }, [fromAddress, toAddress, parcelDetails]);
 
   useEffect(() => {
-    // Auto-fetch quotes when all required fields are filled
     if (fromAddress.city && toAddress.city && parcelDetails.weight) {
       const timeoutId = setTimeout(() => {
         handleGetQuotes();
@@ -317,7 +315,6 @@ const ShippingComparison = () => {
         </CardContent>
       </Card>
 
-      {/* Get Quotes Button */}
       <Button onClick={handleGetQuotes} disabled={loading}>
         {loading ? (
           <>
@@ -329,14 +326,14 @@ const ShippingComparison = () => {
         )}
       </Button>
 
-      {/* Display Quotes */}
+      {/* Display Quotes - Fixed to use correct property names */}
       {quotes.length > 0 && (
         <div className="mt-8">
           <h2 className="text-xl font-semibold mb-4">Delivery Quotes:</h2>
           <ul>
             {quotes.map((quote, index) => (
               <li key={index} className="mb-2">
-                {quote.carrier}: R{quote.price} - ETA: {quote.eta}
+                {quote.name}: R{quote.cost} - ETA: {quote.time}
               </li>
             ))}
           </ul>
