@@ -9,7 +9,7 @@ export const broadcastTargetAudience = pgEnum("broadcast_target_audience", ["all
 
 // Profiles table (main user profiles)
 export const profiles = pgTable("profiles", {
-  id: uuid("id").primaryKey(),
+  id: uuid("id").primaryKey().defaultRandom(),
   name: text("name"),
   email: text("email"),
   bio: text("bio"),

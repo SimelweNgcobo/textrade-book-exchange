@@ -123,8 +123,6 @@ export class DatabaseStorage implements IStorage {
     minPrice?: number;
     maxPrice?: number;
   } = {}): Promise<schema.Book[]> {
-    let query = db.select().from(schema.books);
-    
     const conditions = [];
     
     if (filters.search) {
@@ -166,10 +164,10 @@ export class DatabaseStorage implements IStorage {
     }
     
     if (conditions.length > 0) {
-      query = query.where(and(...conditions));
+      return await db.select().from(schema.books).where(and(...conditions)).orderBy(desc(schema.books.createdAt));
     }
     
-    return query.orderBy(desc(schema.books.createdAt));
+    return await db.select().from(schema.books).orderBy(desc(schema.books.createdAt));
   }
 
   async createBook(book: schema.InsertBook): Promise<schema.Book> {
@@ -256,13 +254,12 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getBroadcasts(active?: boolean): Promise<schema.Broadcast[]> {
-    let query = db.select().from(schema.broadcasts);
-    
     if (typeof active === 'boolean') {
-      query = query.where(eq(schema.broadcasts.active, active));
+      return await db.select().from(schema.broadcasts).where(eq(schema.broadcasts.active, active)).orderBy(desc(schema.broadcasts.createdAt));
     }
     
-    return query.orderBy(desc(schema.broadcasts.createdAt));
+    const result = await db.select().from(schema.broadcasts).orderBy(desc(schema.broadcasts.createdAt));
+    return result;
   }
 
   async updateBroadcast(id: string, updates: Partial<schema.InsertBroadcast>): Promise<schema.Broadcast> {
