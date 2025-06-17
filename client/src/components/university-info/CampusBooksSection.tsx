@@ -1,17 +1,15 @@
-
-import { useState, useMemo, useEffect } from "react";
-import { useSearchParams } from "react-router-dom";
+import React, { useState, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
+  CardDescription,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -19,487 +17,387 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   BookOpen,
+  ShoppingCart,
   Search,
   Filter,
-  University,
-  GraduationCap,
+  MapPin,
   Star,
-  ExternalLink,
-  Heart,
-  ShoppingCart,
+  Building,
+  GraduationCap,
+  AlertCircle,
+  Book,
 } from "lucide-react";
-import { SOUTH_AFRICAN_UNIVERSITIES } from "@/constants/universities/index";
-import { COMMON_DEGREES } from "@/constants/degrees";
-
-interface Book {
-  id: string;
-  title: string;
-  author: string;
-  isbn?: string;
-  price: number;
-  condition: "New" | "Used - Good" | "Used - Fair" | "Used - Poor";
-  description: string;
-  university: string;
-  degree: string;
-  year: string;
-  subject: string;
-  imageUrl?: string;
-  seller: {
-    name: string;
-    rating: number;
-    reviewCount: number;
-  };
-  availability: "Available" | "Sold" | "Reserved";
-}
-
-// Sample book data for demonstration
-const SAMPLE_BOOKS: Book[] = [
-  {
-    id: "1",
-    title: "Introduction to Accounting Principles",
-    author: "Smith, J. & Johnson, A.",
-    isbn: "978-0-123456-78-9",
-    price: 450,
-    condition: "Used - Good",
-    description: "Comprehensive textbook covering fundamental accounting principles. Minor highlighting, good condition.",
-    university: "uct",
-    degree: "bcom-accounting",
-    year: "1st Year",
-    subject: "Accounting",
-    seller: {
-      name: "Sarah M.",
-      rating: 4.8,
-      reviewCount: 23,
-    },
-    availability: "Available",
-  },
-  {
-    id: "2",
-    title: "Engineering Mathematics Volume 1",
-    author: "Brown, K.A.",
-    isbn: "978-0-987654-32-1",
-    price: 650,
-    condition: "New",
-    description: "Brand new textbook, still in wrapper. Perfect for first-year engineering students.",
-    university: "wits",
-    degree: "beng-civil",
-    year: "1st Year",
-    subject: "Mathematics",
-    seller: {
-      name: "Mike T.",
-      rating: 4.9,
-      reviewCount: 45,
-    },
-    availability: "Available",
-  },
-  {
-    id: "3",
-    title: "Fundamentals of Chemistry",
-    author: "Wilson, P. et al.",
-    price: 380,
-    condition: "Used - Good",
-    description: "Well-maintained chemistry textbook with some notes in margins.",
-    university: "up",
-    degree: "bsc-chemistry",
-    year: "1st Year",
-    subject: "Chemistry",
-    seller: {
-      name: "Lisa R.",
-      rating: 4.6,
-      reviewCount: 18,
-    },
-    availability: "Available",
-  },
-];
+import { ALL_SOUTH_AFRICAN_UNIVERSITIES } from "@/constants/universities";
 
 const CampusBooksSection = () => {
-  const [searchParams, setSearchParams] = useSearchParams();
-  const [books, setBooks] = useState<Book[]>(SAMPLE_BOOKS);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedUniversity, setSelectedUniversity] = useState<string>("");
-  const [selectedDegree, setSelectedDegree] = useState<string>("");
-  const [selectedYear, setSelectedYear] = useState<string>("");
-  const [selectedCondition, setSelectedCondition] = useState<string>("");
-  const [priceRange, setPriceRange] = useState<{ min: string; max: string }>({
-    min: "",
-    max: "",
-  });
-  const [sortBy, setSortBy] = useState<"price-low" | "price-high" | "newest" | "rating">("newest");
+  const navigate = useNavigate();
+  const universities = ALL_SOUTH_AFRICAN_UNIVERSITIES;
 
-  // Initialize filters from URL params
-  useEffect(() => {
-    const university = searchParams.get("university");
-    const degree = searchParams.get("degree");
-    if (university) setSelectedUniversity(university);
-    if (degree) setSelectedDegree(degree);
-  }, [searchParams]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedUniversity, setSelectedUniversity] = useState("all");
+  const [selectedCategory, setSelectedCategory] = useState("all");
+  const [priceRange, setPriceRange] = useState("all");
 
-  // Get available degrees for selected university
-  const availableDegrees = useMemo(() => {
-    if (!selectedUniversity) return COMMON_DEGREES;
-    
-    const university = SOUTH_AFRICAN_UNIVERSITIES.find(u => u.id === selectedUniversity);
-    if (!university) return COMMON_DEGREES;
+  // Mock book data - in production this would come from your database
+  const mockBooks = useMemo(
+    () => [
+      {
+        id: "1",
+        title: "Introduction to Computer Science",
+        author: "John Smith",
+        price: 450.0,
+        condition: "excellent",
+        university: "uct",
+        category: "Computer Science",
+        cover_image: "/api/placeholder/200/250",
+        description:
+          "Comprehensive introduction to computer science fundamentals.",
+        faculty: "Science",
+        location: "Cape Town",
+        tags: ["Programming", "Algorithms", "Data Structures"],
+        seller: "Alex K.",
+      },
+      {
+        id: "2",
+        title: "Calculus and Analytical Geometry",
+        author: "Maria Rodriguez",
+        price: 380.0,
+        condition: "good",
+        university: "wits",
+        category: "Mathematics",
+        cover_image: "/api/placeholder/200/250",
+        description: "Advanced calculus textbook with detailed examples.",
+        faculty: "Science",
+        location: "Johannesburg",
+        tags: ["Calculus", "Geometry", "Mathematics"],
+        seller: "Sarah M.",
+      },
+      {
+        id: "3",
+        title: "Organic Chemistry Principles",
+        author: "Dr. James Wilson",
+        price: 520.0,
+        condition: "very good",
+        university: "up",
+        category: "Chemistry",
+        cover_image: "/api/placeholder/200/250",
+        description: "Essential organic chemistry concepts and reactions.",
+        faculty: "Natural Sciences",
+        location: "Pretoria",
+        tags: ["Chemistry", "Organic", "Laboratory"],
+        seller: "Mike T.",
+      },
+    ],
+    [],
+  );
 
-    const degrees = university.faculties.flatMap(faculty => 
-      faculty.degrees.map(degree => ({
-        id: degree.id,
-        name: degree.name,
-        code: degree.code || degree.id,
-        faculty: degree.faculty,
-      }))
-    );
-    
-    return degrees;
-  }, [selectedUniversity]);
-
-  // Filter and sort books
   const filteredBooks = useMemo(() => {
-    let filtered = books.filter((book) => {
-      // Search query
-      if (searchQuery) {
-        const query = searchQuery.toLowerCase();
-        if (
-          !book.title.toLowerCase().includes(query) &&
-          !book.author.toLowerCase().includes(query) &&
-          !book.subject.toLowerCase().includes(query)
-        ) {
-          return false;
-        }
-      }
+    return mockBooks.filter((book) => {
+      const matchesSearch =
+        book.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        book.author.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesUniversity =
+        selectedUniversity === "all" || book.university === selectedUniversity;
+      const matchesCategory =
+        selectedCategory === "all" || book.category === selectedCategory;
 
-      // University filter
-      if (selectedUniversity && book.university !== selectedUniversity) {
-        return false;
-      }
+      let matchesPrice = true;
+      if (priceRange === "under-300") matchesPrice = book.price < 300;
+      else if (priceRange === "300-500")
+        matchesPrice = book.price >= 300 && book.price <= 500;
+      else if (priceRange === "over-500") matchesPrice = book.price > 500;
 
-      // Degree filter
-      if (selectedDegree && book.degree !== selectedDegree) {
-        return false;
-      }
-
-      // Year filter
-      if (selectedYear && book.year !== selectedYear) {
-        return false;
-      }
-
-      // Condition filter
-      if (selectedCondition && book.condition !== selectedCondition) {
-        return false;
-      }
-
-      // Price range filter
-      if (priceRange.min && book.price < parseInt(priceRange.min)) {
-        return false;
-      }
-      if (priceRange.max && book.price > parseInt(priceRange.max)) {
-        return false;
-      }
-
-      return true;
+      return (
+        matchesSearch && matchesUniversity && matchesCategory && matchesPrice
+      );
     });
+  }, [mockBooks, searchTerm, selectedUniversity, selectedCategory, priceRange]);
 
-    // Sort books
-    filtered.sort((a, b) => {
-      switch (sortBy) {
-        case "price-low":
-          return a.price - b.price;
-        case "price-high":
-          return b.price - a.price;
-        case "rating":
-          return b.seller.rating - a.seller.rating;
-        case "newest":
-        default:
-          return 0; // Keep original order for "newest"
-      }
-    });
-
-    return filtered;
-  }, [
-    books,
-    searchQuery,
-    selectedUniversity,
-    selectedDegree,
-    selectedYear,
-    selectedCondition,
-    priceRange,
-    sortBy,
-  ]);
-
-  const clearFilters = () => {
-    setSearchQuery("");
-    setSelectedUniversity("");
-    setSelectedDegree("");
-    setSelectedYear("");
-    setSelectedCondition("");
-    setPriceRange({ min: "", max: "" });
-    setSortBy("newest");
-    setSearchParams({});
+  const getConditionColor = (condition: string) => {
+    switch (condition.toLowerCase()) {
+      case "excellent":
+        return "bg-green-100 text-green-800 border-green-200";
+      case "very good":
+        return "bg-blue-100 text-blue-800 border-blue-200";
+      case "good":
+        return "bg-yellow-100 text-yellow-800 border-yellow-200";
+      case "fair":
+        return "bg-orange-100 text-orange-800 border-orange-200";
+      default:
+        return "bg-gray-100 text-gray-800 border-gray-200";
+    }
   };
 
-  return (
-    <div className="space-y-8">
-      {/* Header */}
-      <div className="relative text-center space-y-4 bg-gradient-to-r from-book-50 to-book-100 rounded-2xl p-8 overflow-hidden">
-        <div className="absolute inset-0">
-          <img
-            src="https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=800&h=400&fit=crop&crop=center"
-            alt="University textbooks"
-            className="w-full h-full object-cover opacity-20"
-          />
-          <div className="absolute inset-0 bg-gradient-to-r from-book-50/80 to-book-100/80" />
-        </div>
-        <div className="relative z-10">
-          <div className="flex items-center justify-center space-x-2 mb-4">
-            <BookOpen className="w-8 h-8 text-book-600" />
-            <h2 className="text-3xl font-bold text-gray-900">Campus Books</h2>
-          </div>
-          <p className="text-lg text-gray-700 max-w-3xl mx-auto">
-            Find textbooks for your university courses. Buy and sell books with fellow students
-            at affordable prices. Support sustainable learning!
-          </p>
-        </div>
-      </div>
+  const BookCard = ({
+    book,
+  }: {
+    book: {
+      id: string;
+      title: string;
+      author: string;
+      condition: string;
+      price: number;
+      university: string;
+      category: string;
+      cover_image?: string;
+      description: string;
+      faculty: string;
+      location: string;
+      tags: string[];
+      seller: string;
+    };
+  }) => {
+    const universityInfo = universities.find(
+      (uni) => uni.id === book.university,
+    );
 
-      {/* Search and Filters */}
+    return (
+      <Card className="hover:shadow-lg transition-all duration-300 border-l-4 border-l-blue-500">
+        <CardHeader className="pb-3 sm:pb-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-4 mb-2">
+            <CardTitle className="text-base sm:text-lg font-bold text-blue-900 line-clamp-2">
+              {book.title}
+            </CardTitle>
+            <Badge
+              className={`${getConditionColor(book.condition)} text-xs whitespace-nowrap`}
+            >
+              {book.condition}
+            </Badge>
+          </div>
+          <CardDescription className="text-sm text-gray-600 mb-2">
+            by {book.author}
+          </CardDescription>
+          <div className="text-xl sm:text-2xl font-bold text-green-600 mb-2">
+            R{book.price.toFixed(2)}
+          </div>
+        </CardHeader>
+
+        <CardContent className="pt-0">
+          {/* University and Location Info */}
+          <div className="mb-3 space-y-1">
+            <div className="flex items-center gap-1 text-xs sm:text-sm text-gray-600">
+              <Building className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+              <span className="truncate">
+                {universityInfo?.name || book.university}
+              </span>
+            </div>
+            <div className="flex items-center gap-1 text-xs sm:text-sm text-gray-600">
+              <GraduationCap className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+              <span className="truncate">{book.faculty}</span>
+            </div>
+            <div className="flex items-center gap-1 text-xs sm:text-sm text-gray-600">
+              <MapPin className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+              <span className="truncate">{book.location}</span>
+            </div>
+          </div>
+
+          <p className="text-xs sm:text-sm text-gray-600 mb-3 line-clamp-2">
+            {book.description}
+          </p>
+
+          {/* Tags */}
+          <div className="flex flex-wrap gap-1 mb-3 sm:mb-4">
+            {book.tags.slice(0, 3).map((tag: string, index: number) => (
+              <Badge
+                key={index}
+                variant="secondary"
+                className="text-xs bg-gray-100"
+              >
+                {tag}
+              </Badge>
+            ))}
+          </div>
+
+          <div className="flex items-center justify-between text-xs text-gray-500 mb-3 sm:mb-4">
+            <span className="truncate">Sold by: {book.seller}</span>
+            <div className="flex items-center gap-1 flex-shrink-0">
+              <Star className="w-3 h-3 fill-current text-yellow-400" />
+              <span>4.5</span>
+            </div>
+          </div>
+
+          <div className="flex flex-col sm:flex-row gap-2">
+            <Button
+              size="sm"
+              className="w-full sm:flex-1 bg-blue-600 hover:bg-blue-700 text-white text-xs sm:text-sm"
+              onClick={() => navigate(`/book/${book.id}`)}
+            >
+              <BookOpen className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
+              View Details
+            </Button>
+
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-full sm:w-auto border-green-200 text-green-600 hover:bg-green-50 text-xs sm:text-sm"
+              onClick={() => navigate(`/cart?add=${book.id}`)}
+            >
+              <ShoppingCart className="w-3 h-3 sm:w-4 sm:h-4 mr-2 sm:mr-0" />
+              <span className="sm:hidden">Add to Cart</span>
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  };
+
+  if (universities.length === 0) {
+    return (
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center space-x-2">
-            <Filter className="w-5 h-5" />
-            <span>Search & Filter Books</span>
+            <BookOpen className="w-5 h-5" />
+            <span>Campus Books</span>
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-6">
-          {/* Search */}
-          <div className="relative">
-            <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-            <Input
-              placeholder="Search by title, author, or subject..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10"
-            />
-          </div>
+        <CardContent>
+          <Alert className="border-yellow-200 bg-yellow-50">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>Loading universities data...</AlertDescription>
+          </Alert>
+        </CardContent>
+      </Card>
+    );
+  }
 
-          {/* Filters Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
-            <div className="space-y-2">
-              <Label>University</Label>
-              <Select value={selectedUniversity} onValueChange={setSelectedUniversity}>
-                <SelectTrigger>
-                  <SelectValue placeholder="All universities" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="">All Universities</SelectItem>
-                  {SOUTH_AFRICAN_UNIVERSITIES.map((uni) => (
-                    <SelectItem key={uni.id} value={uni.id}>
-                      {uni.abbreviation}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="text-center">
+        <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-3 sm:mb-4">
+          Campus Books Marketplace
+        </h2>
+        <p className="text-gray-600 text-sm sm:text-base max-w-2xl mx-auto">
+          Find affordable textbooks from students at your university. Buy, sell,
+          and save on academic materials.
+        </p>
+      </div>
 
-            <div className="space-y-2">
-              <Label>Degree Program</Label>
-              <Select value={selectedDegree} onValueChange={setSelectedDegree}>
-                <SelectTrigger>
-                  <SelectValue placeholder="All programs" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="">All Programs</SelectItem>
-                  {availableDegrees.map((degree) => (
-                    <SelectItem key={degree.id} value={degree.id}>
-                      {degree.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label>Year Level</Label>
-              <Select value={selectedYear} onValueChange={setSelectedYear}>
-                <SelectTrigger>
-                  <SelectValue placeholder="All years" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="">All Years</SelectItem>
-                  <SelectItem value="1st Year">1st Year</SelectItem>
-                  <SelectItem value="2nd Year">2nd Year</SelectItem>
-                  <SelectItem value="3rd Year">3rd Year</SelectItem>
-                  <SelectItem value="4th Year">4th Year</SelectItem>
-                  <SelectItem value="Postgraduate">Postgraduate</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label>Condition</Label>
-              <Select value={selectedCondition} onValueChange={setSelectedCondition}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Any condition" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="">Any Condition</SelectItem>
-                  <SelectItem value="New">New</SelectItem>
-                  <SelectItem value="Used - Good">Used - Good</SelectItem>
-                  <SelectItem value="Used - Fair">Used - Fair</SelectItem>
-                  <SelectItem value="Used - Poor">Used - Poor</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label>Sort By</Label>
-              <Select value={sortBy} onValueChange={(value: typeof sortBy) => setSortBy(value)}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="newest">Newest First</SelectItem>
-                  <SelectItem value="price-low">Price: Low to High</SelectItem>
-                  <SelectItem value="price-high">Price: High to Low</SelectItem>
-                  <SelectItem value="rating">Highest Rated Sellers</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          {/* Price Range */}
-          <div className="flex items-center space-x-4">
-            <div className="flex-1 space-y-2">
-              <Label>Min Price (R)</Label>
+      {/* Filters - Mobile Optimized */}
+      <Card className="bg-white border-0 shadow-lg">
+        <CardHeader className="pb-3 sm:pb-4">
+          <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
+            <Filter className="h-4 w-4 sm:h-5 sm:w-5" />
+            Find Your Books
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+            {/* Search */}
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
               <Input
-                type="number"
-                placeholder="0"
-                value={priceRange.min}
-                onChange={(e) => setPriceRange(prev => ({ ...prev, min: e.target.value }))}
+                placeholder="Search books or authors..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10 text-sm"
               />
             </div>
-            <div className="flex-1 space-y-2">
-              <Label>Max Price (R)</Label>
-              <Input
-                type="number"
-                placeholder="1000"
-                value={priceRange.max}
-                onChange={(e) => setPriceRange(prev => ({ ...prev, max: e.target.value }))}
-              />
-            </div>
-            <Button variant="outline" onClick={clearFilters} className="mt-8">
-              Clear Filters
-            </Button>
+
+            {/* University Filter */}
+            <Select
+              value={selectedUniversity}
+              onValueChange={setSelectedUniversity}
+            >
+              <SelectTrigger className="text-sm">
+                <SelectValue placeholder="All Universities" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Universities</SelectItem>
+                {universities.slice(0, 10).map((university) => (
+                  <SelectItem key={university.id} value={university.id}>
+                    {university.abbreviation || university.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            {/* Category Filter */}
+            <Select
+              value={selectedCategory}
+              onValueChange={setSelectedCategory}
+            >
+              <SelectTrigger className="text-sm">
+                <SelectValue placeholder="All Categories" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Categories</SelectItem>
+                <SelectItem value="Computer Science">
+                  Computer Science
+                </SelectItem>
+                <SelectItem value="Mathematics">Mathematics</SelectItem>
+                <SelectItem value="Chemistry">Chemistry</SelectItem>
+                <SelectItem value="Physics">Physics</SelectItem>
+                <SelectItem value="Biology">Biology</SelectItem>
+              </SelectContent>
+            </Select>
+
+            {/* Price Range Filter */}
+            <Select value={priceRange} onValueChange={setPriceRange}>
+              <SelectTrigger className="text-sm">
+                <SelectValue placeholder="All Prices" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Prices</SelectItem>
+                <SelectItem value="under-300">Under R300</SelectItem>
+                <SelectItem value="300-500">R300 - R500</SelectItem>
+                <SelectItem value="over-500">Over R500</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </CardContent>
       </Card>
 
       {/* Results */}
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <h3 className="text-xl font-semibold">
-            {filteredBooks.length} {filteredBooks.length === 1 ? 'Book' : 'Books'} Found
+      <div>
+        <div className="flex items-center justify-between mb-4 sm:mb-6">
+          <h3 className="text-lg sm:text-xl font-semibold text-gray-900">
+            {filteredBooks.length} Books Found
           </h3>
+          <Button
+            onClick={() => navigate("/create-listing")}
+            className="bg-green-600 hover:bg-green-700 text-white text-sm"
+          >
+            <Book className="w-4 h-4 mr-2" />
+            Sell Books
+          </Button>
         </div>
 
-        {filteredBooks.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredBooks.map((book) => (
-              <Card key={book.id} className="hover:shadow-lg transition-shadow">
-                <CardHeader className="pb-3">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <CardTitle className="text-lg leading-tight mb-2">
-                        {book.title}
-                      </CardTitle>
-                      <p className="text-sm text-gray-600 mb-2">by {book.author}</p>
-                      <div className="flex items-center space-x-2 mb-2">
-                        <Badge variant="outline" className="text-xs">
-                          {SOUTH_AFRICAN_UNIVERSITIES.find(u => u.id === book.university)?.abbreviation}
-                        </Badge>
-                        <Badge variant="outline" className="text-xs">
-                          {book.year}
-                        </Badge>
-                      </div>
-                    </div>
-                    <Button variant="ghost" size="sm">
-                      <Heart className="w-4 h-4" />
-                    </Button>
-                  </div>
-                </CardHeader>
-
-                <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <span className="text-2xl font-bold text-green-600">
-                        R{book.price}
-                      </span>
-                      <Badge 
-                        variant={book.condition === "New" ? "default" : "secondary"}
-                        className="text-xs"
-                      >
-                        {book.condition}
-                      </Badge>
-                    </div>
-
-                    <p className="text-sm text-gray-600 line-clamp-2">
-                      {book.description}
-                    </p>
-
-                    <div className="flex items-center space-x-2">
-                      <div className="flex items-center space-x-1">
-                        <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                        <span className="text-sm font-medium">{book.seller.rating}</span>
-                      </div>
-                      <span className="text-sm text-gray-600">
-                        {book.seller.name} ({book.seller.reviewCount} reviews)
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="flex space-x-2">
-                    <Button className="flex-1 bg-book-600 hover:bg-book-700">
-                      <ShoppingCart className="w-4 h-4 mr-2" />
-                      Buy Now
-                    </Button>
-                    <Button variant="outline" size="sm">
-                      <ExternalLink className="w-4 h-4" />
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        ) : (
+        {filteredBooks.length === 0 ? (
           <Card>
             <CardContent className="text-center py-12">
-              <BookOpen className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-xl font-semibold mb-2">No Books Found</h3>
-              <p className="text-gray-600 mb-4">
-                Try adjusting your search criteria or filters to find more books.
+              <BookOpen className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-gray-900 mb-2">
+                No books found
+              </h3>
+              <p className="text-gray-500 mb-4">
+                Try adjusting your search criteria or browse all available
+                books.
               </p>
-              <Button variant="outline" onClick={clearFilters}>
-                Clear All Filters
+              <Button
+                onClick={() => {
+                  setSearchTerm("");
+                  setSelectedUniversity("all");
+                  setSelectedCategory("all");
+                  setPriceRange("all");
+                }}
+                variant="outline"
+              >
+                Clear Filters
               </Button>
             </CardContent>
           </Card>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+            {filteredBooks.map((book) => (
+              <BookCard key={book.id} book={book} />
+            ))}
+          </div>
         )}
       </div>
-
-      {/* Call to Action */}
-      <Card className="bg-gradient-to-r from-book-50 to-book-100 border-book-200">
-        <CardContent className="text-center py-8">
-          <BookOpen className="w-12 h-12 text-book-600 mx-auto mb-4" />
-          <h3 className="text-xl font-semibold mb-2">Have Books to Sell?</h3>
-          <p className="text-gray-600 mb-4">
-            List your textbooks and help fellow students while earning some cash!
-          </p>
-          <Button className="bg-book-600 hover:bg-book-700">
-            Sell Your Books
-          </Button>
-        </CardContent>
-      </Card>
     </div>
   );
 };

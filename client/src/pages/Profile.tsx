@@ -37,7 +37,6 @@ import { BookDeletionService } from "@/services/bookDeletionService";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { useIsMobile } from "@/hooks/use-mobile";
-import AdminDebug from "@/components/AdminDebug";
 
 const Profile = () => {
   const { profile, user } = useAuth();
@@ -72,7 +71,9 @@ const Profile = () => {
       const data = await getUserAddresses(user.id);
       setAddressData(data);
     } catch (error) {
-      console.error("Error loading addresses:", error);
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
+      console.error("Error loading addresses:", errorMessage);
       toast.error("Failed to load addresses");
     }
   }, [user?.id]);
@@ -275,9 +276,6 @@ const Profile = () => {
   return (
     <Layout>
       <div className="container mx-auto px-4 py-8 max-w-6xl">
-        {/* Admin Debug - Temporary */}
-        <AdminDebug />
-
         {/* Fixed Report Issue Button - Moved to bottom-left for less clutter */}
         <div className="fixed bottom-4 left-4 z-50">
           <Button

@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import {
@@ -11,20 +10,51 @@ import { Broadcast } from "@/types/broadcast";
 import BroadcastDialog from "./BroadcastDialog";
 
 const BroadcastManager = () => {
+  // TEMPORARY FIX: Completely disable broadcasts to stop error spam
+  const BROADCASTS_DISABLED = true;
+
   const [currentBroadcast, setCurrentBroadcast] = useState<Broadcast | null>(
     null,
   );
   const [showBroadcast, setShowBroadcast] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [lastCheckTime, setLastCheckTime] = useState<number>(0);
 
   // Always call useAuth - if it fails, the component will fail gracefully
   const { user, isAuthenticated } = useAuth();
 
+  // Early return if broadcasts are disabled
+  if (BROADCASTS_DISABLED) {
+    return null;
+  }
+
   useEffect(() => {
     const checkForBroadcasts = async () => {
+      // Check if broadcasts are disabled for this session
+      if (localStorage.getItem("broadcasts_disabled") === "true") {
+        return;
+      }
+
+      // Prevent rapid successive calls (debounce with 5 second minimum interval)
+      const now = Date.now();
+      if (now - lastCheckTime < 5000) {
+        return;
+      }
+
+      // Prevent concurrent requests
+      if (isLoading) {
+        return;
+      }
+
+      setIsLoading(true);
+      setLastCheckTime(now);
+
       try {
         const latestBroadcast = await getLatestBroadcast();
 
-        if (!latestBroadcast) return;
+        if (!latestBroadcast) {
+          return;
+        }
 
         // Check if user has seen this broadcast (using localStorage for guests)
         if (isAuthenticated && user) {
@@ -36,7 +66,11 @@ const BroadcastManager = () => {
             setCurrentBroadcast(latestBroadcast);
             setShowBroadcast(true);
             // Save to notifications for logged-in users - fix parameter order
-            await saveBroadcastToNotifications(latestBroadcast, user.id);
+            try {
+              await saveBroadcastToNotifications(latestBroadcast, user.id);
+            } catch (notifError) {
+              // Silently handle notification errors
+            }
           }
         } else {
           // For guests, use localStorage
@@ -50,17 +84,15 @@ const BroadcastManager = () => {
           }
         }
       } catch (error) {
-        // Broadcasts are optional - don't spam console with errors
-        console.log(
-          "ℹ️ [BroadcastManager] Broadcast check skipped:",
-          error instanceof Error ? error.message : String(error),
-        );
+        // Broadcasts are optional - fail silently
+      } finally {
+        setIsLoading(false);
       }
     };
 
-    // Check for broadcasts on mount and when auth state changes
+    // Only check for broadcasts if not already loading and if enough time has passed
     checkForBroadcasts();
-  }, [isAuthenticated, user]);
+  }, [isAuthenticated, user?.id]); // Only depend on user ID, not the full user object
 
   const handleDismiss = async () => {
     if (!currentBroadcast) return;

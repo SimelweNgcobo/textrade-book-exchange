@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, lazy, Suspense } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Card,
@@ -21,15 +21,20 @@ import {
   DollarSign,
   TrendingUp,
 } from "lucide-react";
-import { SOUTH_AFRICAN_UNIVERSITIES } from "@/constants/universities";
+import { ALL_SOUTH_AFRICAN_UNIVERSITIES as SOUTH_AFRICAN_UNIVERSITIES } from "@/constants/universities/index";
 import UniversityHero from "@/components/university-info/UniversityHero";
 import PopularUniversities from "@/components/university-info/PopularUniversities";
 import SEO from "@/components/SEO";
 import CampusNavbar from "@/components/CampusNavbar";
 import LoadingSpinner from "@/components/LoadingSpinner";
+import { logProgramVerification } from "@/utils/program-verification";
+import { logCriticalIssuesVerification } from "@/utils/critical-issues-verification";
 
-// Lazy load heavy components for better performance
-const APSCalculatorSection = lazy(
+// Direct import for APS calculator to fix loading issues
+import APSCalculatorSection from "@/components/university-info/APSCalculatorSection";
+
+// Keep lazy loading for other components
+const LazyAPSCalculatorSection = lazy(
   () => import("@/components/university-info/APSCalculatorSection"),
 );
 const BursaryExplorerSection = lazy(
@@ -41,7 +46,25 @@ const CampusBooksSection = lazy(
 
 const UniversityInfo = () => {
   const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
   const currentTool = searchParams.get("tool") || "overview";
+  const selectedUniversityId = searchParams.get("university");
+
+  // Find selected university if one is specified
+  const selectedUniversity = useMemo(() => {
+    if (!selectedUniversityId) return null;
+
+    try {
+      return (
+        SOUTH_AFRICAN_UNIVERSITIES.find(
+          (uni) => uni.id === selectedUniversityId,
+        ) || null
+      );
+    } catch (error) {
+      console.error("Error finding university:", error);
+      return null;
+    }
+  }, [selectedUniversityId]);
 
   // Handle automatic redirect to APS calculator if coming from specific links
   useEffect(() => {
@@ -50,9 +73,32 @@ const UniversityInfo = () => {
     }
   }, [setSearchParams]);
 
+  // Run program verification in development
+  useEffect(() => {
+    if (import.meta.env.DEV) {
+      logProgramVerification();
+      logCriticalIssuesVerification();
+    }
+  }, []);
+
+  // Redirect to new university profile route if university parameter is present
+  useEffect(() => {
+    if (selectedUniversityId) {
+      navigate(`/university-profile?id=${selectedUniversityId}`, {
+        replace: true,
+      });
+    }
+  }, [selectedUniversityId, navigate]);
+
   const handleTabChange = (value: string) => {
     const newParams = new URLSearchParams();
     newParams.set("tool", value);
+    setSearchParams(newParams);
+  };
+
+  const handleBackToUniversities = () => {
+    const newParams = new URLSearchParams();
+    newParams.set("tool", "overview");
     setSearchParams(newParams);
   };
 
@@ -120,6 +166,8 @@ const UniversityInfo = () => {
     </div>
   );
 
+  // University details are now handled by redirection to /university-profile
+
   return (
     <>
       <SEO
@@ -139,34 +187,41 @@ const UniversityInfo = () => {
             onValueChange={handleTabChange}
             className="w-full"
           >
-            <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 mb-8 h-auto">
+            <TabsList className="grid w-full grid-cols-2 sm:grid-cols-5 mb-8 h-auto bg-gray-200 p-1">
               <TabsTrigger
                 value="overview"
-                className="flex flex-col items-center gap-1 py-2 px-2 text-center"
+                className="flex flex-col items-center gap-1 py-2.5 px-2 text-center data-[state=active]:bg-white data-[state=active]:shadow-sm"
               >
                 <University className="h-3 w-3 sm:h-4 sm:w-4" />
-                <span className="text-xs">Overview</span>
+                <span className="text-xs sm:text-sm">Overview</span>
               </TabsTrigger>
               <TabsTrigger
                 value="aps-calculator"
-                className="flex flex-col items-center gap-1 py-2 px-2 text-center"
+                className="flex flex-col items-center gap-1 py-2.5 px-2 text-center data-[state=active]:bg-green-50 data-[state=active]:shadow-sm data-[state=active]:text-green-800"
               >
                 <Calculator className="h-3 w-3 sm:h-4 sm:w-4" />
-                <span className="text-xs">APS</span>
+                <span className="text-xs sm:text-sm">APS</span>
               </TabsTrigger>
               <TabsTrigger
                 value="bursaries"
-                className="flex flex-col items-center gap-1 py-2 px-2 text-center"
+                className="flex flex-col items-center gap-1 py-2.5 px-2 text-center data-[state=active]:bg-white data-[state=active]:shadow-sm"
               >
                 <DollarSign className="h-3 w-3 sm:h-4 sm:w-4" />
-                <span className="text-xs">Bursaries</span>
+                <span className="text-xs sm:text-sm">Bursaries</span>
               </TabsTrigger>
               <TabsTrigger
                 value="books"
-                className="flex flex-col items-center gap-1 py-2 px-2 text-center"
+                className="flex flex-col items-center gap-1 py-2.5 px-2 text-center data-[state=active]:bg-white data-[state=active]:shadow-sm"
               >
                 <BookOpen className="h-3 w-3 sm:h-4 sm:w-4" />
-                <span className="text-xs">Books</span>
+                <span className="text-xs sm:text-sm">Books</span>
+              </TabsTrigger>
+              <TabsTrigger
+                value="accommodation"
+                className="flex flex-col items-center gap-1 py-2.5 px-2 text-center data-[state=active]:bg-white data-[state=active]:shadow-sm"
+              >
+                <Building className="h-3 w-3 sm:h-4 sm:w-4" />
+                <span className="text-xs sm:text-sm">Accommodation</span>
               </TabsTrigger>
             </TabsList>
 
@@ -174,73 +229,48 @@ const UniversityInfo = () => {
               {/* Hero Section */}
               <UniversityHero onNavigateToTool={handleTabChange} />
 
-              {/* Stats Overview */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
-                <Card className="text-center">
-                  <CardContent className="pt-6">
-                    <div className="text-2xl md:text-3xl font-bold text-blue-600">
-                      {stats.universities}
-                    </div>
-                    <div className="text-sm text-gray-600">Universities</div>
-                  </CardContent>
-                </Card>
-                <Card className="text-center">
-                  <CardContent className="pt-6">
-                    <div className="text-2xl md:text-3xl font-bold text-green-600">
-                      {stats.students}
-                    </div>
-                    <div className="text-sm text-gray-600">Students</div>
-                  </CardContent>
-                </Card>
-                <Card className="text-center">
-                  <CardContent className="pt-6">
-                    <div className="text-2xl md:text-3xl font-bold text-purple-600">
-                      {stats.programs}
-                    </div>
-                    <div className="text-sm text-gray-600">Programs</div>
-                  </CardContent>
-                </Card>
-                <Card className="text-center">
-                  <CardContent className="pt-6">
-                    <div className="text-2xl md:text-3xl font-bold text-orange-600">
-                      {stats.resources}
-                    </div>
-                    <div className="text-sm text-gray-600">Resources</div>
-                  </CardContent>
-                </Card>
-              </div>
-
               {/* Popular Universities */}
               <PopularUniversities />
 
               {/* Quick Tools Section */}
               <div className="grid md:grid-cols-2 gap-6">
                 <Card
-                  className="hover:shadow-lg transition-shadow cursor-pointer"
+                  className="hover:shadow-lg transition-shadow cursor-pointer border-0 shadow-sm"
                   onClick={() => handleTabChange("aps-calculator")}
                 >
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
-                      <Calculator className="h-5 w-5 text-blue-600" />
+                      <Calculator
+                        className="h-5 w-5"
+                        style={{ color: "rgb(68, 171, 131)" }}
+                      />
                       APS Calculator
                     </CardTitle>
                     <CardDescription>
-                      Calculate your Admission Point Score and find eligible
-                      universities
+                      Calculate your Admission Point Score and find qualifying
+                      programs
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <Badge variant="secondary">Most Popular</Badge>
+                    <Badge
+                      variant="secondary"
+                      className="bg-green-50 text-green-700 border-green-200"
+                    >
+                      Most Popular
+                    </Badge>
                   </CardContent>
                 </Card>
 
                 <Card
-                  className="hover:shadow-lg transition-shadow cursor-pointer"
+                  className="hover:shadow-lg transition-shadow cursor-pointer border-0 shadow-sm"
                   onClick={() => handleTabChange("bursaries")}
                 >
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
-                      <DollarSign className="h-5 w-5 text-green-600" />
+                      <DollarSign
+                        className="h-5 w-5"
+                        style={{ color: "rgb(68, 171, 131)" }}
+                      />
                       Find Bursaries
                     </CardTitle>
                     <CardDescription>
@@ -248,16 +278,21 @@ const UniversityInfo = () => {
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <Badge variant="outline">40+ Available</Badge>
+                    <Badge
+                      variant="outline"
+                      className="border-green-200 text-green-700 bg-green-50"
+                    >
+                      40+ Available
+                    </Badge>
                   </CardContent>
                 </Card>
               </div>
 
               {/* About Section */}
-              <Card>
+              <Card className="border-0 shadow-sm">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <Building className="h-5 w-5" />
+                    <Building className="h-5 w-5 text-gray-600" />
                     About ReBooked Campus
                   </CardTitle>
                 </CardHeader>
@@ -294,9 +329,7 @@ const UniversityInfo = () => {
             </TabsContent>
 
             <TabsContent value="aps-calculator" className="space-y-6">
-              <Suspense fallback={<LoadingSection />}>
-                <APSCalculatorSection />
-              </Suspense>
+              <APSCalculatorSection />
             </TabsContent>
 
             <TabsContent value="bursaries" className="space-y-6">
@@ -309,6 +342,27 @@ const UniversityInfo = () => {
               <Suspense fallback={<LoadingSection />}>
                 <CampusBooksSection />
               </Suspense>
+            </TabsContent>
+
+            <TabsContent value="accommodation" className="space-y-6">
+              <div className="text-center">
+                <h2 className="text-2xl font-bold mb-4">
+                  Student Accommodation
+                </h2>
+                <p className="text-gray-600 mb-8">
+                  Find housing options near your university
+                </p>
+                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-8 max-w-2xl mx-auto">
+                  <Building className="h-12 w-12 mx-auto text-yellow-600 mb-4" />
+                  <h3 className="text-xl font-semibold text-yellow-800 mb-2">
+                    Coming Soon
+                  </h3>
+                  <p className="text-yellow-700">
+                    We're working on bringing you comprehensive accommodation
+                    listings and booking services.
+                  </p>
+                </div>
+              </div>
             </TabsContent>
           </Tabs>
         </div>

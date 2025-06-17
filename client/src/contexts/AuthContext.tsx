@@ -19,8 +19,13 @@ import {
 import { addNotification } from "@/services/notificationService";
 import { logError, getErrorMessage } from "@/utils/errorUtils";
 
-// Import debug utilities for development
-import { devLog, devWarn } from "@/utils/debugHelpers";
+// Simple logging for development
+const devLog = (message: string, data?: unknown) => {
+  if (import.meta.env.DEV) console.log(message, data);
+};
+const devWarn = (message: string, data?: unknown) => {
+  if (import.meta.env.DEV) console.warn(message, data);
+};
 
 export interface UserProfile {
   id: string;
@@ -71,8 +76,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const [initError, setInitError] = useState<string | null>(null);
   const [isInitializing, setIsInitializing] = useState(false);
 
-  const isAuthenticated = !!user;
-  const isAdmin = profile?.isAdmin || false;
+  const isAuthenticated = !!user && !!session;
+  const isAdmin = profile?.isAdmin === true;
 
   const createFallbackProfile = useCallback(
     (user: User): UserProfile => ({
@@ -138,13 +143,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
           userId: session.user?.id,
         });
 
+        // Set session and user in batch to prevent flickering
         setSession(session);
         setUser(session.user);
 
         if (session.user) {
-          // Create immediate fallback profile
+          // Create immediate fallback profile to prevent UI flickering
           const fallbackProfile = createFallbackProfile(session.user);
           setProfile(fallbackProfile);
+
           console.log("ℹ️ [AuthContext] Using immediate fallback profile");
 
           // Try to load full profile in background (non-blocking)
@@ -217,11 +224,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
           type: error instanceof Error ? error.constructor.name : typeof error,
         });
 
-        // Don't throw - use fallback profile
+        // Don't throw - use fallback profile and ensure loading resolves
         if (session.user) {
           const fallbackProfile = createFallbackProfile(session.user);
           setProfile(fallbackProfile);
         }
+        setIsLoading(false);
       }
     },
     [createFallbackProfile, upgradeProfileIfNeeded, isInitializing],
@@ -248,7 +256,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
       if (session) {
         await handleAuthStateChange(session, "SESSION_RESTORED");
+      } else {
+        // No session found - user is not authenticated
+        setUser(null);
+        setProfile(null);
+        setSession(null);
       }
+
+      // Always ensure loading is turned off after initialization
+      setIsLoading(false);
 
       setAuthInitialized(true);
       console.log("✅ [AuthContext] Auth initialized successfully");
@@ -259,8 +275,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       );
       setInitError(errorMessage);
       logError("Auth initialization failed", error);
-    } finally {
+
+      // Ensure loading is turned off on error to prevent infinite loading
       setIsLoading(false);
+    } finally {
       setIsInitializing(false);
     }
   }, [authInitialized, handleAuthStateChange]);
@@ -323,6 +341,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   useEffect(() => {
     initializeAuth();
   }, [initializeAuth]);
+
+  // Separate effect for loading timeout to prevent infinite re-renders
+  useEffect(() => {
+    if (isLoading) {
+      const loadingTimeout = setTimeout(() => {
+        console.warn("⚠️ [AuthContext] Loading timeout - forcing resolution");
+        setIsLoading(false);
+      }, 5000); // 5 second timeout
+
+      return () => clearTimeout(loadingTimeout);
+    }
+  }, [isLoading]);
 
   useEffect(() => {
     const {
