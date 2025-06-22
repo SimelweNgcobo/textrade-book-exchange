@@ -12,6 +12,22 @@
 @tailwind components;
 @tailwind utilities;
 
+/* DEBUG: Ensure content is visible */
+html,
+body {
+  background-color: #ffffff !important;
+  color: #000000 !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+#root {
+  visibility: visible !important;
+  opacity: 1 !important;
+  min-height: 100vh !important;
+  background-color: #f9fafb !important;
+}
+
 /* Global Mobile Responsiveness Fixes */
 @media (max-width: 768px) {
   /* Prevent horizontal overflow */
@@ -509,4 +525,23 @@ html {
   .book-card-hover:hover {
     transform: none;
   }
+}
+
+/* Custom scrollbar styles */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
 }

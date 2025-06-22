@@ -10,6 +10,7 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
+import { ProvinceSelector } from "@/components/ui/province-selector";
 import { MapPin, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { Address, AddressData } from "@/types/address";
@@ -209,17 +210,16 @@ const AddressEditDialog = ({
                 />
               </div>
               <div>
-                <Label htmlFor="pickup-province">Province</Label>
-                <Input
-                  id="pickup-province"
+                <ProvinceSelector
+                  label="Province"
                   value={pickupAddress.province || ""}
-                  onChange={(e) =>
+                  onValueChange={(value) =>
                     setPickupAddress((prev) => ({
                       ...prev,
-                      province: e.target.value,
+                      province: value,
                     }))
                   }
-                  placeholder="Enter province"
+                  placeholder="Select province"
                   required
                   disabled={isLoading}
                 />
@@ -294,17 +294,16 @@ const AddressEditDialog = ({
                   />
                 </div>
                 <div>
-                  <Label htmlFor="shipping-province">Province</Label>
-                  <Input
-                    id="shipping-province"
+                  <ProvinceSelector
+                    label="Province"
                     value={shippingAddress.province || ""}
-                    onChange={(e) =>
+                    onValueChange={(value) =>
                       setShippingAddress((prev) => ({
                         ...prev,
-                        province: e.target.value,
+                        province: value,
                       }))
                     }
-                    placeholder="Enter province"
+                    placeholder="Select province"
                     required
                     disabled={isLoading}
                   />

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, memo } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
@@ -19,11 +19,12 @@ import NotificationBadge from "./NotificationBadge";
 import { toast } from "sonner";
 
 const Navbar = () => {
-  const { user, logout, isAuthenticated } = useAuth();
+  const { user, logout, isAuthenticated, isLoading, profile } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
+  // Define functions before any early returns to avoid hoisting issues
   const handleLogout = async () => {
     try {
       await logout();
@@ -42,6 +43,66 @@ const Navbar = () => {
   const isActive = (path: string) => {
     return location.pathname === path;
   };
+
+  // Only show minimal loading during critical auth initialization
+  if (isLoading && !user && !profile && !isAuthenticated) {
+    return (
+      <nav className="bg-white border-b border-gray-100 sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            {/* Logo */}
+            <div className="flex items-center min-w-0">
+              <Link
+                to="/"
+                className="flex items-center space-x-2 hover:opacity-80 transition-opacity"
+              >
+                <div className="w-7 h-7 sm:w-8 sm:h-8 bg-book-600 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <BookOpen className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+                </div>
+                <span className="text-lg sm:text-xl font-bold text-book-600 truncate">
+                  ReBooked Solutions
+                </span>
+              </Link>
+            </div>
+
+            {/* Show basic navigation even during loading */}
+            <div className="hidden md:flex items-center space-x-4">
+              <Link
+                to="/books"
+                className="text-gray-700 hover:text-book-600 px-3 py-2 text-sm font-medium transition-colors"
+              >
+                Books
+              </Link>
+              <Link
+                to="/university-info"
+                className="text-gray-700 hover:text-book-600 px-3 py-2 text-sm font-medium transition-colors"
+              >
+                Campus
+              </Link>
+              <div className="w-20 h-10 bg-gray-200 rounded animate-pulse"></div>
+            </div>
+
+            {/* Mobile menu button */}
+            <div className="md:hidden">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={toggleMenu}
+                className="p-2"
+                aria-label="Toggle menu"
+              >
+                {isMenuOpen ? (
+                  <X className="h-5 w-5" />
+                ) : (
+                  <Menu className="h-5 w-5" />
+                )}
+              </Button>
+            </div>
+          </div>
+        </div>
+      </nav>
+    );
+  }
 
   return (
     <nav className="bg-white border-b border-gray-100 sticky top-0 z-50">
@@ -99,7 +160,7 @@ const Navbar = () => {
           </div>
 
           {/* Right Side Actions */}
-          <div className="hidden md:flex items-center space-x-2 lg:space-x-4">
+          <div className="hidden md:flex items-center space-x-2 lg:space-x-4 transition-all duration-200 ease-in-out">
             {isAuthenticated ? (
               <>
                 <CartButton />
@@ -128,12 +189,18 @@ const Navbar = () => {
                   <Link to="/profile">
                     <Button
                       variant="ghost"
-                      className="text-gray-700 hover:text-book-600 px-2 lg:px-3 h-10 text-sm"
+                      className="text-gray-700 hover:text-book-600 p-2 h-10 w-10 rounded-full"
+                      title={profile?.name || user?.email || "Profile"}
                     >
-                      <User className="w-4 h-4" />
-                      <span className="ml-1 lg:ml-2 hidden lg:inline">
-                        Profile
-                      </span>
+                      {profile?.profile_picture_url ? (
+                        <img
+                          src={profile.profile_picture_url}
+                          alt={profile?.name || "Profile"}
+                          className="w-6 h-6 rounded-full object-cover"
+                        />
+                      ) : (
+                        <User className="w-5 h-5" />
+                      )}
                     </Button>
                   </Link>
 
@@ -188,7 +255,7 @@ const Navbar = () => {
 
         {/* Mobile Menu */}
         {isMenuOpen && (
-          <div className="md:hidden border-t border-gray-100 py-3">
+          <div className="md:hidden border-t border-gray-100 py-3 animate-in slide-in-from-top-2 duration-200">
             <div className="space-y-1">
               <Link
                 to="/books"
@@ -260,7 +327,15 @@ const Navbar = () => {
                     className="flex items-center px-4 py-3 text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-book-600 rounded-md min-h-[44px]"
                     onClick={() => setIsMenuOpen(false)}
                   >
-                    <User className="w-5 h-5 mr-3" />
+                    {profile?.profile_picture_url ? (
+                      <img
+                        src={profile.profile_picture_url}
+                        alt="Profile"
+                        className="w-6 h-6 rounded-full object-cover mr-3"
+                      />
+                    ) : (
+                      <User className="w-5 h-5 mr-3" />
+                    )}
                     Profile
                   </Link>
 
@@ -302,4 +377,4 @@ const Navbar = () => {
   );
 };
 
-export default Navbar;
+export default memo(Navbar);

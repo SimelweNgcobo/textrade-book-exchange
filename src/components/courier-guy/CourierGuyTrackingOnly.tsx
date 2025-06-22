@@ -12,11 +12,13 @@ import {
   RefreshCw,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
-import { validateUserShipmentEligibility } from "@/services/automaticShipmentService";
+import { checkShipmentEligibility } from "@/services/automaticShipmentService";
 import CourierGuyTracker from "./CourierGuyTracker";
+import { useNavigate } from "react-router-dom";
 
 const CourierGuyTrackingOnly = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [eligibility, setEligibility] = useState<{
     canSell: boolean;
     canBuy: boolean;
@@ -29,7 +31,7 @@ const CourierGuyTrackingOnly = () => {
 
     setIsLoading(true);
     try {
-      const userEligibility = await validateUserShipmentEligibility(user.id);
+      const userEligibility = await checkShipmentEligibility(user.id);
       setEligibility(
         userEligibility || {
           canSell: false,
@@ -144,7 +146,7 @@ const CourierGuyTrackingOnly = () => {
                   variant="outline"
                   size="sm"
                   className="w-full sm:w-auto"
-                  onClick={() => (window.location.href = "/profile")}
+                  onClick={() => navigate("/profile")}
                 >
                   Update Addresses in Profile
                 </Button>
