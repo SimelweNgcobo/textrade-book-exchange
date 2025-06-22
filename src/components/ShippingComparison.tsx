@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useCallback } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -13,15 +14,15 @@ import {
 } from "@/components/ui/select";
 import { Loader2 } from "lucide-react";
 
+interface Quote {
+  name: string;
+  cost: number;
+  time: string;
+  reliability: number;
+}
+
 const ShippingComparison = () => {
-  const [quotes, setQuotes] = useState<
-    Array<{
-      name: string;
-      cost: number;
-      time: string;
-      reliability: number;
-    }>
-  >([]);
+  const [quotes, setQuotes] = useState<Quote[]>([]);
   const [loading, setLoading] = useState(false);
   const [fromAddress, setFromAddress] = useState({
     streetAddress: "",
@@ -43,7 +44,7 @@ const ShippingComparison = () => {
     width: "",
     height: "",
   });
-  const [selectedOption, setSelectedOption] = useState(null);
+  const [selectedOption, setSelectedOption] = useState<Quote | null>(null);
 
   // Move handleGetQuotes function declaration before useEffect
   const handleGetQuotes = useCallback(async () => {
@@ -87,7 +88,7 @@ const ShippingComparison = () => {
     }
   }, [fromAddress, toAddress, parcelDetails]);
 
-  const handleSelectOption = (option: any) => {
+  const handleSelectOption = (option: Quote) => {
     console.log('Selected shipping option:', {
       name: option.name,
       cost: option.cost,
@@ -348,7 +349,7 @@ const ShippingComparison = () => {
           <ul>
             {quotes.map((quote, index) => (
               <li key={index} className="mb-2">
-                {quote.carrier}: R{quote.price} - ETA: {quote.eta}
+                {quote.name}: R{quote.cost} - ETA: {quote.time}
               </li>
             ))}
           </ul>

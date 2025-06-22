@@ -11,6 +11,10 @@ export interface Broadcast {
   created_at: string;
   updated_at: string;
   created_by?: string;
+  // Legacy fields for compatibility
+  createdAt?: string;
+  expiresAt?: string;
+  targetAudience?: 'all' | 'users' | 'admin';
 }
 
 export interface BroadcastFormData {

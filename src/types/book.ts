@@ -16,6 +16,10 @@ export interface Book {
   created_at: string;
   grade?: string;
   university_year?: string;
+  // Legacy fields for compatibility
+  frontCover?: string;
+  imageUrl?: string;
+  universityYear?: string;
 }
 
 export interface BookFormData {

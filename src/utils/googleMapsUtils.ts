@@ -24,3 +24,24 @@ export const formatAddressForDisplay = (address: Address): string => {
   const parts = [address.street, address.city, address.province, address.postalCode];
   return parts.filter(Boolean).join(', ');
 };
+
+export const extractProvince = (place: GoogleMapsAddress): string => {
+  const component = place.address_components.find(comp => 
+    comp.types.includes('administrative_area_level_1')
+  );
+  return component ? component.long_name : '';
+};
+
+export const extractCity = (place: GoogleMapsAddress): string => {
+  const component = place.address_components.find(comp => 
+    comp.types.includes('locality') || comp.types.includes('sublocality')
+  );
+  return component ? component.long_name : '';
+};
+
+export const extractPostalCode = (place: GoogleMapsAddress): string => {
+  const component = place.address_components.find(comp => 
+    comp.types.includes('postal_code')
+  );
+  return component ? component.long_name : '';
+};
