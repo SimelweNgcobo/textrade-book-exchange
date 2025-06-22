@@ -1,9 +1,11 @@
+
 import { Degree, University } from "@/types/university";
 
 export const COMMON_DEGREES: Degree[] = [
   // Business & Commerce
   {
     id: "bcom-accounting",
+    code: "BCOM-ACC",
     name: "BCom Accounting",
     faculty: "Commerce",
     duration: "3 years",
@@ -25,6 +27,7 @@ export const COMMON_DEGREES: Degree[] = [
   },
   {
     id: "bcom-business-management",
+    code: "BCOM-BM",
     name: "BCom Business Management",
     faculty: "Commerce",
     duration: "3 years",
@@ -46,6 +49,7 @@ export const COMMON_DEGREES: Degree[] = [
   },
   {
     id: "bcom-economics",
+    code: "BCOM-ECON",
     name: "BCom Economics",
     faculty: "Commerce",
     duration: "3 years",
@@ -69,6 +73,7 @@ export const COMMON_DEGREES: Degree[] = [
   // Engineering
   {
     id: "beng-civil",
+    code: "BENG-CIV",
     name: "BEng Civil Engineering",
     faculty: "Engineering",
     duration: "4 years",
@@ -90,6 +95,7 @@ export const COMMON_DEGREES: Degree[] = [
   },
   {
     id: "beng-electrical",
+    code: "BENG-ELEC",
     name: "BEng Electrical Engineering",
     faculty: "Engineering",
     duration: "4 years",
@@ -111,6 +117,7 @@ export const COMMON_DEGREES: Degree[] = [
   },
   {
     id: "beng-mechanical",
+    code: "BENG-MECH",
     name: "BEng Mechanical Engineering",
     faculty: "Engineering",
     duration: "4 years",
@@ -132,6 +139,7 @@ export const COMMON_DEGREES: Degree[] = [
   },
   {
     id: "beng-computer",
+    code: "BENG-COMP",
     name: "BEng Computer Engineering",
     faculty: "Engineering",
     duration: "4 years",
@@ -156,6 +164,7 @@ export const COMMON_DEGREES: Degree[] = [
   // Science
   {
     id: "bsc-computer-science",
+    code: "BSC-CS",
     name: "BSc Computer Science",
     faculty: "Science",
     duration: "3 years",
@@ -177,6 +186,7 @@ export const COMMON_DEGREES: Degree[] = [
   },
   {
     id: "bsc-mathematics",
+    code: "BSC-MATH",
     name: "BSc Mathematics",
     faculty: "Science",
     duration: "3 years",
@@ -198,6 +208,7 @@ export const COMMON_DEGREES: Degree[] = [
   },
   {
     id: "bsc-physics",
+    code: "BSC-PHYS",
     name: "BSc Physics",
     faculty: "Science",
     duration: "3 years",
@@ -221,6 +232,7 @@ export const COMMON_DEGREES: Degree[] = [
   // Health Sciences
   {
     id: "mbchb",
+    code: "MBCHB",
     name: "MBChB Medicine",
     faculty: "Health Sciences",
     duration: "6 years",
@@ -242,6 +254,7 @@ export const COMMON_DEGREES: Degree[] = [
   },
   {
     id: "bpharm",
+    code: "BPHARM",
     name: "BPharm Pharmacy",
     faculty: "Health Sciences",
     duration: "4 years",
@@ -266,6 +279,7 @@ export const COMMON_DEGREES: Degree[] = [
   // Law
   {
     id: "llb",
+    code: "LLB",
     name: "LLB Law",
     faculty: "Law",
     duration: "4 years",
@@ -289,6 +303,7 @@ export const COMMON_DEGREES: Degree[] = [
   // Humanities
   {
     id: "ba-psychology",
+    code: "BA-PSYC",
     name: "BA Psychology",
     faculty: "Humanities",
     duration: "3 years",
@@ -310,6 +325,7 @@ export const COMMON_DEGREES: Degree[] = [
   },
   {
     id: "ba-social-work",
+    code: "BA-SW",
     name: "BA Social Work",
     faculty: "Humanities",
     duration: "4 years",
@@ -332,6 +348,7 @@ export const COMMON_DEGREES: Degree[] = [
   // Education
   {
     id: "bed-foundation-phase",
+    code: "BED-FP",
     name: "BEd Foundation Phase",
     faculty: "Education",
     duration: "4 years",
@@ -350,6 +367,7 @@ export const COMMON_DEGREES: Degree[] = [
   },
   {
     id: "bed-intermediate-phase",
+    code: "BED-IP",
     name: "BEd Intermediate Phase",
     faculty: "Education",
     duration: "4 years",

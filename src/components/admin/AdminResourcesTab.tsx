@@ -49,10 +49,10 @@ const AdminResourcesTab = ({ className }: AdminResourcesTabProps) => {
     description: "",
     type: "pdf",
     category: "",
-    difficulty: "Beginner",
+    difficulty: "beginner",
     url: "",
     provider: "",
-    tags: "",
+    tags: [] as string[],
     content: "",
   });
 
@@ -62,10 +62,10 @@ const AdminResourcesTab = ({ className }: AdminResourcesTabProps) => {
       description: "",
       type: "pdf",
       category: "",
-      difficulty: "Beginner",
+      difficulty: "beginner",
       url: "",
       provider: "",
-      tags: "",
+      tags: [] as string[],
       content: "",
     });
   };
@@ -79,6 +79,11 @@ const AdminResourcesTab = ({ className }: AdminResourcesTabProps) => {
 
   const handleSelectChange = (name: string, value: string) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleTagsChange = (value: string) => {
+    const tagsArray = value.split(",").map((tag) => tag.trim()).filter(Boolean);
+    setFormData((prev) => ({ ...prev, tags: tagsArray }));
   };
 
   const handleCreateItem = async () => {
@@ -103,22 +108,15 @@ const AdminResourcesTab = ({ className }: AdminResourcesTabProps) => {
         await createStudyResource({
           title: formData.title,
           description: formData.description,
-          type: formData.type as
-            | "pdf"
-            | "video"
-            | "website"
-            | "tool"
-            | "course",
+          type: formData.type as "template" | "guide" | "tip",
           category: formData.category,
-          difficulty: formData.difficulty as
-            | "Beginner"
-            | "Intermediate"
-            | "Advanced",
+          difficulty: formData.difficulty as "beginner" | "intermediate" | "advanced",
           url: formData.url || undefined,
           provider: formData.provider || undefined,
-          tags: formData.tags
-            ? formData.tags.split(",").map((tag) => tag.trim())
-            : [],
+          tags: formData.tags,
+          content: "",
+          author: "Admin",
+          featured: false,
         });
         toast.success("Study resource created successfully!");
       } else {
@@ -132,13 +130,9 @@ const AdminResourcesTab = ({ className }: AdminResourcesTabProps) => {
           description: formData.description,
           content: formData.content,
           category: formData.category,
-          difficulty: formData.difficulty as
-            | "Beginner"
-            | "Intermediate"
-            | "Advanced",
-          tags: formData.tags
-            ? formData.tags.split(",").map((tag) => tag.trim())
-            : [],
+          difficulty: formData.difficulty as "beginner" | "intermediate" | "advanced",
+          tags: formData.tags,
+          featured: false,
         });
         toast.success("Study tip created successfully!");
       }
@@ -365,9 +359,9 @@ const AdminResourcesTab = ({ className }: AdminResourcesTabProps) => {
                   <SelectValue placeholder="Select difficulty" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="Beginner">Beginner</SelectItem>
-                  <SelectItem value="Intermediate">Intermediate</SelectItem>
-                  <SelectItem value="Advanced">Advanced</SelectItem>
+                  <SelectItem value="beginner">Beginner</SelectItem>
+                  <SelectItem value="intermediate">Intermediate</SelectItem>
+                  <SelectItem value="advanced">Advanced</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -383,11 +377,9 @@ const AdminResourcesTab = ({ className }: AdminResourcesTabProps) => {
                     <SelectValue placeholder="Select type" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="pdf">PDF Document</SelectItem>
-                    <SelectItem value="video">Video</SelectItem>
-                    <SelectItem value="website">Website</SelectItem>
-                    <SelectItem value="tool">Tool</SelectItem>
-                    <SelectItem value="course">Course</SelectItem>
+                    <SelectItem value="template">Template</SelectItem>
+                    <SelectItem value="guide">Guide</SelectItem>
+                    <SelectItem value="tip">Tip</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -426,8 +418,8 @@ const AdminResourcesTab = ({ className }: AdminResourcesTabProps) => {
               id="tags"
               name="tags"
               placeholder="mathematics, calculus, study-guide"
-              value={formData.tags}
-              onChange={handleInputChange}
+              value={formData.tags.join(", ")}
+              onChange={(e) => handleTagsChange(e.target.value)}
             />
           </div>
 
