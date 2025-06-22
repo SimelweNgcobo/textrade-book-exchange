@@ -49,7 +49,7 @@ const AdminResourcesTab = ({ className }: AdminResourcesTabProps) => {
     description: "",
     type: "pdf",
     category: "",
-    difficulty: "beginner",
+    difficulty: "Beginner",
     url: "",
     provider: "",
     tags: [] as string[],
@@ -62,7 +62,7 @@ const AdminResourcesTab = ({ className }: AdminResourcesTabProps) => {
       description: "",
       type: "pdf",
       category: "",
-      difficulty: "beginner",
+      difficulty: "Beginner",
       url: "",
       provider: "",
       tags: [] as string[],
@@ -108,9 +108,9 @@ const AdminResourcesTab = ({ className }: AdminResourcesTabProps) => {
         await createStudyResource({
           title: formData.title,
           description: formData.description,
-          type: formData.type as "template" | "guide" | "tip",
+          type: formData.type as "pdf" | "video" | "website" | "tool" | "course",
           category: formData.category,
-          difficulty: formData.difficulty as "beginner" | "intermediate" | "advanced",
+          difficulty: formData.difficulty as "Beginner" | "Intermediate" | "Advanced",
           url: formData.url || undefined,
           provider: formData.provider || undefined,
           tags: formData.tags,
@@ -130,7 +130,7 @@ const AdminResourcesTab = ({ className }: AdminResourcesTabProps) => {
           description: formData.description,
           content: formData.content,
           category: formData.category,
-          difficulty: formData.difficulty as "beginner" | "intermediate" | "advanced",
+          difficulty: formData.difficulty as "Beginner" | "Intermediate" | "Advanced",
           tags: formData.tags,
           featured: false,
         });
@@ -359,9 +359,9 @@ const AdminResourcesTab = ({ className }: AdminResourcesTabProps) => {
                   <SelectValue placeholder="Select difficulty" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="beginner">Beginner</SelectItem>
-                  <SelectItem value="intermediate">Intermediate</SelectItem>
-                  <SelectItem value="advanced">Advanced</SelectItem>
+                  <SelectItem value="Beginner">Beginner</SelectItem>
+                  <SelectItem value="Intermediate">Intermediate</SelectItem>
+                  <SelectItem value="Advanced">Advanced</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -377,9 +377,11 @@ const AdminResourcesTab = ({ className }: AdminResourcesTabProps) => {
                     <SelectValue placeholder="Select type" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="template">Template</SelectItem>
-                    <SelectItem value="guide">Guide</SelectItem>
-                    <SelectItem value="tip">Tip</SelectItem>
+                    <SelectItem value="pdf">PDF</SelectItem>
+                    <SelectItem value="video">Video</SelectItem>
+                    <SelectItem value="website">Website</SelectItem>
+                    <SelectItem value="tool">Tool</SelectItem>
+                    <SelectItem value="course">Course</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

@@ -43,6 +43,7 @@ const ShippingComparison = () => {
     width: "",
     height: "",
   });
+  const [selectedOption, setSelectedOption] = useState(null);
 
   // Move handleGetQuotes function declaration before useEffect
   const handleGetQuotes = useCallback(async () => {
@@ -85,6 +86,17 @@ const ShippingComparison = () => {
       setLoading(false);
     }
   }, [fromAddress, toAddress, parcelDetails]);
+
+  const handleSelectOption = (option: any) => {
+    console.log('Selected shipping option:', {
+      name: option.name,
+      cost: option.cost,
+      time: option.time,
+    });
+    
+    setSelectedOption(option);
+    toast.success(`Selected ${option.name} shipping option`);
+  };
 
   useEffect(() => {
     // Auto-fetch quotes when all required fields are filled
