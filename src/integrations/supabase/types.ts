@@ -33,6 +33,150 @@ export type Database = {
         }
         Relationships: []
       }
+      audit_logs: {
+        Row: {
+          action: string
+          created_at: string | null
+          id: string
+          ip_address: unknown | null
+          new_values: Json | null
+          old_values: Json | null
+          record_id: string | null
+          table_name: string | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          action: string
+          created_at?: string | null
+          id?: string
+          ip_address?: unknown | null
+          new_values?: Json | null
+          old_values?: Json | null
+          record_id?: string | null
+          table_name?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          action?: string
+          created_at?: string | null
+          id?: string
+          ip_address?: unknown | null
+          new_values?: Json | null
+          old_values?: Json | null
+          record_id?: string | null
+          table_name?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      banking_details: {
+        Row: {
+          account_type: string
+          account_verified: boolean | null
+          bank_account_number: string
+          bank_name: string
+          branch_code: string | null
+          created_at: string
+          encrypted_data: string | null
+          encryption_salt: string | null
+          fields_encrypted: string[] | null
+          full_name: string
+          id: string
+          password_hash: string | null
+          paystack_subaccount_code: string | null
+          paystack_subaccount_id: string | null
+          recipient_type: string
+          subaccount_status: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          account_type: string
+          account_verified?: boolean | null
+          bank_account_number: string
+          bank_name: string
+          branch_code?: string | null
+          created_at?: string
+          encrypted_data?: string | null
+          encryption_salt?: string | null
+          fields_encrypted?: string[] | null
+          full_name: string
+          id?: string
+          password_hash?: string | null
+          paystack_subaccount_code?: string | null
+          paystack_subaccount_id?: string | null
+          recipient_type: string
+          subaccount_status?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          account_type?: string
+          account_verified?: boolean | null
+          bank_account_number?: string
+          bank_name?: string
+          branch_code?: string | null
+          created_at?: string
+          encrypted_data?: string | null
+          encryption_salt?: string | null
+          fields_encrypted?: string[] | null
+          full_name?: string
+          id?: string
+          password_hash?: string | null
+          paystack_subaccount_code?: string | null
+          paystack_subaccount_id?: string | null
+          recipient_type?: string
+          subaccount_status?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      banking_subaccounts: {
+        Row: {
+          account_number: string
+          bank_code: string
+          bank_name: string
+          business_name: string
+          created_at: string | null
+          email: string
+          id: string
+          paystack_response: Json | null
+          status: string | null
+          subaccount_code: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          account_number: string
+          bank_code: string
+          bank_name: string
+          business_name: string
+          created_at?: string | null
+          email: string
+          id?: string
+          paystack_response?: Json | null
+          status?: string | null
+          subaccount_code?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          account_number?: string
+          bank_code?: string
+          bank_name?: string
+          business_name?: string
+          created_at?: string | null
+          email?: string
+          id?: string
+          paystack_response?: Json | null
+          status?: string | null
+          subaccount_code?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       books: {
         Row: {
           author: string
@@ -141,6 +285,20 @@ export type Database = {
             foreignKeyName: "broadcasts_created_by_fkey"
             columns: ["created_by"]
             isOneToOne: false
+            referencedRelation: "account_details"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "broadcasts_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "account_details"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "broadcasts_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
@@ -197,6 +355,39 @@ export type Database = {
         }
         Relationships: []
       }
+      notification_preferences: {
+        Row: {
+          created_at: string | null
+          email_notifications: boolean | null
+          id: string
+          marketing_emails: boolean | null
+          push_notifications: boolean | null
+          sms_notifications: boolean | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          email_notifications?: boolean | null
+          id?: string
+          marketing_emails?: boolean | null
+          push_notifications?: boolean | null
+          sms_notifications?: boolean | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          email_notifications?: boolean | null
+          id?: string
+          marketing_emails?: boolean | null
+          push_notifications?: boolean | null
+          sms_notifications?: boolean | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
           created_at: string
@@ -227,54 +418,221 @@ export type Database = {
         }
         Relationships: []
       }
+      payment_logs: {
+        Row: {
+          event_type: string
+          id: string
+          payload: Json | null
+          paystack_event_id: string | null
+          processed_at: string | null
+          transaction_id: string | null
+        }
+        Insert: {
+          event_type: string
+          id?: string
+          payload?: Json | null
+          paystack_event_id?: string | null
+          processed_at?: string | null
+          transaction_id?: string | null
+        }
+        Update: {
+          event_type?: string
+          id?: string
+          payload?: Json | null
+          paystack_event_id?: string | null
+          processed_at?: string | null
+          transaction_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_logs_transaction_id_fkey"
+            columns: ["transaction_id"]
+            isOneToOne: false
+            referencedRelation: "transactions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      payment_splits: {
+        Row: {
+          book_amount: number
+          courier_amount: number
+          courier_subaccount: string | null
+          created_at: string
+          delivery_amount: number
+          id: string
+          paystack_reference: string | null
+          paystack_split_id: string | null
+          pickup_confirmed: boolean
+          platform_commission: number
+          seller_amount: number
+          seller_subaccount: string
+          split_executed: boolean
+          transaction_id: string
+          updated_at: string
+        }
+        Insert: {
+          book_amount: number
+          courier_amount?: number
+          courier_subaccount?: string | null
+          created_at?: string
+          delivery_amount?: number
+          id?: string
+          paystack_reference?: string | null
+          paystack_split_id?: string | null
+          pickup_confirmed?: boolean
+          platform_commission: number
+          seller_amount: number
+          seller_subaccount: string
+          split_executed?: boolean
+          transaction_id: string
+          updated_at?: string
+        }
+        Update: {
+          book_amount?: number
+          courier_amount?: number
+          courier_subaccount?: string | null
+          created_at?: string
+          delivery_amount?: number
+          id?: string
+          paystack_reference?: string | null
+          paystack_split_id?: string | null
+          pickup_confirmed?: boolean
+          platform_commission?: number
+          seller_amount?: number
+          seller_subaccount?: string
+          split_executed?: boolean
+          transaction_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      paystack_subaccounts: {
+        Row: {
+          account_number: string
+          business_name: string
+          created_at: string
+          id: string
+          paystack_response: Json | null
+          percentage_charge: number
+          settlement_bank: string
+          status: string
+          subaccount_code: string
+          updated_at: string
+          user_id: string
+          user_type: string
+        }
+        Insert: {
+          account_number: string
+          business_name: string
+          created_at?: string
+          id?: string
+          paystack_response?: Json | null
+          percentage_charge?: number
+          settlement_bank: string
+          status?: string
+          subaccount_code: string
+          updated_at?: string
+          user_id: string
+          user_type: string
+        }
+        Update: {
+          account_number?: string
+          business_name?: string
+          created_at?: string
+          id?: string
+          paystack_response?: Json | null
+          percentage_charge?: number
+          settlement_bank?: string
+          status?: string
+          subaccount_code?: string
+          updated_at?: string
+          user_id?: string
+          user_type?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           addresses_same: boolean | null
           bio: string | null
           created_at: string
+          date_of_birth: string | null
           email: string | null
+          email_verification_token: string | null
+          email_verified: boolean | null
+          first_name: string | null
           id: string
           is_admin: boolean | null
+          last_name: string | null
           name: string | null
+          phone_number: string | null
+          phone_verification_code: string | null
+          phone_verified: boolean | null
           pickup_address: Json | null
+          preferences: Json | null
           profile_picture_url: string | null
           shipping_address: Json | null
           status: string | null
           suspended_at: string | null
           suspension_reason: string | null
           updated_at: string
+          user_tier: string | null
+          verification_expires_at: string | null
         }
         Insert: {
           addresses_same?: boolean | null
           bio?: string | null
           created_at?: string
+          date_of_birth?: string | null
           email?: string | null
+          email_verification_token?: string | null
+          email_verified?: boolean | null
+          first_name?: string | null
           id: string
           is_admin?: boolean | null
+          last_name?: string | null
           name?: string | null
+          phone_number?: string | null
+          phone_verification_code?: string | null
+          phone_verified?: boolean | null
           pickup_address?: Json | null
+          preferences?: Json | null
           profile_picture_url?: string | null
           shipping_address?: Json | null
           status?: string | null
           suspended_at?: string | null
           suspension_reason?: string | null
           updated_at?: string
+          user_tier?: string | null
+          verification_expires_at?: string | null
         }
         Update: {
           addresses_same?: boolean | null
           bio?: string | null
           created_at?: string
+          date_of_birth?: string | null
           email?: string | null
+          email_verification_token?: string | null
+          email_verified?: boolean | null
+          first_name?: string | null
           id?: string
           is_admin?: boolean | null
+          last_name?: string | null
           name?: string | null
+          phone_number?: string | null
+          phone_verification_code?: string | null
+          phone_verified?: boolean | null
           pickup_address?: Json | null
+          preferences?: Json | null
           profile_picture_url?: string | null
           shipping_address?: Json | null
           status?: string | null
           suspended_at?: string | null
           suspension_reason?: string | null
           updated_at?: string
+          user_tier?: string | null
+          verification_expires_at?: string | null
         }
         Relationships: []
       }
@@ -325,108 +683,75 @@ export type Database = {
           },
         ]
       }
-      study_resources: {
-        Row: {
-          category: string
-          created_at: string | null
-          description: string
-          difficulty: string
-          id: string
-          rating: number | null
-          sponsored: boolean | null
-          tags: string[] | null
-          title: string
-          type: string
-          updated_at: string | null
-          url: string | null
-        }
-        Insert: {
-          category: string
-          created_at?: string | null
-          description: string
-          difficulty: string
-          id?: string
-          rating?: number | null
-          sponsored?: boolean | null
-          tags?: string[] | null
-          title: string
-          type: string
-          updated_at?: string | null
-          url?: string | null
-        }
-        Update: {
-          category?: string
-          created_at?: string | null
-          description?: string
-          difficulty?: string
-          id?: string
-          rating?: number | null
-          sponsored?: boolean | null
-          tags?: string[] | null
-          title?: string
-          type?: string
-          updated_at?: string | null
-          url?: string | null
-        }
-        Relationships: []
-      }
-      study_tips: {
-        Row: {
-          created_at: string | null
-          description: string
-          id: string
-          is_active: boolean | null
-          title: string
-          updated_at: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          description: string
-          id?: string
-          is_active?: boolean | null
-          title: string
-          updated_at?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          description?: string
-          id?: string
-          is_active?: boolean | null
-          title?: string
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
       transactions: {
         Row: {
           book_id: string
           book_title: string
+          buyer_email: string | null
           buyer_id: string
+          buyer_phone: string | null
           commission: number
+          committed_at: string | null
           created_at: string
+          delivery_address: Json | null
+          delivery_fee: number | null
+          expires_at: string | null
           id: string
+          paystack_reference: string | null
+          paystack_subaccount_code: string | null
           price: number
+          refund_reason: string | null
+          refunded: boolean | null
+          seller_committed: boolean | null
           seller_id: string
+          status: string | null
+          total_amount: number | null
         }
         Insert: {
           book_id: string
           book_title: string
+          buyer_email?: string | null
           buyer_id: string
+          buyer_phone?: string | null
           commission: number
+          committed_at?: string | null
           created_at?: string
+          delivery_address?: Json | null
+          delivery_fee?: number | null
+          expires_at?: string | null
           id?: string
+          paystack_reference?: string | null
+          paystack_subaccount_code?: string | null
           price: number
+          refund_reason?: string | null
+          refunded?: boolean | null
+          seller_committed?: boolean | null
           seller_id: string
+          status?: string | null
+          total_amount?: number | null
         }
         Update: {
           book_id?: string
           book_title?: string
+          buyer_email?: string | null
           buyer_id?: string
+          buyer_phone?: string | null
           commission?: number
+          committed_at?: string | null
           created_at?: string
+          delivery_address?: Json | null
+          delivery_fee?: number | null
+          expires_at?: string | null
           id?: string
+          paystack_reference?: string | null
+          paystack_subaccount_code?: string | null
           price?: number
+          refund_reason?: string | null
+          refunded?: boolean | null
+          seller_committed?: boolean | null
           seller_id?: string
+          status?: string | null
+          total_amount?: number | null
         }
         Relationships: [
           {
@@ -461,15 +786,110 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      account_details: {
+        Row: {
+          bio: string | null
+          created_at: string | null
+          date_of_birth: string | null
+          email: string | null
+          email_verified: boolean | null
+          first_name: string | null
+          full_name: string | null
+          id: string | null
+          last_name: string | null
+          phone_number: string | null
+          phone_verified: boolean | null
+          preferences: Json | null
+          profile_picture_url: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          bio?: string | null
+          created_at?: string | null
+          date_of_birth?: string | null
+          email?: string | null
+          email_verified?: boolean | null
+          first_name?: string | null
+          full_name?: string | null
+          id?: string | null
+          last_name?: string | null
+          phone_number?: string | null
+          phone_verified?: boolean | null
+          preferences?: Json | null
+          profile_picture_url?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          bio?: string | null
+          created_at?: string | null
+          date_of_birth?: string | null
+          email?: string | null
+          email_verified?: boolean | null
+          first_name?: string | null
+          full_name?: string | null
+          id?: string | null
+          last_name?: string | null
+          phone_number?: string | null
+          phone_verified?: boolean | null
+          preferences?: Json | null
+          profile_picture_url?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
+      atomic_book_purchase: {
+        Args: { p_book_id: string; p_buyer_id: string; p_amount: number }
+        Returns: string
+      }
+      calculate_commission: {
+        Args: { base_amount: number; user_tier?: string }
+        Returns: number
+      }
+      calculate_payment_split: {
+        Args: {
+          p_book_amount: number
+          p_delivery_amount?: number
+          p_platform_commission_rate?: number
+        }
+        Returns: {
+          platform_commission: number
+          seller_amount: number
+          courier_amount: number
+        }[]
+      }
+      create_payment_split: {
+        Args: {
+          p_transaction_id: string
+          p_seller_subaccount: string
+          p_courier_subaccount: string
+          p_book_amount: number
+          p_delivery_amount?: number
+        }
+        Returns: string
+      }
       delete_user_profile: {
         Args: { user_id: string }
         Returns: undefined
       }
+      execute_payment_split_after_pickup: {
+        Args: { p_transaction_id: string }
+        Returns: boolean
+      }
       generate_api_key: {
         Args: { user_id: string }
+        Returns: string
+      }
+      get_current_user_id: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
+      get_current_user_role: {
+        Args: Record<PropertyKey, never>
         Returns: string
       }
       get_user_profile: {
@@ -490,6 +910,14 @@ export type Database = {
         Args: { user_id: string }
         Returns: boolean
       }
+      is_current_user_admin: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
+      is_user_admin: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
       list_all_profiles: {
         Args: Record<PropertyKey, never>
         Returns: {
@@ -499,9 +927,53 @@ export type Database = {
           created_at: string
         }[]
       }
+      search_books: {
+        Args: {
+          search_term: string
+          category_filter?: string
+          max_price?: number
+        }
+        Returns: {
+          id: string
+          title: string
+          author: string
+          description: string
+          price: number
+          category: string
+          condition: string
+          image_url: string
+          seller_id: string
+          created_at: string
+        }[]
+      }
+      secure_atomic_book_purchase: {
+        Args: {
+          p_book_id: string
+          p_buyer_id: string
+          p_amount: number
+          p_book_title: string
+        }
+        Returns: string
+      }
+      update_expired_transactions: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
       update_user_profile: {
         Args: { user_id: string; new_name: string; new_email: string }
         Returns: undefined
+      }
+      validate_book_availability: {
+        Args: { book_id: string }
+        Returns: boolean
+      }
+      validate_book_ownership: {
+        Args: { book_id: string; user_id: string }
+        Returns: boolean
+      }
+      validate_payment_amount: {
+        Args: { amount: number }
+        Returns: boolean
       }
     }
     Enums: {
